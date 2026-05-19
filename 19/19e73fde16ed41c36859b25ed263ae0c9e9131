@@ -1,0 +1,38 @@
+routes/web.php
+  s_1ceca6066e391a::t_0dbddaae4f9193 36-38
+app/Http/Controllers/TestRunController.php
+  s_1ceca6066e391a::t_26787aa24bb2e0 15-16,22,24
+  s_1ceca6066e391a::t_afe6178b4c80c8 29-30,32
+app/Jobs/RunTestSuiteJob.php
+  s_1ceca6066e391a::t_1540ef570b79f1 21-24,30
+app/Http/Controllers/TestController.php
+  s_1ceca6066e391a::t_a189f29216f9d7 39-46
+app/Services/PlaywrightRunnerService.php
+  s_1ceca6066e391a::t_bebc212089b62b 27,29-33
+  s_1ceca6066e391a::t_cf8244e7b6ebc1 110-121
+resources/js/Pages/Tests/Show.vue
+  s_1ceca6066e391a::t_0dd4203d4a8466 273-288
+  s_1ceca6066e391a::t_f375530d8d5e0f 54-73
+  s_1ceca6066e391a::t_1f2f9980cdac6c 226,238-252
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "1919e73fde16ed41c36859b25ed263ae0c9e9131",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_1ceca6066e391a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c04414d8-f6ce-45ce-b845-e82a0c9ed894",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
