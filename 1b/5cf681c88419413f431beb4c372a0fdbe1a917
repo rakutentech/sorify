@@ -1,0 +1,43 @@
+app/Services/Ai/AnthropicProvider.php
+  s_710ada5f0403e1::t_a17331ac6247ec 17
+  s_710ada5f0403e1::t_eab8b7d85e8193 22-27
+app/Http/Controllers/AiSettingsController.php
+  s_710ada5f0403e1::t_dcaf8d6481fe30 5-106
+app/Providers/AppServiceProvider.php
+  s_710ada5f0403e1::t_9b33dba4c0fb1d 18-20,25-28,30-36,38-45
+  s_710ada5f0403e1::t_bfd20679f8dba8 29,37
+  s_710ada5f0403e1::t_734bbc67924337 21
+app/Services/Ai/OpenAiProvider.php
+  s_710ada5f0403e1::t_bee32d4c037f08 17
+  s_710ada5f0403e1::t_5865fb00a2a4a6 22-25
+app/Services/Ai/AiProviderManager.php
+  s_710ada5f0403e1::t_eb5904eff7acc2 6
+  s_710ada5f0403e1::t_8a4863da9b6cb0 15-28
+config/ai.php
+  s_710ada5f0403e1::t_5cf7481b17a8c8 1-27
+routes/web.php
+  s_710ada5f0403e1::t_f3ec287f4dc1b9 4
+  s_710ada5f0403e1::t_d120b28d5de963 48
+database/migrations/2026_05_19_000009_add_base_url_to_ai_provider_configs_table.php
+  s_710ada5f0403e1::t_cf15dcb1757353 1-22
+resources/js/Pages/Settings/Ai.vue
+  s_710ada5f0403e1::t_f30e0c3e7dba11 16-144,154,160-174
+  s_710ada5f0403e1::t_69124c357b2667 2-3
+  s_710ada5f0403e1::t_c337cb4dcf1130 147-153,155-159
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "1b5cf681c88419413f431beb4c372a0fdbe1a917",
+  "prompts": {},
+  "sessions": {
+    "s_710ada5f0403e1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cd64560d-514a-49b9-82d4-bd6851775ada",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
