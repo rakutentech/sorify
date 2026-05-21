@@ -1,0 +1,53 @@
+resources/js/Pages/Settings/Ai.vue
+  s_9e2fbbacc53fd2::t_4935d1e74449bb 2,12,15-26
+app/Providers/AppServiceProvider.php
+  s_9e2fbbacc53fd2::t_67705aa8b2a428 18-20,33,42
+database/migrations/2026_05_19_000007_create_screenshots_table.php
+  s_e2b76f8f0c5c4c::t_12aae9936ea2c3 17
+database/migrations/2026_05_21_000001_fix_screenshots_taken_at_ms_bigint.php
+  s_e2b76f8f0c5c4c::t_1572b0594512ac 1-22
+config/ai.php
+  s_9e2fbbacc53fd2::t_c4f16ea11e0cd5 7-8
+app/Services/Ai/OpenAiProvider.php
+  s_9e2fbbacc53fd2::t_6a0f022225fda0 27-31
+  s_9e2fbbacc53fd2::t_f27cbb6ec0a60c 18
+app/Services/Ai/AiProviderManager.php
+  s_9e2fbbacc53fd2::t_22efd97ead1618 35-36
+.env.example
+  s_9e2fbbacc53fd2::t_41af960f48f2e3 66-77
+app/Services/Ai/AnthropicProvider.php
+  s_9e2fbbacc53fd2::t_9a502ad71c5b7c 50-54
+  s_9e2fbbacc53fd2::t_901f6fb5d2a0f1 27,30-34
+  s_9e2fbbacc53fd2::t_27e1bc937faf37 18
+resources/js/Components/TrendChart.vue
+  s_9e2fbbacc53fd2::t_72d6c0a66ac5ec 46,59,72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "e1072bd307ebbe8601a58707d788c088c9e738d8",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_9e2fbbacc53fd2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1f35c175-1bf6-473f-a474-d0fbae45741e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_e2b76f8f0c5c4c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4c18d476-74c3-46a0-9c66-973dc7f0a434",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
