@@ -1,0 +1,46 @@
+database/migrations/2026_05_21_000002_add_playwright_proxy_to_test_suites.php
+  s_926e3c0a8669e4::t_933f7e0d629015 1-22
+resources/js/Pages/TestSuites/Index.vue
+  s_926e3c0a8669e4::t_da99e0fab5239d 171,173,175-176,178,180-181
+  s_926e3c0a8669e4::t_54c028f7b6f88e 18
+  s_926e3c0a8669e4::t_d6cb7765321ab8 104
+resources/playwright/runner.js
+  s_926e3c0a8669e4::t_c1a68adfa1b1c3 33-34
+  s_926e3c0a8669e4::t_f9b8e64f54b38c 7
+  s_926e3c0a8669e4::t_662fb75473b597 68,79
+app/Services/PlaywrightRunnerService.php
+  s_926e3c0a8669e4::t_3a0d9de63bbdc6 94-107,109
+resources/js/Pages/TestSuites/Show.vue
+  s_926e3c0a8669e4::t_6bf7f5f2c09ec3 19
+  s_926e3c0a8669e4::t_c6d10d42f0a9ee 25
+  s_926e3c0a8669e4::t_9134b9649ad3f3 152-153
+  s_926e3c0a8669e4::t_69de60837add2c 267-270
+  s_926e3c0a8669e4::t_2b86c943da53aa 102
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_926e3c0a8669e4::t_48969ba6e553c6 14-16
+resources/playwright/harness.js
+  s_926e3c0a8669e4::t_0c7b473253571e 55-56
+  s_926e3c0a8669e4::t_6b8f97364c313c 18
+  s_926e3c0a8669e4::t_7244debfb95a2f 27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "c9f2d609736b81f8f90be69d473fbc064736b011",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_926e3c0a8669e4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9a9f60d4-6e93-44c7-8d4b-f34b78db7c25",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
