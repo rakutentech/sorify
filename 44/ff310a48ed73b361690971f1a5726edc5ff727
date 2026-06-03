@@ -1,0 +1,67 @@
+app/Http/Requests/Api/StoreApiTestRequest.php
+  s_59d50256585919::t_662cbbf585649d 1-25
+app/Http/Requests/Api/UpdateApiTestRequest.php
+  s_59d50256585919::t_d9f79d082914b4 1-25
+app/Http/Controllers/Api/TestCaseController.php
+  s_59d50256585919::t_c764c36eddd5a5 1-9,11-36,38-61,63-114
+  s_59d50256585919::t_6c99bf9bfef53f 10
+  s_59d50256585919::t_ffca34c2e55f78 37,62
+app/Services/PlaywrightCodeValidatorService.php
+  s_59d50256585919::t_d5910a2f21e68e 1-30
+resources/playwright/runner.cjs
+  s_59d50256585919::t_b8fbb8f01ffc22 34,36
+database/migrations/2026_06_03_000002_clean_ai_columns_from_test_suites.php
+  s_59d50256585919::t_e83771d21553b4 1-21
+routes/api.php
+  s_59d50256585919::t_32fc61be592e32 3,9-13,15-17
+  s_59d50256585919::t_5d8c534f124b42 14
+tests/Feature/ExampleTest.php
+  s_59d50256585919::t_a0b6c742f9c4a7 5,10
+app/Models/Test.php
+  s_59d50256585919::t_dace621a03b617 12-20
+app/Http/Middleware/ApiTokenMiddleware.php
+  s_59d50256585919::t_3f3ea8b1c1fc67 1-19,22-27
+  s_59d50256585919::t_ea1be195c222f0 20-21
+app/Services/PlaywrightRunnerService.php
+  s_59d50256585919::t_998cbb96f8db8c 74
+  s_59d50256585919::t_4394cf91cc33ce 126
+database/migrations/2026_06_03_000001_clean_ai_columns_from_tests.php
+  s_59d50256585919::t_67956bbe6651eb 1-28
+app/Models/TestSuite.php
+  s_59d50256585919::t_83be265c2e6f2c 10-18
+resources/js/Pages/Tests/Show.vue
+  s_59d50256585919::t_48898986211330 180
+  s_59d50256585919::t_960a6b9c88580d 182
+  s_59d50256585919::t_3cba6dd12b8a32 2
+app/Http/Controllers/TestController.php
+  s_59d50256585919::t_869681c45e0926 74-76
+  s_59d50256585919::t_bf50c187682ae5 9-10
+  s_59d50256585919::t_e9d7c56a078376 73,77-83,85
+resources/js/Pages/Dashboard/Index.vue
+  s_59d50256585919::t_98e1a6ef5ae112 125-219
+resources/playwright/harness.cjs
+  s_59d50256585919::t_d20e8d3c631d97 50
+  s_59d50256585919::t_05e948edb6a329 5
+  s_59d50256585919::t_5a507974f19153 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "44ff310a48ed73b361690971f1a5726edc5ff727",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_59d50256585919": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3cd2c33e-536d-46e9-929c-bf8d01c8220d",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
