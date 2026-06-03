@@ -1,0 +1,26 @@
+bootstrap/app.php
+  s_59d50256585919::t_2ff5cf0b4b6c8f 18-20
+config/sorify.php
+  s_59d50256585919::t_a9b7a56ae13413 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b3c8586ae56fde2a9c282e199df55fbfe78bdcbb",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_59d50256585919": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3cd2c33e-536d-46e9-929c-bf8d01c8220d",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
