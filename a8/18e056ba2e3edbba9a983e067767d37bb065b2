@@ -1,0 +1,14 @@
+composer.json
+  h_f44dfe84a46cdf 41-43,52-53,57,60,63,66-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a818e056ba2e3edbba9a983e067767d37bb065b2",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
