@@ -1,0 +1,28 @@
+.env.prod
+  h_f44dfe84a46cdf 2
+app/Providers/AppServiceProvider.php
+  s_d0d8240531cb57::t_bea2d782d1b5b9 5,17-20
+config/app.php
+  h_f44dfe84a46cdf 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "556df4e778076a6ad456ab1e2dcb170e9604538c",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_d0d8240531cb57": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6bb30d5d-5f27-4967-8e7a-61ec6478def1",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
