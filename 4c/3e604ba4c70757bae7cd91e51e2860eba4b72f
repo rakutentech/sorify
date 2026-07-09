@@ -1,0 +1,42 @@
+resources/js/Pages/Dashboard/Index.vue
+  s_4c92e7864047a5::t_cf61d2e870d696 88,101
+resources/js/Pages/Reports/Index.vue
+  s_4c92e7864047a5::t_cf61d2e870d696 80,92
+resources/css/app.css
+  s_ca8f32d512b5aa::t_7a9095c405bfce 8-10,21-34,36-59,61-82,84-105
+  s_4c92e7864047a5::t_41537523474402 35
+  s_4c92e7864047a5::t_ac9afed8ea9a4b 83
+  s_4c92e7864047a5::t_e0d035385ca62b 60
+resources/js/Pages/TestRuns/Show.vue
+  s_4c92e7864047a5::t_cf61d2e870d696 224,249
+resources/js/Pages/TestSuites/Index.vue
+  s_4c92e7864047a5::t_cf61d2e870d696 132,146
+resources/js/Pages/TestSuites/Show.vue
+  s_4c92e7864047a5::t_cf61d2e870d696 202,253
+resources/js/Pages/Tests/Show.vue
+  s_4c92e7864047a5::t_cf61d2e870d696 292,303
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "4c3e604ba4c70757bae7cd91e51e2860eba4b72f",
+  "prompts": {},
+  "sessions": {
+    "s_4c92e7864047a5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "85248d93-a15c-4984-8b1c-a0457d6cdba9",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_ca8f32d512b5aa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "65ccfd24-6214-4e92-8b45-c610c70d30d1",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
