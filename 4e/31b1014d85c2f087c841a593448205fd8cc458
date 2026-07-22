@@ -1,0 +1,54 @@
+docs/docs/index.md
+  s_9181dcbdb9d562::t_54e9c7c9bded3c 1-49
+docs/docs/02-test-suites.md
+  s_9181dcbdb9d562::t_4c8b22c86d5e79 1-121
+.github/workflows/deploy-docs.yml
+  s_9181dcbdb9d562::t_0a20293d9b1162 1-61
+docs/docs/04-test-runs.md
+  s_9181dcbdb9d562::t_f91234aeb1f52d 1-133
+docs/tsconfig.json
+  s_9181dcbdb9d562::t_1b45412f331be4 1-6
+docs/package.json
+  s_9181dcbdb9d562::t_62c3031ac48835 18
+  s_9181dcbdb9d562::t_dac2efa24fd90c 1-17,19-50
+.gitignore
+  h_f44dfe84a46cdf 31
+  s_9181dcbdb9d562::t_fad8b7a175c605 32-36
+docs/sidebars.ts
+  s_9181dcbdb9d562::t_5dad2e6de3d6bb 1-33
+docs/docs/05-errors.md
+  s_9181dcbdb9d562::t_981dcc1814383e 1-69
+docs/src/css/custom.css
+  s_9181dcbdb9d562::t_aebff20b43a0ba 1-518
+.github/workflows/test-docs.yml
+  s_9181dcbdb9d562::t_2ea9367695834b 1-35
+docs/docusaurus.config.ts
+  s_9181dcbdb9d562::t_27f262ae69a1b3 1-117
+docs/docs/01-authentication.md
+  s_9181dcbdb9d562::t_841a384141e5bc 1-43
+docs/docs/03-test-cases.md
+  s_9181dcbdb9d562::t_9bff9a0d4995b4 1-238
+docs/package-lock.json
+  s_9181dcbdb9d562::t_d5d7071e7f537d 1-21917
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "4e31b1014d85c2f087c841a593448205fd8cc458",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_9181dcbdb9d562": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "22c51cc3-4aa4-4d1c-84b8-654fd346fead",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
