@@ -1,0 +1,18 @@
+composer.json
+  h_f44dfe84a46cdf 41-43,52-53,57,60,63,66-68
+tests/Feature/ExampleTest.php
+  h_f44dfe84a46cdf 16
+.env.testing
+  h_f44dfe84a46cdf 6-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "847ff9f475f4c22d0eff60dabf0587f8e8a5575f",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
