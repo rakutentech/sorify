@@ -1,0 +1,21 @@
+.github/workflows/test.yml
+  s_c837d7a6ea3c4b::t_106fce475475c6 43-45
+tests/TestCase.php
+  s_c837d7a6ea3c4b::t_0a604c1ad45a72 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "7d0da6f37335fa44290af71edffd42f22c57f5d8",
+  "prompts": {},
+  "sessions": {
+    "s_c837d7a6ea3c4b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e9caf1f8-fbb6-4075-9b7a-7fcb12cd00ff",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
