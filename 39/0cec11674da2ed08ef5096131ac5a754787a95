@@ -1,0 +1,52 @@
+.claude/skills/sorify-generate-cases/skill.md
+  s_aad568ad98200a::t_0c9a3bb7d55377 125
+resources/js/Pages/Dashboard/Index.vue
+  s_de308d97156746::t_dc45a4d5baacf9 130,148-162,190-226,241
+app/Http/Controllers/Api/TestSuiteController.php
+  s_de308d97156746::t_d05a6cac2c2ee0 13,15-24
+  s_de308d97156746::t_b8405036630d08 9
+plugins/sorify-generate-cases/skills/sorify-generate-cases/skill.md
+  s_4f67ab79ee9119::t_66ba59306438da 128,139
+plugins/sorify-generate-cases/skills/shared/explorer-instructions.md
+  s_4f67ab79ee9119::t_ad52e1cb700548 66,68
+  s_4f67ab79ee9119::t_91bfb3af76d1bf 37
+  s_4f67ab79ee9119::t_83a4665f6fc1f2 31,33
+  s_4f67ab79ee9119::t_2c6a5054e12058 23-24,26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "390cec11674da2ed08ef5096131ac5a754787a95",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_4f67ab79ee9119": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "41454f1a-75d7-4b90-a38b-f37e4c69411c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_aad568ad98200a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "99e6e1c3-5cad-47b5-b3a6-585d04e7a371",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_de308d97156746": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3d80e09e-02e5-4164-ab57-bad7f8bf0fa6",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
