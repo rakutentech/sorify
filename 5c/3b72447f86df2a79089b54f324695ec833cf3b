@@ -1,0 +1,19 @@
+.github/workflows/test.yml
+  s_c837d7a6ea3c4b::t_1e2d77fd9f4f24 37-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "5c3b72447f86df2a79089b54f324695ec833cf3b",
+  "prompts": {},
+  "sessions": {
+    "s_c837d7a6ea3c4b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e9caf1f8-fbb6-4075-9b7a-7fcb12cd00ff",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
