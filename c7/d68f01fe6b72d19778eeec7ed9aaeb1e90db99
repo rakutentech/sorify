@@ -1,0 +1,26 @@
+plugins/sorify/.claude-plugin/plugin.json
+  s_da33f399445de4::t_20c21e458ad6ca 10-16
+docs/docs/06-claude-plugin.md
+  s_da33f399445de4::t_11bcf7991e89a9 27-28,32-33,36
+plugins/sorify/skills/sorify/skill.md
+  s_da33f399445de4::t_d8841e1f410fe1 71-72,74-75,80,82-83,85-95
+  s_da33f399445de4::t_7aa9b7771e650d 128-129
+  s_da33f399445de4::t_7d6473664eb03e 204-205,215-216
+  s_da33f399445de4::t_5f6a276373a0fd 384-385,390-391
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "c7d68f01fe6b72d19778eeec7ed9aaeb1e90db99",
+  "prompts": {},
+  "sessions": {
+    "s_da33f399445de4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c8ff63a5-e1e1-4c72-936c-d3f9f23f21ba",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
