@@ -1,0 +1,35 @@
+app/Models/User.php
+  s_da33f399445de4::t_e1660454c275cf 13-14
+resources/js/Pages/Admin/Users/Index.vue
+  s_da33f399445de4::t_7b81a392405cd8 2-3,82-88,92
+app/Http/Controllers/ProfileController.php
+  s_da33f399445de4::t_273fce30fdb812 15,19-22
+routes/api.php
+  s_da33f399445de4::t_a4289e71520258 9,11
+app/Http/Controllers/Admin/UserController.php
+  s_da33f399445de4::t_d2e6e2587e0a43 37-40
+bootstrap/app.php
+  s_da33f399445de4::t_5e2de7ca9876fb 26
+resources/js/Pages/Profile/Show.vue
+  s_da33f399445de4::t_de0dd83f3f8ccb 5
+database/seeders/AdminUserSeeder.php
+  s_da33f399445de4::t_a63d90e813c936 16-18
+database/migrations/2026_07_23_000002_drop_api_token_from_users_table.php
+  s_da33f399445de4::t_901838ae4f1adb 1-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "50288fa4aa6056c85713036016ac9b5351c9cda7",
+  "prompts": {},
+  "sessions": {
+    "s_da33f399445de4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c8ff63a5-e1e1-4c72-936c-d3f9f23f21ba",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
