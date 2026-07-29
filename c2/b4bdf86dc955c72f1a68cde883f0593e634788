@@ -1,0 +1,46 @@
+app/Http/Controllers/AuthController.php
+  s_503b011b9a76c1::t_751ecfa4b53dad 5,9,48-77,80-97
+  s_503b011b9a76c1::t_65465568cccca5 27,31,78-79
+resources/js/Pages/Profile/Show.vue
+  s_76d3d2e31fc149::t_ad962cc3e9e58a 26,34-47,49-61,63-72
+routes/web.php
+  s_503b011b9a76c1::t_65465568cccca5 16,19-20,22,31-35,38-44,51,53,63-64,68-70,75-77
+  s_503b011b9a76c1::t_90297207352742 14,18,21
+.env.prod
+  s_503b011b9a76c1::t_9a375489202d05 51,53-54,57
+resources/js/Pages/Auth/ForgotPassword.vue
+  s_503b011b9a76c1::t_c43ac54d864c4b 1-104
+resources/js/Pages/Auth/ResetPassword.vue
+  s_503b011b9a76c1::t_30621b46ff0a8d 1-123
+resources/js/Pages/Auth/Login.vue
+  s_503b011b9a76c1::t_996437105a28c2 75-82
+tests/Feature/PasswordResetTest.php
+  s_503b011b9a76c1::t_65465568cccca5 43-45,58-60
+  s_503b011b9a76c1::t_23ccbd9da9c72c 1-7,9-42,46-49,51-57,61-66
+  s_503b011b9a76c1::t_b049bfb229e353 50
+  s_503b011b9a76c1::t_fb326efb76a6bf 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "c2b4bdf86dc955c72f1a68cde883f0593e634788",
+  "prompts": {},
+  "sessions": {
+    "s_503b011b9a76c1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44d53284-6f81-4d47-9136-244ae743dbf6",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_76d3d2e31fc149": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ed9d9c81-25bf-4561-b4d2-e37559c79357",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
