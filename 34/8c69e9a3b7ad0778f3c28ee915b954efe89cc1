@@ -1,0 +1,168 @@
+app/Mcp/Tools/Tests/CreateTestTool.php
+  s_92d96776a8f67b::t_3bd35a78ea37c4 11,35
+  s_92d96776a8f67b::t_047168d57893a9 1-7,9-10,12-19,21-34,36-50,52-59
+  s_92d96776a8f67b::t_ab54f14ee9933c 8
+  s_92d96776a8f67b::t_52d190bcb24a53 20,51
+plugins/sorify/.claude-plugin/plugin.json
+  s_92d96776a8f67b::t_2ea938be92b718 3
+app/Mcp/Tools/Runs/DeleteRunTool.php
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,25
+  s_92d96776a8f67b::t_88b64455bfd9a6 1-5,7-8,10-24,26-33
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+tests/Unit/Mcp/Tools/RunsToolsTest.php
+  s_92d96776a8f67b::t_095a11fe84be74 1-83
+app/Mcp/Tools/Suites/ListSuitesTool.php
+  s_92d96776a8f67b::t_3bd35a78ea37c4 10,30
+  s_92d96776a8f67b::t_65064f83cecabd 1-6,8-9,11-18,20-29,31-69
+  s_92d96776a8f67b::t_52d190bcb24a53 19
+  s_92d96776a8f67b::t_ab54f14ee9933c 7
+plugins/sorify/.mcp.json
+  s_92d96776a8f67b::t_9b14aa911af1f4 1-7
+app/Mcp/Tools/Suites/GetSuiteTool.php
+  s_92d96776a8f67b::t_e337952242fcef 1-7,9-10,12-19,21-28,30-45
+  s_92d96776a8f67b::t_ab54f14ee9933c 8
+  s_92d96776a8f67b::t_52d190bcb24a53 20
+  s_92d96776a8f67b::t_3bd35a78ea37c4 11,29
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_92d96776a8f67b::t_ab54f14ee9933c 7
+  s_92d96776a8f67b::t_3bd35a78ea37c4 10,31
+  s_92d96776a8f67b::t_4ff24d5509f74f 1-6,8-9,11-30,32-39
+tests/Unit/Mcp/Tools/SuitesToolsTest.php
+  s_92d96776a8f67b::t_20c73927ca808a 1-90
+plugins/sorify/README.md
+  s_92d96776a8f67b::t_79430139713250 12-30
+  s_92d96776a8f67b::t_18d988ea8a30cb 35,43,49
+app/Mcp/Tools/Tests/UpdateTestCodeTool.php
+  s_92d96776a8f67b::t_b6c09696c046d3 1-6,8-9,11-18,20-29,31-49
+  s_92d96776a8f67b::t_3bd35a78ea37c4 10,30
+  s_92d96776a8f67b::t_ab54f14ee9933c 7
+  s_92d96776a8f67b::t_52d190bcb24a53 19
+app/Mcp/Tools/Tags/ListTagsTool.php
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,23
+  s_92d96776a8f67b::t_280990b635ad6c 1-5,7-8,10-22,24-27
+tests/Unit/Mcp/Tools/TestsToolsTest.php
+  s_92d96776a8f67b::t_199297a7a912ab 1-110,112-113,115-173
+  s_92d96776a8f67b::t_044491ac24145e 111,114
+app/Mcp/Tools/Tests/ToggleTestStatusTool.php
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,26
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_0c496a2fd46b48 1-5,7-8,10-25,27-41
+app/Mcp/Servers/SorifyServer.php
+  s_92d96776a8f67b::t_bfe1691082ad9b 1-67
+app/Mcp/Tools/Runs/TriggerRunTool.php
+  s_92d96776a8f67b::t_3bd35a78ea37c4 11,28
+  s_92d96776a8f67b::t_ab54f14ee9933c 8
+  s_92d96776a8f67b::t_e7bfe480326503 1-7,9-10,12-27,29-48
+app/Mcp/Tools/Runs/GetRunTool.php
+  s_92d96776a8f67b::t_b1e438a4425eb5 1-5,7-8,10-24,26-58
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,25
+app/Mcp/Tools/Tests/UpdateTestTool.php
+  s_92d96776a8f67b::t_ab54f14ee9933c 7
+  s_92d96776a8f67b::t_3bd35a78ea37c4 10,31
+  s_92d96776a8f67b::t_903f00b0d89cef 1-6,8-9,11-24,26-30,32-56
+  s_92d96776a8f67b::t_07e8f0ddb14ebe 25
+app/Mcp/Tools/Tests/GetTestTool.php
+  s_92d96776a8f67b::t_7574864d3e777c 1-5,7-8,10-25,27-67
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,26
+app/Mcp/Tools/Tests/BulkDeleteTestsTool.php
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,26
+  s_92d96776a8f67b::t_9fbf559f50e0a4 1-5,7-8,10-25,27-40
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+docs/docs/01-mcp-server.md
+  s_92d96776a8f67b::t_3b0331e3d3b221 1-116
+tests/Unit/Mcp/Tools/ScreenshotsToolsTest.php
+  s_92d96776a8f67b::t_ab5f4d83e4fc05 1-19,21-35,37-56,58-74,76-87
+  s_92d96776a8f67b::t_47c252621e1137 20,36,57,75
+routes/ai.php
+  s_92d96776a8f67b::t_16c5e4db8aa94e 1-6
+app/Mcp/Tools/Screenshots/ListScreenshotsTool.php
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,25
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_949371a3d39be1 1-5,7-8,10-24,26-41
+docs/sidebars.ts
+  s_92d96776a8f67b::t_182a4f428bcef9 12-13
+tests/Unit/Mcp/Tools/TagsToolsTest.php
+  s_92d96776a8f67b::t_ee165f57852ab6 1-62
+app/Mcp/Tools/Tests/BulkCreateTestsTool.php
+  s_92d96776a8f67b::t_48c00b4b34f580 1-7,9-10,12-19,21-41,43-60,62-70
+  s_92d96776a8f67b::t_3bd35a78ea37c4 11,42
+  s_92d96776a8f67b::t_52d190bcb24a53 20,61
+  s_92d96776a8f67b::t_ab54f14ee9933c 8
+app/Http/Middleware/AuthenticateMcpBasicAuth.php
+  s_92d96776a8f67b::t_ff1aa39911e943 12
+  s_92d96776a8f67b::t_3af8fca271eeee 1-6,8-11,13-15,17-21,23-27,29-34,36-40
+  s_92d96776a8f67b::t_52d190bcb24a53 7,16,22,28,35
+app/Mcp/Tools/Tests/DeleteTestTool.php
+  s_92d96776a8f67b::t_9af603e335fd5d 1-5,7-8,10-25,27-38
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,26
+plugins/sorify/skills/shared/generator-patterns.md
+  s_92d96776a8f67b::t_32fdfac9595637 529,531,536-537
+docs/docs/02-claude-plugin.md
+  s_92d96776a8f67b::t_96bd468b53d0fd 164-167
+  s_92d96776a8f67b::t_49d80ea2ecf2b3 4
+  s_92d96776a8f67b::t_2411d2e876feee 104-109
+  s_92d96776a8f67b::t_f9cc1c5a12ba2a 15,19,29,31-42,46,48,52,54,58,60,73,98,131,155,161,178
+app/Mcp/Tools/Tags/CreateTagTool.php
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_0f3c0b1fe3304e 1-5,7-8,10-25,27-40
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,26
+docs/docs/index.md
+  s_92d96776a8f67b::t_39048c02aafa6d 8,10,12,14-15,17,19,21,23
+app/Mcp/Tools/Suites/DeleteSuiteTool.php
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,25
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_2817bff67856bc 1-5,7-8,10-24,26-33
+app/Mcp/Tools/Screenshots/GetScreenshotTool.php
+  s_92d96776a8f67b::t_36a872285f5563 1-5,7-9,11-25,27-31,33-38
+  s_92d96776a8f67b::t_52d190bcb24a53 32
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_3bd35a78ea37c4 10,26
+tests/Feature/McpHttpTest.php
+  s_92d96776a8f67b::t_65ea38ebf9dee6 1-62
+plugins/sorify/scripts/mcp-auth-headers.sh
+  s_92d96776a8f67b::t_8dec0c0b965f83 1-14
+app/Mcp/Tools/Tags/DeleteTagTool.php
+  s_92d96776a8f67b::t_a7a8a00e06a4d9 1-5,7-8,10-24,26-33
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,25
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+bootstrap/app.php
+  s_92d96776a8f67b::t_0b26357112bf30 21
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_92d96776a8f67b::t_b46160e13c5ddf 1-6,8-9,11-31,33-42
+  s_92d96776a8f67b::t_ab54f14ee9933c 7
+  s_92d96776a8f67b::t_3bd35a78ea37c4 10,32
+app/Mcp/Tools/Tests/ListTestsTool.php
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,25
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_5c3bb3c0f381a5 1-5,7-8,10-24,26-55
+app/Mcp/Tools/Runs/GetRunStatusTool.php
+  s_92d96776a8f67b::t_ab54f14ee9933c 6
+  s_92d96776a8f67b::t_f50a4a5335f1d8 1-5,7-8,10-24,26-40
+  s_92d96776a8f67b::t_3bd35a78ea37c4 9,25
+composer.json
+  s_92d96776a8f67b::t_a35b9108ef5554 12
+plugins/sorify/commands/generate.md
+  s_92d96776a8f67b::t_d517f856e26ba0 11,64,66-68,78,111-119,122-123,185-194,197,344-347,349-353,355,358,365,367-373
+composer.lock
+  s_92d96776a8f67b::t_cf55c14c7c532f 7,1447-1520
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "348c69e9a3b7ad0778f3c28ee915b954efe89cc1",
+  "prompts": {},
+  "sessions": {
+    "s_92d96776a8f67b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b1098b95-9e64-4847-95f4-b0ad771fc64a",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
