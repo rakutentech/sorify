@@ -1,0 +1,67 @@
+tests/Unit/HistoryPruningServiceTest.php
+  s_df76e50423083c::t_9b03fba61988ee 1-84
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_df76e50423083c::t_5c6ebf81afd84a 20
+app/Services/ScreenshotService.php
+  s_df76e50423083c::t_d62856551ba558 51-61
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_df76e50423083c::t_e09e2918e37afa 19
+resources/js/Pages/TestSuites/Show.vue
+  s_df76e50423083c::t_b1890f920c4c0d 22,31
+  s_df76e50423083c::t_a8ff00754c16c4 426,444-452,454
+resources/js/Pages/TestSuites/Index.vue
+  s_df76e50423083c::t_1e726ff95c3103 45
+  s_df76e50423083c::t_97c659982b2977 273-285
+  s_df76e50423083c::t_07d20c678de1e8 272
+app/Services/HistoryPruningService.php
+  s_df76e50423083c::t_6419e7bd9f3c4c 1-28
+app/Http/Controllers/TestController.php
+  s_df76e50423083c::t_84d0ccc35c156c 38,40,43-57
+app/Models/TestSuite.php
+  s_df76e50423083c::t_62cfe6172fe1fe 18
+tests/Unit/Mcp/Tools/SuitesToolsTest.php
+  s_df76e50423083c::t_f1dd207f3d90ca 11,15
+  s_df76e50423083c::t_aefa72d9ac27a4 98
+  s_df76e50423083c::t_79fc57714c7465 81-97,99-129
+app/Services/PlaywrightRunnerService.php
+  s_df76e50423083c::t_6138ea9fc3bd7f 19-22
+  s_df76e50423083c::t_eadecdeea79564 61-62
+tests/Unit/Mcp/Tools/TestsToolsTest.php
+  s_df76e50423083c::t_6a5bde8f6236b2 107-133
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_df76e50423083c::t_1abbdffda9da91 28
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_df76e50423083c::t_74eaadf1fe16a4 6
+  s_df76e50423083c::t_14a9864c64b95d 30,42-44
+  s_df76e50423083c::t_d54bd597d51369 45
+database/migrations/2026_07_29_000001_add_history_retention_to_test_suites.php
+  s_df76e50423083c::t_28a0ba54fd79d5 1-22
+app/Jobs/PruneSuiteHistoryJob.php
+  s_df76e50423083c::t_080c23b06b6201 1-28
+app/Mcp/Tools/Tests/GetTestTool.php
+  s_df76e50423083c::t_9166a3c72c7526 37,39,47-56
+resources/js/Pages/Tests/Show.vue
+  s_df76e50423083c::t_8ef1f1da91d5c3 92-129
+  s_df76e50423083c::t_f82aad81f14f87 2,7
+  s_df76e50423083c::t_158d1d6764188a 340,342-344,356,365-462
+  s_df76e50423083c::t_9b7970756b8b68 463
+app/Http/Controllers/TestSuiteController.php
+  s_df76e50423083c::t_ca4732415ab6e4 62-66
+  s_df76e50423083c::t_05a1dfcffa91fb 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "b56417a0f79cfd640282d9afb4c33a3e10ac5054",
+  "prompts": {},
+  "sessions": {
+    "s_df76e50423083c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bbd75950-f739-4989-9881-6e06ad2c7424",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
