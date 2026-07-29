@@ -1,0 +1,51 @@
+resources/js/Pages/TestRuns/Show.vue
+  s_c5add690f86d69::t_d23f69af48f740 132
+app/Http/Controllers/TestRunController.php
+  s_c5add690f86d69::t_cd6cfdafb05bc8 18-20
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_c5add690f86d69::t_297c58c14f52f2 37
+  s_c5add690f86d69::t_b62eaa1786fb2a 8
+database/migrations/2026_07_29_000003_add_triggered_by_user_id_to_test_runs.php
+  s_c5add690f86d69::t_5434158619754b 1-22
+app/Http/Controllers/TestSuiteController.php
+  s_c5add690f86d69::t_0e8adc57a5a46b 44-47
+  s_c5add690f86d69::t_b211355f925c59 53-54
+app/Mcp/Tools/Runs/TriggerRunTool.php
+  s_c5add690f86d69::t_9e0c0f372a4688 43
+  s_c5add690f86d69::t_92a030c2024263 9
+app/Models/TestSuite.php
+  s_c5add690f86d69::t_ff3ab53f550192 6,20,23-26
+  s_c5add690f86d69::t_095cc83f3fd84f 27
+resources/js/Pages/Tests/Show.vue
+  s_c5add690f86d69::t_ca65eccd010297 149
+app/Models/TestRun.php
+  s_c5add690f86d69::t_c1d02795bb8b5c 23-27
+plugins/sorify/commands/gateway.md
+  s_c5add690f86d69::t_39502761089806 125,127
+  s_c5add690f86d69::t_2f02eff257f241 102-103
+database/migrations/2026_07_29_000002_add_created_by_to_test_suites.php
+  s_c5add690f86d69::t_a8000294230374 1-22
+resources/js/Pages/TestSuites/Show.vue
+  s_c5add690f86d69::t_fe51ccfc439df7 176
+  s_c5add690f86d69::t_3cfaa7b316f342 180-182
+app/Http/Controllers/DashboardController.php
+  s_c5add690f86d69::t_13511e7d321516 18,23-34
+resources/js/Pages/Dashboard/Index.vue
+  s_c5add690f86d69::t_e4f4fab67404da 94-95,105-113,121-122
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "a0acb294c4a7bd569e59ae41f48f9f57aee6475f",
+  "prompts": {},
+  "sessions": {
+    "s_c5add690f86d69": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7e36b5b7-39d6-4ca3-b2d1-c71ae86c1607",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
