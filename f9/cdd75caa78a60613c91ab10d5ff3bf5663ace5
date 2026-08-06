@@ -1,0 +1,65 @@
+database/migrations/2026_08_06_000001_create_test_suite_user_table.php
+  s_c42e565dc1cf9f::t_d9bcf9c6d332fa 1-49
+app/Http/Controllers/TestSuiteController.php
+  s_c42e565dc1cf9f::t_28f2efb34ded07 11
+  s_c42e565dc1cf9f::t_a88508e8fac6ee 19,27-32
+  s_c42e565dc1cf9f::t_874446195f3a5c 57-64,68,70-71,74,76,108-111,113,119-120,132-133,140-141
+  s_c42e565dc1cf9f::t_0d3880662fb24a 9
+  s_c42e565dc1cf9f::t_53b0711da82619 75,77-98,106-107,112
+  s_c42e565dc1cf9f::t_574297a1b3451e 33
+resources/js/Pages/TestSuites/Show.vue
+  s_c42e565dc1cf9f::t_093fa76b41197c 369
+  s_c42e565dc1cf9f::t_81b7d4119f34c2 57-93
+  s_c42e565dc1cf9f::t_321f61145bcd64 452
+  s_c42e565dc1cf9f::t_d00ae753a65be4 546-627
+  s_c42e565dc1cf9f::t_cf5cace8acc624 335
+  s_c42e565dc1cf9f::t_d53de6191d857f 300,308,315
+  s_c42e565dc1cf9f::t_925a0718ca8c4e 385
+  s_c42e565dc1cf9f::t_227921ff7ce54c 15-17
+  s_c42e565dc1cf9f::t_1b01e856efef05 237,243,249-255
+app/Http/Requests/AddSuiteMemberRequest.php
+  s_c42e565dc1cf9f::t_7f34a435a54247 1-24
+app/Models/TestSuite.php
+  s_c42e565dc1cf9f::t_c35ccef04f7817 7
+  s_c42e565dc1cf9f::t_70bd636d0693b2 76-90,92-115
+  s_c42e565dc1cf9f::t_b1cff82dbf4d2d 91
+app/Policies/TestSuitePolicy.php
+  s_c42e565dc1cf9f::t_bda775cb3a3548 1-39
+app/Http/Controllers/TestSuiteMemberController.php
+  s_c42e565dc1cf9f::t_164e94a12bf9ab 1-11,13-22,24-25,27-29,34-40,42-43,45-47,52-53,55-56,58-59,61-65,67-71,73,76-77
+  s_c42e565dc1cf9f::t_9bc7b8ca6e0fb6 12,23,26,30-33,41,44,48-51,54,57,60,66,72,74-75
+app/Http/Requests/UpdateSuiteMemberRequest.php
+  s_c42e565dc1cf9f::t_2b7cc8438e7c6e 1-20
+app/Models/User.php
+  s_c42e565dc1cf9f::t_df7e4920b75a1b 10,34-39
+  s_c42e565dc1cf9f::t_717354e8813ed7 40
+app/Http/Controllers/TestRunController.php
+  s_c42e565dc1cf9f::t_38bdb135fd26b3 17-18,28-29
+  s_c42e565dc1cf9f::t_72d3cf3667a8e4 60-61,67-68
+routes/web.php
+  s_c42e565dc1cf9f::t_9aa4d93f1f3057 45,57-62
+  s_c42e565dc1cf9f::t_fefb450227d785 12
+app/Http/Controllers/Controller.php
+  s_c42e565dc1cf9f::t_9fd13818c9eefe 5-6,9
+app/Http/Controllers/TestController.php
+  s_c42e565dc1cf9f::t_361e36d602e75c 35-36
+  s_c42e565dc1cf9f::t_2dfa2b9739ac72 68-69
+  s_c42e565dc1cf9f::t_74bb0670811b4e 85-86,93-94,103-104,112-113
+  s_c42e565dc1cf9f::t_a6db8b8d4d1de9 18-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "f9cdd75caa78a60613c91ab10d5ff3bf5663ace5",
+  "prompts": {},
+  "sessions": {
+    "s_c42e565dc1cf9f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b395e973-efa6-4e70-a555-78d15dd7c0a4",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
