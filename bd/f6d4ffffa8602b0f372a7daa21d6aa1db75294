@@ -1,0 +1,42 @@
+resources/js/Pages/Tests/Show.vue
+  s_c7252022e1774d::t_6025e8c0907b15 466
+resources/js/Pages/TestSuites/Index.vue
+  s_c7252022e1774d::t_533dc0f31f2d77 197
+  s_a2cb2423c20c86::t_5928f1d7e4d81c 5
+  s_a2cb2423c20c86::t_031285dbc5ba9f 152,154
+  s_a2cb2423c20c86::t_9a3c7855d04b5a 149-151,153,155-174
+resources/js/Pages/Dashboard/Index.vue
+  s_c7252022e1774d::t_5bb0ad12eaf2f9 128
+resources/js/Pages/TestSuites/Show.vue
+  s_c7252022e1774d::t_a88781b493fdc3 440
+  s_a2cb2423c20c86::t_9aace08f6519cd 450,499-518,520-529
+  s_c7252022e1774d::t_d961929400f5d7 519
+  s_a2cb2423c20c86::t_a587d440ba235c 530
+app/Http/Controllers/TestSuiteController.php
+  s_a2cb2423c20c86::t_d39e5c126e9906 25
+  s_a2cb2423c20c86::t_875328663ee7ff 43-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "bdf6d4ffffa8602b0f372a7daa21d6aa1db75294",
+  "prompts": {},
+  "sessions": {
+    "s_a2cb2423c20c86": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2dbc3ec5-99a3-4ecb-91d2-442d83423d23",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_c7252022e1774d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "abd8a47c-7c9c-45d3-a971-6cea66166254",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
