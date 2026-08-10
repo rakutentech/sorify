@@ -1,0 +1,61 @@
+app/Console/Commands/RunScheduledTestSuites.php
+  s_edacde685ab8fb::t_a651e531fc5725 1-45
+tests/Feature/TestSuiteScheduleTest.php
+  s_edacde685ab8fb::t_095ccd2f740bc1 1-100
+app/Policies/TestSuitePolicy.php
+  s_edacde685ab8fb::t_95abb76f43a76c 39-43
+app/Http/Requests/StoreTestSuiteScheduleRequest.php
+  s_edacde685ab8fb::t_586813783df96e 1-24
+server/sorify-scheduler.ini
+  s_edacde685ab8fb::t_65a381394c6775 1-10
+app/Models/TestSuite.php
+  s_edacde685ab8fb::t_1a26a7e1e23641 9
+  s_edacde685ab8fb::t_e4349e24a97006 83-87
+app/Http/Controllers/TestSuiteScheduleController.php
+  s_edacde685ab8fb::t_f024d2f5abbd67 1-42
+database/migrations/2026_08_10_000002_create_test_suite_schedules_table.php
+  s_edacde685ab8fb::t_fce09d2241c533 1-28
+deploy.php
+  s_edacde685ab8fb::t_474c7b36a98d90 87
+routes/console.php
+  s_edacde685ab8fb::t_e5813e3888fe4b 5,10-11
+routes/web.php
+  s_edacde685ab8fb::t_66909fd95d62e8 13
+  s_edacde685ab8fb::t_ce6f7826ac1ba9 59-60
+app/Http/Controllers/TestSuiteController.php
+  s_edacde685ab8fb::t_1a0feb61734014 72
+  s_edacde685ab8fb::t_59e1e7cb9a79bd 109-113
+resources/js/Pages/TestSuites/Show.vue
+  s_edacde685ab8fb::t_39c7aa7124210d 17,26-51
+  s_edacde685ab8fb::t_92df75e8a09a31 495-530
+  s_edacde685ab8fb::t_7ef00520189d04 631-672
+  h_f44dfe84a46cdf 606
+  s_edacde685ab8fb::t_f6861c5b1141ad 52
+composer.json
+  s_edacde685ab8fb::t_2be5ba2002fc6e 10
+app/Models/TestSuiteSchedule.php
+  s_edacde685ab8fb::t_d7c1f88b0df7bf 1-42
+composer.lock
+  s_edacde685ab8fb::t_ff74af51996b6a 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "9ef021e3128c8eade95dec249de5d80bdeab5e97",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_edacde685ab8fb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7cfcb069-f0f5-4f5a-a2e3-f46614d1f3b4",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
