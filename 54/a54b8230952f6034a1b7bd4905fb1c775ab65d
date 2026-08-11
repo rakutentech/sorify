@@ -1,0 +1,96 @@
+database/migrations/2026_08_11_000001_drop_test_tag_table.php
+  s_3bc86f52563915::t_fc01989dd20940 1-22
+database/migrations/2026_08_11_000002_drop_tags_table.php
+  s_3bc86f52563915::t_662e1c1f6cde9f 1-23
+resources/js/Components/ScreenshotGallery.vue
+  s_3bc86f52563915::t_5cf4f199a6f355 3
+  s_3bc86f52563915::t_ecaa4b688cf633 73
+  s_3bc86f52563915::t_0580dfc37c63e8 123
+plugins/sorify/commands/gateway.md
+  s_3bc86f52563915::t_9db1a33258dee3 14
+  s_3bc86f52563915::t_014a8e4840fcef 81,84
+  s_3bc86f52563915::t_b79567f0ec79a3 82
+  s_3bc86f52563915::t_a885b1c6797ce0 102
+  s_3bc86f52563915::t_bf3fe33b68c8df 113-115
+  s_3bc86f52563915::t_385bea0c1febe8 59
+  s_3bc86f52563915::t_8b1fbf33f7d1e2 37
+app/Mcp/Tools/Tests/BulkCreateTestsTool.php
+  s_3bc86f52563915::t_32af350805f209 31
+resources/js/Components/ui/index.js
+  s_3bc86f52563915::t_4ad5fcb6531c9e 8
+  s_3bc86f52563915::t_f16804253fe831 5
+app/Http/Requests/Api/StoreApiTestRequest.php
+  s_3bc86f52563915::t_4fce2385f21615 20
+resources/js/Components/ui/Modal.vue
+  s_3bc86f52563915::t_e24243d3b3ff43 1-6,8-16,19-50
+  s_3bc86f52563915::t_d22f8bab67f5d0 7
+  s_3bc86f52563915::t_e41d40264923b0 17-18
+app/Http/Controllers/TestController.php
+  s_3bc86f52563915::t_df0b263299d68e 22
+  s_3bc86f52563915::t_48e6417e591c66 37-38
+  s_3bc86f52563915::t_abbc5db5a25ecb 9
+app/Http/Requests/Api/BulkStoreTestRequest.php
+  s_3bc86f52563915::t_98d71cb0847e0d 18
+app/Http/Controllers/TestSuiteController.php
+  s_3bc86f52563915::t_99e33d4b393ffc 107,112
+app/Mcp/Tools/Tests/UpdateTestTool.php
+  s_3bc86f52563915::t_8ce500d6fecceb 17,26
+resources/js/Pages/TestSuites/Index.vue
+  s_3bc86f52563915::t_39d235d9decfae 248
+  s_3bc86f52563915::t_26212fbbc1f884 283
+  s_3bc86f52563915::t_99ba681f95bcea 5
+app/Http/Requests/Api/UpdateApiTestRequest.php
+  s_3bc86f52563915::t_3f0222329211ba 20
+app/Mcp/Tools/Suites/GetSuiteTool.php
+  s_3bc86f52563915::t_1c762fd1ba54b2 39
+resources/js/Pages/Admin/Users/Index.vue
+  s_3bc86f52563915::t_14b05fdbeb2a23 5
+  s_3bc86f52563915::t_32fef282891db1 128-129
+  s_3bc86f52563915::t_d638e42a1b0584 158,161-168,170-173
+resources/js/Pages/TestSuites/Show.vue
+  s_3bc86f52563915::t_b8f1f476040568 631,634
+  s_3bc86f52563915::t_144af958f8fb43 601,604
+  s_3bc86f52563915::t_08eda88b00fa52 6,16
+  s_3bc86f52563915::t_6cd10458cd3bf0 519
+  s_3bc86f52563915::t_af0c259665e801 698,700-701,704,715,717,728
+app/Mcp/Tools/Tests/CreateTestTool.php
+  s_3bc86f52563915::t_78a22570c1c095 29
+app/Mcp/Servers/SorifyServer.php
+  s_3bc86f52563915::t_947c8b7cd96a86 33
+app/Mcp/Tools/Tests/ListTestsTool.php
+  s_3bc86f52563915::t_96eb193f0756de 31
+  s_3bc86f52563915::t_fef53d226f699f 46
+app/Mcp/Tools/Tests/GetTestTool.php
+  s_3bc86f52563915::t_d22819e919eab9 64
+docs/docs/01-mcp-server.md
+  s_3bc86f52563915::t_9f9536ad57704b 9
+  s_3bc86f52563915::t_fabf272d7f8439 61,63,71
+  s_3bc86f52563915::t_7c48d94dc7890d 72
+docs/docs/index.md
+  s_3bc86f52563915::t_1e42d03572e8df 15
+resources/js/Components/ui/Autocomplete.vue
+  s_3bc86f52563915::t_1e46a755972ddb 1-108
+resources/js/Pages/Tests/Show.vue
+  s_3bc86f52563915::t_005d1815843f31 7,12
+  s_3bc86f52563915::t_16ebaacecf3731 210
+plugins/sorify/commands/generate.md
+  s_3bc86f52563915::t_fccd5227234c61 78
+app/Http/Requests/StoreTestRequest.php
+  s_3bc86f52563915::t_ce4bfb8cd76271 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "54a54b8230952f6034a1b7bd4905fb1c775ab65d",
+  "prompts": {},
+  "sessions": {
+    "s_3bc86f52563915": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ae02f378-ed94-4cd8-8d16-d727e3d897e4",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
