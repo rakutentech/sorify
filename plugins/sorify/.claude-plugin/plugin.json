@@ -1,0 +1,4 @@
+{
+  "name": "sorify",
+  "description": "Automated E2E test generation for Sorify — explore a URL, generate Playwright test code, upload to Sorify, and run tests. Supports three granularity levels: small (page load check), medium (component layout check), fine (all condition axes with network mocks)."
+}

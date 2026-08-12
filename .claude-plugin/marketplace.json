@@ -1,0 +1,11 @@
+{
+  "name": "sorify",
+  "owner": { "name": "sorify" },
+  "plugins": [
+    {
+      "name": "sorify",
+      "source": "./plugins/sorify",
+      "description": "Automated E2E test generation for Sorify — explore a URL, generate Playwright test code, upload to Sorify, and run tests."
+    }
+  ]
+}
