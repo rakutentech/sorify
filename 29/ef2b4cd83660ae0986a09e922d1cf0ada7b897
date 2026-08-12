@@ -1,0 +1,33 @@
+.github/workflows/test.yml
+  h_f44dfe84a46cdf 21
+.claude-plugin/marketplace.json
+  h_f44dfe84a46cdf 2
+resources/playwright/harness.cjs
+  h_f44dfe84a46cdf 42,45,47,49,54-55,58,65-112,116-122,126-133,139-148,152-153,158-160
+  s_6c458a2b2100a9::t_62a331771d9173 5-6
+  s_6c458a2b2100a9::t_5d95ac1410559c 3-4
+  s_6c458a2b2100a9::t_e4a12a0c1787fc 1,30-41,43-44,46,48,50-53,57,59-64,113-115,123-125,134-138,149-151,154-157,164
+package-lock.json
+  h_f44dfe84a46cdf 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "29ef2b4cd83660ae0986a09e922d1cf0ada7b897",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_6c458a2b2100a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0c15a47f-ba7c-405a-9a01-b78e966f4d95",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
