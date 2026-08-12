@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Mcp\Tools\Tests;
+
+use App\Models\Test;
+use App\Services\PlaywrightCodeValidatorService;
+use App\Services\TestCodeVersionService;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
+use Laravel\Mcp\Server\Tool;
+
+class UpdateTestCodeTool extends Tool
+{
+    protected string $name = 'update_test_code';
+
+    protected string $description = 'Replace a test\'s Playwright code. Reactivates the test (sets status back to active) on success. The previous code is kept as a restorable version.';
+
+    public function __construct(
+        private readonly PlaywrightCodeValidatorService $validator,
+        private readonly TestCodeVersionService $versions,
+    ) {}
+
+    public function schema(JsonSchema $schema): array
+    {
+        return [
+            'suite_id' => $schema->integer()->required()->description('The test suite ID.'),
+            'test_id' => $schema->integer()->required()->description('The test ID.'),
+            'playwright_code' => $schema->string()->required()->description('The new Playwright test code.'),
+        ];
+    }
+
+    public function handle(Request $request): Response|ResponseFactory
+    {
+        $data = $request->validate([
+            'suite_id' => 'required|integer|exists:test_suites,id',
+            'test_id' => 'required|integer|exists:tests,id',
+            'playwright_code' => 'required|string|min:10',
+        ]);
+
+        $test = Test::where('test_suite_id', $data['suite_id'])->findOrFail($data['test_id']);
+
+        $this->validator->validate($data['playwright_code']);
+
+        $this->versions->updateCode($test, $data['playwright_code'], 'mcp', Auth::id());
+
+        return Response::structured(['test' => $test->toArray()]);
+    }
+}

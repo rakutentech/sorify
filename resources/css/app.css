@@ -1,0 +1,174 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* Tailwind v4 class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --animate-shimmer: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* ── MD3 color tokens ──────────────────────────────────────────────────────── */
+/* Generated from seed #3B82F6 via Material Color Utilities (SchemeTonalSpot). */
+
+:root, .dark {
+    color-scheme: dark;
+
+    --md-sys-color-primary: #adc6ff;
+    --md-sys-color-on-primary: #112f60;
+    --md-sys-color-primary-container: #2b4678;
+    --md-sys-color-on-primary-container: #d8e2ff;
+    --md-sys-color-secondary: #bfc6dc;
+    --md-sys-color-on-secondary: #293041;
+    --md-sys-color-secondary-container: #3f4759;
+    --md-sys-color-on-secondary-container: #dbe2f9;
+    --md-sys-color-tertiary: #debcdf;
+    --md-sys-color-on-tertiary: #402843;
+    --md-sys-color-tertiary-container: #583e5b;
+    --md-sys-color-on-tertiary-container: #fcd7fb;
+    --md-sys-color-error: #ffb4ab;
+    --md-sys-color-on-error: #690005;
+    --md-sys-color-error-container: #93000a;
+    --md-sys-color-on-error-container: #ffdad6;
+    --md-sys-color-surface: #111318;
+    --md-sys-color-on-surface: #e2e2e9;
+    --md-sys-color-on-surface-variant: #c4c6d0;
+    --md-sys-color-surface-container-lowest: #0c0e13;
+    --md-sys-color-surface-container-low: #1a1b20;
+    --md-sys-color-surface-container: #1e1f25;
+    --md-sys-color-surface-container-high: #282a2f;
+    --md-sys-color-surface-container-highest: #33353a;
+    --md-sys-color-outline: #8e9099;
+    --md-sys-color-outline-variant: #44474f;
+    --md-sys-color-inverse-surface: #e2e2e9;
+    --md-sys-color-inverse-on-surface: #2f3036;
+    --md-sys-color-inverse-primary: #445e91;
+    --md-sys-color-scrim: #000000;
+
+    /* custom extension roles — MD3's own container/on-container convention, harmonized to the primary hue */
+    --md-ext-color-success: #7bda9c;
+    --md-ext-color-on-success: #00391d;
+    --md-ext-color-success-container: #00522c;
+    --md-ext-color-on-success-container: #97f7b6;
+    --md-ext-color-warning: #ffb68b;
+    --md-ext-color-on-warning: #522300;
+    --md-ext-color-warning-container: #753400;
+    --md-ext-color-on-warning-container: #ffdbc8;
+
+    --md-sys-elevation-level1: 0 1px 2px 0 rgb(0 0 0 / 0.30), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+    --md-sys-elevation-level2: 0 1px 2px 0 rgb(0 0 0 / 0.30), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+    --md-sys-elevation-level3: 0 1px 3px 0 rgb(0 0 0 / 0.30), 0 4px 8px 3px rgb(0 0 0 / 0.15);
+
+    --code-bg: var(--md-sys-color-surface-container-lowest);
+}
+
+.light {
+    color-scheme: light;
+
+    --md-sys-color-primary: #445e91;
+    --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: #d8e2ff;
+    --md-sys-color-on-primary-container: #2b4678;
+    --md-sys-color-secondary: #575e71;
+    --md-sys-color-on-secondary: #ffffff;
+    --md-sys-color-secondary-container: #dbe2f9;
+    --md-sys-color-on-secondary-container: #3f4759;
+    --md-sys-color-tertiary: #715573;
+    --md-sys-color-on-tertiary: #ffffff;
+    --md-sys-color-tertiary-container: #fcd7fb;
+    --md-sys-color-on-tertiary-container: #583e5b;
+    --md-sys-color-error: #ba1a1a;
+    --md-sys-color-on-error: #ffffff;
+    --md-sys-color-error-container: #ffdad6;
+    --md-sys-color-on-error-container: #93000a;
+    --md-sys-color-surface: #f9f9ff;
+    --md-sys-color-on-surface: #1a1b20;
+    --md-sys-color-on-surface-variant: #44474f;
+    --md-sys-color-surface-container-lowest: #ffffff;
+    --md-sys-color-surface-container-low: #f3f3fa;
+    --md-sys-color-surface-container: #eeedf4;
+    --md-sys-color-surface-container-high: #e8e7ef;
+    --md-sys-color-surface-container-highest: #e2e2e9;
+    --md-sys-color-outline: #75777f;
+    --md-sys-color-outline-variant: #c4c6d0;
+    --md-sys-color-inverse-surface: #2f3036;
+    --md-sys-color-inverse-on-surface: #f0f0f7;
+    --md-sys-color-inverse-primary: #adc6ff;
+    --md-sys-color-scrim: #000000;
+
+    --md-ext-color-success: #006d3c;
+    --md-ext-color-on-success: #ffffff;
+    --md-ext-color-success-container: #97f7b6;
+    --md-ext-color-on-success-container: #00210e;
+    --md-ext-color-warning: #974809;
+    --md-ext-color-on-warning: #ffffff;
+    --md-ext-color-warning-container: #ffdbc8;
+    --md-ext-color-on-warning-container: #321300;
+
+    --md-sys-elevation-level1: 0 1px 2px 0 rgb(0 0 0 / 0.15), 0 1px 3px 1px rgb(0 0 0 / 0.10);
+    --md-sys-elevation-level2: 0 1px 2px 0 rgb(0 0 0 / 0.15), 0 2px 6px 2px rgb(0 0 0 / 0.10);
+    --md-sys-elevation-level3: 0 1px 3px 0 rgb(0 0 0 / 0.15), 0 4px 8px 3px rgb(0 0 0 / 0.10);
+
+    --code-bg: var(--md-sys-color-surface-container-lowest);
+}
+
+/* ── MD3 shape tokens ──────────────────────────────────────────────────────── */
+
+:root {
+    --md-sys-shape-corner-extra-small: 4px;
+    --md-sys-shape-corner-small: 8px;
+    --md-sys-shape-corner-medium: 12px;
+    --md-sys-shape-corner-large: 16px;
+    --md-sys-shape-corner-extra-large: 28px;
+    --md-sys-shape-corner-full: 9999px;
+}
+
+/* ── Token utility classes ─────────────────────────────────────────────────── */
+
+.bg-code { background-color: var(--code-bg); }
+
+.shadow-elevation-1 { box-shadow: var(--md-sys-elevation-level1); }
+.shadow-elevation-2 { box-shadow: var(--md-sys-elevation-level2); }
+.shadow-elevation-3 { box-shadow: var(--md-sys-elevation-level3); }
+
+/* ── MD3 typography scale ──────────────────────────────────────────────────── */
+
+.md-display-large  { font: 400 3.5625rem/4rem var(--font-sans); letter-spacing: -0.015625rem; }
+.md-display-medium { font: 400 2.8125rem/3.25rem var(--font-sans); }
+.md-display-small  { font: 400 2.25rem/2.75rem var(--font-sans); }
+
+.md-headline-large  { font: 400 2rem/2.5rem var(--font-sans); }
+.md-headline-medium { font: 400 1.75rem/2.25rem var(--font-sans); }
+.md-headline-small  { font: 400 1.5rem/2rem var(--font-sans); }
+
+.md-title-large  { font: 400 1.375rem/1.75rem var(--font-sans); }
+.md-title-medium { font: 500 1rem/1.5rem var(--font-sans); letter-spacing: 0.009375rem; }
+.md-title-small  { font: 500 0.875rem/1.25rem var(--font-sans); letter-spacing: 0.00625rem; }
+
+.md-body-large  { font: 400 1rem/1.5rem var(--font-sans); letter-spacing: 0.03125rem; }
+.md-body-medium { font: 400 0.875rem/1.25rem var(--font-sans); letter-spacing: 0.015625rem; }
+.md-body-small  { font: 400 0.75rem/1rem var(--font-sans); letter-spacing: 0.025rem; }
+
+.md-label-large  { font: 500 0.875rem/1.25rem var(--font-sans); letter-spacing: 0.00625rem; }
+.md-label-medium { font: 500 0.75rem/1rem var(--font-sans); letter-spacing: 0.03125rem; }
+.md-label-small  { font: 500 0.6875rem/1rem var(--font-sans); letter-spacing: 0.03125rem; }
+
+/* ── Theme transition ──────────────────────────────────────────────────────── */
+*, *::before, *::after {
+    transition-property: background-color, border-color, color;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+}
+/* Disable transition on SVG and decorative elements */
+svg, svg *, img { transition: none; }
