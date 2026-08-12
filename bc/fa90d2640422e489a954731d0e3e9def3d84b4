@@ -1,0 +1,40 @@
+docs/docs/06-claude-plugin.md
+  s_4c4e69b175fe7c::t_6cd1cedcc5af40 1-175
+docs/sidebars.ts
+  s_4c4e69b175fe7c::t_1fb2927494fac4 30-34
+plugins/sorify/README.md
+  s_4c4e69b175fe7c::t_e831b710860d5b 1-31
+plugins/sorify/.claude-plugin/plugin.json
+  s_4c4e69b175fe7c::t_8c7859831d7fc5 2
+plugins/sorify/commands/generate-cases.md
+  s_4c4e69b175fe7c::t_0cd79b1836f33e 8-10
+  s_4c4e69b175fe7c::t_63a8fda5981458 15
+plugins/sorify/skills/sorify/skill.md
+  s_4c4e69b175fe7c::t_f7bc5380645dd3 2
+  s_4c4e69b175fe7c::t_e2769d194e7762 9
+  s_4c4e69b175fe7c::t_bc12009a7017a0 155,168,219,256,277,304,328
+.claude-plugin/marketplace.json
+  s_4c4e69b175fe7c::t_c3796dc6be67fe 6-7
+  s_4c4e69b175fe7c::t_0f00e0f9d56c0a 1-5,8-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "bcfa90d2640422e489a954731d0e3e9def3d84b4",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_4c4e69b175fe7c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3c1ec28a-7910-4e6f-a020-8111786c44c4",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

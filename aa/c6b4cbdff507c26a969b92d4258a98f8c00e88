@@ -1,0 +1,14 @@
+app/Providers/AppServiceProvider.php
+  h_f44dfe84a46cdf 17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "aac6b4cbdff507c26a969b92d4258a98f8c00e88",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

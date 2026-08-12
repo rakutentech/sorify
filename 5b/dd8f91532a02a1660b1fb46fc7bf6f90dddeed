@@ -1,0 +1,65 @@
+resources/js/Pages/TestRuns/Show.vue
+  s_017ab651f9c392::t_1291e2fd0a7063 163-185
+  s_017ab651f9c392::t_4c3381782daad3 95-110
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_8c06b3e604ad52::t_c2dcd50afa0707 30-31
+app/Http/Controllers/TestRunController.php
+  s_017ab651f9c392::t_50a80aa6724324 35
+resources/playwright/runner.cjs
+  s_8c06b3e604ad52::t_e66fd8f778ac98 40-41
+  s_8c06b3e604ad52::t_951f531e1f8535 78,80-86,88-89
+  s_8c06b3e604ad52::t_24998eea0e2b97 8
+  s_8c06b3e604ad52::t_a8f1a290dd8fbd 5-7
+  s_8c06b3e604ad52::t_5da50798931b17 9-11
+  s_8c06b3e604ad52::t_b619287a38af6c 37-39
+  s_8c06b3e604ad52::t_260a42115ffde2 42
+  s_8c06b3e604ad52::t_91191e8a61446c 75-77
+  s_8c06b3e604ad52::t_baaf63163d8581 3-4,12-14,19-21,24-36,47-49,55-57,60,62-69,71-74,91-92,95-96,102-103
+app/Models/TestSuite.php
+  s_8c06b3e604ad52::t_ac9f26e3e53e56 21-22,26-30
+  s_8c06b3e604ad52::t_19cbb83e8b7eb4 31-32
+resources/playwright/harness.cjs
+  s_8c06b3e604ad52::t_2ea552ef1b46d1 21-30
+  s_8c06b3e604ad52::t_b36de10f8381d9 59,70-71,74-77
+  s_8c06b3e604ad52::t_846e2e4b8df13f 18-20
+  s_8c06b3e604ad52::t_2fb8a6fb31a53e 31
+  s_8c06b3e604ad52::t_1fae1354fab00d 56-58
+  s_8c06b3e604ad52::t_702f1c446c7954 5-6,8-17,36,38,41,43-45,51-55,61-63,66,82-83,85,87-90,94-96,98,100-105,109,113-119,123,125-127,129-131,133
+database/migrations/2026_08_05_000001_add_timeout_and_screenshot_to_test_suites.php
+  s_8c06b3e604ad52::t_fe8891a064c218 1-23
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_8c06b3e604ad52::t_5f55be59ab6434 31-32
+app/Services/PlaywrightRunnerService.php
+  s_8c06b3e604ad52::t_68681209b90352 98-99,105,122-125,128
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_8c06b3e604ad52::t_31efcda316a233 21-22
+resources/js/Pages/TestSuites/Show.vue
+  s_8c06b3e604ad52::t_20f5392dfbba4b 489-508
+  s_8c06b3e604ad52::t_d02e440ee7f66c 31-32,42-43
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_8c06b3e604ad52::t_3048fb823b8da7 20-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "5bdd8f91532a02a1660b1fb46fc7bf6f90dddeed",
+  "prompts": {},
+  "sessions": {
+    "s_017ab651f9c392": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d2f27711-4566-48c5-aa55-ee173a597f66",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_8c06b3e604ad52": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d6855fb-e350-4a26-a4b8-81f5aac3e8ea",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

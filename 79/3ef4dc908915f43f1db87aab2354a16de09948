@@ -1,0 +1,30 @@
+plugins/sorify/commands/generate-cases.md
+  s_857313942066d8::t_466c8438aeb690 5
+plugins/sorify/README.md
+  s_857313942066d8::t_0079ed1ff17b8c 12
+docs/docs/01-authentication.md
+  s_857313942066d8::t_a573080e3279b8 44
+plugins/sorify/skills/sorify/skill.md
+  s_857313942066d8::t_ebe8caa2a7b685 70-72
+  s_857313942066d8::t_20bf9bf7cd6c5e 82
+  s_857313942066d8::t_95ea993c3e1f16 395
+docs/docs/06-claude-plugin.md
+  s_857313942066d8::t_81d1aef9bb0bd7 26-28,31
+  s_857313942066d8::t_fba6d067bbb005 124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "793ef4dc908915f43f1db87aab2354a16de09948",
+  "prompts": {},
+  "sessions": {
+    "s_857313942066d8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "00f3f3b4-434b-4ba9-bff1-627d95cc9355",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

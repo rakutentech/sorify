@@ -1,0 +1,73 @@
+app/Http/Middleware/ApiTokenMiddleware.php
+  s_f4326650ae58e0::t_131d6728c7f86d 5,21,30-35
+  s_f4326650ae58e0::t_08178b87442150 25-29
+  s_f4326650ae58e0::t_5d974766d73224 36
+app/Http/Controllers/AuthController.php
+  s_f4326650ae58e0::t_b25c8700c962e7 1-46
+app/Providers/AppServiceProvider.php
+  s_f4326650ae58e0::t_a0a87a80758251 17-19
+app/Http/Middleware/AdminMiddleware.php
+  s_f4326650ae58e0::t_f18dec8ddafebf 1-18
+docs/docs/06-claude-plugin.md
+  s_f4326650ae58e0::t_12dac132b485b4 37
+app/Http/Controllers/ProfileController.php
+  s_f4326650ae58e0::t_90c75bb1e7ac70 1-46
+resources/js/Pages/Auth/Login.vue
+  s_f4326650ae58e0::t_95ed0bcf6c09ec 1-102
+bootstrap/app.php
+  s_f4326650ae58e0::t_016351069ce1b4 21,27
+app/Console/Commands/GenerateApiToken.php
+  s_f4326650ae58e0::t_cfe3ab60f985d2 5,11-15,19-32,34-35,37-38,44,46
+database/factories/UserFactory.php
+  s_f4326650ae58e0::t_198f14fe88ebdf 28-29,31-34,44-48
+  s_f4326650ae58e0::t_6489086b4e74d2 49-50
+app/Http/Controllers/Admin/UserController.php
+  s_f4326650ae58e0::t_95727d8a2e798a 65
+  s_f4326650ae58e0::t_84c26e980c6fe7 1-64,66-67
+database/seeders/AdminUserSeeder.php
+  s_f4326650ae58e0::t_91e04eaf3da8e5 1-28
+plugins/sorify/.claude-plugin/plugin.json
+  s_f4326650ae58e0::t_95956192a21ae4 11
+app/Http/Middleware/HandleInertiaRequests.php
+  s_f4326650ae58e0::t_c8768dc3e42352 49-51
+  s_f4326650ae58e0::t_e043e68f07f4f4 40-48,52
+app/Models/User.php
+  s_f4326650ae58e0::t_9c1146107e136d 13-14
+  s_f4326650ae58e0::t_3b2a8c5ad88560 29-30
+database/seeders/DatabaseSeeder.php
+  s_f4326650ae58e0::t_7fa47f0cbc7f21 20
+routes/web.php
+  s_f4326650ae58e0::t_7bf20e94a32bd7 3-4,6,14,16-21,63-73
+resources/js/Pages/Profile/Show.vue
+  s_f4326650ae58e0::t_b249bef0689c59 1-124
+resources/js/Layouts/AppLayout.vue
+  s_f4326650ae58e0::t_6965f97b207335 61-76
+  s_f4326650ae58e0::t_10bd12ab972aac 3,9,11,14-15,22-24
+  s_f4326650ae58e0::t_7c9aa5659e4811 25
+docs/docs/01-authentication.md
+  s_f4326650ae58e0::t_8133ad648559c7 29-31
+resources/js/Pages/Admin/Users/Index.vue
+  s_f4326650ae58e0::t_4084bdc69eda00 3,9-20
+  s_f4326650ae58e0::t_a20cceaccca2b3 1-2,4-8,21-74,97-252
+  s_f4326650ae58e0::t_f5580e380012b2 75-96
+plugins/sorify/skills/sorify/skill.md
+  s_f4326650ae58e0::t_273dc34797c5bb 80-83
+database/migrations/2026_07_23_000001_add_auth_fields_to_users_table.php
+  s_f4326650ae58e0::t_50348936a076b5 1-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "8d46ce4c0880913511e6881d18459850a118eadf",
+  "prompts": {},
+  "sessions": {
+    "s_f4326650ae58e0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bb8e9eda-833b-48f5-ae10-321b737db109",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

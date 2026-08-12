@@ -1,0 +1,29 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_df0096b396ac01::t_d4f4e48392bc61 728
+app/Http/Controllers/DashboardController.php
+  s_1f20dee627edc0::t_3f518d3316b139 7,15,17-26,29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "e5f9e55a274c86e881570fee17e34d2fde3c7736",
+  "prompts": {},
+  "sessions": {
+    "s_1f20dee627edc0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "51f420c2-a06d-4ab4-93c9-dd67dafc9362",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_df0096b396ac01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "061abd43-9286-49c7-b3d1-e4b38f4b162b",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

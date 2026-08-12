@@ -1,0 +1,19 @@
+resources/playwright/harness.js
+  s_83f1d1db18aca6::t_3246e23ea74e8b 53-55,64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "8bafa34d1552e46ee954db02b342405db5bdb73a",
+  "prompts": {},
+  "sessions": {
+    "s_83f1d1db18aca6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "50c0c619-dc32-4043-837e-955414de65fa",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

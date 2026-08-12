@@ -1,0 +1,41 @@
+app/Services/PlaywrightCodeValidatorService.php
+  s_afd5e6ef3acb46::t_fbde6b5d42196b 1-30
+resources/js/composables/useTheme.js
+  s_ca8f32d512b5aa::t_2d1c85c7979080 1-30
+resources/playwright/harness.cjs
+  s_6c458a2b2100a9::t_56d55633e258d1 1-164
+resources/views/app.blade.php
+  s_ca8f32d512b5aa::t_f2aba9046ae82b 1-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "b715925554a0fcdb76efb4001966cf76fa948797",
+  "prompts": {},
+  "sessions": {
+    "s_6c458a2b2100a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0c15a47f-ba7c-405a-9a01-b78e966f4d95",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_afd5e6ef3acb46": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a527dc22898509b8a",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_ca8f32d512b5aa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "65ccfd24-6214-4e92-8b45-c610c70d30d1",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

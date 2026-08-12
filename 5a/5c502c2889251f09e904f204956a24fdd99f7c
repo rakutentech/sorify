@@ -1,0 +1,24 @@
+.env.prod
+  s_d0d8240531cb57::t_103481aceb482f 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "5a5c502c2889251f09e904f204956a24fdd99f7c",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_d0d8240531cb57": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6bb30d5d-5f27-4967-8e7a-61ec6478def1",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

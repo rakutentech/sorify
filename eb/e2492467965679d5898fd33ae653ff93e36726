@@ -1,0 +1,36 @@
+.claude-plugin/marketplace.json
+  h_f44dfe84a46cdf 1-11
+plugins/sorify/.claude-plugin/plugin.json
+  h_f44dfe84a46cdf 1-4
+plugins/sorify/.mcp.json
+  h_f44dfe84a46cdf 1-7
+plugins/sorify/README.md
+  h_f44dfe84a46cdf 1-61
+plugins/sorify/commands/gateway.md
+  h_f44dfe84a46cdf 1-185
+plugins/sorify/commands/generate.md
+  h_f44dfe84a46cdf 1-409
+plugins/sorify/scripts/mcp-auth-headers.sh
+  h_f44dfe84a46cdf 1-14
+plugins/sorify/skills/shared/analyzer-instructions.md
+  h_f44dfe84a46cdf 1-340
+plugins/sorify/skills/shared/designer-instructions.md
+  h_f44dfe84a46cdf 1-186
+plugins/sorify/skills/shared/explorer-instructions.md
+  h_f44dfe84a46cdf 1-579
+plugins/sorify/skills/shared/generator-patterns-mock.md
+  h_f44dfe84a46cdf 1-511
+plugins/sorify/skills/shared/generator-patterns.md
+  h_f44dfe84a46cdf 1-561
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "ebe2492467965679d5898fd33ae653ff93e36726",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+plugins/sorify/commands/gateway.md
+  s_f13142323d0383::t_51fdf02568f66f 64-65
+  s_f13142323d0383::t_ee0ef9bb843e7d 10-21
+  s_f13142323d0383::t_8cfbbc18e4a5ca 69
+  s_f13142323d0383::t_0b15c3449e925e 82-83
+  s_f13142323d0383::t_dd5eff71300bbf 7-9
+  s_f13142323d0383::t_48abb968a7091d 22-24,61-63
+  s_f13142323d0383::t_62fa7c83d0cd7b 66-68
+  s_f13142323d0383::t_bc4ad7b895b317 70-72,79-81
+  s_f13142323d0383::t_7789c53c661d1b 84-86
+  s_f13142323d0383::t_3059b3b3ec4ec4 1-6,25-60,73-78,87-196
+plugins/sorify/.mcp.json
+  s_f13142323d0383::t_3a313d4bc186fa 4
+plugins/sorify/commands/generate.md
+  s_f13142323d0383::t_79493dddae395c 398
+plugins/sorify/README.md
+  s_f13142323d0383::t_db34bf3b2b93c6 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "180e288dbe0084a0c2268b9b72fe3ea3db92ab33",
+  "prompts": {},
+  "sessions": {
+    "s_f13142323d0383": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eb071bf8-8a8d-40cd-bb79-1486cf29b192",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+plugins/sorify/commands/generate.md
+  s_a79f8747161b64::t_47704f90884e8b 1-430
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "297adb32f3570262078c44ba226a0e2550454d22",
+  "prompts": {},
+  "sessions": {
+    "s_a79f8747161b64": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "912dc1fc-4d73-46e8-b06f-12be0aa2fa2e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

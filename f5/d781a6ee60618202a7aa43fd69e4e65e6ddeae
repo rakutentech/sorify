@@ -1,0 +1,24 @@
+app/Http/Controllers/ReportController.php
+  s_dbf091b7107cac::t_6342acb1d8fde5 17-18,25-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "f5d781a6ee60618202a7aa43fd69e4e65e6ddeae",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_dbf091b7107cac": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a6d3cf5f-c9c1-4879-90f6-d01c546bbb02",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

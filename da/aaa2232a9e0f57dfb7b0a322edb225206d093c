@@ -1,0 +1,35 @@
+bootstrap/app.php
+  s_d0d8240531cb57::t_c0dc9af2697c30 20
+app/Providers/AppServiceProvider.php
+  h_f44dfe84a46cdf 17
+  s_d0d8240531cb57::t_bea2d782d1b5b9 5,18-20
+.github/workflows/release.yml
+  h_f44dfe84a46cdf 51-58
+config/app.php
+  h_f44dfe84a46cdf 29
+.env.prod
+  h_f44dfe84a46cdf 2-4,66-71
+  s_d0d8240531cb57::t_103481aceb482f 5
+  s_d0d8240531cb57::t_ee4f042e113d18 33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "daaaa2232a9e0f57dfb7b0a322edb225206d093c",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_d0d8240531cb57": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6bb30d5d-5f27-4967-8e7a-61ec6478def1",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

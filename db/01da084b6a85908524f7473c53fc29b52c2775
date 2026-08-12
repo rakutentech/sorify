@@ -1,0 +1,14 @@
+tests/Feature/ExampleTest.php
+  h_f44dfe84a46cdf 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "db01da084b6a85908524f7473c53fc29b52c2775",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

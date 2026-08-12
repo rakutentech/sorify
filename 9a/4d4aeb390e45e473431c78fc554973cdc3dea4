@@ -1,0 +1,40 @@
+app/Http/Controllers/TestController.php
+  s_24f022a21dbd42::t_1ab5dbdc86b9dd 67
+  s_24f022a21dbd42::t_8d8ee506651252 65
+app/Jobs/GenerateTestCodeJob.php
+  s_24f022a21dbd42::t_7644cf21fc7d6b 37-38
+resources/js/Pages/Tests/Show.vue
+  s_24f022a21dbd42::t_c53efcbadb7ae4 56,61,66,78-83
+  s_24f022a21dbd42::t_d6b12eb9c75f3d 221-236
+app/Services/Ai/OpenAiProvider.php
+  s_24f022a21dbd42::t_ffcbc54bf492c2 22-24
+app/Services/Ai/AnthropicProvider.php
+  s_24f022a21dbd42::t_461ffbfb41c193 22-24,29,34,43-58
+resources/js/Components/RunStatusBadge.vue
+  s_24f022a21dbd42::t_d9eef8b7e968c4 22
+database/migrations/2026_05_19_061701_extend_tests_status_enum.php
+  s_24f022a21dbd42::t_13fc9b33a69ab2 4
+  s_24f022a21dbd42::t_91fd97534fd719 10-27,32-48
+  s_24f022a21dbd42::t_dab3aa3da6fa76 1-3,5-9,28-31,49-50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "9a4d4aeb390e45e473431c78fc554973cdc3dea4",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_24f022a21dbd42": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4501c8a5-afec-4c62-bd9b-c284042a84fe",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

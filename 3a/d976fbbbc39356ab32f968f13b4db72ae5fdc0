@@ -1,0 +1,48 @@
+database/migrations/2026_05_19_000003_create_test_runs_table.php
+  s_8138dacffac4e1::t_899c7a7b6efdfa 1-32
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_8138dacffac4e1::t_3048ffc0bb078a 41-49
+database/migrations/2026_05_19_000007_create_test_code_versions_table.php
+  s_8138dacffac4e1::t_d4e16c360b56df 1-28
+package.json
+  s_8138dacffac4e1::t_b48737df6fcf50 20
+database/migrations/0001_01_01_000000_create_users_table.php
+  s_8138dacffac4e1::t_f074daa64ca97d 21
+database/migrations/2026_05_19_000008_create_test_suite_schedules_table.php
+  s_8138dacffac4e1::t_58a4fe8831e9b5 1-28
+database/migrations/2026_05_19_000002_create_tests_table.php
+  s_8138dacffac4e1::t_d6e39a9a99617f 16,20
+database/migrations/2026_05_19_000006_create_test_suite_user_table.php
+  s_8138dacffac4e1::t_e4ca9c5a9ceeea 1-28
+tests/Unit/Mcp/Tools/SuitesToolsTest.php
+  s_8138dacffac4e1::t_5bb409b01c2a76 33-52
+database/migrations/2026_05_19_000004_create_test_results_table.php
+  s_8138dacffac4e1::t_64f8e475eeabab 1-31
+database/migrations/2026_05_19_000001_create_test_suites_table.php
+  s_8138dacffac4e1::t_a6461d71c56029 13-14,17-23,25-27
+database/migrations/2026_05_19_000005_create_screenshots_table.php
+  s_8138dacffac4e1::t_05d3bd2eeeb79b 1-26
+package-lock.json
+  s_8138dacffac4e1::t_6d2bc619d227bd 2,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3ad976fbbbc39356ab32f968f13b4db72ae5fdc0",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_8138dacffac4e1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7abf9a2d-be85-4f0b-82c1-e57cfbb639bf",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

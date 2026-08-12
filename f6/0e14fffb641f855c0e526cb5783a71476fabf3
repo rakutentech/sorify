@@ -1,0 +1,37 @@
+resources/js/Pages/Dashboard/Index.vue
+  s_4c92e7864047a5::t_319babcc9de606 101
+  s_4c92e7864047a5::t_d19514d7712ffc 88
+resources/js/Pages/TestSuites/Index.vue
+  s_4c92e7864047a5::t_275e320e48716b 146
+  s_4c92e7864047a5::t_f359e82b987c10 132
+  s_4c92e7864047a5::t_c23b12e04e12b7 151
+resources/js/Pages/TestRuns/Show.vue
+  s_4c92e7864047a5::t_0d0135396a63e3 224,249
+app/Services/ReportingService.php
+  s_4c92e7864047a5::t_082af3ca56940d 55
+resources/js/Pages/Reports/Index.vue
+  s_4c92e7864047a5::t_cc78884cbca2d9 80
+  s_4c92e7864047a5::t_c7d872a101127b 92
+  s_4c92e7864047a5::t_679f0a5fd4c727 94-105
+resources/js/Pages/Tests/Show.vue
+  s_4c92e7864047a5::t_12a40966d30b05 303
+  s_4c92e7864047a5::t_cc57cea3ba182a 292
+resources/js/Pages/TestSuites/Show.vue
+  s_4c92e7864047a5::t_d56239c26cb9d8 202,253
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f60e14fffb641f855c0e526cb5783a71476fabf3",
+  "prompts": {},
+  "sessions": {
+    "s_4c92e7864047a5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "85248d93-a15c-4984-8b1c-a0457d6cdba9",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

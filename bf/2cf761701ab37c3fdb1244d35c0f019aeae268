@@ -1,0 +1,29 @@
+.env.example
+  h_f44dfe84a46cdf 1-65
+sorify-icon.svg
+  s_321266903fed25::t_dc5f9518ade5ca 1-45
+README.md
+  h_f44dfe84a46cdf 1,5-7,13,19,22-28
+  s_321266903fed25::t_46fafb53a16761 3-4,8,10-12,14-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "bf2cf761701ab37c3fdb1244d35c0f019aeae268",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_321266903fed25": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "48c9cfec-cbf6-43bb-bdf4-8811b2f8e38f",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

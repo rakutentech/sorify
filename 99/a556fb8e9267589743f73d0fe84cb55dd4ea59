@@ -1,0 +1,53 @@
+docker-compose.yml
+  s_ccb688bf3ac741::t_a9c8050641ca67 1-63
+README.md
+  s_321266903fed25::t_46fafb53a16761 3-4,8,10-12,14-16
+  h_f44dfe84a46cdf 1,5-7,13,19,22-38,40-42,44-48,50-51,53-58,61
+  h_f44dfe84a46cdf 18,20-21,62
+docker/entrypoint.sh
+  s_ccb688bf3ac741::t_0dc28ebeb70485 1-40
+.env.example
+  h_f44dfe84a46cdf 1-65
+docker/php.ini
+  s_ccb688bf3ac741::t_0f0bf17c53bee3 1-7
+.env.docker.example
+  s_ccb688bf3ac741::t_cd8f834edd37ec 1-76
+sorify-icon.svg
+  s_321266903fed25::t_dc5f9518ade5ca 1-45
+Dockerfile
+  s_ccb688bf3ac741::t_db063ee3984564 1-23,25-87
+  s_ccb688bf3ac741::t_9b664d78f4952d 24
+database/migrations/2026_05_19_000001_create_test_suites_table.php
+  s_ccb688bf3ac741::t_69324800bb37c2 13-14
+.dockerignore
+  s_ccb688bf3ac741::t_d4d617c2bad6bd 1-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "99a556fb8e9267589743f73d0fe84cb55dd4ea59",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_321266903fed25": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "48c9cfec-cbf6-43bb-bdf4-8811b2f8e38f",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_ccb688bf3ac741": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "543fe6ac-88b8-4ac6-9174-057c7344c216",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

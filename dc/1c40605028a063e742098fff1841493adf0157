@@ -1,0 +1,42 @@
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_20131292237ed7::t_e98a984b86b680 17-18
+resources/playwright/runner.js
+  s_20131292237ed7::t_94061337e19ad1 85
+  s_20131292237ed7::t_9d8a3d4907d82e 35-38
+  s_20131292237ed7::t_5b3450981e1123 73-74
+resources/js/Pages/TestSuites/Show.vue
+  s_20131292237ed7::t_ac2c5f73f7faad 20-21
+  s_20131292237ed7::t_8409bdd8183c4c 28-29
+  s_20131292237ed7::t_071bcd2cd5eabd 276-294
+app/Services/PlaywrightRunnerService.php
+  s_20131292237ed7::t_3bf6e9c7530601 108-115
+resources/playwright/harness.js
+  s_20131292237ed7::t_27a6ae462528e6 19
+  s_20131292237ed7::t_ef03b0641a3428 29
+  s_20131292237ed7::t_19636cf868bb87 20
+  s_20131292237ed7::t_22fe76b556d8a3 50,52-58,60
+  s_20131292237ed7::t_b910fad105a1a4 51
+database/migrations/2026_05_25_000001_add_browser_headless_to_test_suites.php
+  s_20131292237ed7::t_dfe67ae5f9a286 1-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "dc1c40605028a063e742098fff1841493adf0157",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_20131292237ed7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7ac25189-8fd5-4656-b447-1a69f7d2ba31",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

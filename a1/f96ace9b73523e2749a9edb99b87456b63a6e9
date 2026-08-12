@@ -1,0 +1,34 @@
+docs/index.html
+  s_a911fcc51b9dd4::t_be235d7e09b1c6 1-6,8-136,138-188,190,192-193,195-232,295-302,304-316,319-321,323-339,428-436,438-443,445-450,452-457,459-502,505-506,511,517-522,525,528-539
+  s_a911fcc51b9dd4::t_3f72021a9ae3c5 523-524,526-527
+  s_a911fcc51b9dd4::t_0e8dd501091d1c 507-510,512-516
+  s_a911fcc51b9dd4::t_609370ecc77b4c 7
+  s_a911fcc51b9dd4::t_9501ec906e8f54 137
+  s_a911fcc51b9dd4::t_70a966793a8068 344,346-349,356-358,364-366,372-374
+  s_a911fcc51b9dd4::t_0fc0ee8a854345 437,444,451,458
+  s_a911fcc51b9dd4::t_0333aa1122c6c2 235-236,252,262-265,267-271,273-276,284-289
+  s_a911fcc51b9dd4::t_4f395264d8f106 317-318,322
+  s_a911fcc51b9dd4::t_15f584dfc1a662 340-343,345,350-353,355,359-363,367-371,375-376,384-427
+  s_a911fcc51b9dd4::t_58e8e4f55d9bc8 503-504
+  s_a911fcc51b9dd4::t_4192558e1c222a 354,377-383
+  s_a911fcc51b9dd4::t_559811eab57fb0 189,191,194
+  s_a911fcc51b9dd4::t_19e325cd0a544d 272
+  s_a911fcc51b9dd4::t_023822db7666ab 303
+  s_a911fcc51b9dd4::t_3f411e23d4c8e4 233-234,237-251,253-261,266,277-283,290-294
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a1f96ace9b73523e2749a9edb99b87456b63a6e9",
+  "prompts": {},
+  "sessions": {
+    "s_a911fcc51b9dd4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1cd55f9-4578-4ded-bc8b-e239d814e014",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+resources/js/Pages/Profile/Show.vue
+  s_7f328fa70b8789::t_a4c00098d3a433 4,28,31-32,36-58,61,64,66
+resources/js/Pages/TestSuites/Index.vue
+  s_7f328fa70b8789::t_7039f026b327eb 5,86-87,89,94,100,107,113,115,121,128,130-136,140,144,148-150,153-154,158-161,167,169-170,175,188,190,201,204,206-207,215,223,231,234-237,245,247-253,256,259,265-266,269,272-273,275
+resources/js/Components/TestCodeEditor.vue
+  s_7f328fa70b8789::t_a0b6658965b909 17,19,21-23,25,33,43
+resources/js/Pages/Auth/Login.vue
+  s_7f328fa70b8789::t_b09a3c6b2fcdd5 4,21,23-26,43,48-49,52,56,58-65,68,70,74,76-78,82,85,87
+resources/js/Components/ui/TextField.vue
+  s_7f328fa70b8789::t_62dc09506622aa 1-53
+resources/js/Components/ui/Chip.vue
+  s_7f328fa70b8789::t_f974bce956e27b 1-46
+resources/js/Pages/Tests/Show.vue
+  s_7f328fa70b8789::t_e9203bd9586942 7,137-138,140,142,149,151-152,154-156,162,171-173,175,183,185-186,194,196-197,204,209-212,226,231-232,236-237,239,247-249,251,253,256,258-259,269,272-274,277,282,284-287,291,295-296,299,301,303,308,322,328-330,333,338,348,357,364,375-376,381-382,388,400,405,412,417
+resources/js/Components/CopyableSecret.vue
+  s_7f328fa70b8789::t_a205a27f3521a0 24,29
+resources/js/Pages/Auth/ResetPassword.vue
+  s_7f328fa70b8789::t_b5ccfe61839e91 4,28,30-33,50,55-56,59,63,65-72,74-81,83-89,92,95,97
+resources/js/Pages/TestSuites/Show.vue
+  s_7f328fa70b8789::t_47a284dd8e31ed 250-251,259,261-262,267,269,274,277,285,292,298-299,301,306,312-313,326,328-329,339,356,363,368-370,373,381,384-385,389-391,394,397,400-403,405,408,410,412
+  s_7f328fa70b8789::t_608ca3033e69af 418-422,429-435,438-439,444,447-448,452,455-456,461,464,467-468,474,477-478,482,485,487-488,490,499-503,510-524,526,534,536-537,545-546,548
+  s_7f328fa70b8789::t_4461217a9b788e 6
+  s_7f328fa70b8789::t_dd9c9e832c49e6 183-184,186,188-193,197,202-203,208-209,219,225-236,240-244
+resources/js/Pages/Dashboard/Index.vue
+  s_7f328fa70b8789::t_1e9acbe8aa5996 40-41,46-59,61,63-66,71,75-78,81,86,88-95,99,103,105,109,113,116,118-122,126,135
+  s_7f328fa70b8789::t_e82d2c7cd4b7ca 3
+resources/js/Components/ScreenshotGallery.vue
+  s_7f328fa70b8789::t_13e0c7f7601f98 49,56,66,75,80,91,104,107-108,111,120
+resources/js/Components/ui/Card.vue
+  s_7f328fa70b8789::t_9e4d2c8bb4e2e1 1-22
+resources/js/Components/TrendChart.vue
+  s_7f328fa70b8789::t_ff2e10f9676285 15-16,40-42,49-51,62-64,75-77,95,104,109-110,112-113,118-119,122-123
+resources/js/Components/ui/index.js
+  s_7f328fa70b8789::t_02138cdf80a0c6 1-6
+resources/js/Pages/TestRuns/Show.vue
+  s_7f328fa70b8789::t_3ac1038ae89905 136-137,139,141,145,148,150,153,155,157,165-166,171,180,185-188,190,193,196-197,201,205,207,211,216,222,224-226,228,231-233,235-236,240,245,248,253,259,262,264,270,273-274,279-280,286,298,303,308,314
+  s_7f328fa70b8789::t_8d936a997e554a 6
+resources/css/app.css
+  s_7f328fa70b8789::t_758921f76f9e57 22-23,27-73,78-134,140-145,147-149,151-153,155-157,159-161,163-165,167
+  s_7f328fa70b8789::t_3ba868a7e6c1d2 139
+resources/js/Pages/Auth/ForgotPassword.vue
+  s_7f328fa70b8789::t_379318f58e752d 5,21,23-26,43,48-49,52,56-57,59,61,66-73,76,79,81,85
+resources/js/Components/ui/IconButton.vue
+  s_7f328fa70b8789::t_db631f91388d14 1-25
+resources/js/Components/DurationChart.vue
+  s_7f328fa70b8789::t_aeb4ccac74b8ad 13-14,29-31,38-39,46-47,61,70,75-76,78-79,87-88,91,93
+resources/js/Components/ui/Button.vue
+  s_7f328fa70b8789::t_7472b6fa831c80 1-40
+resources/js/composables/useMd3ChartColors.js
+  s_7f328fa70b8789::t_219432ca923ad7 1-34
+resources/js/Pages/Admin/Users/Index.vue
+  s_7f328fa70b8789::t_1f42ce620ad8ce 5,46-47,51-52,54-59,62-65,69-71,76,80,88,92,99,102-103,106-115,121,123,127-128,131
+resources/js/Components/ui/Alert.vue
+  s_7f328fa70b8789::t_06522bdb0c6e3b 1-20
+resources/js/Layouts/AppLayout.vue
+  s_7f328fa70b8789::t_d4bc0cb8205d68 5
+  s_7f328fa70b8789::t_50f9f07d4e8c15 30-32,34,37-38,49,51-52,66,72,77,80-82,101,107,113,115-116,125-131,133-139,141
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "2a2db7ad76006d029468d55f2e3e1a024fe372e0",
+  "prompts": {},
+  "sessions": {
+    "s_7f328fa70b8789": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "878c1173-9cc3-4e4c-a2a6-d96d2393ef57",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
