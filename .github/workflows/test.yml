@@ -1,0 +1,60 @@
+name: "Test and Lint"
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  FRANKEN_VERSION: "v1.12.6"
+  COMPOSER_VERSION: "2.8.9"
+
+jobs:
+  test:
+    name: Test and Lint
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare local bin path
+        run: |
+          mkdir -p $HOME/.local/bin
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Download FrankenPHP and Composer
+        run: |
+          curl -fsSL https://github.com/dunglas/frankenphp/releases/download/${{ env.FRANKEN_VERSION }}/frankenphp-linux-x86_64 -o $HOME/.local/bin/frankenphp
+          curl -fsSL https://getcomposer.org/download/${{ env.COMPOSER_VERSION }}/composer.phar -o $HOME/.local/bin/composer
+          chmod +x $HOME/.local/bin/frankenphp $HOME/.local/bin/composer
+          printf '#!/bin/sh\nexec frankenphp php-cli "$@"\n' > $HOME/.local/bin/php
+          chmod +x $HOME/.local/bin/php
+
+      - name: Composer install
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: NPM install and build
+        run: npm ci && npm run build
+
+      - name: App Setup
+        run: |
+          mkdir -p ./storage/app ./storage/framework/cache ./storage/framework/sessions ./storage/framework/views ./storage/logs
+          chmod -R 777 storage
+          cp .env.testing .env
+
+      - name: PHPUnit Tests
+        run: ./vendor/bin/phpunit --configuration phpunit.xml
+
