@@ -1,0 +1,30 @@
+.env.prod
+  h_f44dfe84a46cdf 1-71
+.github/workflows/release.yml
+  h_f44dfe84a46cdf 1-122
+bin/php
+  h_f44dfe84a46cdf 1-14
+deploy.php
+  h_f44dfe84a46cdf 1-128
+server/nginx-extra.conf
+  h_f44dfe84a46cdf 1-17
+server/prod/Caddyfile
+  h_f44dfe84a46cdf 1-43
+server/sorify-octane.ini
+  h_f44dfe84a46cdf 1-12
+server/sorify-queue.ini
+  h_f44dfe84a46cdf 1-10
+server/sorify-scheduler.ini
+  h_f44dfe84a46cdf 1-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "559bd42555d458bf16c7015cddab72b35e8903e0",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
