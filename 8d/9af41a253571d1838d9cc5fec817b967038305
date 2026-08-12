@@ -1,0 +1,44 @@
+artisan
+  h_f44dfe84a46cdf 1-18
+bin/php
+  h_f44dfe84a46cdf 1-14
+config/app.php
+  h_f44dfe84a46cdf 1-126
+config/auth.php
+  h_f44dfe84a46cdf 1-117
+config/cache.php
+  h_f44dfe84a46cdf 1-130
+config/database.php
+  h_f44dfe84a46cdf 1-184
+config/filesystems.php
+  h_f44dfe84a46cdf 1-89
+config/logging.php
+  h_f44dfe84a46cdf 1-132
+config/mail.php
+  h_f44dfe84a46cdf 1-118
+config/octane.php
+  h_f44dfe84a46cdf 1-224
+config/queue.php
+  h_f44dfe84a46cdf 1-129
+config/services.php
+  h_f44dfe84a46cdf 1-38
+config/session.php
+  h_f44dfe84a46cdf 1-233
+config/sorify.php
+  h_f44dfe84a46cdf 1-10
+phpunit.xml
+  h_f44dfe84a46cdf 1-36
+vite.config.js
+  h_f44dfe84a46cdf 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8d9af41a253571d1838d9cc5fec817b967038305",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
