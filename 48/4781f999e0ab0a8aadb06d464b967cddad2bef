@@ -1,0 +1,187 @@
+docker/php.ini
+  s_ccb688bf3ac741::t_0f0bf17c53bee3 1-7
+resources/js/Pages/Auth/Register.vue
+  s_69de9ff14ae5d1::t_bba2ab7d8673f2 1-50,52-108
+  s_3e51afbff65ee5::t_658934ebc33440 51
+resources/js/Components/ui/Autocomplete.vue
+  s_69de9ff14ae5d1::t_7499b427b67c7a 5,11-17,23,28-32
+  s_69de9ff14ae5d1::t_3cda5035f5784f 47,53
+  s_7333ca004604c1::t_52a74803f657e5 81,85-102,104-116
+tests/Feature/ProfileTest.php
+  s_cea6273f216fad::t_742b69f5d19290 1-37
+resources/js/Pages/Profile/Show.vue
+  s_cea6273f216fad::t_2c4cc3d93232d8 11
+  s_cea6273f216fad::t_8ec882cb00d2ed 38-60
+  s_cea6273f216fad::t_fcbc8583d3f7c4 6
+  s_cea6273f216fad::t_0ba9d48c6e7347 10,12-17,25
+config/app.php
+  s_afc479c5e99795::t_1dc9acf393a772 57-58
+resources/images/sorify-icon.svg
+  s_18daae983f47bf::t_f2c6b33c9eec09 1-45
+.github/workflows/test.yml
+  h_f44dfe84a46cdf 7
+.env.example
+  h_f44dfe84a46cdf 1-5,7-66
+  s_afc479c5e99795::t_7e9ece77fc97b9 6
+docker-compose.yml
+  s_afc479c5e99795::t_8f45c6ac6c8e16 9
+  s_ccb688bf3ac741::t_a9c8050641ca67 1-8,10-64
+Dockerfile
+  s_ccb688bf3ac741::t_db063ee3984564 1-8,14,16,18-28,30-92
+  s_ccb688bf3ac741::t_9b664d78f4952d 29
+  s_afc479c5e99795::t_7fe4b692c731c5 9-13,15,17
+.dockerignore
+  s_ccb688bf3ac741::t_d4d617c2bad6bd 1-36
+resources/js/Pages/Auth/ResetPassword.vue
+  s_18daae983f47bf::t_88b3a728becb1a 5
+  s_3e51afbff65ee5::t_486bdf9e44a9e6 56
+resources/js/Layouts/AppLayout.vue
+  s_3e51afbff65ee5::t_d080da41a6b80d 39
+  s_18daae983f47bf::t_809e04cc9c292e 6
+  s_18daae983f47bf::t_bcc3458150be4f 38
+package.json
+  s_73513d5c511604::t_e6e5ff95803f1b 4
+tests/Feature/RegistrationTest.php
+  s_69de9ff14ae5d1::t_83732b49c307c9 1-78
+database/migrations/2026_05_19_000001_create_test_suites_table.php
+  s_ccb688bf3ac741::t_69324800bb37c2 13-14
+routes/web.php
+  s_69de9ff14ae5d1::t_c993c21d7f85da 21-23
+  s_cea6273f216fad::t_e19b20df9c36bb 85-86
+app/Http/Controllers/ProfileController.php
+  s_cea6273f216fad::t_fa24d23aa82fb2 27-39
+composer.json
+  s_73513d5c511604::t_78c792933133ac 5-7
+  s_ce82908cd1dc44::t_1557b3f767c420 3
+composer.lock
+  s_73513d5c511604::t_1ba4481529cdfd 7
+README.md
+  s_73513d5c511604::t_d47a5a02f6767d 28
+  s_321266903fed25::t_46fafb53a16761 3-4,8,10,12,14,18,20,22
+  s_18daae983f47bf::t_e2398baa7eef9d 1
+  h_f44dfe84a46cdf 5-7,11,13,15-17,19,21,24-25,31-32,35-38,40-44,47-48,50-51,53-54,56-57,59-64,67-68,70,73-74,76-77,81-82,84,86,101,152,156-159
+  s_dfbd6076d659dd::t_9d9a906d7ee707 102-151
+  s_73513d5c511604::t_1d696921b99993 153-155
+  s_73513d5c511604::t_256b81fe0db774 23,55,58,78-80
+resources/js/Pages/Auth/Login.vue
+  s_18daae983f47bf::t_a83f47271fa0a7 5
+  s_69de9ff14ae5d1::t_332e7bac74cd8c 85-89
+  s_3e51afbff65ee5::t_72874a378bc2e6 49
+resources/js/Pages/Auth/ForgotPassword.vue
+  s_18daae983f47bf::t_7e40eadfcb3f49 6
+  s_3e51afbff65ee5::t_cb7f4c1a3eb840 49
+LICENSE
+  s_73513d5c511604::t_c9b1e3ec57d4a9 1-201
+resources/js/Pages/TestSuites/Show.vue
+  s_69de9ff14ae5d1::t_b590c432018fcd 677-688
+  s_69de9ff14ae5d1::t_58c6c1040cc397 691,694,697,700
+app/Http/Controllers/AuthController.php
+  s_69de9ff14ae5d1::t_862f889b234aca 5
+  s_69de9ff14ae5d1::t_0005a6a0f4506f 41-70
+.env.docker.example
+  s_ccb688bf3ac741::t_cd8f834edd37ec 1-8,10-77
+  s_afc479c5e99795::t_eb0f39dc934001 9
+docker/entrypoint.sh
+  s_ccb688bf3ac741::t_0dc28ebeb70485 1-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "484781f999e0ab0a8aadb06d464b967cddad2bef",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_18daae983f47bf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b567bd1e-06c1-49d8-87b0-5f77537f09d8",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_321266903fed25": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "48c9cfec-cbf6-43bb-bdf4-8811b2f8e38f",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_3e51afbff65ee5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ce005282-9fab-41e8-8f73-069da3b08c82",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_69de9ff14ae5d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "dc8fec4f-b7bd-4de6-bb70-bf82af58102e",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_7333ca004604c1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bd96ddb3-4f25-41c8-87b0-7d4e12d6ca52",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_73513d5c511604": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "906fd1c5-a0ea-4eb1-abe7-cb52d9061fb6",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_afc479c5e99795": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ab5a8d7c-e925-4d84-b5f4-3146f15a278b",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_ccb688bf3ac741": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "543fe6ac-88b8-4ac6-9174-057c7344c216",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_ce82908cd1dc44": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ec13171c-4348-40e8-afd6-fc75dec2fac1",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_cea6273f216fad": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5f3a6f38-d70d-4bc9-ade9-7fe628593419",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_dfbd6076d659dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "017b8787-7819-4020-8649-b9e3f1987746",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
