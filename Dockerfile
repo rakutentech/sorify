@@ -60,6 +60,12 @@ RUN composer install --no-dev --no-interaction --prefer-dist \
 COPY . .
 COPY --from=assets /app/public/build ./public/build
 
+# The app is served under the /sorify URL subpath (see ASSET_URL/APP_URL), but
+# built assets physically live at public/build — this self-referencing symlink
+# lets Caddy's root-symlink resolution serve /sorify/build/* from public/build/*
+# without needing a reverse-proxy prefix strip.
+RUN ln -s . public/sorify
+
 # Now that artisan/bootstrap exist, finish the autoloader and let packages discover
 RUN composer dump-autoload --optimize --no-dev \
     && php artisan package:discover --ansi

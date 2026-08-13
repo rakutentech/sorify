@@ -5,6 +5,7 @@
   Zero-code test management, built for developers, QA or both<br>
   Built for AI Agents - Claude/Codex<br>
   QA Platform over MCP<br>
+  Low Tokens consumption<br>
 </p>
 
 **Test Management:** Organize test suites and test cases, run them on demand or on a schedule.
@@ -48,9 +49,10 @@
 
 ```
 claude /plugin marketplace add https://github.com/rakutentech/sorify.git
+codex plugin marketplace add https://github.com/rakutentech/sorify.git
 ```
 
-### STEP 1 - Setup Sorify
+### STEP 1 - Setup Sorify MCP
 
 
 ```
@@ -61,12 +63,13 @@ SORIFY_PASSWORD=changeme
 
 
 /sorify:gateway create a test suite called "Awesome App"
+/sorify:gateway list latest failing tests
 
-/sorify:gateway Check my access to existing test suite called "Awesome App"
-/sorify:gateway Check my access to existing test suite http://localhost:8000/sorify/suites/{id}
+/sorify:gateway Create new test suite. Get requirements from JIRA/GHE/Excel. Write using /sorify:generate
+/sorify:gateway Update the test suite http://localhost:8000/sorify/suites/{id} by adding retry twice
 ```
 
-### STEP 2 - Generate and Push
+### STEP 2 - QA Skills
 
 ```
 # Tests from source code (git)
@@ -88,38 +91,40 @@ SORIFY_PASSWORD=changeme
 
 ## Development (local)
 
-```bash
-docker-compose up
+**Option 1**
+
+```sh
+cp .env.example .env
+composer setup
+php artisan dev
 ```
 
-or
+**Option 2**
 
-```bash
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan db:seed #admin@sorify.local/changeme
-php artisan dev
-
-#or yourself
+```sh
 npm run dev
 php artisan serve
 php artisan queue:work --queue=sorify,default
 ```
 
-## Verify
+**Verify**
 
-```
+```sh
 http://localhost:8000/sorify
 ```
 
-## Running Tests
+- **User:** admin@sorify.local
+- **Password:** changeme
+
+## Self Host - Prod Ready
 
 ```bash
-php artisan test
+cp .env.docker.example .env.docker
+# Update: APP_KEY, DB_PASSWORD, MYSQL_ROOT_PASSWORD
+# Change: APP_ENV=prod for prod ready
+docker compose --env-file .env.docker up
 ```
+
 
 ## Contributors
 
