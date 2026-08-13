@@ -1,0 +1,25 @@
+app/Services/TeamsNotificationService.php
+  s_c489f534f8c799::t_282fb0c4c479d7 126-146
+  s_c489f534f8c799::t_4f1e7b5f1f60cf 72-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "cbf4b492265c42878b5ef5595da5766fe042c3a6",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_c489f534f8c799": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fd6b9ce5-441c-488d-aa15-bc12fa953e41",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
