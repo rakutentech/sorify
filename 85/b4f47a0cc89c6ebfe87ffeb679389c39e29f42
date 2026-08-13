@@ -1,0 +1,25 @@
+plugins/sorify/commands/gateway.md
+  s_a17710ee7c6b4a::t_25de6b36dd6023 112
+  s_a17710ee7c6b4a::t_08bcd846e3a533 103-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "85b4f47a0cc89c6ebfe87ffeb679389c39e29f42",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_a17710ee7c6b4a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2df878d4-2d46-4348-b96e-5b96bd62808f",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

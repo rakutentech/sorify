@@ -1,0 +1,56 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_914837b3b07190::t_fc38f9f7be4351 77
+  s_914837b3b07190::t_23375ad06ded18 329-331
+  s_914837b3b07190::t_c77abaa23dd20e 61
+  s_914837b3b07190::t_7721b10bcb5947 560,564-575
+  s_914837b3b07190::t_f7de7583cd835c 269-270
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_914837b3b07190::t_719aafbeb9cdfb 29-30
+app/Services/PlaywrightRunnerService.php
+  s_914837b3b07190::t_34067432758ff9 118-126
+  s_914837b3b07190::t_f4089d0d0b4088 94
+  s_914837b3b07190::t_1aee29ac18ae65 225-227
+resources/js/Pages/TestSuites/Index.vue
+  s_914837b3b07190::t_500cd18ab7da29 46
+  s_914837b3b07190::t_f148c9504ae051 257-269
+  s_914837b3b07190::t_d3f9a9144eac87 161,163
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_914837b3b07190::t_a40e0d00ef36c3 28-29
+resources/playwright/harness.cjs
+  s_914837b3b07190::t_18a4abebd03fe2 22-23,40-41
+  s_914837b3b07190::t_05a89c89b34492 76-87,89
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_914837b3b07190::t_ebfae8461863f7 17
+database/migrations/2026_08_13_000002_add_playwright_proxy_pac_to_test_suites_table.php
+  s_914837b3b07190::t_415d09401165c1 1-22
+resources/playwright/runner.cjs
+  s_914837b3b07190::t_7f864bdbc34d78 98
+  s_914837b3b07190::t_9bd8ae520b6dd9 84
+  s_914837b3b07190::t_8c23bf09af1f74 37-38
+  s_914837b3b07190::t_4d3f36a8dd2a4d 8-10
+app/Models/TestSuite.php
+  s_914837b3b07190::t_42eb782a19be55 20
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_914837b3b07190::t_eee84c96769d47 17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "db5bc3055009b49349bc3e4f5c504f927b09e606",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_914837b3b07190": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "65095ec8-bf72-4be7-89ff-f0ca1384c60a",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

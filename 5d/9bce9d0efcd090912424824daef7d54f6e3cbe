@@ -1,0 +1,51 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_59d2d581ea1c39::t_f66b92d7b1bcac 82
+  s_59d2d581ea1c39::t_6faba6078557ca 618-625
+  s_6e9868a037bc0c::t_3caa6d0bd0adb6 21-22
+  s_59d2d581ea1c39::t_c522991f5d9577 67
+  s_6e9868a037bc0c::t_6c30c8be3fe191 473,476,478
+  s_6e9868a037bc0c::t_75df977f150f79 474-475,477
+database/migrations/2026_08_13_000001_add_teams_webhook_proxy_to_test_suites_table.php
+  s_59d2d581ea1c39::t_928ab538eef18f 1-22
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_59d2d581ea1c39::t_49a7e67b6355d6 23
+app/Models/TestSuite.php
+  s_59d2d581ea1c39::t_c879ccf40d47f9 27
+app/Services/TeamsNotificationService.php
+  s_59d2d581ea1c39::t_bb3196687b9027 72-73,75-78,80-81,83-97,102-104,115-118,125-160
+  s_59d2d581ea1c39::t_72dff6c604368f 79,82,98-101
+  s_59d2d581ea1c39::t_468ec26c4f0c40 49-58,71,74
+  s_59d2d581ea1c39::t_478d292e01e774 107-114,119-120,161
+  s_59d2d581ea1c39::t_843bf737b7b5eb 5,13-23
+  s_59d2d581ea1c39::t_cd1232fbc038fd 43-48
+  s_59d2d581ea1c39::t_12b391c64947fe 162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5d9bce9d0efcd090912424824daef7d54f6e3cbe",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_59d2d581ea1c39": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d29478e9-db2d-491e-a395-fc8d79600c87",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_6e9868a037bc0c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "64ff3723-985c-4224-83e0-eae623bd9f9b",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
