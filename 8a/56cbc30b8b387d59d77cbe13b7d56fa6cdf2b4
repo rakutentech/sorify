@@ -1,0 +1,48 @@
+resources/js/Pages/Dashboard/Index.vue
+  s_e7f0cc12c9b33e::t_b1fb0c146ad995 90
+  s_e7f0cc12c9b33e::t_3bb60b32a070d0 3
+  s_e7f0cc12c9b33e::t_187a1e9ded0e87 121-122
+  s_e7f0cc12c9b33e::t_a10385dabb799a 120
+resources/js/Components/ui/AvatarGroup.vue
+  s_e7f0cc12c9b33e::t_782baf82724bed 19
+  s_e7f0cc12c9b33e::t_3c1c4aaa8534da 1-2,4-18,20-40
+  s_e7f0cc12c9b33e::t_e8914879696745 3
+resources/js/Pages/TestSuites/Show.vue
+  s_e7f0cc12c9b33e::t_930129103878e9 6
+  s_e7f0cc12c9b33e::t_f872489d8fe78a 463,465-474
+app/Http/Controllers/TestSuiteController.php
+  s_e7f0cc12c9b33e::t_511ef5a385a411 26
+  s_e7f0cc12c9b33e::t_4ba9a428e6f22b 79
+resources/js/Components/ui/Avatar.vue
+  s_e7f0cc12c9b33e::t_e45ba24609711f 1-28
+resources/js/Components/ui/index.js
+  s_e7f0cc12c9b33e::t_7f3c6727302a1b 10-11
+resources/js/Pages/TestSuites/Index.vue
+  s_e7f0cc12c9b33e::t_704970810c1e9b 175-177
+  s_e7f0cc12c9b33e::t_59817d44564377 5
+  s_e7f0cc12c9b33e::t_95c89b5a1b7c8f 129
+app/Http/Controllers/DashboardController.php
+  s_e7f0cc12c9b33e::t_615f68148ad812 17-22
+  s_e7f0cc12c9b33e::t_d708f2a13ed60f 40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8a56cbc30b8b387d59d77cbe13b7d56fa6cdf2b4",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_e7f0cc12c9b33e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f727c5e-7304-481b-ac2b-2c3dc6ef99fc",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
