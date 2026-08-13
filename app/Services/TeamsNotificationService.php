@@ -69,8 +69,8 @@ class TeamsNotificationService
     {
         $status = $isSuccess ? 'Success' : 'Failure';
         $duration = $run->duration_ms ? round($run->duration_ms / 1000, 1).'s' : '—';
-        $suiteUrl = route('suites.show', $suite);
-        $runUrl = route('runs.show', $run);
+        $suiteUrl = $this->absoluteUrl(route('suites.show', $suite, absolute: false));
+        $runUrl = $this->absoluteUrl(route('runs.show', $run, absolute: false));
 
         $body = [
             [
@@ -121,6 +121,27 @@ class TeamsNotificationService
                 ],
             ]],
         ];
+    }
+
+    /**
+     * Builds an absolute URL from a relative route path.
+     *
+     * This runs inside a queued job with no active HTTP request, so route()
+     * falls back to config('app.url') as the root, which already includes the
+     * "/sorify" path segment used by the route group prefix — doubling it.
+     * Only the scheme and host from app.url are used here; the path already
+     * carries the prefix.
+     */
+    private function absoluteUrl(string $path): string
+    {
+        $appUrl = config('app.url');
+        $scheme = parse_url($appUrl, PHP_URL_SCHEME) ?? 'http';
+        $host = parse_url($appUrl, PHP_URL_HOST);
+        $port = parse_url($appUrl, PHP_URL_PORT);
+
+        $root = "{$scheme}://{$host}".($port ? ":{$port}" : '');
+
+        return $root.$path;
     }
 
     private function buildTestsSection(TestRun $run): array
