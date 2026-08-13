@@ -11,7 +11,6 @@ use Symfony\Component\Process\Process;
 
 class PlaywrightRunnerService
 {
-    private string $node;
     private string $runnerScript;
     private string $tmpDir;
     private int $timeoutMs;
@@ -20,7 +19,6 @@ class PlaywrightRunnerService
         private readonly ScreenshotService $screenshotService,
         private readonly HistoryPruningService $pruningService,
     ) {
-        $this->node         = config('sorify.playwright_node_binary', 'node');
         $this->runnerScript = config('sorify.runner_script_path');
         $this->tmpDir       = config('sorify.tmp_dir');
         $this->timeoutMs    = (int) config('sorify.max_test_timeout_ms', 30000);
@@ -109,7 +107,7 @@ class PlaywrightRunnerService
             $timeoutMs = $testRun->testSuite->timeout_ms ?? $this->timeoutMs;
 
             $command = [
-                $this->node,
+                'node',
                 $this->runnerScript,
                 '--spec',    $specPath,
                 '--output',  $outputDir,

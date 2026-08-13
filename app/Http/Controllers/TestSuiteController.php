@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTestSuiteRequest;
 use App\Jobs\PruneSuiteHistoryJob;
+use App\Models\Test;
+use App\Models\TestResult;
 use App\Models\TestSuite;
 use App\Models\User;
 use App\Services\ReportingService;
@@ -104,7 +106,21 @@ class TestSuiteController extends Controller
         return Inertia::render('TestSuites/Show', [
             'suite'      => $suite,
             'stats'      => $this->reporting->suiteStats($suite),
-            'tests'      => $suite->tests()->latest()->get(),
+            'tests'      => $suite->tests()
+                ->with(['testResults' => fn ($query) => $query->with('testRun:id,status,created_at')->latest()->limit(3)])
+                ->latest()
+                ->get()
+                ->map(function (Test $test) {
+                    $data = $test->toArray();
+                    $data['recent_runs'] = $test->testResults->map(fn (TestResult $result) => [
+                        'run_id'     => $result->test_run_id,
+                        'status'     => $result->testRun?->status,
+                        'created_at' => $result->created_at,
+                    ]);
+                    unset($data['test_results']);
+
+                    return $data;
+                }),
             'recentRuns' => $suite->testRuns()->latest()->limit(10)->get(),
             'webhookUrl' => $suite->webhookUrl(),
             'members'    => $members,

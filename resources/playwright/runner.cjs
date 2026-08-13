@@ -14,7 +14,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const { runWithHarness } = require('./harness.cjs');
 
 // ---------------------------------------------------------------------------
 // Minimal CLI argument parser (no dependencies)
@@ -59,6 +58,11 @@ function finish(result, exitCode) {
   let args;
 
   try {
+    // Required here (not at module top-level) so a failure to resolve harness.cjs
+    // or its playwright dependency is caught below and still emits structured JSON,
+    // instead of crashing Node before anything is written to stdout.
+    const { runWithHarness } = require('./harness.cjs');
+
     args = parseArgs(process.argv.slice(2));
 
     if (!args.spec) {

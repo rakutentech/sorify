@@ -237,6 +237,17 @@ function formatDuration(ms) {
     if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
     return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
 }
+
+const RUN_DOT_CLASS = {
+    passed: 'bg-[var(--md-ext-color-success)]',
+    failed: 'bg-[var(--md-sys-color-error)]',
+    error: 'bg-[var(--md-ext-color-warning)]',
+    timeout: 'bg-[var(--md-ext-color-warning)]',
+    running: 'bg-[var(--md-sys-color-primary)]',
+    pending: 'bg-[var(--md-sys-color-primary)]',
+    cancelled: 'bg-[var(--md-sys-color-on-surface-variant)]',
+    skipped: 'bg-[var(--md-sys-color-on-surface-variant)]',
+};
 </script>
 
 <template>
@@ -376,6 +387,19 @@ function formatDuration(ms) {
                                     <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
                                         By <span>{{ test.uploaded_by }}</span>
                                     </p>
+                                </div>
+                                <div v-if="test.recent_runs?.length" class="flex items-center gap-2.5 mt-1.5 flex-wrap">
+                                    <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">Latest runs:</span>
+                                    <Link
+                                        v-for="run in test.recent_runs"
+                                        :key="run.run_id"
+                                        :href="`/sorify/runs/${run.run_id}`"
+                                        :title="run.status"
+                                        class="inline-flex items-center gap-1 md-label-small text-[var(--md-sys-color-primary)] hover:underline"
+                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="RUN_DOT_CLASS[run.status] ?? 'bg-[var(--md-sys-color-on-surface-variant)]'" />
+                                        {{ formatDate(run.created_at) }}
+                                    </Link>
                                 </div>
                             </div>
 

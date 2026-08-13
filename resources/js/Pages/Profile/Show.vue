@@ -49,6 +49,14 @@ function submitPassword() {
                             required
                             :error="nameForm.errors.name"
                         />
+                        <div>
+                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">
+                                Email
+                            </label>
+                            <p class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] text-[var(--md-sys-color-on-surface-variant)] md-body-medium">
+                                {{ user.email }}
+                            </p>
+                        </div>
                     </div>
 
                     <Button type="submit" variant="filled" :disabled="nameForm.processing">
