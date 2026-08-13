@@ -1,0 +1,21 @@
+server/sorify-queue.ini
+  s_6fef2eb2829880::t_95b88c714b06bd 10
+server/sorify-scheduler.ini
+  s_6fef2eb2829880::t_7930678c226baa 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8500574a7f544521ba2c7c5307b0cefdee9c0c4d",
+  "prompts": {},
+  "sessions": {
+    "s_6fef2eb2829880": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "60b09c7b-ba75-4e4b-882a-44508c8064c8",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
