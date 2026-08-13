@@ -1,0 +1,35 @@
+README.md
+  s_9ce1ef57a318ce::t_32a77849969387 30-57
+  s_b443cdd7e4cbaf::t_4279efbf8115bf 26-29
+deploy.php
+  h_f44dfe84a46cdf 39,55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "f840fdcb559aaae9ac2bbf03e955699d8cde3c82",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_9ce1ef57a318ce": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9cba04f1-ef35-49a2-ac56-845a10a69652",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_b443cdd7e4cbaf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "af5b8e7f-96bc-4c51-b305-3413491ab9e6",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
