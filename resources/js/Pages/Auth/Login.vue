@@ -46,7 +46,7 @@ function submit() {
         <div class="w-full max-w-sm">
             <!-- Brand -->
             <div class="text-center mb-8">
-                <img :src="sorifyLogo" alt="Sorify" class="h-14 mx-auto rounded-lg px-3 py-2" />
+                <img :src="sorifyLogo" alt="Sorify" class="h-20 mx-auto rounded-lg px-2 py-1" />
                 <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">Sign in to your account</p>
             </div>
 
