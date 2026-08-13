@@ -52,7 +52,7 @@ services:
   queue:
     <<: *app-image
     restart: unless-stopped
-    command: ["php", "artisan", "queue:work", "--queue=test-runner,default", "--tries=3", "--timeout=600", "--sleep=3"]
+    command: ["php", "artisan", "queue:work", "--queue=sorify,default", "--tries=3", "--timeout=600", "--sleep=3"]
 
   scheduler:
     <<: *app-image

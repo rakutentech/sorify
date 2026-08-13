@@ -31,6 +31,10 @@ class UpdateSuiteTool extends Tool
             'history_retention' => $schema->integer()->enum([3, 5, 10])->description('Number of past runs to keep per test (3, 5, or 10). Older results and screenshots are pruned automatically. Defaults to 5.'),
             'timeout_ms' => $schema->integer()->enum([10000, 30000, 60000, 120000])->description('Per-action timeout in milliseconds (10000, 30000, 60000, or 120000). Defaults to 30000.'),
             'take_screenshot' => $schema->boolean()->description('Whether to capture screenshots during test runs. Disable for faster runs. Defaults to true.'),
+            'teams_webhook_url' => $schema->string()->description('MS Teams incoming webhook URL to notify when runs complete.'),
+            'teams_webhook_proxy' => $schema->string()->description('HTTP proxy to use when posting to the Teams webhook, if any.'),
+            'teams_notify_on_success' => $schema->boolean()->description('Whether to notify Teams when a run succeeds.'),
+            'teams_notify_on_failure' => $schema->boolean()->description('Whether to notify Teams when a run fails.'),
         ];
     }
 

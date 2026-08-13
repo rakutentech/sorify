@@ -23,7 +23,7 @@ class RunTestSuiteJob implements ShouldQueue
         public readonly TestRun $testRun,
         public readonly ?array $testIds = null,
     ) {
-        $this->onQueue('test-runner');
+        $this->onQueue('sorify');
     }
 
     public function handle(PlaywrightRunnerService $runner): void

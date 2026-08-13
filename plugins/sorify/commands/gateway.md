@@ -79,7 +79,7 @@ MCP Server
 ──────────────────────────────────────────────
 Name:    Sorify (registered in this plugin's .mcp.json as "sorify")
 Purpose: Manage Sorify test suites, tests, runs, and screenshots
-Tools:   20 total across 4 resource groups — run `/sorify:gateway tools` for
+Tools:   23 total across 4 resource groups — run `/sorify:gateway tools` for
          the full reference, or `/sorify:gateway {topic}` for one group
          (suites / tests / runs / screenshots)
 
@@ -100,9 +100,11 @@ section; if asked "what tools exist" generally, print all five.
 |---|---|---|
 | `list_suites` | `search?`, `per_page?` (10/50/100), `page?` | List suites with pass-rate stats; optional name/description search |
 | `get_suite` | `suite_id` | One suite with stats, its tests, and 10 most recent runs. Includes `created_by` (user id, set automatically at creation time) |
-| `create_suite` | `name`, `description?`, `base_url?`, `browser?` (chromium/firefox/webkit), `headless?`, `playwright_proxy?`, `playwright_proxy_pac?`, `history_retention?` (3/5/10), `timeout_ms?` (10000/30000/60000/120000), `take_screenshot?` | Create a suite. `created_by` is set automatically to the authenticated MCP user — not a caller-supplied param. `playwright_proxy_pac` (raw PAC script content) takes priority over `playwright_proxy` when both are set |
-| `update_suite` | `suite_id`, `name`, `description?`, `base_url?`, `browser?`, `headless?`, `playwright_proxy?`, `playwright_proxy_pac?`, `history_retention?`, `timeout_ms?`, `take_screenshot?` | Update a suite. Changing `history_retention` prunes older runs/screenshots automatically |
+| `create_suite` | `name`, `description?`, `base_url?`, `browser?` (chromium/firefox/webkit), `headless?`, `playwright_proxy?`, `playwright_proxy_pac?`, `history_retention?` (3/5/10), `timeout_ms?` (10000/30000/60000/120000), `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Create a suite. `created_by` is set automatically to the authenticated MCP user — not a caller-supplied param. `playwright_proxy_pac` (raw PAC script content) takes priority over `playwright_proxy` when both are set |
+| `update_suite` | `suite_id`, `name`, `description?`, `base_url?`, `browser?`, `headless?`, `playwright_proxy?`, `playwright_proxy_pac?`, `history_retention?`, `timeout_ms?`, `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Update a suite, including MS Teams run-completion notification settings. Changing `history_retention` prunes older runs/screenshots automatically |
 | `delete_suite` | `suite_id` | Delete a suite and all of its tests and runs |
+| `update_suite_schedule` | `suite_id`, `cron_expression`, `timezone?`, `is_enabled?` | Create or update the cron schedule that runs a suite automatically |
+| `delete_suite_schedule` | `suite_id` | Remove a suite's cron schedule |
 
 **Tests** — `App\Mcp\Tools\Tests\*`
 
@@ -125,6 +127,7 @@ section; if asked "what tools exist" generally, print all five.
 | `trigger_run` | `suite_id`, `test_ids?` | Queue a run; omit `test_ids` to run all active tests. `triggered_by_user_id` is set automatically to the authenticated MCP user |
 | `get_run_status` | `run_id` | Lightweight poll: status, passed/failed/error counts, duration — prefer this while polling |
 | `get_run` | `run_id` | Full run with every test result, error messages/stacks, stdout, screenshots. Includes `triggered_by_user_id` |
+| `cancel_run` | `run_id` | Cancel a pending or running run |
 | `delete_run` | `run_id` | Delete a run and its results |
 
 **Screenshots** — `App\Mcp\Tools\Screenshots\*`
@@ -170,8 +173,9 @@ tool first (e.g. `list_suites`) so the user can pick one, rather than
 asking them to look it up elsewhere.
 
 This command never calls the mutating tools (`create_*`, `update_*`,
-`delete_*`, `trigger_run`, `bulk_*`) — those belong to `/sorify:generate`
-or direct tool use with explicit user intent, not to a help/lookup command.
+`delete_*`, `trigger_run`, `cancel_run`, `bulk_*`) — those belong to
+`/sorify:generate` or direct tool use with explicit user intent, not to a
+help/lookup command.
 
 ---
 

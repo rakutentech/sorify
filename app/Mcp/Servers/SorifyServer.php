@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\Runs\CancelRunTool;
 use App\Mcp\Tools\Runs\DeleteRunTool;
 use App\Mcp\Tools\Runs\GetRunStatusTool;
 use App\Mcp\Tools\Runs\GetRunTool;
@@ -9,9 +10,11 @@ use App\Mcp\Tools\Runs\TriggerRunTool;
 use App\Mcp\Tools\Screenshots\GetScreenshotTool;
 use App\Mcp\Tools\Screenshots\ListScreenshotsTool;
 use App\Mcp\Tools\Suites\CreateSuiteTool;
+use App\Mcp\Tools\Suites\DeleteSuiteScheduleTool;
 use App\Mcp\Tools\Suites\DeleteSuiteTool;
 use App\Mcp\Tools\Suites\GetSuiteTool;
 use App\Mcp\Tools\Suites\ListSuitesTool;
+use App\Mcp\Tools\Suites\UpdateSuiteScheduleTool;
 use App\Mcp\Tools\Suites\UpdateSuiteTool;
 use App\Mcp\Tools\Tests\BulkCreateTestsTool;
 use App\Mcp\Tools\Tests\BulkDeleteTestsTool;
@@ -38,6 +41,8 @@ class SorifyServer extends Server
         CreateSuiteTool::class,
         UpdateSuiteTool::class,
         DeleteSuiteTool::class,
+        UpdateSuiteScheduleTool::class,
+        DeleteSuiteScheduleTool::class,
 
         ListTestsTool::class,
         GetTestTool::class,
@@ -52,6 +57,7 @@ class SorifyServer extends Server
         TriggerRunTool::class,
         GetRunTool::class,
         GetRunStatusTool::class,
+        CancelRunTool::class,
         DeleteRunTool::class,
 
         ListScreenshotsTool::class,

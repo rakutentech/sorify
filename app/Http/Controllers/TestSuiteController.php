@@ -23,7 +23,7 @@ class TestSuiteController extends Controller
         $perPage  = (int) request()->input('per_page', 10);
         $perPage  = in_array($perPage, [10, 50, 100]) ? $perPage : 10;
 
-        $query = TestSuite::withCount(['tests', 'testRuns'])->with('schedule')->latest();
+        $query = TestSuite::withCount(['tests', 'testRuns'])->with(['schedule', 'members:id,name,email'])->latest();
 
         if (!$request->user()->is_admin) {
             $query->whereHas('members', function ($q) use ($request) {
@@ -76,7 +76,7 @@ class TestSuiteController extends Controller
     {
         $this->authorize('view', $suite);
 
-        $suite->load('createdBy:id,name', 'schedule');
+        $suite->load('createdBy:id,name', 'schedule', 'members:id,name,email');
 
         $privileges = $suite->privilegesFor($request->user());
         $canManageUsers = $privileges['edit'];

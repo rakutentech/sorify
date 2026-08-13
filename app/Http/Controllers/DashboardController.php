@@ -14,8 +14,12 @@ class DashboardController extends Controller
 
     public function index(Request $request): Response
     {
-        $runsQuery = TestRun::with(['testSuite:id,name,created_by', 'testSuite.createdBy:id,name', 'triggeredByUser:id,name'])
-            ->latest();
+        $runsQuery = TestRun::with([
+            'testSuite:id,name,created_by',
+            'testSuite.createdBy:id,name',
+            'testSuite.members:id,name,email',
+            'triggeredByUser:id,name',
+        ])->latest();
 
         if (!$request->user()->is_admin) {
             $runsQuery->whereHas('testSuite.members', function ($q) use ($request) {
@@ -33,6 +37,7 @@ class DashboardController extends Controller
                     'id'            => $run->id,
                     'suite_id'      => $run->testSuite->id,
                     'suite_name'    => $run->testSuite->name,
+                    'members'       => $run->testSuite->members,
                     'status'        => $run->status,
                     'passed_count'  => $run->passed_count,
                     'failed_count'  => $run->failed_count,

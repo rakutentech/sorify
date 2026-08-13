@@ -16,7 +16,7 @@ class PruneSuiteHistoryJob implements ShouldQueue
 
     public function __construct(public readonly TestSuite $suite)
     {
-        $this->onQueue('test-runner');
+        $this->onQueue('sorify');
     }
 
     public function handle(HistoryPruningService $pruning): void
