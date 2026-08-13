@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
-import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, AvatarGroup } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
@@ -460,8 +460,18 @@ const RUN_DOT_CLASS = {
             </div>
 
             <div>
-                <!-- CI Webhook -->
+                <!-- Users -->
                 <Card padding="p-0">
+                    <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Users</h2>
+                    </div>
+                    <div class="px-5 py-4">
+                        <AvatarGroup :users="suite.members ?? []" :suite-id="suite.id" :max="20" />
+                    </div>
+                </Card>
+
+                <!-- CI Webhook -->
+                <Card padding="p-0" class="mt-6">
                     <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
                         <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">CI Webhook</h2>
                         <Button v-if="can.edit" variant="text" size="sm" @click="regenerateWebhook" class="text-[var(--md-sys-color-error)]">

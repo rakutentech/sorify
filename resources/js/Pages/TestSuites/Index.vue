@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Button, TextField, Modal, SuiteName } from '@/Components/ui';
+import { Card, Button, TextField, Modal, SuiteName, AvatarGroup } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 function debounce(fn, delay) {
@@ -126,6 +126,7 @@ function formatPassRate(rate) {
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Name</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Users</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Tests</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Runs</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Pass Rate</th>
@@ -170,6 +171,9 @@ function formatPassRate(rate) {
                                         </span>
                                     </div>
                                 </div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <AvatarGroup :users="suite.members ?? []" :suite-id="suite.id" />
                             </td>
                             <td class="px-5 py-4 md-body-medium text-[var(--md-sys-color-on-surface)]">{{ suite.tests_count ?? suite.test_count ?? '—' }}</td>
                             <td class="px-5 py-4 md-body-medium text-[var(--md-sys-color-on-surface)]">{{ suite.test_runs_count ?? suite.runs_count ?? '—' }}</td>
