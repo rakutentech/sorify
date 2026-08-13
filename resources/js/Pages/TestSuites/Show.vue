@@ -568,6 +568,7 @@ const RUN_DOT_CLASS = {
         <Modal :show="showEditModal" title="Edit Suite" max-width="max-w-lg" @close="showEditModal = false">
                     <form @submit.prevent="submitEdit" class="px-6 py-5 space-y-4">
                         <TextField v-model="editForm.name" label="Suite Name" required :error="editForm.errors.name" />
+                        <TextField v-model="editForm.description" label="Description" type="textarea" :rows="3" />
                         <TextField
                             v-model="editForm.playwright_proxy"
                             label="HTTP Proxy"
@@ -660,7 +661,6 @@ const RUN_DOT_CLASS = {
                                 </label>
                             </div>
                         </div>
-                        <TextField v-model="editForm.description" label="Description" type="textarea" :rows="3" />
                         <div class="flex justify-end gap-3 pt-2">
                             <Button type="button" variant="text" @click="showEditModal = false">Cancel</Button>
                             <Button type="submit" variant="filled" :disabled="editForm.processing">
