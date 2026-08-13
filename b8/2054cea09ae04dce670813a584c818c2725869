@@ -1,0 +1,19 @@
+resources/js/Components/ui/Autocomplete.vue
+  s_7333ca004604c1::t_52a74803f657e5 81,85-102,104-116
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "b82054cea09ae04dce670813a584c818c2725869",
+  "prompts": {},
+  "sessions": {
+    "s_7333ca004604c1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bd96ddb3-4f25-41c8-87b0-7d4e12d6ca52",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
