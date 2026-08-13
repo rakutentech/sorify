@@ -1,0 +1,40 @@
+app/Http/Controllers/Admin/UserController.php
+  s_3837c62ddd056b::t_d92dada2db1150 22
+resources/js/Pages/TestRuns/Show.vue
+  s_3837c62ddd056b::t_ab849efed930bb 7
+resources/js/Pages/Admin/Users/Index.vue
+  s_3837c62ddd056b::t_d00d28004fd122 7
+  s_3837c62ddd056b::t_29a89a751121fe 102
+resources/js/Pages/TestSuites/Index.vue
+  s_3837c62ddd056b::t_57f7f52155988a 6
+resources/js/utils/date.js
+  s_3837c62ddd056b::t_34a3599ce380f2 1-10
+resources/js/Components/ScreenshotGallery.vue
+  s_3837c62ddd056b::t_17936426c66dc6 102
+  s_3837c62ddd056b::t_bcb81fcd8316fa 4
+resources/js/Pages/Tests/Show.vue
+  s_3837c62ddd056b::t_ecd001e66275ee 8
+resources/js/Pages/TestSuites/Show.vue
+  s_3837c62ddd056b::t_f55168c6b257bd 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8439a78346e12b0b6f23107d89592daefe87cb20",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_3837c62ddd056b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ca104f3b-d567-465e-bf22-1bd6fa59708a",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
