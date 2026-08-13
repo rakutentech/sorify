@@ -1,0 +1,41 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_69de9ff14ae5d1::t_b590c432018fcd 677-688
+  s_69de9ff14ae5d1::t_58c6c1040cc397 691,694,697,700
+app/Http/Controllers/AuthController.php
+  s_69de9ff14ae5d1::t_862f889b234aca 5
+  s_69de9ff14ae5d1::t_0005a6a0f4506f 41-70
+resources/js/Pages/Auth/Login.vue
+  s_69de9ff14ae5d1::t_332e7bac74cd8c 85-89
+README.md
+  h_f44dfe84a46cdf 87-91
+tests/Feature/RegistrationTest.php
+  s_69de9ff14ae5d1::t_83732b49c307c9 1-78
+resources/js/Pages/Auth/Register.vue
+  s_69de9ff14ae5d1::t_bba2ab7d8673f2 1-108
+routes/web.php
+  s_69de9ff14ae5d1::t_c993c21d7f85da 21-23
+resources/js/Components/ui/Autocomplete.vue
+  s_69de9ff14ae5d1::t_7499b427b67c7a 5,11-17,23,28-32
+  s_69de9ff14ae5d1::t_3cda5035f5784f 47,53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5f3f1eccdcae573d1a0833bc8f7613478d4efeaf",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_69de9ff14ae5d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "dc8fec4f-b7bd-4de6-bb70-bf82af58102e",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
