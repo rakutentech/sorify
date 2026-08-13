@@ -1,0 +1,35 @@
+routes/console.php
+  s_63fe13a76bf2a4::t_b10e4f984b7d7e 12
+app/Console/Commands/PruneScreenshots.php
+  s_63fe13a76bf2a4::t_41ba60ac9aed00 1-24
+app/Services/ScreenshotService.php
+  s_63fe13a76bf2a4::t_e85b85a046d1fc 69-81
+app/Providers/AppServiceProvider.php
+  s_63fe13a76bf2a4::t_e288a94a166849 30
+README.md
+  h_f44dfe84a46cdf 108,120-121,125-127
+  h_f44dfe84a46cdf 122-124,128
+tests/Feature/PruneScreenshotsTest.php
+  s_63fe13a76bf2a4::t_ab5c2137ca34aa 1-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "05972521408f663d4383775974b2131d7bce558a",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_63fe13a76bf2a4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f2f211f7-e3eb-45fb-9bc1-2ea4fab7bab7",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
