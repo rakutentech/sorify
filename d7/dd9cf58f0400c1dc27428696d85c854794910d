@@ -1,0 +1,28 @@
+README.md
+  s_73513d5c511604::t_1d696921b99993 153-155
+  s_73513d5c511604::t_d47a5a02f6767d 28
+LICENSE
+  s_73513d5c511604::t_c9b1e3ec57d4a9 1-201
+composer.json
+  s_73513d5c511604::t_78c792933133ac 3,5-7
+package.json
+  s_73513d5c511604::t_e6e5ff95803f1b 4
+composer.lock
+  s_73513d5c511604::t_1ba4481529cdfd 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d7dd9cf58f0400c1dc27428696d85c854794910d",
+  "prompts": {},
+  "sessions": {
+    "s_73513d5c511604": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "906fd1c5-a0ea-4eb1-abe7-cb52d9061fb6",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
