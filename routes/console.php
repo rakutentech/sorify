@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('sorify:run-scheduled-suites')->everyMinute()->withoutOverlapping();
+Schedule::command('sorify:prune-screenshots')->daily();

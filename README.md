@@ -105,16 +105,8 @@ php artisan dev
 npm run dev
 php artisan serve
 php artisan queue:work --queue=sorify,default
+php artisan schedule:work
 ```
-
-**Verify**
-
-```sh
-http://localhost:8000/sorify
-```
-
-- **User:** admin@sorify.local
-- **Password:** changeme
 
 ## Self Host - Prod Ready
 
@@ -124,6 +116,15 @@ cp .env.docker.example .env.docker
 # Change: APP_ENV=prod for prod ready
 docker compose --env-file .env.docker up
 ```
+
+## Verify
+
+```sh
+http://localhost:8000/sorify
+```
+
+- **User:** admin@sorify.local
+- **Password:** changeme
 
 
 ## Contributors

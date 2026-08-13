@@ -27,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(TestRunCompleted::class, NotifyTeamsOnRunCompleted::class);
 
         DevCommands::artisan('queue:listen --queue=sorify,default --tries=1 --timeout=0', 'queue');
+        DevCommands::artisan('schedule:work', 'scheduler');
     }
 }
