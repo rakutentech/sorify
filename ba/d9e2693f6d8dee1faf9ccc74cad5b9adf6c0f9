@@ -1,0 +1,57 @@
+app/Mcp/Tools/Runs/CancelRunTool.php
+  s_3ac935cf87af98::t_b889b86f3d8808 1-36
+app/Mcp/Tools/Suites/UpdateSuiteScheduleTool.php
+  s_3ac935cf87af98::t_8c826dbcd5ad58 1-53
+README.md
+  s_227a5c4f63931d::t_f959ed47a78d38 109
+  s_3ac935cf87af98::t_831ec4c90760d0 24-27
+  s_3ac935cf87af98::t_b48dbb85ceccec 28,31-35,37-38
+  s_3ac935cf87af98::t_18c34eebf3bab7 29-30,36
+  s_3ac935cf87af98::t_0e12dad2b512b3 39-45
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_3ac935cf87af98::t_0f995d167f70eb 34-37
+app/Mcp/Tools/Suites/DeleteSuiteScheduleTool.php
+  s_3ac935cf87af98::t_013665f9a1527e 1-34
+app/Mcp/Servers/SorifyServer.php
+  s_3ac935cf87af98::t_5aa870d3adb740 44-45
+  s_3ac935cf87af98::t_36b5cf76e0ee19 60
+  s_3ac935cf87af98::t_850324a34d6ed8 5,13,17
+plugins/sorify/commands/gateway.md
+  s_3ac935cf87af98::t_f4bf3f6ee5e979 176-178
+  s_3ac935cf87af98::t_bb0309a68bd3eb 103-104,106-107
+  s_3ac935cf87af98::t_addd956369cf26 130
+  s_3ac935cf87af98::t_ea6ebe0d296561 82
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_3ac935cf87af98::t_13af0a691cd699 33-36
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_3ac935cf87af98::t_dbd9ef77f2c63a 24-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "bad9e2693f6d8dee1faf9ccc74cad5b9adf6c0f9",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_227a5c4f63931d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ed1661a7-21db-40e8-9a06-92f76dbd4ced",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_3ac935cf87af98": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5c4e27a8-9d11-4c43-abf9-235db737c84e",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
