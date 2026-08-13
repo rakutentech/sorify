@@ -1,0 +1,61 @@
+app/Services/PlaywrightRunnerService.php
+  s_227a5c4f63931d::t_1b7c4c5c353343 103
+resources/js/Pages/Tests/Show.vue
+  s_227a5c4f63931d::t_5f234fc892291f 7
+  s_227a5c4f63931d::t_8163e66d9240ea 119-121
+  s_227a5c4f63931d::t_c2c24c110f1b6f 180
+docker-compose.yml
+  s_227a5c4f63931d::t_3a6211ca6e4bd1 55
+app/Jobs/PruneSuiteHistoryJob.php
+  s_227a5c4f63931d::t_dbe08b047eddd7 19
+resources/js/Components/ui/SuiteName.vue
+  s_227a5c4f63931d::t_33e0b771b63266 1-10
+resources/js/Pages/Dashboard/Index.vue
+  s_227a5c4f63931d::t_170dc0c1cf2a64 3
+  s_227a5c4f63931d::t_b1b90efd4aa504 111-112,114-117
+app/Jobs/RunTestSuiteJob.php
+  s_227a5c4f63931d::t_a17661ba83aef2 26
+resources/js/Components/ui/index.js
+  s_227a5c4f63931d::t_217af16d388923 9
+resources/js/Pages/TestSuites/Show.vue
+  s_227a5c4f63931d::t_a17155071231f6 183-184
+  s_227a5c4f63931d::t_f281caeae9de46 266,269
+  s_227a5c4f63931d::t_563980b810e017 168-169
+  s_227a5c4f63931d::t_0516ccd6ed7b37 6
+resources/js/Pages/TestSuites/Index.vue
+  s_227a5c4f63931d::t_7f5a3606acf735 5
+  s_227a5c4f63931d::t_b3b8747f83238f 144
+resources/js/Pages/TestRuns/Show.vue
+  s_227a5c4f63931d::t_27817ab13428b3 6
+  s_227a5c4f63931d::t_e8ed156c0a4867 21-27,29,39,41-44,46-47
+  s_227a5c4f63931d::t_7b3bb9864905d8 128
+  s_227a5c4f63931d::t_5457baa8048757 105-106
+  s_227a5c4f63931d::t_a6ce7966a759eb 118
+  s_227a5c4f63931d::t_55b66bc7ea06b7 163-164
+  s_227a5c4f63931d::t_df4733e3433280 151
+database/migrations/2026_08_13_000003_add_running_status_to_test_results_table.php
+  s_227a5c4f63931d::t_ea3e707940c3af 1-3,5,7-11,17-21,29,64-65
+  s_227a5c4f63931d::t_25df54a81b4605 4,6,12-16,22-28,30-33,36-37,41-60
+  s_227a5c4f63931d::t_dfe36c25e11e3e 34-35,38-40,61-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "43f05cb411c09cf95cc5096b35c3f88ea8ef8e57",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_227a5c4f63931d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ed1661a7-21db-40e8-9a06-92f76dbd4ced",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
