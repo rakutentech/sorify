@@ -100,8 +100,8 @@ section; if asked "what tools exist" generally, print all five.
 |---|---|---|
 | `list_suites` | `search?`, `per_page?` (10/50/100), `page?` | List suites with pass-rate stats; optional name/description search |
 | `get_suite` | `suite_id` | One suite with stats, its tests, and 10 most recent runs. Includes `created_by` (user id, set automatically at creation time) |
-| `create_suite` | `name`, `description?`, `base_url?`, `browser?` (chromium/firefox/webkit), `headless?`, `playwright_proxy?` | Create a suite. `created_by` is set automatically to the authenticated MCP user — not a caller-supplied param |
-| `update_suite` | `suite_id`, `name`, `description?`, `base_url?`, `browser?`, `headless?`, `playwright_proxy?` | Update a suite |
+| `create_suite` | `name`, `description?`, `base_url?`, `browser?` (chromium/firefox/webkit), `headless?`, `playwright_proxy?`, `playwright_proxy_pac?`, `history_retention?` (3/5/10), `timeout_ms?` (10000/30000/60000/120000), `take_screenshot?` | Create a suite. `created_by` is set automatically to the authenticated MCP user — not a caller-supplied param. `playwright_proxy_pac` (raw PAC script content) takes priority over `playwright_proxy` when both are set |
+| `update_suite` | `suite_id`, `name`, `description?`, `base_url?`, `browser?`, `headless?`, `playwright_proxy?`, `playwright_proxy_pac?`, `history_retention?`, `timeout_ms?`, `take_screenshot?` | Update a suite. Changing `history_retention` prunes older runs/screenshots automatically |
 | `delete_suite` | `suite_id` | Delete a suite and all of its tests and runs |
 
 **Tests** — `App\Mcp\Tools\Tests\*`
@@ -109,7 +109,7 @@ section; if asked "what tools exist" generally, print all five.
 | Tool | Params | Description |
 |---|---|---|
 | `list_tests` | `suite_id` | List tests in a suite (no Playwright code) |
-| `get_test` | `suite_id`, `test_id` | One test with its Playwright code and last 20 run results |
+| `get_test` | `suite_id`, `test_id` | One test with its Playwright code and last 10 run results |
 | `create_test` | `suite_id`, `name`, `playwright_code`, `description?`, `uploaded_by?` (must be an existing user's email), `status?` (active/disabled) | Create one test |
 | `bulk_create_tests` | `suite_id`, `tests[]` (1–100, each `{name, playwright_code, description?, uploaded_by?, status?}`) | Create up to 100 tests in one call |
 | `update_test` | `suite_id`, `test_id`, `name`, `description` (min 10 chars), `uploaded_by?` (must be an existing user's email) | Update metadata only — not the code |
