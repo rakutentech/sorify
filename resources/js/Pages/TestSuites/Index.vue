@@ -43,6 +43,7 @@ const showModal = ref(false);
 const form = useForm({
     name: '',
     playwright_proxy: '',
+    playwright_proxy_pac: '',
     history_retention: 5,
     description: '',
 });
@@ -157,9 +158,9 @@ function formatPassRate(rate) {
                                         </span>
                                         <span
                                             class="inline-flex items-center px-2 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small"
-                                            :class="suite.playwright_proxy ? 'bg-[var(--md-ext-color-success-container)] text-[var(--md-ext-color-on-success-container)]' : 'bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)]'"
+                                            :class="(suite.playwright_proxy_pac || suite.playwright_proxy) ? 'bg-[var(--md-ext-color-success-container)] text-[var(--md-ext-color-on-success-container)]' : 'bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)]'"
                                         >
-                                            Proxy: {{ suite.playwright_proxy ? 'Set' : 'Not set' }}
+                                            Proxy: {{ suite.playwright_proxy_pac ? 'PAC' : (suite.playwright_proxy ? 'HTTP' : 'Not set') }}
                                         </span>
                                         <span
                                             class="inline-flex items-center px-2 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small"
@@ -252,6 +253,19 @@ function formatPassRate(rate) {
                             hint="Proxy used by Playwright when running tests. Leave empty for direct connection."
                             :error="form.errors.playwright_proxy"
                         />
+
+                        <TextField
+                            v-model="form.playwright_proxy_pac"
+                            label="Proxy Auto-Config (PAC)"
+                            type="textarea"
+                            :rows="6"
+                            placeholder="function FindProxyForURL(url, host) { return 'PROXY proxy.example.com:8080'; }"
+                            hint="Paste a raw PAC script to route requests by domain. Supported for Chromium and Firefox; ignored for WebKit."
+                            :error="form.errors.playwright_proxy_pac"
+                        />
+                        <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] -mt-1">
+                            Precedence: if both fields above are filled in, the Proxy Auto-Config (PAC) script is used and the HTTP Proxy is ignored. If only one is set, that one is used. If both are empty, tests connect directly.
+                        </p>
 
                         <div>
                             <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Keep History</label>

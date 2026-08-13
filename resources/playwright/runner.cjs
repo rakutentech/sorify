@@ -5,7 +5,9 @@
  *
  * Called by Laravel's PlaywrightRunnerService via:
  *   node runner.js --spec <path> --output <dir> [--timeout <ms>] [--base-url <url>] [--proxy <url>]
- *     [--browser chromium|firefox|webkit] [--headless true|false] [--take-screenshot true|false]
+ *     [--proxy-pac <path>] [--browser chromium|firefox|webkit] [--headless true|false] [--take-screenshot true|false]
+ *
+ * --proxy-pac (a path to a PAC script file) takes priority over --proxy when both are passed.
  *
  * Writes a JSON result object to stdout and exits with:
  *   0  → status === 'passed'
@@ -32,6 +34,8 @@ function parseArgs(argv) {
       args.baseUrl = argv[++i];
     } else if (flag === '--proxy' && argv[i + 1]) {
       args.proxy = argv[++i];
+    } else if (flag === '--proxy-pac' && argv[i + 1]) {
+      args.proxyPac = argv[++i];
     } else if (flag === '--browser' && argv[i + 1]) {
       args.browser = argv[++i];
     } else if (flag === '--headless' && argv[i + 1]) {
@@ -77,6 +81,7 @@ function finish(result, exitCode) {
     const timeout = Number.isFinite(args.timeout) && args.timeout > 0 ? args.timeout : 30000;
     const baseUrl = args.baseUrl || '';
     const proxy = args.proxy || null;
+    const proxyPacPath = args.proxyPac ? path.resolve(args.proxyPac) : null;
     const browser = args.browser || 'chromium';
     const headless = args.headless !== false;
     const takeScreenshot = args.takeScreenshot !== false;
@@ -90,7 +95,7 @@ function finish(result, exitCode) {
     }
 
     // Run the test
-    const result = await runWithHarness(generatedCode, outputDir, baseUrl, timeout, proxy, browser, headless, takeScreenshot);
+    const result = await runWithHarness(generatedCode, outputDir, baseUrl, timeout, proxy, browser, headless, takeScreenshot, proxyPacPath);
 
     const exitCode = result.status === 'passed' ? 0 : 1;
     finish(result, exitCode);

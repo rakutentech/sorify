@@ -14,6 +14,7 @@ class StoreSuiteRequest extends FormRequest
             'name'             => 'required|string|max:255',
             'description'      => 'nullable|string',
             'playwright_proxy' => 'nullable|string|max:500',
+            'playwright_proxy_pac' => 'nullable|string|max:65535',
             'browser'          => 'nullable|string|in:chromium,firefox,webkit',
             'headless'         => 'nullable|boolean',
             'base_url'         => 'nullable|string|max:500',

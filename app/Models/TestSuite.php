@@ -17,6 +17,7 @@ class TestSuite extends Model
         'base_url',
         'status',
         'playwright_proxy',
+        'playwright_proxy_pac',
         'browser',
         'headless',
         'history_retention',

@@ -19,6 +19,8 @@ const playwright = require(path.join(__dirname, '..', '..', 'node_modules', 'pla
  * @param {string}      browserName  Browser engine: 'chromium' | 'firefox' | 'webkit'
  * @param {boolean}     headless   Whether to run headless
  * @param {boolean}     takeScreenshot  Whether page.screenshot() calls actually capture a PNG
+ * @param {string|null} proxyPacPath  Path to a PAC script file. Takes priority over `proxy`
+ *                                    when set. Supported for chromium and firefox only.
  * @returns {Promise<{
  *   status: 'passed'|'failed'|'error',
  *   duration_ms: number,
@@ -35,7 +37,8 @@ async function runWithHarness (
     proxy = null,
     browserName = 'chromium',
     headless = true,
-    takeScreenshot = true
+    takeScreenshot = true,
+    proxyPacPath = null
 ) {
     // Ensure output directory exists before anything else
     fs.mkdirSync(outputDir, { recursive: true })
@@ -70,8 +73,20 @@ async function runWithHarness (
                 launchOpts.executablePath = systemChrome
             }
         }
+        // A configured PAC script takes priority over a plain proxy server URL.
+        // Chromium and Firefox support PAC natively; WebKit has no PAC mechanism, so it's ignored there.
+        if (proxyPacPath && browserType === 'chromium') {
+            launchOpts.args = [...(launchOpts.args || []), `--proxy-pac-url=file://${proxyPacPath}`]
+        } else if (proxyPacPath && browserType === 'firefox') {
+            launchOpts.firefoxUserPrefs = {
+                ...(launchOpts.firefoxUserPrefs || {}),
+                'network.proxy.type': 2,
+                'network.proxy.autoconfig_url': `file://${proxyPacPath}`
+            }
+        }
+
         browser = await playwright[browserType].launch(launchOpts)
-        const contextOpts = proxy ? { proxy: { server: proxy } } : {}
+        const contextOpts = (!proxyPacPath && proxy) ? { proxy: { server: proxy } } : {}
         const context = await browser.newContext(contextOpts)
         const page = await context.newPage()
 

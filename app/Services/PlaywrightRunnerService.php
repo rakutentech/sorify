@@ -91,6 +91,7 @@ class PlaywrightRunnerService
 
         $specPath     = $this->tmpDir . "/test-{$test->id}-{$testRun->id}.spec.js";
         $outputDir    = $this->tmpDir . "/output-{$testRun->id}-{$test->id}";
+        $pacPath      = null;
 
         @mkdir($outputDir, 0755, true);
 
@@ -114,8 +115,15 @@ class PlaywrightRunnerService
                 '--timeout', (string) $timeoutMs,
             ];
 
-            $proxy = $testRun->testSuite->playwright_proxy ?? null;
-            if ($proxy) {
+            // A configured PAC script takes priority over a plain HTTP proxy URL.
+            $proxyPac = $testRun->testSuite->playwright_proxy_pac ?? null;
+            $proxy    = $testRun->testSuite->playwright_proxy ?? null;
+            if ($proxyPac) {
+                $pacPath = $this->tmpDir . "/proxy-{$testRun->id}-{$test->id}.pac";
+                file_put_contents($pacPath, $proxyPac);
+                $command[] = '--proxy-pac';
+                $command[] = $pacPath;
+            } elseif ($proxy) {
                 $command[] = '--proxy';
                 $command[] = $proxy;
             }
@@ -214,6 +222,9 @@ class PlaywrightRunnerService
             ]);
         } finally {
             @unlink($specPath);
+            if ($pacPath) {
+                @unlink($pacPath);
+            }
             $this->screenshotService->cleanTmpDir($outputDir);
             if (! $result->completed_at) {
                 $result->update(['completed_at' => now()]);

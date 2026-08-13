@@ -58,6 +58,7 @@ const showEditModal = ref(false);
 const editForm = useForm({
     name: props.suite.name ?? '',
     playwright_proxy: props.suite.playwright_proxy ?? '',
+    playwright_proxy_pac: props.suite.playwright_proxy_pac ?? '',
     browser: props.suite.browser ?? 'chromium',
     headless: props.suite.headless ?? true,
     history_retention: props.suite.history_retention ?? 5,
@@ -73,6 +74,7 @@ const editForm = useForm({
 function openEditModal() {
     editForm.name = props.suite.name ?? '';
     editForm.playwright_proxy = props.suite.playwright_proxy ?? '';
+    editForm.playwright_proxy_pac = props.suite.playwright_proxy_pac ?? '';
     editForm.browser = props.suite.browser ?? 'chromium';
     editForm.headless = props.suite.headless ?? true;
     editForm.history_retention = props.suite.history_retention ?? 5;
@@ -264,7 +266,8 @@ const RUN_DOT_CLASS = {
                 </div>
                 <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">Test Suite</span>
                 <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ suite.name }}</h1>
-                <p v-if="suite.playwright_proxy" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.playwright_proxy }}</p>
+                <p v-if="suite.playwright_proxy_pac" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: PAC script configured</p>
+                <p v-else-if="suite.playwright_proxy" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.playwright_proxy }}</p>
                 <p v-if="suite.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ suite.description }}</p>
                 <p v-if="suite.created_by" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-1">
                     Created by <span>{{ suite.created_by.name }}</span>
@@ -323,7 +326,9 @@ const RUN_DOT_CLASS = {
             </Card>
             <Card padding="px-4 py-3">
                 <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">Proxy</p>
-                <p class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] mt-1 truncate">{{ suite.playwright_proxy || '—' }}</p>
+                <p class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] mt-1 truncate">
+                    {{ suite.playwright_proxy_pac ? 'PAC script' : (suite.playwright_proxy || '—') }}
+                </p>
             </Card>
         </div>
 
@@ -552,9 +557,22 @@ const RUN_DOT_CLASS = {
                         <TextField
                             v-model="editForm.playwright_proxy"
                             label="HTTP Proxy"
+                            placeholder="http://proxy.example.com:8080"
                             hint="Proxy used by Playwright when running tests. Leave empty for direct connection."
                             :error="editForm.errors.playwright_proxy"
                         />
+                        <TextField
+                            v-model="editForm.playwright_proxy_pac"
+                            label="Proxy Auto-Config (PAC)"
+                            type="textarea"
+                            :rows="6"
+                            placeholder="function FindProxyForURL(url, host) { return 'PROXY proxy.example.com:8080'; }"
+                            hint="Paste a raw PAC script to route requests by domain. Supported for Chromium and Firefox; ignored for WebKit."
+                            :error="editForm.errors.playwright_proxy_pac"
+                        />
+                        <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] -mt-1">
+                            Precedence: if both fields above are filled in, the Proxy Auto-Config (PAC) script is used and the HTTP Proxy is ignored. If only one is set, that one is used. If both are empty, tests connect directly.
+                        </p>
                         <div class="grid grid-cols-3 gap-4">
                             <div>
                                 <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Browser</label>
