@@ -1,0 +1,35 @@
+README.md
+  h_f44dfe84a46cdf 3-8
+  s_db14b03260d757::t_d4496fbbe0e429 11-16
+sorify-icon.svg
+  s_097aebff9131a3::t_3d944f4e9fe9cf 1-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "9d5ad2b56456fb9fb11271763b571c6721053568",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_097aebff9131a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f3901a97-9936-4f1f-bbd4-a6dcc2f9ca2d",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_db14b03260d757": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0a7c9edd-d684-44dc-bad0-d1c4addfcabf",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
