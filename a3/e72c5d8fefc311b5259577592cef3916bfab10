@@ -1,0 +1,25 @@
+resources/js/Pages/Auth/Register.vue
+  s_898fc79ee8eb2f::t_db295e325addb5 51
+resources/js/Pages/Auth/Login.vue
+  s_898fc79ee8eb2f::t_0b31bfa0623a6c 49
+resources/js/Pages/Auth/ResetPassword.vue
+  s_898fc79ee8eb2f::t_e473ea7d9a6a7c 56
+resources/js/Pages/Auth/ForgotPassword.vue
+  s_898fc79ee8eb2f::t_33dbf4b07b110f 49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a3e72c5d8fefc311b5259577592cef3916bfab10",
+  "prompts": {},
+  "sessions": {
+    "s_898fc79ee8eb2f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f205fe6-71c0-4ef3-b0c6-bfd8227eb607",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
