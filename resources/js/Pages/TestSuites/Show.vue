@@ -269,7 +269,7 @@ const RUN_DOT_CLASS = {
                 <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]"><SuiteName :name="suite.name" /></h1>
                 <p v-if="suite.playwright_proxy_pac" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: PAC script configured</p>
                 <p v-else-if="suite.playwright_proxy" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.playwright_proxy }}</p>
-                <p v-if="suite.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ suite.description }}</p>
+                <p v-if="suite.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1 whitespace-pre-line">{{ suite.description }}</p>
                 <p v-if="suite.created_by" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-1">
                     Created by <span>{{ suite.created_by.name }}</span>
                 </p>

@@ -18,6 +18,7 @@
         "@inertiajs/vue3": "^3.1.1",
         "@vitejs/plugin-vue": "^6.0.7",
         "playwright": "^1.60.0",
+        "prismjs": "^1.30.0",
         "vue": "^3.5.34"
     }
 }
