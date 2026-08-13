@@ -202,7 +202,7 @@ function onHistoryKeydown(e) {
                 <template v-else>
                     <form @submit.prevent="saveEdit" class="space-y-3 max-w-xl">
                         <TextField v-model="editForm.name" label="Test name" :error="editForm.errors.name" />
-                        <TextField v-model="editForm.description" label="Description" type="textarea" :rows="2" />
+                        <TextField v-model="editForm.description" label="Description" type="textarea" :rows="2" :error="editForm.errors.description" />
                         <Autocomplete v-model="editForm.uploaded_by" :options="users" label="Uploaded by" :error="editForm.errors.uploaded_by" />
                         <div class="flex gap-2">
                             <Button type="submit" variant="filled" size="sm" :disabled="editForm.processing">
@@ -279,6 +279,7 @@ function onHistoryKeydown(e) {
                     v-model:code="codeForm.playwright_code"
                     :editable="codeEditable"
                 />
+                <p v-if="codeForm.errors.playwright_code" class="text-[var(--md-sys-color-error)] md-body-small px-4 pt-2">{{ codeForm.errors.playwright_code }}</p>
             </div>
         </Card>
 

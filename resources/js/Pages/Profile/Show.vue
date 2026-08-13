@@ -94,6 +94,7 @@ function submitPassword() {
                             type="password"
                             autocomplete="new-password"
                             required
+                            :error="passwordForm.errors.password_confirmation"
                         />
                     </div>
 

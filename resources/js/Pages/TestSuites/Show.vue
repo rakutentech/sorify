@@ -735,7 +735,7 @@ const RUN_DOT_CLASS = {
                             <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
                                 <input type="checkbox" v-model="newMemberForm.can_run" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> Run
                             </label>
-                            <Button type="submit" variant="filled" size="sm" :disabled="newMemberForm.processing" class="pb-2.5">Add</Button>
+                            <Button type="submit" variant="filled" size="sm" :disabled="newMemberForm.processing" class="mb-2.5">Add</Button>
                         </form>
                         <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)] pt-2 border-t border-[var(--md-sys-color-outline-variant)]">All users already have access to this suite.</p>
                     </div>
