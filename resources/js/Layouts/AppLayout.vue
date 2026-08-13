@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { usePage, Link, router } from '@inertiajs/vue3';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Alert } from '@/Components/ui';
+import sorifyLogo from '@/../images/sorify-icon.svg';
 
 const page = usePage();
 const flash = computed(() => page.props.flash ?? {});
@@ -34,9 +35,8 @@ function logout() {
                 <div class="flex items-center justify-between h-16">
                     <!-- Brand -->
                     <div class="flex items-center gap-8">
-                        <Link href="/sorify/" class="md-title-large text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
-                            <span class="text-[var(--md-sys-color-primary)]">⬡</span>
-                            Sorify
+                        <Link href="/sorify/" class="flex items-center">
+                            <img :src="sorifyLogo" alt="Sorify" class="h-8 rounded-md px-2 py-1" />
                         </Link>
 
                         <!-- Nav Links -->

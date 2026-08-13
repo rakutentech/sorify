@@ -674,24 +674,30 @@ function formatDuration(ms) {
 
                         <p v-if="newMemberForm.errors.member" class="text-[var(--md-sys-color-error)] md-body-small">{{ newMemberForm.errors.member }}</p>
 
-                        <form v-if="candidates.length" @submit.prevent="submitAddMember" class="flex items-center gap-3 pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <select v-model="newMemberForm.user_id" required class="w-48 truncate bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
-                                <option value="" disabled>Select a user…</option>
-                                <option v-for="candidate in candidates" :key="candidate.id" :value="candidate.id">{{ candidate.name }} ({{ candidate.email }})</option>
-                            </select>
-                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                        <form v-if="candidates.length" @submit.prevent="submitAddMember" class="flex items-end gap-3 pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
+                            <Autocomplete
+                                v-model="newMemberForm.user_id"
+                                :options="candidates"
+                                value-key="id"
+                                :emit-on-input="false"
+                                label="Add user"
+                                placeholder="Search by name or email…"
+                                :error="newMemberForm.errors.user_id"
+                                class="w-64"
+                            />
+                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
                                 <input type="checkbox" v-model="newMemberForm.can_view" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> View
                             </label>
-                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
                                 <input type="checkbox" v-model="newMemberForm.can_edit" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> Edit
                             </label>
-                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
                                 <input type="checkbox" v-model="newMemberForm.can_delete" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> Delete
                             </label>
-                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
                                 <input type="checkbox" v-model="newMemberForm.can_run" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> Run
                             </label>
-                            <Button type="submit" variant="filled" size="sm" :disabled="newMemberForm.processing">Add</Button>
+                            <Button type="submit" variant="filled" size="sm" :disabled="newMemberForm.processing" class="pb-2.5">Add</Button>
                         </form>
                         <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)] pt-2 border-t border-[var(--md-sys-color-outline-variant)]">All users already have access to this suite.</p>
                     </div>

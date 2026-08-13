@@ -1,20 +1,22 @@
 <script setup>
-import { useForm, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { useForm } from '@inertiajs/vue3';
 import { useTheme } from '@/composables/useTheme.js';
-import { IconButton, Card, TextField, Button, Alert } from '@/Components/ui';
+import { IconButton, Card, TextField, Button } from '@/Components/ui';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
 const { theme, toggleTheme } = useTheme();
-const page = usePage();
-const flash = computed(() => page.props.flash ?? {});
 
 const form = useForm({
+    name: '',
     email: '',
+    password: '',
+    password_confirmation: '',
 });
 
 function submit() {
-    form.post('/sorify/forgot-password');
+    form.post('/sorify/register', {
+        onFinish: () => form.reset('password', 'password_confirmation'),
+    });
 }
 </script>
 
@@ -47,20 +49,21 @@ function submit() {
             <!-- Brand -->
             <div class="text-center mb-8">
                 <img :src="sorifyLogo" alt="Sorify" class="h-14 mx-auto rounded-lg px-3 py-2" />
-                <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">Reset your password</p>
+                <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">Create your account</p>
             </div>
 
             <!-- Card -->
             <Card variant="elevated" padding="p-6">
-                <Alert v-if="flash.success" tone="success" class="mb-5">
-                    {{ flash.success }}
-                </Alert>
-
-                <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mb-5">
-                    Enter your email address and we'll send you a link to reset your password.
-                </p>
-
                 <form @submit.prevent="submit" class="space-y-5">
+                    <TextField
+                        v-model="form.name"
+                        label="Name"
+                        type="text"
+                        autocomplete="name"
+                        required
+                        :error="form.errors.name"
+                    />
+
                     <TextField
                         v-model="form.email"
                         label="Email"
@@ -70,16 +73,35 @@ function submit() {
                         :error="form.errors.email"
                     />
 
+                    <TextField
+                        v-model="form.password"
+                        label="Password"
+                        type="password"
+                        autocomplete="new-password"
+                        required
+                        :error="form.errors.password"
+                    />
+
+                    <TextField
+                        v-model="form.password_confirmation"
+                        label="Confirm password"
+                        type="password"
+                        autocomplete="new-password"
+                        required
+                        :error="form.errors.password_confirmation"
+                    />
+
                     <!-- Submit -->
                     <Button type="submit" variant="filled" :disabled="form.processing" class="w-full">
-                        <span v-if="form.processing">Sending…</span>
-                        <span v-else>Send reset link</span>
+                        <span v-if="form.processing">Creating account…</span>
+                        <span v-else>Sign up</span>
                     </Button>
-
-                    <a href="/sorify/login" class="block text-center md-label-small text-[var(--md-sys-color-primary)] hover:underline">
-                        Back to sign in
-                    </a>
                 </form>
+
+                <p class="mt-5 text-center md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                    Already have an account?
+                    <a href="/sorify/login" class="text-[var(--md-sys-color-primary)] hover:underline">Sign in</a>
+                </p>
             </Card>
         </div>
     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,6 +32,36 @@ class AuthController extends Controller
         if (! Auth::attempt($credentials)) {
             return back()->withErrors(['email' => 'Invalid email or password.'])->onlyInput('email');
         }
+
+        $request->session()->regenerate();
+
+        return redirect('/sorify/');
+    }
+
+    public function showRegister(): Response|RedirectResponse
+    {
+        if (Auth::check()) {
+            return redirect('/sorify/');
+        }
+
+        return Inertia::render('Auth/Register');
+    }
+
+    public function register(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'min:8', 'confirmed'],
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+        ]);
+
+        Auth::login($user);
 
         $request->session()->regenerate();
 

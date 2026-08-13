@@ -1,10 +1,10 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "sorify/sorify",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
-    "license": "MIT",
+    "description": "Sorify - zero-code QA testing platform with Playwright-powered test generation and execution, built for AI agents over MCP.",
+    "keywords": ["sorify", "laravel", "testing", "playwright", "mcp"],
+    "license": "Apache-2.0",
     "require": {
         "php": "^8.3",
         "dragonmantank/cron-expression": "^3.4",

@@ -18,6 +18,9 @@ Route::prefix('sorify')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
+
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
     Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
     Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
@@ -79,7 +82,8 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
     Route::get('/screenshots/{screenshot}', [ScreenshotController::class, 'show'])->name('screenshots.show');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-    Route::put('/profile', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::put('/profile', [ProfileController::class, 'updateName'])->name('profile.update-name');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 

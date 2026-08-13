@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Card, TextField, Button } from '@/Components/ui';
+import sorifyLogo from '@/../images/sorify-icon.svg';
 
 const { theme, toggleTheme } = useTheme();
 
@@ -45,10 +46,7 @@ function submit() {
         <div class="w-full max-w-sm">
             <!-- Brand -->
             <div class="text-center mb-8">
-                <div class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center justify-center gap-2">
-                    <span class="text-[var(--md-sys-color-primary)]">⬡</span>
-                    Sorify
-                </div>
+                <img :src="sorifyLogo" alt="Sorify" class="h-14 mx-auto rounded-lg px-3 py-2" />
                 <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">Sign in to your account</p>
             </div>
 
@@ -84,6 +82,11 @@ function submit() {
                         <span v-else>Sign in</span>
                     </Button>
                 </form>
+
+                <p class="mt-5 text-center md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                    Don't have an account?
+                    <a href="/sorify/register" class="text-[var(--md-sys-color-primary)] hover:underline">Sign up</a>
+                </p>
             </Card>
         </div>
     </div>

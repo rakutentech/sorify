@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Card, TextField, Button } from '@/Components/ui';
+import sorifyLogo from '@/../images/sorify-icon.svg';
 
 const props = defineProps({
     token: String,
@@ -52,10 +53,7 @@ function submit() {
         <div class="w-full max-w-sm">
             <!-- Brand -->
             <div class="text-center mb-8">
-                <div class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center justify-center gap-2">
-                    <span class="text-[var(--md-sys-color-primary)]">⬡</span>
-                    Sorify
-                </div>
+                <img :src="sorifyLogo" alt="Sorify" class="h-14 mx-auto rounded-lg px-3 py-2" />
                 <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">Choose a new password</p>
             </div>
 

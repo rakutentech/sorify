@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('test_suites', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('created_by')->nullable()->after('id')->constrained('users')->nullOnDelete();
-            $table->string('webhook_token', 64)->nullable()->unique()->after('created_by');
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('webhook_token', 64)->nullable()->unique();
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('playwright_proxy', 500)->nullable();

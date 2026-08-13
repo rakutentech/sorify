@@ -1,0 +1,64 @@
+name: sorify
+
+x-app-image: &app-image
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      VITE_APP_NAME: ${APP_NAME:-Sorify}
+      ASSET_URL: ${ASSET_URL:-}
+  image: sorify-app:latest
+  env_file:
+    - .env
+  volumes:
+    - storage_data:/app/storage
+  depends_on:
+    mysql:
+      condition: service_healthy
+    migrate:
+      condition: service_completed_successfully
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  migrate:
+    <<: *app-image
+    restart: "no"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: ["php", "artisan", "migrate", "--force"]
+
+  app:
+    <<: *app-image
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:8000"
+
+  queue:
+    <<: *app-image
+    restart: unless-stopped
+    command: ["php", "artisan", "queue:work", "--queue=test-runner,default", "--tries=3", "--timeout=600", "--sleep=3"]
+
+  scheduler:
+    <<: *app-image
+    restart: unless-stopped
+    command: ["sh", "-c", "while true; do php artisan schedule:run --no-interaction; sleep 60; done"]
+
+volumes:
+  mysql_data:
+  storage_data:

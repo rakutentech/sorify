@@ -24,6 +24,19 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function updateName(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $user = auth()->user();
+
+        $user->update(['name' => $request->name]);
+
+        return back()->with('flash.success', 'Name updated successfully.');
+    }
+
     public function updatePassword(Request $request): RedirectResponse
     {
         $request->validate([

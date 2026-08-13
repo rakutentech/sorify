@@ -3,9 +3,17 @@ import { useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField } from '@/Components/ui';
 
-defineProps({
+const props = defineProps({
     user: Object,
 });
+
+const nameForm = useForm({
+    name: props.user.name,
+});
+
+function submitName() {
+    nameForm.put('/sorify/profile');
+}
 
 const passwordForm = useForm({
     current_password: '',
@@ -14,7 +22,7 @@ const passwordForm = useForm({
 });
 
 function submitPassword() {
-    passwordForm.put('/sorify/profile', {
+    passwordForm.put('/sorify/profile/password', {
         onSuccess: () => passwordForm.reset(),
     });
 }
@@ -26,6 +34,29 @@ function submitPassword() {
 
         <div class="max-w-4xl mx-auto space-y-6">
             <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">Profile</h1>
+
+            <!-- Name -->
+            <Card padding="p-6">
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4">Name</h2>
+
+                <form @submit.prevent="submitName" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <TextField
+                            v-model="nameForm.name"
+                            label="Name"
+                            type="text"
+                            autocomplete="name"
+                            required
+                            :error="nameForm.errors.name"
+                        />
+                    </div>
+
+                    <Button type="submit" variant="filled" :disabled="nameForm.processing">
+                        <span v-if="nameForm.processing">Updating…</span>
+                        <span v-else>Update Name</span>
+                    </Button>
+                </form>
+            </Card>
 
             <!-- Change Password -->
             <Card padding="p-6">
