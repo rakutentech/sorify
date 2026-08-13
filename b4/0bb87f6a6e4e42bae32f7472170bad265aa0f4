@@ -1,0 +1,26 @@
+README.md
+  h_f44dfe84a46cdf 11-15
+.github/workflows/release-auto.yml
+  s_7f8558cff204bc::t_80025d76a0edf4 1-117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "b40bb87f6a6e4e42bae32f7472170bad265aa0f4",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_7f8558cff204bc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b2342e4d-f891-423d-9985-23aeef0ecd77",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
