@@ -1,0 +1,19 @@
+composer.json
+  s_ce82908cd1dc44::t_1557b3f767c420 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "837831fc7703636257ea238168ddf87aa1355a9d",
+  "prompts": {},
+  "sessions": {
+    "s_ce82908cd1dc44": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ec13171c-4348-40e8-afd6-fc75dec2fac1",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
