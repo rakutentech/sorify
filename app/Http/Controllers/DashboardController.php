@@ -45,8 +45,9 @@ class DashboardController extends Controller
                     'total_tests'   => $run->total_tests,
                     'duration_ms'   => $run->duration_ms,
                     'completed_at'  => $run->completed_at,
-                    'created_by'    => $run->testSuite->createdBy?->name,
-                    'triggered_by'  => $run->triggeredByUser?->name,
+                    'created_by'        => $run->testSuite->createdBy?->name,
+                    'triggered_by'      => $run->triggered_by,
+                    'triggered_by_user' => $run->triggeredByUser,
                 ]),
         ]);
     }

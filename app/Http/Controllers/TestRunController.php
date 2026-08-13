@@ -27,7 +27,7 @@ class TestRunController extends Controller
     {
         $this->authorize('view', $run->testSuite);
 
-        $run->load('testSuite:id,name');
+        $run->load(['testSuite:id,name', 'triggeredByUser:id,name']);
 
         return Inertia::render('TestRuns/Show', [
             'run'     => array_merge($run->toArray(), ['suite' => $run->testSuite]),

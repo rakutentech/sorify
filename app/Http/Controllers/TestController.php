@@ -48,16 +48,22 @@ class TestController extends Controller
                     'created_at'      => $version->created_at,
                 ]),
             'history' => $test->testResults()
-                ->with(['testRun:id,status,created_at', 'screenshots'])
+                ->with([
+                    'testRun:id,status,created_at,triggered_by,triggered_by_user_id',
+                    'testRun.triggeredByUser:id,name',
+                    'screenshots',
+                ])
                 ->latest()
                 ->limit(10)
                 ->get()
                 ->map(fn ($r) => [
-                    'id'            => $r->id,
-                    'status'        => $r->status,
-                    'duration_ms'   => $r->duration_ms,
-                    'created_at'    => $r->created_at,
-                    'run_id'        => $r->test_run_id,
+                    'id'                => $r->id,
+                    'status'            => $r->status,
+                    'duration_ms'       => $r->duration_ms,
+                    'created_at'        => $r->created_at,
+                    'run_id'            => $r->test_run_id,
+                    'triggered_by'      => $r->testRun?->triggered_by,
+                    'triggered_by_user' => $r->testRun?->triggeredByUser,
                     'error_message' => $r->error_message,
                     'error_stack'   => $r->error_stack,
                     'stdout'        => $r->stdout,

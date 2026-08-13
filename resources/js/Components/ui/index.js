@@ -9,3 +9,4 @@ export { default as Modal } from './Modal.vue';
 export { default as SuiteName } from './SuiteName.vue';
 export { default as Avatar } from './Avatar.vue';
 export { default as AvatarGroup } from './AvatarGroup.vue';
+export { default as RanBy } from './RanBy.vue';

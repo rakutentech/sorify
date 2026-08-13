@@ -1,12 +1,19 @@
 <h1 align="center"><img src="resources/images/sorify-icon.svg" width="192" align="center"/></h1>
 
 <p align="center">
-  Next generation QA testing platform <br>
-  Zero-code test management, built for developers, QA or both<br>
-  Built for AI Agents - Claude/Codex<br>
+  Next generation AI First - QA platform <br><br>
   QA Platform over MCP<br>
   Low Tokens consumption<br>
+  Built for AI Agents - Claude/Codex<br><br>
+  Zero-code test management<br>
+  Built for developers, QA or both<br>
 </p>
+
+<h3 align="center">Control entire QA thru MCP</h3>
+
+**Automate:** Automate browser testing, using claude, codex - with skills, mcp, test runners & dashboard.
+
+**Zero Code:** Zero code management, playwright browser automation tests using AI.
 
 **Test Management:** Organize test suites and test cases, run them on demand or on a schedule.
 
@@ -16,7 +23,7 @@
 
 **User Management:** Roles, permissions, and per-user IAM.
 
-**MCP Server:** Talk to your test suites from Claude, Codex, or any MCP client.
+**MCP Server:** Low token consumption over MCP layer, control all aspects of tests cases, code.
 
 **Agent Plugins:** Claude/Codex plugins for zero-code test generation and management.
 
@@ -91,7 +98,7 @@ SORIFY_PASSWORD=changeme
 
 ## Development (local)
 
-**Option 1**
+**Option 1** - Simple
 
 ```sh
 cp .env.example .env
@@ -99,7 +106,7 @@ composer setup
 php artisan dev
 ```
 
-**Option 2**
+**Option 2** - Detailed
 
 ```sh
 npm run dev
@@ -108,7 +115,7 @@ php artisan queue:work --queue=sorify,default
 php artisan schedule:work
 ```
 
-## Self Host - Prod Ready
+## Self Hosting
 
 ```bash
 cp .env.docker.example .env.docker
@@ -127,7 +134,7 @@ http://localhost:8000/sorify
 - **Password:** changeme
 
 
-## Contributors
+## Owners
 
 <table>
   <tr>
@@ -178,6 +185,10 @@ http://localhost:8000/sorify
   </tr>
 </table>
 
+## Contribution
+
+- Raise an issue or PR to `master`
+
 ## License
 
 Licensed under the [Apache License, Version 2.0](LICENSE).
@@ -185,3 +196,4 @@ Licensed under the [Apache License, Version 2.0](LICENSE).
 # CHANGE LOG
 
 - v1 - Intial Release
+- v1.1 - Batteries added on user management, mcp enhancement

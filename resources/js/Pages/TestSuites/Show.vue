@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
-import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, AvatarGroup } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, AvatarGroup, RanBy } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
@@ -554,7 +554,10 @@ const RUN_DOT_CLASS = {
                                 <span class="text-[var(--md-sys-color-error)]">{{ run.failed_count ?? 0 }} failed</span>
                                 <span>{{ formatDuration(run.duration_ms) }}</span>
                             </div>
-                            <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5">{{ formatDate(run.created_at) }}</p>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(run.created_at) }}</p>
+                                <RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" />
+                            </div>
                         </div>
                     </div>
                 </Card>
