@@ -1,0 +1,19 @@
+resources/js/Layouts/AppLayout.vue
+  s_898fc79ee8eb2f::t_3502267c281040 39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "28a9404b06d543adb79210ccd68f01f6da6eceb6",
+  "prompts": {},
+  "sessions": {
+    "s_898fc79ee8eb2f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f205fe6-71c0-4ef3-b0c6-bfd8227eb607",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
