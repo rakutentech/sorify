@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Button, TextField, Modal } from '@/Components/ui';
+import { Card, Button, TextField, Modal, SuiteName } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 function debounce(fn, delay) {
@@ -141,7 +141,7 @@ function formatPassRate(rate) {
                         >
                             <td class="px-5 py-4">
                                 <div>
-                                    <p class="font-medium md-body-medium text-[var(--md-sys-color-on-surface)]">{{ suite.name }}</p>
+                                    <p class="md-body-medium text-[var(--md-sys-color-on-surface)]"><SuiteName :name="suite.name" /></p>
                                     <p v-if="suite.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate max-w-xs">{{ suite.description }}</p>
                                     <div class="flex flex-wrap gap-1.5 mt-1.5">
                                         <span

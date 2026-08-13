@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Chip } from '@/Components/ui';
+import { Card, Chip, SuiteName } from '@/Components/ui';
 
 const props = defineProps({
     stats: {
@@ -108,9 +108,13 @@ function formatPassRate(rate) {
                                     :href="`/sorify/suites/${run.suite_id}`"
                                     class="text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] transition-colors"
                                 >
-                                    {{ run.suite_name ?? run.suite?.name ?? '—' }}
+                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" />
+                                    <span v-else>—</span>
                                 </Link>
-                                <span v-else class="text-[var(--md-sys-color-on-surface)]">{{ run.suite_name ?? run.suite?.name ?? '—' }}</span>
+                                <span v-else class="text-[var(--md-sys-color-on-surface)]">
+                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" />
+                                    <span v-else>—</span>
+                                </span>
                             </td>
                             <td class="px-5 py-3">
                                 <Chip :status="run.status" />

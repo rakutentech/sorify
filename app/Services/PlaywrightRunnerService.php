@@ -100,7 +100,7 @@ class PlaywrightRunnerService
         $result = TestResult::create([
             'test_run_id' => $testRun->id,
             'test_id'     => $test->id,
-            'status'      => 'error',
+            'status'      => 'running',
             'started_at'  => now(),
         ]);
 
