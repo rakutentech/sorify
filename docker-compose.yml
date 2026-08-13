@@ -9,7 +9,7 @@ x-app-image: &app-image
       ASSET_URL: ${ASSET_URL:-}
   image: sorify-app:latest
   env_file:
-    - .env
+    - .env.docker
   volumes:
     - storage_data:/app/storage
   depends_on:
@@ -41,7 +41,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    command: ["php", "artisan", "migrate", "--force"]
+    command: ["sh", "-c", "php artisan migrate --force && php artisan db:seed --class=AdminUserSeeder --force"]
 
   app:
     <<: *app-image
