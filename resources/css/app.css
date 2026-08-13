@@ -138,6 +138,39 @@
 
 .bg-code { background-color: var(--code-bg); }
 
+/* ── Playwright code syntax highlighting (Prism.js tokens) ────────────────── */
+
+.playwright-code-block .token.comment,
+.playwright-code-block .token.prolog,
+.playwright-code-block .token.doctype,
+.playwright-code-block .token.cdata {
+    color: var(--md-sys-color-on-surface-variant);
+    opacity: 0.65;
+    font-style: italic;
+}
+.playwright-code-block .token.string,
+.playwright-code-block .token.template-string,
+.playwright-code-block .token.attr-value {
+    color: var(--md-ext-color-success);
+}
+.playwright-code-block .token.keyword,
+.playwright-code-block .token.boolean,
+.playwright-code-block .token.builtin {
+    color: var(--md-sys-color-primary);
+}
+.playwright-code-block .token.function,
+.playwright-code-block .token.class-name {
+    color: var(--md-sys-color-tertiary);
+}
+.playwright-code-block .token.number,
+.playwright-code-block .token.regex {
+    color: var(--md-ext-color-warning);
+}
+.playwright-code-block .token.punctuation,
+.playwright-code-block .token.operator {
+    color: var(--md-sys-color-on-surface-variant);
+}
+
 .shadow-elevation-1 { box-shadow: var(--md-sys-elevation-level1); }
 .shadow-elevation-2 { box-shadow: var(--md-sys-elevation-level2); }
 .shadow-elevation-3 { box-shadow: var(--md-sys-elevation-level3); }

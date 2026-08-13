@@ -191,7 +191,7 @@ function onHistoryKeydown(e) {
                         <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ test.name }}</h1>
                         <Chip v-if="test.status" :status="test.status" />
                     </div>
-                    <p v-if="test.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ test.description }}</p>
+                    <p v-if="test.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1 whitespace-pre-line">{{ test.description }}</p>
                     <p v-if="test.uploaded_by" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-1">
                         Uploaded by <span class="font-medium">{{ test.uploaded_by }}</span>
                     </p>
