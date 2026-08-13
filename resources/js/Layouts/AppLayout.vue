@@ -36,7 +36,7 @@ function logout() {
                     <!-- Brand -->
                     <div class="flex items-center gap-8">
                         <Link href="/sorify/" class="flex items-center">
-                            <img :src="sorifyLogo" alt="Sorify" class="h-8 rounded-md px-2 py-1" />
+                            <img :src="sorifyLogo" alt="Sorify" class="h-11 rounded-md px-1 py-1" />
                         </Link>
 
                         <!-- Nav Links -->
