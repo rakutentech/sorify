@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, SuiteName } from '@/Components/ui';
+import { Card, Chip, Button, SuiteName, RanBy } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
@@ -165,11 +165,13 @@ const failedPct = computed(() => {
                         </h1>
                         <Chip :status="run.status" />
                     </div>
-                    <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1.5">
-                        Started {{ formatDate(run.started_at ?? run.created_at) }}
-                        <span v-if="run.duration_ms" class="ml-2">
-                            &bull; {{ formatDuration(run.duration_ms) }}
+                    <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1.5 flex items-center gap-2 flex-wrap">
+                        <span>
+                            Started {{ formatDate(run.started_at ?? run.created_at) }}
+                            <span v-if="run.duration_ms">&bull; {{ formatDuration(run.duration_ms) }}</span>
                         </span>
+                        <span>&bull;</span>
+                        <RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" />
                     </p>
                 </div>
 

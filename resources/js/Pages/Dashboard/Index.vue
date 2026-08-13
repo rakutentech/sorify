@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Chip, SuiteName, AvatarGroup } from '@/Components/ui';
+import { Card, Chip, SuiteName, AvatarGroup, RanBy } from '@/Components/ui';
 
 const props = defineProps({
     stats: {
@@ -127,7 +127,7 @@ function formatPassRate(rate) {
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-error)]">{{ run.failed_count ?? '—' }}</td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ formatDuration(run.duration_ms) }}</td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ run.created_by ?? '—' }}</td>
-                            <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ run.triggered_by ?? '—' }}</td>
+                            <td class="px-5 py-3"><RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" /></td>
                             <td class="px-5 py-3 text-right">
                                 <Link
                                     :href="`/sorify/runs/${run.id}`"

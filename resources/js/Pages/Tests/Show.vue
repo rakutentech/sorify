@@ -4,7 +4,7 @@ import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, TextField, Autocomplete, SuiteName } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
@@ -400,6 +400,7 @@ function onHistoryKeydown(e) {
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Date</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Status</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Duration</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Ran by</th>
                             <th class="px-5 py-3"></th>
                         </tr>
                     </thead>
@@ -416,6 +417,9 @@ function onHistoryKeydown(e) {
                                 <Chip :status="item.status" />
                             </td>
                             <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDuration(item.duration_ms) }}</td>
+                            <td class="px-5 py-3" @click.stop>
+                                <RanBy :triggered-by="item.triggered_by" :triggered-by-user="item.triggered_by_user" />
+                            </td>
                             <td class="px-5 py-3 text-right">
                                 <Link
                                     v-if="item.run_id"

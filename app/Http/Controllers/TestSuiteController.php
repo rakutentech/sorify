@@ -121,7 +121,7 @@ class TestSuiteController extends Controller
 
                     return $data;
                 }),
-            'recentRuns' => $suite->testRuns()->latest()->limit(10)->get(),
+            'recentRuns' => $suite->testRuns()->with('triggeredByUser:id,name')->latest()->limit(10)->get(),
             'webhookUrl' => $suite->webhookUrl(),
             'members'    => $members,
             'candidates' => $candidates,
