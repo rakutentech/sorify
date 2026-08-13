@@ -1,0 +1,19 @@
+app/Services/PlaywrightRunnerService.php
+  s_c95391b5d2b76d::t_9533004469ef2d 110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "27580695c716bb76024d6e59110de58acab45982",
+  "prompts": {},
+  "sessions": {
+    "s_c95391b5d2b76d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9f2ca0fb-5755-4f49-b088-12cba29eebf9",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
