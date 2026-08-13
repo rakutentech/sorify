@@ -4,6 +4,7 @@ import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import { Card, Chip, Button, TextField, Autocomplete, Modal } from '@/Components/ui';
+import { formatDate } from '@/utils/date';
 
 const props = defineProps({
     suite: { type: Object, required: true },
@@ -228,11 +229,6 @@ function bulkDelete() {
         data: { test_ids: [...selectedIds.value] },
         onSuccess: () => { selectedIds.value = new Set(); },
     });
-}
-
-function formatDate(dateStr) {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString();
 }
 
 function formatDuration(ms) {

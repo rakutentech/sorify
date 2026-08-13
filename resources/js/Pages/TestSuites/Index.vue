@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Modal } from '@/Components/ui';
+import { formatDate } from '@/utils/date';
 
 function debounce(fn, delay) {
     let timer;
@@ -63,11 +64,6 @@ function submit() {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-function formatDate(dateStr) {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString();
-}
-
 function formatPassRate(rate) {
     if (rate === null || rate === undefined) return '—';
     return `${Math.round(rate)}%`;

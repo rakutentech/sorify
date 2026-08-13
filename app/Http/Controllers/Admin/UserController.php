@@ -19,7 +19,7 @@ class UserController extends Controller
             'name'       => $u->name,
             'email'      => $u->email,
             'is_admin'   => $u->is_admin,
-            'created_at' => $u->created_at?->toDateString(),
+            'created_at' => $u->created_at,
         ]);
 
         return Inertia::render('Admin/Users/Index', ['users' => $users]);

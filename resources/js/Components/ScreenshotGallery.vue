@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Modal } from '@/Components/ui';
+import { formatDate } from '@/utils/date';
 
 const props = defineProps({
     screenshots: {
@@ -38,10 +39,6 @@ function onKeydown(e) {
     if (e.key === 'Escape') close();
 }
 
-function formatMs(ms) {
-    if (!ms) return '';
-    return new Date(ms).toLocaleString();
-}
 </script>
 
 <template>
@@ -102,7 +99,7 @@ function formatMs(ms) {
                     <div class="text-center">
                         <p class="text-white md-body-medium font-medium">{{ activeScreenshot.label || activeScreenshot.filename }}</p>
                         <p v-if="activeScreenshot.taken_at_ms" class="text-white/60 md-label-small mt-0.5">
-                            {{ formatMs(activeScreenshot.taken_at_ms) }}
+                            {{ formatDate(activeScreenshot.taken_at_ms) }}
                         </p>
                         <p class="text-white/50 md-label-small mt-0.5">
                             {{ activeIndex + 1 }} / {{ screenshots.length }}

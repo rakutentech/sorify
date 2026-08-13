@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
 import { Card, Chip, Button, TextField, Autocomplete } from '@/Components/ui';
+import { formatDate } from '@/utils/date';
 
 const props = defineProps({
     suite: { type: Object, required: true },
@@ -122,11 +123,6 @@ function runTest() {
             },
         },
     );
-}
-
-function formatDate(dateStr) {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleString();
 }
 
 function formatDuration(ms) {

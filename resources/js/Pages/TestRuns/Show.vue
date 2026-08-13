@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
 import { Card, Chip, Button } from '@/Components/ui';
+import { formatDate } from '@/utils/date';
 
 const props = defineProps({
     run: { type: Object, required: true },
@@ -78,11 +79,6 @@ function toggleStdout(id) {
     } else {
         expandedStdout.value.add(id);
     }
-}
-
-function formatDate(dateStr) {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleString();
 }
 
 function formatDuration(ms) {

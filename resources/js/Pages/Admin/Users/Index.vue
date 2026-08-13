@@ -4,6 +4,7 @@ import { useForm, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Modal } from '@/Components/ui';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
+import { formatDate } from '@/utils/date';
 
 const props = defineProps({
     users: Array,
@@ -98,7 +99,7 @@ watch(
                                     <option value="0">User</option>
                                 </select>
                             </td>
-                            <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ user.created_at }}</td>
+                            <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(user.created_at) }}</td>
                             <td class="px-4 py-3 space-x-3">
                                 <button
                                     @click="resetPassword(user)"
