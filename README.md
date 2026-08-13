@@ -103,7 +103,7 @@ php artisan migrate
 php artisan db:seed #admin@sorify.local/changeme
 php artisan dev
 
-#or
+#or yourself
 npm run dev
 php artisan serve
 php artisan queue:work --queue=sorify,default
