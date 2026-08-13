@@ -1,0 +1,19 @@
+README.md
+  s_9ce1ef57a318ce::t_3954269c279bbc 56-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2f3c36e8973940e0b4f12f629987617fb9992b4a",
+  "prompts": {},
+  "sessions": {
+    "s_9ce1ef57a318ce": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9cba04f1-ef35-49a2-ac56-845a10a69652",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
