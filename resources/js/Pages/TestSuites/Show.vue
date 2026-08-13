@@ -18,6 +18,8 @@ const props = defineProps({
 });
 
 // CI webhook
+const statusUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/trigger$/, '/runs/{run}/status') : null);
+
 function regenerateWebhook() {
     if (!confirm('This will invalidate the current webhook URL. Any CI configuration using the old URL will stop working. Continue?')) return;
     router.post(`/sorify/suites/${props.suite.id}/webhook/regenerate`);
@@ -62,6 +64,7 @@ const editForm = useForm({
     take_screenshot: props.suite.take_screenshot ?? true,
     description: props.suite.description ?? '',
     teams_webhook_url: props.suite.teams_webhook_url ?? '',
+    teams_webhook_proxy: props.suite.teams_webhook_proxy ?? '',
     teams_notify_on_success: props.suite.teams_notify_on_success ?? false,
     teams_notify_on_failure: props.suite.teams_notify_on_failure ?? false,
 });
@@ -76,6 +79,7 @@ function openEditModal() {
     editForm.take_screenshot = props.suite.take_screenshot ?? true;
     editForm.description = props.suite.description ?? '';
     editForm.teams_webhook_url = props.suite.teams_webhook_url ?? '';
+    editForm.teams_webhook_proxy = props.suite.teams_webhook_proxy ?? '';
     editForm.teams_notify_on_success = props.suite.teams_notify_on_success ?? false;
     editForm.teams_notify_on_failure = props.suite.teams_notify_on_failure ?? false;
     showEditModal.value = true;
@@ -466,6 +470,12 @@ const RUN_DOT_CLASS = {
                         <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-3">POST to this URL from CI (e.g. GitHub Actions) to trigger a run of this suite.</p>
                         <CopyableSecret v-if="webhookUrl" :value="webhookUrl" />
                         <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">No webhook configured.</p>
+                        <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
+                                GET this URL (swap <code class="font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{run}</code> for the <code class="font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">run_id</code> returned by the trigger call, also available as <code class="font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">status_url</code> in that response) to poll for pass/fail so your CI job doesn't just stop at the initial 202 Accepted.
+                            </p>
+                            <CopyableSecret :value="statusUrlTemplate" />
+                        </div>
                     </div>
                 </Card>
 
@@ -604,6 +614,14 @@ const RUN_DOT_CLASS = {
                                 label="MS Teams Webhook URL"
                                 hint="Incoming webhook or workflow URL for a Teams channel. Leave empty to disable."
                                 :error="editForm.errors.teams_webhook_url"
+                            />
+                            <TextField
+                                v-model="editForm.teams_webhook_proxy"
+                                label="MS Teams Webhook Proxy"
+                                hint="Optional proxy used only for the Teams webhook call. Independent of the HTTP Proxy above. Leave empty for direct connection."
+                                placeholder="http://proxy.example.com:8080"
+                                class="mt-4"
+                                :error="editForm.errors.teams_webhook_proxy"
                             />
                             <div class="flex items-center gap-4 mt-2.5">
                                 <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">

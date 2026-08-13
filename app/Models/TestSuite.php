@@ -24,6 +24,7 @@ class TestSuite extends Model
         'take_screenshot',
         'created_by',
         'teams_webhook_url',
+        'teams_webhook_proxy',
         'teams_notify_on_success',
         'teams_notify_on_failure',
     ];

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\TestResult;
 use App\Models\TestRun;
 use App\Models\TestSuite;
 use Illuminate\Support\Facades\Http;
@@ -9,6 +10,17 @@ use Illuminate\Support\Facades\Log;
 
 class TeamsNotificationService
 {
+    private const TEST_LIST_LIMIT = 10;
+
+    private const STATUS_ICONS = [
+        'passed'    => '✅',
+        'failed'    => '❌',
+        'error'     => '⚠️',
+        'timeout'   => '⏱️',
+        'skipped'   => '⏭️',
+        'cancelled' => '🚫',
+    ];
+
     public function notifyRunCompleted(TestRun $run): void
     {
         $suite = $run->testSuite;
@@ -28,7 +40,22 @@ class TeamsNotificationService
         }
 
         try {
-            Http::timeout(10)->post($suite->teams_webhook_url, $this->buildPayload($suite, $run, $isSuccess));
+            $request = Http::timeout(10);
+
+            if ($suite->teams_webhook_proxy) {
+                $request->withOptions(['proxy' => $suite->teams_webhook_proxy]);
+            }
+
+            $response = $request->post($suite->teams_webhook_url, $this->buildPayload($suite, $run, $isSuccess));
+
+            if ($response->failed()) {
+                Log::warning('Teams webhook rejected the notification for test run', [
+                    'suite_id' => $suite->id,
+                    'run_id'   => $run->id,
+                    'status'   => $response->status(),
+                    'body'     => $response->body(),
+                ]);
+            }
         } catch (\Throwable $e) {
             Log::warning('Failed to send Teams notification for test run', [
                 'suite_id' => $suite->id,
@@ -41,22 +68,96 @@ class TeamsNotificationService
     private function buildPayload(TestSuite $suite, TestRun $run, bool $isSuccess): array
     {
         $status = $isSuccess ? 'Success' : 'Failure';
+        $duration = $run->duration_ms ? round($run->duration_ms / 1000, 1).'s' : '—';
+        $suiteUrl = route('suites.show', $suite);
+        $runUrl = route('runs.show', $run);
+
+        $body = [
+            [
+                'type'   => 'TextBlock',
+                'id'     => 'title',
+                'text'   => "Sorify — Suite: {$suite->name} — {$status}",
+                'size'   => 'large',
+                'weight' => 'bolder',
+                'wrap'   => true,
+                'color'  => $isSuccess ? 'good' : 'attention',
+            ],
+        ];
+
+        if ($suite->description) {
+            $body[] = [
+                'type'     => 'TextBlock',
+                'text'     => $suite->description,
+                'isSubtle' => true,
+                'wrap'     => true,
+                'spacing'  => 'none',
+            ];
+        }
+
+        $body[] = [
+            'type'    => 'TextBlock',
+            'text'    => "Passed: {$run->passed_count}  •  Failed: {$run->failed_count}  •  Errors: {$run->error_count}  •  Duration: {$duration}",
+            'wrap'    => true,
+            'spacing' => 'small',
+        ];
+
+        array_push($body, ...$this->buildTestsSection($run));
 
         return [
-            '@type'      => 'MessageCard',
-            '@context'   => 'http://schema.org/extensions',
-            'themeColor' => $isSuccess ? '2EB67D' : 'D32F2F',
-            'summary'    => "{$suite->name}: {$status}",
-            'sections'   => [[
-                'activityTitle' => "{$suite->name} — {$status}",
-                'facts' => [
-                    ['name' => 'Passed', 'value' => (string) $run->passed_count],
-                    ['name' => 'Failed', 'value' => (string) $run->failed_count],
-                    ['name' => 'Errors', 'value' => (string) $run->error_count],
-                    ['name' => 'Duration', 'value' => $run->duration_ms ? round($run->duration_ms / 1000, 1).'s' : '—'],
+            'type' => 'message',
+            'attachments' => [[
+                'contentType' => 'application/vnd.microsoft.card.adaptive',
+                'contentUrl'  => null,
+                'content' => [
+                    '$schema' => 'http://adaptivecards.io/schemas/adaptive-card.json',
+                    'type'    => 'AdaptiveCard',
+                    'version' => '1.4',
+                    'body'    => $body,
+                    'actions' => [
+                        ['type' => 'Action.OpenUrl', 'title' => 'View Test Suite', 'url' => $suiteUrl],
+                        ['type' => 'Action.OpenUrl', 'title' => 'View Run', 'url' => $runUrl],
+                    ],
+                    'msteams' => ['width' => 'Full'],
                 ],
-                'markdown' => true,
             ]],
+        ];
+    }
+
+    private function buildTestsSection(TestRun $run): array
+    {
+        $results = $run->testResults()->with('test:id,name')->orderBy('id')->get();
+
+        if ($results->isEmpty()) {
+            return [];
+        }
+
+        $shown = $results->take(self::TEST_LIST_LIMIT);
+        $remaining = $results->count() - $shown->count();
+
+        $lines = $shown->map(function (TestResult $result) {
+            $icon = self::STATUS_ICONS[$result->status] ?? '•';
+            $name = $result->test->name ?? "Test #{$result->test_id}";
+
+            return "{$icon} {$name}";
+        });
+
+        if ($remaining > 0) {
+            $lines->push('+'.$remaining.' more test'.($remaining === 1 ? '' : 's'));
+        }
+
+        return [
+            [
+                'type'    => 'TextBlock',
+                'text'    => 'Tests',
+                'weight'  => 'bolder',
+                'spacing' => 'medium',
+            ],
+            [
+                'type'     => 'TextBlock',
+                'text'     => $lines->implode("\n\n"),
+                'wrap'     => true,
+                'isSubtle' => true,
+            ],
         ];
     }
 }
