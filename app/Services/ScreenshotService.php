@@ -66,4 +66,17 @@ class ScreenshotService
             @rmdir($dir);
         }
     }
+
+    public function pruneOlderThan(int $days): int
+    {
+        $stale = Screenshot::where('created_at', '<', now()->subDays($days))->get();
+
+        foreach ($stale as $screenshot) {
+            Storage::disk('screenshots')->delete($screenshot->path);
+        }
+
+        Screenshot::whereIn('id', $stale->pluck('id'))->delete();
+
+        return $stale->count();
+    }
 }
