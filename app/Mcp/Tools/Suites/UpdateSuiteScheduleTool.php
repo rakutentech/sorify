@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Mcp\Tools\Suites;
+
+use App\Http\Requests\StoreTestSuiteScheduleRequest;
+use App\Models\TestSuite;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
+use Laravel\Mcp\Server\Tool;
+
+class UpdateSuiteScheduleTool extends Tool
+{
+    protected string $name = 'update_suite_schedule';
+
+    protected string $description = 'Create or update the cron schedule that runs a test suite automatically.';
+
+    public function schema(JsonSchema $schema): array
+    {
+        return [
+            'suite_id' => $schema->integer()->required()->description('The test suite ID.'),
+            'cron_expression' => $schema->string()->required()->description('Cron expression for when the suite should run (e.g. "0 * * * *").'),
+            'timezone' => $schema->string()->description('Timezone for the schedule (e.g. "UTC", "Asia/Tokyo"). Defaults to UTC.'),
+            'is_enabled' => $schema->boolean()->description('Whether the schedule is active. Defaults to true.'),
+        ];
+    }
+
+    public function handle(Request $request): Response|ResponseFactory
+    {
+        $suite = TestSuite::findOrFail($request->validate(['suite_id' => 'required|integer|exists:test_suites,id'])['suite_id']);
+
+        $data = $request->validate((new StoreTestSuiteScheduleRequest)->rules());
+        $timezone = $data['timezone'] ?? 'UTC';
+
+        $schedule = $suite->schedule()->updateOrCreate([], [
+            'cron_expression' => $data['cron_expression'],
+            'timezone' => $timezone,
+            'is_enabled' => $data['is_enabled'] ?? true,
+            'created_by' => Auth::id(),
+        ]);
+
+        $schedule->update([
+            'next_run_at' => $schedule->is_enabled
+                ? $schedule->nextRunAfter(Carbon::now($timezone))
+                : null,
+        ]);
+
+        return Response::structured(['schedule' => $schedule->toArray()]);
+    }
+}

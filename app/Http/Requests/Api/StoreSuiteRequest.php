@@ -21,6 +21,10 @@ class StoreSuiteRequest extends FormRequest
             'history_retention' => 'nullable|integer|in:3,5,10',
             'timeout_ms'       => 'nullable|integer|in:10000,30000,60000,120000',
             'take_screenshot'  => 'nullable|boolean',
+            'teams_webhook_url' => 'nullable|string|max:500|url',
+            'teams_webhook_proxy' => 'nullable|string|max:500',
+            'teams_notify_on_success' => 'nullable|boolean',
+            'teams_notify_on_failure' => 'nullable|boolean',
         ];
     }
 }
