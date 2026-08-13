@@ -4,7 +4,7 @@ import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, TextField, Autocomplete } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, SuiteName } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
@@ -116,11 +116,9 @@ function runTest() {
         `/sorify/suites/${props.suite.id}/runs`,
         { test_ids: [props.test.id] },
         {
-            onSuccess: () => { running.value = false; },
-            onError:   () => {
-                running.value = false;
-                runError.value = 'Failed to start test run.';
-            },
+            async: true,
+            onError: () => { runError.value = 'Failed to start test run.'; },
+            onFinish: () => { running.value = false; },
         },
     );
 }
@@ -179,7 +177,7 @@ function onHistoryKeydown(e) {
         <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-4">
             <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">Test Suites</Link>
             <span>/</span>
-            <Link :href="`/sorify/suites/${suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">{{ suite.name }}</Link>
+            <Link :href="`/sorify/suites/${suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors"><SuiteName :name="suite.name" /></Link>
             <span>/</span>
             <span class="text-[var(--md-sys-color-on-surface)]">{{ test.name }}</span>
         </div>

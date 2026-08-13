@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button } from '@/Components/ui';
+import { Card, Chip, Button, SuiteName } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
@@ -18,7 +18,15 @@ const isActive = computed(() =>
     props.run.status === 'running' || props.run.status === 'pending',
 );
 
+function stopRefresh() {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
+}
+
 function startRefresh() {
+    stopRefresh();
     if (isActive.value) {
         refreshTimer = setInterval(() => {
             router.reload({ only: ['run', 'results'] });
@@ -28,20 +36,15 @@ function startRefresh() {
 
 onMounted(() => startRefresh());
 
-onUnmounted(() => {
-    if (refreshTimer) clearInterval(refreshTimer);
-});
+onUnmounted(() => stopRefresh());
 
+// Re-running/cancelling redirects to a run URL that's still handled by this
+// same page component instance (Inertia doesn't remount it), so onMounted
+// never fires again — restart polling whenever the run identity or activity
+// state changes, instead of only ever stopping it.
 watch(
-    () => props.run.status,
-    (newStatus) => {
-        if (newStatus !== 'running' && newStatus !== 'pending') {
-            if (refreshTimer) {
-                clearInterval(refreshTimer);
-                refreshTimer = null;
-            }
-        }
-    },
+    () => [props.run.id, props.run.status],
+    () => startRefresh(),
 );
 
 // Accordion state
@@ -99,7 +102,8 @@ function rerun() {
         `/sorify/suites/${props.run.suite.id}/runs`,
         testIds.length ? { test_ids: testIds } : {},
         {
-            onError: () => { rerunning.value = false; },
+            async: true,
+            onFinish: () => { rerunning.value = false; },
         },
     );
 }
@@ -111,6 +115,7 @@ function cancelRun() {
     if (!confirm('Cancel this run? Any test currently executing will be stopped immediately.')) return;
     cancelling.value = true;
     router.post(`/sorify/runs/${props.run.id}/cancel`, {}, {
+        async: true,
         onFinish: () => { cancelling.value = false; },
     });
 }
@@ -120,7 +125,7 @@ const passedCount = computed(() => results.value.filter((r) => r.status === 'pas
 const failedCount = computed(() => results.value.filter((r) => ['failed', 'error', 'timeout'].includes(r.status)).length);
 
 const totalTests     = computed(() => props.run.total_tests || 0);
-const completedCount = computed(() => results.value.length);
+const completedCount = computed(() => results.value.filter((r) => r.status !== 'running').length);
 const progressPct    = computed(() => {
     if (totalTests.value === 0) return 0;
     return Math.round((completedCount.value / totalTests.value) * 100);
@@ -143,7 +148,7 @@ const failedPct = computed(() => {
         <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-4">
             <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">Test Suites</Link>
             <span>/</span>
-            <Link v-if="run.suite" :href="`/sorify/suites/${run.suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">{{ run.suite.name }}</Link>
+            <Link v-if="run.suite" :href="`/sorify/suites/${run.suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors"><SuiteName :name="run.suite.name" /></Link>
             <span>/</span>
             <span class="text-[var(--md-sys-color-on-surface)]">Run #{{ run.id }}</span>
         </div>
@@ -155,7 +160,8 @@ const failedPct = computed(() => {
                     <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">Test Run</span>
                     <div class="flex items-center gap-3 flex-wrap">
                         <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">
-                            {{ run.suite?.name ?? 'Test Run' }} — Run #{{ run.id }}
+                            <SuiteName v-if="run.suite" :name="run.suite.name" /><span v-else>Test Run</span>
+                            — Run #{{ run.id }}
                         </h1>
                         <Chip :status="run.status" />
                     </div>

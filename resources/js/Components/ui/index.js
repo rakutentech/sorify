@@ -6,3 +6,6 @@ export { default as Autocomplete } from './Autocomplete.vue';
 export { default as IconButton } from './IconButton.vue';
 export { default as Alert } from './Alert.vue';
 export { default as Modal } from './Modal.vue';
+export { default as SuiteName } from './SuiteName.vue';
+export { default as Avatar } from './Avatar.vue';
+export { default as AvatarGroup } from './AvatarGroup.vue';

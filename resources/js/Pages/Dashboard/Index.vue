@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Chip } from '@/Components/ui';
+import { Card, Chip, SuiteName, AvatarGroup } from '@/Components/ui';
 
 const props = defineProps({
     stats: {
@@ -87,6 +87,7 @@ function formatPassRate(rate) {
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Suite</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Users</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Status</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Passed</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Failed</th>
@@ -108,9 +109,16 @@ function formatPassRate(rate) {
                                     :href="`/sorify/suites/${run.suite_id}`"
                                     class="text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] transition-colors"
                                 >
-                                    {{ run.suite_name ?? run.suite?.name ?? '—' }}
+                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" />
+                                    <span v-else>—</span>
                                 </Link>
-                                <span v-else class="text-[var(--md-sys-color-on-surface)]">{{ run.suite_name ?? run.suite?.name ?? '—' }}</span>
+                                <span v-else class="text-[var(--md-sys-color-on-surface)]">
+                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" />
+                                    <span v-else>—</span>
+                                </span>
+                            </td>
+                            <td class="px-5 py-3">
+                                <AvatarGroup :users="run.members ?? []" :suite-id="run.suite_id" />
                             </td>
                             <td class="px-5 py-3">
                                 <Chip :status="run.status" />

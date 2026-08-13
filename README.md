@@ -21,6 +21,28 @@
 
 **Versioning:** Every test edit is snapshotted, so you can review and roll back changes.
 
+## Feature Matrix
+
+| Feature | MCP | Dashboard | CI Webhook |
+|---|---|---|---|
+| Suites: list / get / create / update / delete | ✅ | ✅ | - |
+| Suite Teams-notification settings | ✅ | ✅ | - |
+| Suite schedule (cron): create/update/delete | ✅ | ✅ | - |
+| Tests: list / get / create / update / update code / toggle status / delete / bulk-delete | ✅ | ✅ | - |
+| Tests: bulk-create (up to 100) | ✅ | - | - |
+| Runs: trigger | ✅ | ✅ | ✅ |
+| Runs: get | ✅ | ✅ | - |
+| Runs: get status | ✅ | ✅ | ✅ |
+| Runs: cancel | ✅ | ✅ | - |
+| Runs: delete | ✅ | ✅ | - |
+| Screenshots: list / get | ✅ | ✅ | - |
+| Login / Register / Logout / Password reset | - | ✅ | - |
+| Profile: update name / password | - | ✅ | - |
+| Dashboard analytics (stats, recent runs) | - | ✅ | - |
+| Suite webhook token: regenerate | - | ✅ | - |
+| Suite members: add/update/remove privileges | - | ✅ | - |
+| Test code-version: restore | - | ✅ | - |
+| Admin: manage users (create, list, role, delete, reset password) | - | ✅ | - |
 
 ## AI Usage
 
@@ -84,7 +106,7 @@ php artisan dev
 #or
 npm run dev
 php artisan serve
-php artisan queue:work --queue=test-runner,default
+php artisan queue:work --queue=sorify,default
 ```
 
 ## Verify

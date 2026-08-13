@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
-import { Card, Chip, Button, TextField, Autocomplete, Modal } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, AvatarGroup } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
@@ -165,8 +165,8 @@ function runAll() {
         `/sorify/suites/${props.suite.id}/runs`,
         {},
         {
-            onSuccess: () => { running.value = false; },
-            onError: () => { running.value = false; },
+            async: true,
+            onFinish: () => { running.value = false; },
         },
     );
 }
@@ -180,7 +180,8 @@ function runTest(testId) {
         `/sorify/suites/${props.suite.id}/runs`,
         { test_ids: [testId] },
         {
-            onError: () => {
+            async: true,
+            onFinish: () => {
                 const next = new Set(runningIds.value);
                 next.delete(testId);
                 runningIds.value = next;
@@ -262,10 +263,10 @@ const RUN_DOT_CLASS = {
                 <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1">
                     <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">Test Suites</Link>
                     <span>/</span>
-                    <span class="text-[var(--md-sys-color-on-surface)]">{{ suite.name }}</span>
+                    <span class="text-[var(--md-sys-color-on-surface)]"><SuiteName :name="suite.name" /></span>
                 </div>
                 <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">Test Suite</span>
-                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ suite.name }}</h1>
+                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]"><SuiteName :name="suite.name" /></h1>
                 <p v-if="suite.playwright_proxy_pac" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: PAC script configured</p>
                 <p v-else-if="suite.playwright_proxy" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.playwright_proxy }}</p>
                 <p v-if="suite.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ suite.description }}</p>
@@ -459,8 +460,18 @@ const RUN_DOT_CLASS = {
             </div>
 
             <div>
-                <!-- CI Webhook -->
+                <!-- Users -->
                 <Card padding="p-0">
+                    <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Users</h2>
+                    </div>
+                    <div class="px-5 py-4">
+                        <AvatarGroup :users="suite.members ?? []" :suite-id="suite.id" :max="20" />
+                    </div>
+                </Card>
+
+                <!-- CI Webhook -->
+                <Card padding="p-0" class="mt-6">
                     <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
                         <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">CI Webhook</h2>
                         <Button v-if="can.edit" variant="text" size="sm" @click="regenerateWebhook" class="text-[var(--md-sys-color-error)]">
