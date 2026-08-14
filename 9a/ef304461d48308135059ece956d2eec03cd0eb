@@ -1,0 +1,14 @@
+.github/workflows/release.yml
+  h_f44dfe84a46cdf 135,141
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "9aef304461d48308135059ece956d2eec03cd0eb",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
