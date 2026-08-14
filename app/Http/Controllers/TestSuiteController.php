@@ -23,7 +23,7 @@ class TestSuiteController extends Controller
         $perPage  = (int) request()->input('per_page', 10);
         $perPage  = in_array($perPage, [10, 50, 100]) ? $perPage : 10;
 
-        $query = TestSuite::withCount(['tests', 'testRuns'])->with(['schedule', 'members:id,name,email'])->latest();
+        $query = TestSuite::withCount(['tests', 'testRuns', 'proxyRules'])->with(['schedule', 'members:id,name,email'])->latest();
 
         if (!$request->user()->is_admin) {
             $query->whereHas('members', function ($q) use ($request) {
@@ -57,10 +57,18 @@ class TestSuiteController extends Controller
 
     public function store(StoreTestSuiteRequest $request)
     {
+        $data = $request->validated();
+        $proxyRules = $data['proxy_rules'] ?? null;
+        unset($data['proxy_rules']);
+
         $suite = TestSuite::create([
-            ...$request->validated(),
+            ...$data,
             'created_by' => $request->user()?->id,
         ]);
+
+        if ($proxyRules) {
+            $suite->proxyRules()->createMany($proxyRules);
+        }
 
         $suite->members()->attach($request->user()->id, [
             'can_view'   => true,
@@ -76,7 +84,7 @@ class TestSuiteController extends Controller
     {
         $this->authorize('view', $suite);
 
-        $suite->load('createdBy:id,name', 'schedule', 'members:id,name,email');
+        $suite->load('createdBy:id,name', 'schedule', 'members:id,name,email', 'proxyRules');
 
         $privileges = $suite->privilegesFor($request->user());
         $canManageUsers = $privileges['edit'];
@@ -107,16 +115,17 @@ class TestSuiteController extends Controller
             'suite'      => $suite,
             'stats'      => $this->reporting->suiteStats($suite),
             'tests'      => $suite->tests()
-                ->with(['testResults' => fn ($query) => $query->with('testRun:id,status,created_at')->latest()->limit(3)])
+                ->with(['testResults' => fn ($query) => $query->latest()->limit(3)])
                 ->latest()
                 ->get()
                 ->map(function (Test $test) {
                     $data = $test->toArray();
                     $data['recent_runs'] = $test->testResults->map(fn (TestResult $result) => [
                         'run_id'     => $result->test_run_id,
-                        'status'     => $result->testRun?->status,
+                        'status'     => $result->status,
                         'created_at' => $result->created_at,
                     ]);
+                    $data['current_status'] = $data['recent_runs'][0]['status'] ?? $test->last_run_status;
                     unset($data['test_results']);
 
                     return $data;
@@ -140,7 +149,19 @@ class TestSuiteController extends Controller
     {
         $this->authorize('edit', $suite);
 
-        $suite->update($request->validated());
+        $data = $request->validated();
+        $hasProxyRules = array_key_exists('proxy_rules', $data);
+        $proxyRules = $data['proxy_rules'] ?? null;
+        unset($data['proxy_rules']);
+
+        $suite->update($data);
+
+        if ($hasProxyRules) {
+            $suite->proxyRules()->delete();
+            if ($proxyRules) {
+                $suite->proxyRules()->createMany($proxyRules);
+            }
+        }
 
         if ($suite->wasChanged('history_retention')) {
             PruneSuiteHistoryJob::dispatch($suite);

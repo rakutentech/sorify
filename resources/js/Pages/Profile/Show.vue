@@ -35,9 +35,9 @@ function submitPassword() {
         <div class="max-w-4xl mx-auto space-y-6">
             <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">Profile</h1>
 
-            <!-- Name -->
+            <!-- Account -->
             <Card padding="p-6">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4">Name</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4">Account</h2>
 
                 <form @submit.prevent="submitName" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">

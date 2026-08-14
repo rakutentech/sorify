@@ -1,9 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
-import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, AvatarGroup, RanBy } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, AvatarGroup, RanBy, SettingBadge } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
@@ -58,11 +58,12 @@ const showEditModal = ref(false);
 const editForm = useForm({
     name: props.suite.name ?? '',
     playwright_proxy: props.suite.playwright_proxy ?? '',
-    playwright_proxy_pac: props.suite.playwright_proxy_pac ?? '',
+    proxy_rules: (props.suite.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy })),
     browser: props.suite.browser ?? 'chromium',
     headless: props.suite.headless ?? true,
     history_retention: props.suite.history_retention ?? 5,
     timeout_ms: props.suite.timeout_ms ?? 30000,
+    max_retries: props.suite.max_retries ?? 0,
     take_screenshot: props.suite.take_screenshot ?? true,
     description: props.suite.description ?? '',
     teams_webhook_url: props.suite.teams_webhook_url ?? '',
@@ -74,11 +75,12 @@ const editForm = useForm({
 function openEditModal() {
     editForm.name = props.suite.name ?? '';
     editForm.playwright_proxy = props.suite.playwright_proxy ?? '';
-    editForm.playwright_proxy_pac = props.suite.playwright_proxy_pac ?? '';
+    editForm.proxy_rules = (props.suite.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy }));
     editForm.browser = props.suite.browser ?? 'chromium';
     editForm.headless = props.suite.headless ?? true;
     editForm.history_retention = props.suite.history_retention ?? 5;
     editForm.timeout_ms = props.suite.timeout_ms ?? 30000;
+    editForm.max_retries = props.suite.max_retries ?? 0;
     editForm.take_screenshot = props.suite.take_screenshot ?? true;
     editForm.description = props.suite.description ?? '';
     editForm.teams_webhook_url = props.suite.teams_webhook_url ?? '';
@@ -92,6 +94,14 @@ function submitEdit() {
     editForm.put(`/sorify/suites/${props.suite.id}`, {
         onSuccess: () => { showEditModal.value = false; },
     });
+}
+
+function addProxyRule() {
+    editForm.proxy_rules.push({ domain: '', proxy: '' });
+}
+
+function removeProxyRule(index) {
+    editForm.proxy_rules.splice(index, 1);
 }
 
 // Manage Users modal
@@ -156,6 +166,35 @@ function deleteSuite() {
     router.delete(`/sorify/suites/${props.suite.id}`);
 }
 
+// Auto-refresh while any test has a run in progress
+let refreshTimer = null;
+
+const hasActiveTest = computed(() =>
+    props.tests.some(t => t.current_status === 'running' || t.current_status === 'pending'),
+);
+
+function stopRefresh() {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
+}
+
+function startRefresh() {
+    stopRefresh();
+    if (hasActiveTest.value) {
+        refreshTimer = setInterval(() => {
+            router.reload({ only: ['tests', 'stats', 'recentRuns'] });
+        }, 2000);
+    }
+}
+
+onMounted(() => startRefresh());
+
+onUnmounted(() => stopRefresh());
+
+watch(hasActiveTest, () => startRefresh());
+
 // Run all tests
 const running = ref(false);
 
@@ -166,7 +205,10 @@ function runAll() {
         {},
         {
             async: true,
-            onFinish: () => { running.value = false; },
+            onFinish: () => {
+                running.value = false;
+                router.reload({ only: ['tests', 'stats', 'recentRuns'] });
+            },
         },
     );
 }
@@ -185,6 +227,7 @@ function runTest(testId) {
                 const next = new Set(runningIds.value);
                 next.delete(testId);
                 runningIds.value = next;
+                router.reload({ only: ['tests', 'stats', 'recentRuns'] });
             },
         },
     );
@@ -267,7 +310,7 @@ const RUN_DOT_CLASS = {
                 </div>
                 <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">Test Suite</span>
                 <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]"><SuiteName :name="suite.name" /></h1>
-                <p v-if="suite.playwright_proxy_pac" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: PAC script configured</p>
+                <p v-if="suite.proxy_rules?.length" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.proxy_rules.length }} domain rule(s)<span v-if="suite.playwright_proxy"> + default {{ suite.playwright_proxy }}</span></p>
                 <p v-else-if="suite.playwright_proxy" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.playwright_proxy }}</p>
                 <p v-if="suite.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1 whitespace-pre-line">{{ suite.description }}</p>
                 <p v-if="suite.created_by" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-1">
@@ -275,7 +318,7 @@ const RUN_DOT_CLASS = {
                 </p>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0 ml-4">
-                <Button v-if="can.delete" variant="text" @click="deleteSuite" class="text-[var(--md-sys-color-error)]">
+                <Button v-if="can.delete" variant="text" @click="deleteSuite" class="!text-[var(--md-sys-color-error)]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
@@ -328,7 +371,7 @@ const RUN_DOT_CLASS = {
             <Card padding="px-4 py-3">
                 <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">Proxy</p>
                 <p class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] mt-1 truncate">
-                    {{ suite.playwright_proxy_pac ? 'PAC script' : (suite.playwright_proxy || '—') }}
+                    {{ suite.proxy_rules?.length ? `${suite.proxy_rules.length} rule(s)` : (suite.playwright_proxy || '—') }}
                 </p>
             </Card>
         </div>
@@ -348,7 +391,7 @@ const RUN_DOT_CLASS = {
                                 class="w-4 h-4 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
                             />
                             <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Tests</h2>
-                            <Button v-if="hasSelection && can.delete" variant="text" size="sm" @click="bulkDelete" class="text-[var(--md-sys-color-error)]">
+                            <Button v-if="hasSelection && can.delete" variant="text" size="sm" @click="bulkDelete" class="!text-[var(--md-sys-color-error)]">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
@@ -385,8 +428,13 @@ const RUN_DOT_CLASS = {
                             <!-- Test info -->
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="font-medium md-body-medium text-[var(--md-sys-color-on-surface)]">{{ test.name }}</span>
-                                    <Chip v-if="test.last_run_status" :status="test.last_run_status" />
+                                    <Link
+                                        :href="`/sorify/suites/${suite.id}/tests/${test.id}`"
+                                        class="font-medium md-body-medium text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
+                                    >
+                                        {{ test.name }}
+                                    </Link>
+                                    <Chip v-if="test.current_status" :status="test.current_status" />
                                 </div>
                                 <p v-if="test.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate">{{ test.description }}</p>
                                 <div v-if="test.uploaded_by" class="mt-1">
@@ -403,8 +451,8 @@ const RUN_DOT_CLASS = {
                                         :title="run.status"
                                         class="inline-flex items-center gap-1 md-label-small text-[var(--md-sys-color-primary)] hover:underline"
                                     >
-                                        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="RUN_DOT_CLASS[run.status] ?? 'bg-[var(--md-sys-color-on-surface-variant)]'" />
-                                        {{ formatDate(run.created_at) }}
+                                        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="[RUN_DOT_CLASS[run.status] ?? 'bg-[var(--md-sys-color-on-surface-variant)]', run.status === 'running' ? 'animate-pulse' : '']" />
+                                        {{ run.status }} · {{ formatDate(run.created_at) }}
                                     </Link>
                                 </div>
                             </div>
@@ -421,7 +469,7 @@ const RUN_DOT_CLASS = {
                                         'md-label-small px-2 py-1 rounded-[var(--md-sys-shape-corner-extra-small)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
                                         test.status === 'disabled'
                                             ? 'text-[var(--md-ext-color-on-warning-container)] bg-[var(--md-ext-color-warning-container)]'
-                                            : 'text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-high)]',
+                                            : 'text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)]',
                                     ]"
                                 >
                                     {{ togglingIds.has(test.id) ? '...' : (test.status === 'disabled' ? 'Disabled' : 'Active') }}
@@ -432,7 +480,7 @@ const RUN_DOT_CLASS = {
                                     v-if="can.run"
                                     @click="runTest(test.id)"
                                     :disabled="runningIds.has(test.id) || test.status === 'disabled'"
-                                    class="flex items-center gap-1 md-label-small text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)] px-2 py-1 rounded-[var(--md-sys-shape-corner-extra-small)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                    class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-primary)] bg-[var(--md-sys-color-primary)] px-2 py-1 rounded-[var(--md-sys-shape-corner-extra-small)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                     title="Run this test"
                                 >
                                     <svg v-if="runningIds.has(test.id)" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -445,14 +493,6 @@ const RUN_DOT_CLASS = {
                                     </svg>
                                     {{ runningIds.has(test.id) ? '...' : 'Run' }}
                                 </button>
-
-                                <!-- View link -->
-                                <Link
-                                    :href="`/sorify/suites/${suite.id}/tests/${test.id}`"
-                                    class="flex-shrink-0 md-label-small text-[var(--md-sys-color-primary)] hover:underline"
-                                >
-                                    View Test &rarr;
-                                </Link>
                             </div>
                         </div>
                     </div>
@@ -460,8 +500,22 @@ const RUN_DOT_CLASS = {
             </div>
 
             <div>
-                <!-- Users -->
+                <!-- Settings summary -->
                 <Card padding="p-0">
+                    <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Settings</h2>
+                    </div>
+                    <div class="px-5 py-4 flex flex-wrap gap-1.5">
+                        <SettingBadge label="Teams" :active="!!suite.teams_webhook_url" />
+                        <SettingBadge label="Screenshots" :active="!!suite.take_screenshot" />
+                        <SettingBadge label="Proxy" :active="!!(suite.proxy_rules?.length || suite.playwright_proxy)" />
+                        <SettingBadge label="Schedule" :active="!!(suite.schedule && suite.schedule.is_enabled)" />
+                        <SettingBadge :label="suite.max_retries ? `Retries (${suite.max_retries})` : 'Retries'" :active="!!suite.max_retries" />
+                    </div>
+                </Card>
+
+                <!-- Users -->
+                <Card padding="p-0" class="mt-6">
                     <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
                         <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Users</h2>
                     </div>
@@ -474,7 +528,7 @@ const RUN_DOT_CLASS = {
                 <Card padding="p-0" class="mt-6">
                     <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
                         <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">CI Webhook</h2>
-                        <Button v-if="can.edit" variant="text" size="sm" @click="regenerateWebhook" class="text-[var(--md-sys-color-error)]">
+                        <Button v-if="can.edit" variant="text" size="sm" @click="regenerateWebhook" class="!text-[var(--md-sys-color-error)]">
                             Regenerate
                         </Button>
                     </div>
@@ -496,7 +550,7 @@ const RUN_DOT_CLASS = {
                     <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
                         <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Schedule</h2>
                         <div v-if="can.manageSchedule" class="flex items-center gap-1">
-                            <Button v-if="suite.schedule" variant="text" size="sm" @click="removeSchedule" class="text-[var(--md-sys-color-error)]">
+                            <Button v-if="suite.schedule" variant="text" size="sm" @click="removeSchedule" class="!text-[var(--md-sys-color-error)]">
                                 Remove
                             </Button>
                             <Button variant="text" size="sm" @click="openScheduleModal">
@@ -571,23 +625,53 @@ const RUN_DOT_CLASS = {
                         <TextField v-model="editForm.description" label="Description" type="textarea" :rows="3" />
                         <TextField
                             v-model="editForm.playwright_proxy"
-                            label="HTTP Proxy"
+                            label="Default HTTP Proxy"
                             placeholder="http://proxy.example.com:8080"
-                            hint="Proxy used by Playwright when running tests. Leave empty for direct connection."
+                            hint="Used for any request that doesn't match a per-host rule below. Leave empty for direct connection."
                             :error="editForm.errors.playwright_proxy"
                         />
-                        <TextField
-                            v-model="editForm.playwright_proxy_pac"
-                            label="Proxy Auto-Config (PAC)"
-                            type="textarea"
-                            :rows="6"
-                            placeholder="function FindProxyForURL(url, host) { return 'PROXY proxy.example.com:8080'; }"
-                            hint="Paste a raw PAC script to route requests by domain. Supported for Chromium and Firefox; ignored for WebKit."
-                            :error="editForm.errors.playwright_proxy_pac"
-                        />
-                        <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] -mt-1">
-                            Precedence: if both fields above are filled in, the Proxy Auto-Config (PAC) script is used and the HTTP Proxy is ignored. If only one is set, that one is used. If both are empty, tests connect directly.
-                        </p>
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block md-label-large text-[var(--md-sys-color-on-surface)]">Per-Host Proxy Rules</label>
+                                <Button type="button" variant="text" size="sm" @click="addProxyRule">+ Add Rule</Button>
+                            </div>
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-1">
+                                Routes requests through a specific proxy when the hostname matches a regular expression, overriding the default above. Checked on every request, including each hop of a redirect chain.
+                            </p>
+                            <ul class="md-body-small text-[var(--md-sys-color-on-surface-variant)] list-disc pl-5 mb-2 space-y-0.5">
+                                <li><code class="font-mono">^example\.com$</code> — <strong>exact host only</strong>, e.g. matches <code class="font-mono">example.com</code> but not <code class="font-mono">foo.example.com</code>.</li>
+                                <li><code class="font-mono">(^|\.)example\.com$</code> — <strong>host or any subdomain</strong>, e.g. matches <code class="font-mono">example.com</code> and <code class="font-mono">foo.example.com</code>, but not <code class="font-mono">notexample.com</code>.</li>
+                                <li><code class="font-mono">example\.com$</code> — avoid: also matches unrelated hosts like <code class="font-mono">notexample.com</code>.</li>
+                            </ul>
+                            <div v-if="!editForm.proxy_rules.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] py-2">
+                                No rules configured — all requests use the default proxy above (or connect directly).
+                            </div>
+                            <div v-for="(rule, index) in editForm.proxy_rules" :key="index" class="flex items-start gap-2 mb-2">
+                                <div class="flex-1">
+                                    <input
+                                        v-model="rule.domain"
+                                        type="text"
+                                        placeholder="^example\.com$"
+                                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                                    />
+                                    <p v-if="editForm.errors[`proxy_rules.${index}.domain`]" class="mt-1 md-body-small text-[var(--md-sys-color-error)]">{{ editForm.errors[`proxy_rules.${index}.domain`] }}</p>
+                                </div>
+                                <div class="flex-1">
+                                    <input
+                                        v-model="rule.proxy"
+                                        type="text"
+                                        placeholder="http://proxy.example.com:8080"
+                                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                                    />
+                                    <p v-if="editForm.errors[`proxy_rules.${index}.proxy`]" class="mt-1 md-body-small text-[var(--md-sys-color-error)]">{{ editForm.errors[`proxy_rules.${index}.proxy`] }}</p>
+                                </div>
+                                <button type="button" @click="removeProxyRule(index)" class="p-2 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                         <div class="grid grid-cols-3 gap-4">
                             <div>
                                 <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Browser</label>
@@ -617,7 +701,7 @@ const RUN_DOT_CLASS = {
                             </div>
                         </div>
                         <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">Older runs (and their screenshots) are deleted automatically per test.</p>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-3 gap-4">
                             <div>
                                 <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Timeout</label>
                                 <select v-model="editForm.timeout_ms" class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
@@ -635,6 +719,16 @@ const RUN_DOT_CLASS = {
                                     <option :value="false">Disabled (faster runs)</option>
                                 </select>
                                 <p v-if="editForm.errors.take_screenshot" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.take_screenshot }}</p>
+                            </div>
+                            <div>
+                                <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Retries</label>
+                                <select v-model="editForm.max_retries" class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
+                                    <option :value="0">No retries</option>
+                                    <option :value="1">Retry once</option>
+                                    <option :value="2">Retry twice</option>
+                                    <option :value="3">Retry 3 times</option>
+                                </select>
+                                <p v-if="editForm.errors.max_retries" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.max_retries }}</p>
                             </div>
                         </div>
                         <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">

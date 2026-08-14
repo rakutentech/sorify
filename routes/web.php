@@ -13,6 +13,10 @@ use App\Http\Controllers\TestSuiteScheduleController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
+// Public: MCP discovery. The app is only reverse-proxied under /sorify, so the
+// well-known file also needs to be reachable at /sorify/.well-known/mcp.json.
+Route::get('sorify/.well-known/mcp.json', fn () => response()->file(public_path('.well-known/mcp.json')));
+
 // Public: login and password reset only
 Route::prefix('sorify')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

@@ -46,7 +46,7 @@ class PlaywrightRunnerService
                 break;
             }
 
-            $result = $this->runSingle($test, $testRun);
+            $result = $this->runWithRetries($test, $testRun);
 
             match ($result->status) {
                 'passed'            => $passed++,
@@ -81,6 +81,27 @@ class PlaywrightRunnerService
         ]);
     }
 
+    private function runWithRetries(Test $test, TestRun $testRun): TestResult
+    {
+        $maxAttempts = 1 + max(0, (int) ($testRun->testSuite->max_retries ?? 0));
+
+        $result = null;
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            if ($result) {
+                $this->screenshotService->deleteResultFiles($result);
+                $result->delete();
+            }
+
+            $result = $this->runSingle($test, $testRun);
+
+            if (in_array($result->status, ['passed', 'cancelled'], true)) {
+                break;
+            }
+        }
+
+        return $result;
+    }
+
     public function runSingle(Test $test, TestRun $testRun): TestResult
     {
         if (empty($test->playwright_code)) {
@@ -89,9 +110,9 @@ class PlaywrightRunnerService
 
         @mkdir($this->tmpDir, 0755, true);
 
-        $specPath     = $this->tmpDir . "/test-{$test->id}-{$testRun->id}.spec.js";
-        $outputDir    = $this->tmpDir . "/output-{$testRun->id}-{$test->id}";
-        $pacPath      = null;
+        $specPath       = $this->tmpDir . "/test-{$test->id}-{$testRun->id}.spec.js";
+        $outputDir      = $this->tmpDir . "/output-{$testRun->id}-{$test->id}";
+        $proxyRulesPath = null;
 
         @mkdir($outputDir, 0755, true);
 
@@ -115,17 +136,21 @@ class PlaywrightRunnerService
                 '--timeout', (string) $timeoutMs,
             ];
 
-            // A configured PAC script takes priority over a plain HTTP proxy URL.
-            $proxyPac = $testRun->testSuite->playwright_proxy_pac ?? null;
-            $proxy    = $testRun->testSuite->playwright_proxy ?? null;
-            if ($proxyPac) {
-                $pacPath = $this->tmpDir . "/proxy-{$testRun->id}-{$test->id}.pac";
-                file_put_contents($pacPath, $proxyPac);
-                $command[] = '--proxy-pac';
-                $command[] = $pacPath;
-            } elseif ($proxy) {
+            $proxy = $testRun->testSuite->playwright_proxy ?: null;
+            if ($proxy) {
                 $command[] = '--proxy';
                 $command[] = $proxy;
+            }
+
+            $proxyRules = $testRun->testSuite->proxyRules;
+            if ($proxyRules->isNotEmpty()) {
+                $proxyRulesPath = $this->tmpDir . "/proxy-rules-{$testRun->id}-{$test->id}.json";
+                file_put_contents($proxyRulesPath, $proxyRules->map(fn ($rule) => [
+                    'domain' => $rule->domain,
+                    'proxy'  => $rule->proxy,
+                ])->values()->toJson());
+                $command[] = '--proxy-rules';
+                $command[] = $proxyRulesPath;
             }
 
             $browser = $testRun->testSuite->browser ?? 'chromium';
@@ -147,9 +172,22 @@ class PlaywrightRunnerService
 
             $process->start();
 
-            $cancelled = false;
+            $cancelled  = false;
+            $liveStdout = '';
+            $liveStderr = '';
+            $lastFlush  = 0.0;
+
             while ($process->isRunning()) {
                 $process->checkTimeout();
+
+                $liveStdout .= $process->getIncrementalOutput();
+                $liveStderr .= $process->getIncrementalErrorOutput();
+
+                // Throttle DB writes to ~1/sec instead of every 300ms poll tick.
+                if (microtime(true) - $lastFlush >= 1) {
+                    $result->update(['stdout' => $liveStdout, 'stderr' => $liveStderr]);
+                    $lastFlush = microtime(true);
+                }
 
                 if ($testRun->refresh()->status === 'cancelled') {
                     $cancelled = true;
@@ -222,8 +260,8 @@ class PlaywrightRunnerService
             ]);
         } finally {
             @unlink($specPath);
-            if ($pacPath) {
-                @unlink($pacPath);
+            if ($proxyRulesPath) {
+                @unlink($proxyRulesPath);
             }
             $this->screenshotService->cleanTmpDir($outputDir);
             if (! $result->completed_at) {
