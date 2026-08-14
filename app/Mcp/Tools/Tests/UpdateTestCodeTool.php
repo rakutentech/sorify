@@ -2,7 +2,9 @@
 
 namespace App\Mcp\Tools\Tests;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\Test;
+use App\Models\TestSuite;
 use App\Services\PlaywrightCodeValidatorService;
 use App\Services\TestCodeVersionService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -14,6 +16,8 @@ use Laravel\Mcp\Server\Tool;
 
 class UpdateTestCodeTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'update_test_code';
 
     protected string $description = 'Replace a test\'s Playwright code. Reactivates the test (sets status back to active) on success. The previous code is kept as a restorable version.';
@@ -39,6 +43,8 @@ class UpdateTestCodeTool extends Tool
             'test_id' => 'required|integer|exists:tests,id',
             'playwright_code' => 'required|string|min:10',
         ]);
+
+        $this->authorizeSuite('edit', TestSuite::findOrFail($data['suite_id']));
 
         $test = Test::where('test_suite_id', $data['suite_id'])->findOrFail($data['test_id']);
 

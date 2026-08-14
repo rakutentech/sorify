@@ -28,7 +28,7 @@ class TestsToolsTest extends TestCase
 
     public function test_create_test_creates_a_test_with_code(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
 
         SorifyServer::actingAs($user)
@@ -44,7 +44,7 @@ class TestsToolsTest extends TestCase
 
     public function test_create_test_rejects_banned_code_patterns(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
 
         SorifyServer::actingAs($user)
@@ -60,7 +60,7 @@ class TestsToolsTest extends TestCase
 
     public function test_bulk_create_tests_creates_multiple_tests(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
 
         SorifyServer::actingAs($user)
@@ -79,7 +79,7 @@ class TestsToolsTest extends TestCase
 
     public function test_list_tests_returns_tests_in_suite(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $suite->tests()->create(['name' => 'A', 'playwright_code' => 'x', 'status' => 'active']);
 
@@ -91,7 +91,7 @@ class TestsToolsTest extends TestCase
 
     public function test_get_test_includes_code_and_history(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $test = $suite->tests()->create(['name' => 'A', 'playwright_code' => 'code-here', 'status' => 'active']);
 
@@ -106,7 +106,7 @@ class TestsToolsTest extends TestCase
 
     public function test_get_test_history_includes_error_and_screenshot_detail_and_is_capped_at_ten(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $test = $suite->tests()->create(['name' => 'A', 'playwright_code' => 'code-here', 'status' => 'active']);
 
@@ -133,7 +133,7 @@ class TestsToolsTest extends TestCase
 
     public function test_update_test_updates_metadata_only(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $test = $suite->tests()->create(['name' => 'Old', 'description' => 'old description here', 'playwright_code' => 'code', 'status' => 'active']);
 
@@ -146,7 +146,7 @@ class TestsToolsTest extends TestCase
 
     public function test_update_test_code_reactivates_test(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $test = $suite->tests()->create(['name' => 'A', 'playwright_code' => 'old', 'status' => 'disabled']);
 
@@ -159,7 +159,7 @@ class TestsToolsTest extends TestCase
 
     public function test_toggle_test_status_flips_status(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $test = $suite->tests()->create(['name' => 'A', 'playwright_code' => 'code', 'status' => 'active']);
 
@@ -172,7 +172,7 @@ class TestsToolsTest extends TestCase
 
     public function test_delete_test_removes_it(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $test = $suite->tests()->create(['name' => 'A', 'playwright_code' => 'code', 'status' => 'active']);
 
@@ -185,7 +185,7 @@ class TestsToolsTest extends TestCase
 
     public function test_bulk_delete_tests_removes_multiple(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $a = $suite->tests()->create(['name' => 'A', 'playwright_code' => 'code', 'status' => 'active']);
         $b = $suite->tests()->create(['name' => 'B', 'playwright_code' => 'code', 'status' => 'active']);

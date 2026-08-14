@@ -32,7 +32,7 @@ class ScreenshotsToolsTest extends TestCase
 
     public function test_list_screenshots_returns_screenshots_for_a_result(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $result = $this->makeTestResult();
         Screenshot::create([
             'test_result_id' => $result->id,
@@ -53,7 +53,7 @@ class ScreenshotsToolsTest extends TestCase
         Storage::fake('screenshots');
         Storage::disk('screenshots')->put('shot.png', 'fake-image-bytes');
 
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $result = $this->makeTestResult();
         $screenshot = Screenshot::create([
             'test_result_id' => $result->id,
@@ -71,7 +71,7 @@ class ScreenshotsToolsTest extends TestCase
     {
         Storage::fake('screenshots');
 
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $result = $this->makeTestResult();
         $screenshot = Screenshot::create([
             'test_result_id' => $result->id,

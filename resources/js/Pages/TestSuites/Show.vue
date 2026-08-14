@@ -119,6 +119,19 @@ function openManageUsersModal() {
     showManageUsersModal.value = true;
 }
 
+const selectedCandidateIsViewOnly = computed(() => {
+    const candidate = props.candidates.find(c => c.id === newMemberForm.user_id);
+    return candidate?.is_view_only ?? false;
+});
+
+watch(selectedCandidateIsViewOnly, (isViewOnly) => {
+    if (isViewOnly) {
+        newMemberForm.can_edit = false;
+        newMemberForm.can_delete = false;
+        newMemberForm.can_run = false;
+    }
+});
+
 function submitAddMember() {
     newMemberForm.post(`/sorify/suites/${props.suite.id}/users`, {
         onSuccess: () => { newMemberForm.reset(); },
@@ -812,19 +825,20 @@ const RUN_DOT_CLASS = {
                                 <tr v-for="member in members" :key="member.id">
                                     <td class="py-2 md-body-medium text-[var(--md-sys-color-on-surface)]">
                                         {{ member.name }}
+                                        <span v-if="member.is_view_only" class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">(view only)</span>
                                         <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ member.email }}</p>
                                     </td>
                                     <td class="py-2 text-center">
                                         <input type="checkbox" v-model="member.can_view" @change="updateMemberPrivilege(member, 'can_view')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer" />
                                     </td>
                                     <td class="py-2 text-center">
-                                        <input type="checkbox" v-model="member.can_edit" @change="updateMemberPrivilege(member, 'can_edit')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer" />
+                                        <input type="checkbox" v-model="member.can_edit" :disabled="member.is_view_only" :title="member.is_view_only ? 'This user is view-only; edit is unavailable.' : null" @change="updateMemberPrivilege(member, 'can_edit')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" />
                                     </td>
                                     <td class="py-2 text-center">
-                                        <input type="checkbox" v-model="member.can_delete" @change="updateMemberPrivilege(member, 'can_delete')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer" />
+                                        <input type="checkbox" v-model="member.can_delete" :disabled="member.is_view_only" :title="member.is_view_only ? 'This user is view-only; delete is unavailable.' : null" @change="updateMemberPrivilege(member, 'can_delete')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" />
                                     </td>
                                     <td class="py-2 text-center">
-                                        <input type="checkbox" v-model="member.can_run" @change="updateMemberPrivilege(member, 'can_run')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer" />
+                                        <input type="checkbox" v-model="member.can_run" :disabled="member.is_view_only" :title="member.is_view_only ? 'This user is view-only; run is unavailable.' : null" @change="updateMemberPrivilege(member, 'can_run')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" />
                                     </td>
                                     <td class="py-2 text-right">
                                         <button @click="removeMember(member)" class="md-label-small text-[var(--md-sys-color-error)] hover:underline">Remove</button>
@@ -853,13 +867,13 @@ const RUN_DOT_CLASS = {
                                 <input type="checkbox" v-model="newMemberForm.can_view" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> View
                             </label>
                             <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
-                                <input type="checkbox" v-model="newMemberForm.can_edit" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> Edit
+                                <input type="checkbox" v-model="newMemberForm.can_edit" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> Edit
                             </label>
                             <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
-                                <input type="checkbox" v-model="newMemberForm.can_delete" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> Delete
+                                <input type="checkbox" v-model="newMemberForm.can_delete" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> Delete
                             </label>
                             <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
-                                <input type="checkbox" v-model="newMemberForm.can_run" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> Run
+                                <input type="checkbox" v-model="newMemberForm.can_run" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> Run
                             </label>
                             <Button type="submit" variant="filled" size="sm" :disabled="newMemberForm.processing" class="mb-2.5">Add</Button>
                         </form>

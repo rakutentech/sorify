@@ -7,6 +7,12 @@ const props = defineProps({
     user: Object,
 });
 
+function roleOf(user) {
+    if (user.is_admin) return 'Admin';
+    if (user.is_view_only) return 'Viewer';
+    return 'Member';
+}
+
 const nameForm = useForm({
     name: props.user.name,
 });
@@ -55,6 +61,14 @@ function submitPassword() {
                             </label>
                             <p class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] text-[var(--md-sys-color-on-surface-variant)] md-body-medium">
                                 {{ user.email }}
+                            </p>
+                        </div>
+                        <div>
+                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">
+                                Role
+                            </label>
+                            <p class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] text-[var(--md-sys-color-on-surface-variant)] md-body-medium">
+                                {{ roleOf(user) }}
                             </p>
                         </div>
                     </div>

@@ -31,6 +31,7 @@ class UserFactory extends Factory
             'password'          => static::$password ??= Hash::make('password'),
             'remember_token'    => Str::random(10),
             'is_admin'          => false,
+            'is_view_only'      => false,
         ];
     }
 
@@ -45,6 +46,13 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'is_admin' => true,
+        ]);
+    }
+
+    public function viewOnly(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_view_only' => true,
         ]);
     }
 }

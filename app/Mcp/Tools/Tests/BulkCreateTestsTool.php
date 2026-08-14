@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools\Tests;
 
 use App\Http\Requests\Api\BulkStoreTestRequest;
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use App\Services\PlaywrightCodeValidatorService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -13,6 +14,8 @@ use Laravel\Mcp\Server\Tool;
 
 class BulkCreateTestsTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'bulk_create_tests';
 
     protected string $description = 'Create up to 100 tests (with Playwright code) in a suite in one call.';
@@ -41,6 +44,7 @@ class BulkCreateTestsTool extends Tool
     public function handle(Request $request): Response|ResponseFactory
     {
         $suite = TestSuite::findOrFail($request->validate(['suite_id' => 'required|integer|exists:test_suites,id'])['suite_id']);
+        $this->authorizeSuite('edit', $suite);
 
         $data = $request->validate((new BulkStoreTestRequest)->rules());
 

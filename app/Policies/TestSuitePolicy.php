@@ -12,6 +12,11 @@ class TestSuitePolicy
         return $user->is_admin ? true : null;
     }
 
+    public function create(User $user): bool
+    {
+        return !$user->is_view_only;
+    }
+
     public function view(User $user, TestSuite $suite): bool
     {
         return $suite->privilegesFor($user)['view'];

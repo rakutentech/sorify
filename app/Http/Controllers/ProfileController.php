@@ -16,10 +16,11 @@ class ProfileController extends Controller
 
         return Inertia::render('Profile/Show', [
             'user' => [
-                'id'       => $user->id,
-                'name'     => $user->name,
-                'email'    => $user->email,
-                'is_admin' => $user->is_admin,
+                'id'           => $user->id,
+                'name'         => $user->name,
+                'email'        => $user->email,
+                'is_admin'     => $user->is_admin,
+                'is_view_only' => $user->is_view_only,
             ],
         ]);
     }

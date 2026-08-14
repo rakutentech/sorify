@@ -129,6 +129,9 @@ php artisan queue:work --queue=sorify,default
 php artisan schedule:work
 ```
 
+Tests within a run are dispatched one job per test, so run a few `queue:work --queue=sorify,default`
+processes concurrently to execute tests in parallel — each worker picks up a different test.
+
 ## Self Hosting
 
 ```bash
