@@ -1,0 +1,33 @@
+tests/Unit/Mcp/Tools/RunsToolsTest.php
+  s_f61494fa2908d8::t_4638378c1394f5 32,37,39-53
+  s_f61494fa2908d8::t_dacccae34c036e 9
+app/Services/PlaywrightRunnerService.php
+  s_f61494fa2908d8::t_c405e058147697 26
+app/Services/TestRunService.php
+  s_f61494fa2908d8::t_685a606a4585ca 5-7,10-11,23-44,49-59
+  s_f61494fa2908d8::t_b097d47c19fc08 60-61
+docker-compose.yml
+  s_f61494fa2908d8::t_86322303a036a0 55-56
+README.md
+  s_f61494fa2908d8::t_7914b0c58f0245 132-134
+tests/Feature/TestSuiteScheduleTest.php
+  s_f61494fa2908d8::t_d685ad42a1515e 95-97
+app/Jobs/RunSingleTestJob.php
+  s_f61494fa2908d8::t_e0439911d8477f 1-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "c7bc26c0b0675352aceb0e311337a1cd97411d46",
+  "prompts": {},
+  "sessions": {
+    "s_f61494fa2908d8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0c04dd5a-cf84-4930-af7c-1af2b2db6725",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
