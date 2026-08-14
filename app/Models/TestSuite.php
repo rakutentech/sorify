@@ -107,11 +107,19 @@ class TestSuite extends Model
     {
         $none = ['view' => false, 'edit' => false, 'delete' => false, 'run' => false];
 
-        return match (true) {
+        $privileges = match (true) {
             $user === null => $none,
             (bool) $user->is_admin => ['view' => true, 'edit' => true, 'delete' => true, 'run' => true],
             default => $this->pivotPrivilegesFor($user) ?? $none,
         };
+
+        if ($user?->is_view_only) {
+            $privileges['edit'] = false;
+            $privileges['delete'] = false;
+            $privileges['run'] = false;
+        }
+
+        return $privileges;
     }
 
     /**

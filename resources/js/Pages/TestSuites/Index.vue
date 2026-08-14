@@ -19,6 +19,10 @@ const props = defineProps({
         type: Object,
         default: () => ({ search: '', per_page: 10 }),
     },
+    can: {
+        type: Object,
+        default: () => ({ create: true }),
+    },
 });
 
 const search  = ref(props.filters.search ?? '');
@@ -83,7 +87,7 @@ function formatPassRate(rate) {
                 <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">Test Suites</h1>
                 <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Manage your automated test suites</p>
             </div>
-            <Button variant="filled" @click="openModal">
+            <Button v-if="can.create" variant="filled" @click="openModal">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -110,10 +114,10 @@ function formatPassRate(rate) {
         <Card padding="p-0" class="flex flex-col flex-1 min-h-0">
             <div v-if="!suites.data.length" class="px-5 py-12 text-center">
                 <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                    {{ search ? 'No suites match your search.' : 'No test suites yet.' }}
+                    {{ search ? 'No suites match your search.' : (can.create ? 'No test suites yet.' : 'No test suites yet. Ask an admin to add you to one.') }}
                 </p>
                 <button
-                    v-if="!search"
+                    v-if="!search && can.create"
                     @click="openModal"
                     class="mt-3 md-label-medium text-[var(--md-sys-color-primary)] hover:underline"
                 >
@@ -145,7 +149,7 @@ function formatPassRate(rate) {
                                         :href="`/sorify/suites/${suite.id}`"
                                         class="md-body-medium text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
                                     >
-                                        <SuiteName :name="suite.name" />
+                                        <SuiteName :name="suite.name" :bold="false" />
                                     </Link>
                                     <p v-if="suite.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate max-w-xs">{{ suite.description }}</p>
                                     <div class="flex flex-wrap gap-1.5 mt-1.5">

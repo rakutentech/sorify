@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,6 +20,7 @@ class UserController extends Controller
             'name'          => $u->name,
             'email'         => $u->email,
             'is_admin'      => $u->is_admin,
+            'is_view_only'  => $u->is_view_only,
             'created_at'    => $u->created_at,
             'last_login_at' => $u->last_login_at,
         ]);
@@ -32,14 +34,15 @@ class UserController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:8'],
-            'is_admin' => ['boolean'],
+            'role'     => ['required', Rule::in(['admin', 'member', 'viewer'])],
         ]);
 
         User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => $data['password'],
-            'is_admin' => $data['is_admin'] ?? false,
+            'name'         => $data['name'],
+            'email'        => $data['email'],
+            'password'     => $data['password'],
+            'is_admin'     => $data['role'] === 'admin',
+            'is_view_only' => $data['role'] === 'viewer',
         ]);
 
         return back()->with('flash.success', 'User created successfully.');
@@ -63,10 +66,13 @@ class UserController extends Controller
         }
 
         $data = $request->validate([
-            'is_admin' => ['required', 'boolean'],
+            'role' => ['required', Rule::in(['admin', 'member', 'viewer'])],
         ]);
 
-        $user->update(['is_admin' => $data['is_admin']]);
+        $user->update([
+            'is_admin'     => $data['role'] === 'admin',
+            'is_view_only' => $data['role'] === 'viewer',
+        ]);
 
         return back()->with('flash.success', 'Role updated.');
     }

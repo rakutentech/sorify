@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Runs;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestRun;
 use App\Services\TestRunService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -12,6 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 class CancelRunTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     public function __construct(private readonly TestRunService $runs) {}
 
     protected string $name = 'cancel_run';
@@ -29,7 +32,10 @@ class CancelRunTool extends Tool
     {
         $data = $request->validate(['run_id' => 'required|integer|exists:test_runs,id']);
 
-        $run = $this->runs->cancel(TestRun::findOrFail($data['run_id']));
+        $run = TestRun::findOrFail($data['run_id']);
+        $this->authorizeSuite('run', $run->testSuite);
+
+        $run = $this->runs->cancel($run);
 
         return Response::structured(['run_id' => $run->id, 'status' => $run->status]);
     }

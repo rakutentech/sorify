@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Suites;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -11,6 +12,8 @@ use Laravel\Mcp\Server\Tool;
 
 class DeleteSuiteScheduleTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'delete_suite_schedule';
 
     protected string $description = 'Remove the cron schedule from a test suite.';
@@ -27,6 +30,8 @@ class DeleteSuiteScheduleTool extends Tool
         $data = $request->validate(['suite_id' => 'required|integer|exists:test_suites,id']);
 
         $suite = TestSuite::findOrFail($data['suite_id']);
+        $this->authorizeSuite('edit', $suite);
+
         $suite->schedule()->delete();
 
         return Response::structured(['deleted' => true, 'suite_id' => $data['suite_id']]);

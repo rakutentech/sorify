@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Runs;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestRun;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -11,6 +12,8 @@ use Laravel\Mcp\Server\Tool;
 
 class GetRunStatusTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'get_run_status';
 
     protected string $description = 'Lightweight poll for a test run\'s current status and counts. Prefer this over get_run for polling.';
@@ -27,6 +30,7 @@ class GetRunStatusTool extends Tool
         $data = $request->validate(['run_id' => 'required|integer|exists:test_runs,id']);
 
         $run = TestRun::findOrFail($data['run_id']);
+        $this->authorizeSuite('view', $run->testSuite);
 
         return Response::structured([
             'status' => $run->status,

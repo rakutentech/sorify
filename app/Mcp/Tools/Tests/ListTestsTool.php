@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Tests;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -11,6 +12,8 @@ use Laravel\Mcp\Server\Tool;
 
 class ListTestsTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'list_tests';
 
     protected string $description = 'List the tests in a test suite (without their Playwright code).';
@@ -27,6 +30,7 @@ class ListTestsTool extends Tool
         $data = $request->validate(['suite_id' => 'required|integer|exists:test_suites,id']);
 
         $suite = TestSuite::findOrFail($data['suite_id']);
+        $this->authorizeSuite('view', $suite);
 
         $tests = $suite->tests()->latest()->get()
             ->map(fn ($test) => $this->format($test))

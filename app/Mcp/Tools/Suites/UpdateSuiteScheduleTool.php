@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools\Suites;
 
 use App\Http\Requests\StoreTestSuiteScheduleRequest;
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Carbon;
@@ -14,6 +15,8 @@ use Laravel\Mcp\Server\Tool;
 
 class UpdateSuiteScheduleTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'update_suite_schedule';
 
     protected string $description = 'Create or update the cron schedule that runs a test suite automatically.';
@@ -31,6 +34,7 @@ class UpdateSuiteScheduleTool extends Tool
     public function handle(Request $request): Response|ResponseFactory
     {
         $suite = TestSuite::findOrFail($request->validate(['suite_id' => 'required|integer|exists:test_suites,id'])['suite_id']);
+        $this->authorizeSuite('edit', $suite);
 
         $data = $request->validate((new StoreTestSuiteScheduleRequest)->rules());
         $timezone = $data['timezone'] ?? 'UTC';

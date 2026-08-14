@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Tests;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -11,6 +12,8 @@ use Laravel\Mcp\Server\Tool;
 
 class BulkDeleteTestsTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'bulk_delete_tests';
 
     protected string $description = 'Delete multiple tests from a suite at once.';
@@ -32,6 +35,7 @@ class BulkDeleteTestsTool extends Tool
         ]);
 
         $suite = TestSuite::findOrFail($data['suite_id']);
+        $this->authorizeSuite('delete', $suite);
 
         $deletedCount = $suite->tests()->whereIn('id', $data['test_ids'])->delete();
 

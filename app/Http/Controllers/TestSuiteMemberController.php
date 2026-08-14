@@ -13,12 +13,16 @@ class TestSuiteMemberController extends Controller
     {
         $this->authorize('manageUsers', $suite);
 
-        $suite->members()->attach($request->integer('user_id'), [
+        $target = User::findOrFail($request->integer('user_id'));
+
+        $privileges = $this->clampPrivilegesForViewOnlyUser($target, [
             'can_view'   => $request->boolean('can_view'),
             'can_edit'   => $request->boolean('can_edit'),
             'can_delete' => $request->boolean('can_delete'),
             'can_run'    => $request->boolean('can_run'),
         ]);
+
+        $suite->members()->attach($target->id, $privileges);
 
         return back()->with('flash.success', 'Member added.');
     }
@@ -27,16 +31,18 @@ class TestSuiteMemberController extends Controller
     {
         $this->authorize('manageUsers', $suite);
 
-        if ($error = $this->lastEditorViolation($suite, $user, $request->boolean('can_edit'))) {
-            return back()->withErrors(['member' => $error]);
-        }
-
-        $suite->members()->updateExistingPivot($user->id, [
+        $privileges = $this->clampPrivilegesForViewOnlyUser($user, [
             'can_view'   => $request->boolean('can_view'),
             'can_edit'   => $request->boolean('can_edit'),
             'can_delete' => $request->boolean('can_delete'),
             'can_run'    => $request->boolean('can_run'),
         ]);
+
+        if ($error = $this->lastEditorViolation($suite, $user, $privileges['can_edit'])) {
+            return back()->withErrors(['member' => $error]);
+        }
+
+        $suite->members()->updateExistingPivot($user->id, $privileges);
 
         return back()->with('flash.success', 'Privileges updated.');
     }
@@ -52,6 +58,17 @@ class TestSuiteMemberController extends Controller
         $suite->members()->detach($user->id);
 
         return back()->with('flash.success', 'Member removed.');
+    }
+
+    private function clampPrivilegesForViewOnlyUser(User $target, array $privileges): array
+    {
+        if ($target->is_view_only) {
+            $privileges['can_edit'] = false;
+            $privileges['can_delete'] = false;
+            $privileges['can_run'] = false;
+        }
+
+        return $privileges;
     }
 
     private function lastEditorViolation(TestSuite $suite, User $target, bool $keepsEdit): ?string
