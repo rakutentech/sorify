@@ -1,0 +1,20 @@
+routes/web.php
+  s_16b74bad8afede::t_3e5a4849eca269 20-22,50
+  s_16b74bad8afede::t_74baaafa0bbecd 23-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "0364c71b5cf90f6b0ac0115efe00ecb074a0513c",
+  "prompts": {},
+  "sessions": {
+    "s_16b74bad8afede": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04495194-a7fa-4ce0-9116-210e9bc4e4a5",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
