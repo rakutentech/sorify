@@ -1,0 +1,93 @@
+app/Models/User.php
+  s_45ebfc45ab138a::t_acb08dc0b9dfab 32
+app/Http/Controllers/AuthController.php
+  s_45ebfc45ab138a::t_b03344dde34da4 70-71
+  s_45ebfc45ab138a::t_cf432c6bf3dba6 38-39
+database/migrations/2026_08_14_000002_add_last_login_at_to_users_table.php
+  s_45ebfc45ab138a::t_b0e9abded5d86c 1-22
+database/migrations/2026_08_14_000001_add_max_retries_to_test_suites_table.php
+  s_45ebfc45ab138a::t_b64a3d1ebd7629 1-22
+resources/js/Pages/TestSuites/Show.vue
+  s_45ebfc45ab138a::t_625a3855289d3b 6
+  s_45ebfc45ab138a::t_68ff51b314c55f 280
+  s_45ebfc45ab138a::t_61a6da8f377a56 353
+  s_45ebfc45ab138a::t_726d8031326291 442
+  s_45ebfc45ab138a::t_2eb8d20c057d74 66
+  s_45ebfc45ab138a::t_6aa03806576e9f 498
+  s_45ebfc45ab138a::t_6abfc4207c77fd 520
+  s_45ebfc45ab138a::t_27c92e3e098b77 605
+  s_45ebfc45ab138a::t_4f3d3dea7da393 642,661-670
+  s_45ebfc45ab138a::t_4744c7a8213773 480
+  s_45ebfc45ab138a::t_1a17a639a31992 83
+  s_45ebfc45ab138a::t_f60ecf5bb1f073 431
+  s_45ebfc45ab138a::t_14b739e3a00aff 390-395
+  s_45ebfc45ab138a::t_e5cb3e45a236f3 470,472-479,481-485
+  s_45ebfc45ab138a::t_4fafece823e32f 671
+resources/js/Components/ui/index.js
+  s_45ebfc45ab138a::t_0767713c6d4a9b 13
+resources/js/Pages/Tests/Show.vue
+  s_45ebfc45ab138a::t_161a0307fa48c6 216
+app/Models/TestSuite.php
+  s_45ebfc45ab138a::t_cdeb9d8e57da14 25
+  s_45ebfc45ab138a::t_7a60a832aaff3e 39
+resources/js/Components/ui/SettingBadge.vue
+  s_45ebfc45ab138a::t_591c7caf9f1527 1-20
+app/Http/Controllers/Admin/UserController.php
+  s_45ebfc45ab138a::t_71c22f8f5a8f44 18-23
+resources/js/Pages/Admin/Users/Index.vue
+  s_45ebfc45ab138a::t_02508290b73d9e 123
+  s_45ebfc45ab138a::t_85a5e1525e93a2 104
+  s_45ebfc45ab138a::t_38975fe8339635 83
+app/Services/PlaywrightRunnerService.php
+  s_45ebfc45ab138a::t_a7a51681156916 49
+  s_45ebfc45ab138a::t_87a8ab9e35ce10 84-104
+resources/js/Pages/TestRuns/Show.vue
+  s_45ebfc45ab138a::t_cbbc98f088f936 198
+resources/js/Components/ui/TextField.vue
+  s_45ebfc45ab138a::t_fbc52579e39223 13
+  s_45ebfc45ab138a::t_3f6be1d5ddcdec 34,36-39
+  s_45ebfc45ab138a::t_cd09e12c9904c0 35
+resources/js/Pages/TestSuites/Index.vue
+  s_45ebfc45ab138a::t_97dbdd1b78f183 5
+  s_45ebfc45ab138a::t_a3021fb3a7baaf 48
+  s_45ebfc45ab138a::t_54e8c9e8da131d 275-289
+  s_45ebfc45ab138a::t_4f32d38ee7957c 146-151
+  s_45ebfc45ab138a::t_5ff8a885bc4f95 154-157
+  s_45ebfc45ab138a::t_7d49b019720afd 252
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_45ebfc45ab138a::t_9816138059fb92 22
+resources/js/Pages/Profile/Show.vue
+  s_45ebfc45ab138a::t_4be1089a6d92e6 38,40
+resources/js/Components/ui/Modal.vue
+  s_8f1c7c0228a473::t_29eb64f71f9593 34-35
+  s_8f1c7c0228a473::t_8a3eabd1e5ac66 2-3,12-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "bb679659166da122ca434bdc2406d7cb06a9a155",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_45ebfc45ab138a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d35b62d0-a833-4b2d-8734-6f5c7d757de3",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_8f1c7c0228a473": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1f7207d8-cb7d-4fa9-8871-64b640a7486f",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
