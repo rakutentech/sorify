@@ -1,0 +1,66 @@
+README.md
+  s_d3c0534880e8ec::t_a729dd51460063 100-108,110-111,121-122
+  s_d3c0534880e8ec::t_bc4dff067de5aa 113
+  h_f44dfe84a46cdf 62,79,99,109,114-120
+  s_d3c0534880e8ec::t_b6e7d04558db4c 123
+mcp/recorder-bridge/src/store.js
+  s_d3c0534880e8ec::t_06a5e58798efe4 1-129
+extension/manifest.json
+  s_d3c0534880e8ec::t_955c3c2c9db604 1-23
+mcp/recorder-bridge/src/mcp-server.js
+  s_d3c0534880e8ec::t_e61516ce3951b4 1-89
+mcp/recorder-bridge/src/index.js
+  s_d3c0534880e8ec::t_42d5145ca8b738 15,20-28,30-31
+  s_d3c0534880e8ec::t_94298085069d83 16-19
+  s_d3c0534880e8ec::t_f83ec38bc7485f 1-14,29
+extension/content_script.js
+  s_d3c0534880e8ec::t_8977e534d1c7ad 1-69,72,75-126
+  s_d3c0534880e8ec::t_8def070dc143d9 70-71,73-74
+extension/popup.js
+  h_f44dfe84a46cdf 1-7,10-12,16-40,43-47,49-69
+  s_d3c0534880e8ec::t_cc5be544796463 8-9,13-15,41-42,48
+plugins/sorify/commands/recording.md
+  s_d3c0534880e8ec::t_be1d793016c406 9-19
+  s_d3c0534880e8ec::t_383901f64238f3 138
+  s_d3c0534880e8ec::t_671ab9166148de 6-8
+  s_d3c0534880e8ec::t_b6e0c7a2e645f1 20-22,135-137
+  s_d3c0534880e8ec::t_88cbd0f94ac513 139-141
+  s_d3c0534880e8ec::t_dae239358c224c 1-5,23-134,142-228
+extension/popup.html
+  s_d3c0534880e8ec::t_32fd5f3f8989bf 1-90
+plugins/sorify/.mcp.json
+  s_d3c0534880e8ec::t_abd02d212a9489 6-9
+mcp/recorder-bridge/src/ws-server.js
+  s_d3c0534880e8ec::t_d0d6175cddbd01 74-78
+  s_d3c0534880e8ec::t_50077e6ed4221b 1-6,22-73,79-80
+  s_d3c0534880e8ec::t_d2444d48dae336 7-10
+  s_d3c0534880e8ec::t_7504d00df67d74 11-21
+extension/background.js
+  s_d3c0534880e8ec::t_c51c1f54ee2fae 1-73,78,80-122
+  s_d3c0534880e8ec::t_8cbd06727019d1 74-77,79
+mcp/recorder-bridge/package.json
+  s_d3c0534880e8ec::t_e5b6b8835d1b25 1-19
+mcp/recorder-bridge/package-lock.json
+  h_f44dfe84a46cdf 1-1204
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a7f016499df0da43eb0b56d919b92a901b338361",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_d3c0534880e8ec": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "39966d6d-52f7-4194-8909-7ffa01f1f1bd",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
