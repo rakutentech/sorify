@@ -14,7 +14,9 @@ class StoreSuiteRequest extends FormRequest
             'name'             => 'required|string|max:255',
             'description'      => 'nullable|string',
             'playwright_proxy' => 'nullable|string|max:500',
-            'playwright_proxy_pac' => 'nullable|string|max:65535',
+            'proxy_rules'         => 'nullable|array',
+            'proxy_rules.*.domain' => ['required_with:proxy_rules', 'string', 'max:255', $this->validRegexRule()],
+            'proxy_rules.*.proxy'  => 'required_with:proxy_rules|string|max:500',
             'browser'          => 'nullable|string|in:chromium,firefox,webkit',
             'headless'         => 'nullable|boolean',
             'base_url'         => 'nullable|string|max:500',
@@ -26,5 +28,14 @@ class StoreSuiteRequest extends FormRequest
             'teams_notify_on_success' => 'nullable|boolean',
             'teams_notify_on_failure' => 'nullable|boolean',
         ];
+    }
+
+    private function validRegexRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail) {
+            if (@preg_match('~'.$value.'~i', '') === false) {
+                $fail('The :attribute must be a valid regular expression.');
+            }
+        };
     }
 }

@@ -35,6 +35,8 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
+        Auth::user()->forceFill(['last_login_at' => now()])->save();
+
         return redirect('/sorify/');
     }
 
@@ -64,6 +66,8 @@ class AuthController extends Controller
         Auth::login($user);
 
         $request->session()->regenerate();
+
+        $user->forceFill(['last_login_at' => now()])->save();
 
         return redirect('/sorify/');
     }

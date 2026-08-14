@@ -80,6 +80,7 @@ watch(
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Email</th>
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Role</th>
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Joined</th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Last Active</th>
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -100,6 +101,7 @@ watch(
                                 </select>
                             </td>
                             <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(user.created_at) }}</td>
+                            <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ user.last_login_at ? formatDate(user.last_login_at) : 'Never' }}</td>
                             <td class="px-4 py-3 space-x-3">
                                 <button
                                     @click="resetPassword(user)"
@@ -118,7 +120,7 @@ watch(
                             </td>
                         </tr>
                         <tr v-if="!users.length">
-                            <td colspan="5" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">No users found.</td>
+                            <td colspan="6" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">No users found.</td>
                         </tr>
                     </tbody>
                 </table>

@@ -96,6 +96,20 @@ SORIFY_PASSWORD=changeme
 <you got the idea...>
 ```
 
+### BYO - Bring your own QA Skills
+
+
+```sh
+/my:qa:skill Create detailed tests <...> /sorify:gateway once done, upload, run and invetigate failed tests
+```
+
+**AI Healing**
+
+```sh
+/sorify:gateway why my test is failing <name of test>
+/sorify:gateway why my test is failing <or-link-to-test>
+```
+
 ## Development (local)
 
 **Option 1** - Simple
@@ -139,21 +153,15 @@ http://localhost:8000/sorify
 <table>
   <tr>
     <td align="center">
+      <a href="https://github.com/MarikoKikugawa">
+        <img src="https://github.com/MarikoKikugawa.png" width="80" height="80" alt="MarikoKikugawa"/><br />
+        <sub><b>MarikoKikugawa</b></sub>
+      </a>
+    </td>
+    <td align="center">
       <a href="https://github.com/asghar-ahmed">
         <img src="https://github.com/asghar-ahmed.png" width="80" height="80" alt="asghar-ahmed"/><br />
         <sub><b>asghar-ahmed</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/kevincobain2000">
-        <img src="https://github.com/kevincobain2000.png" width="80" height="80" alt="kevincobain2000"/><br />
-        <sub><b>kevincobain2000</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/pulkit-kathuria">
-        <img src="https://github.com/pulkit-kathuria.png" width="80" height="80" alt="pulkit-kathuria"/><br />
-        <sub><b>pulkit-kathuria</b></sub>
       </a>
     </td>
     <td align="center">
@@ -165,9 +173,15 @@ http://localhost:8000/sorify
   </tr>
   <tr>
     <td align="center">
-      <a href="https://github.com/MarikoKikugawa">
-        <img src="https://github.com/MarikoKikugawa.png" width="80" height="80" alt="MarikoKikugawa"/><br />
-        <sub><b>MarikoKikugawa</b></sub>
+      <a href="https://github.com/kevincobain2000">
+        <img src="https://github.com/kevincobain2000.png" width="80" height="80" alt="kevincobain2000"/><br />
+        <sub><b>kevincobain2000</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/pulkit-kathuria">
+        <img src="https://github.com/pulkit-kathuria.png" width="80" height="80" alt="pulkit-kathuria"/><br />
+        <sub><b>pulkit-kathuria</b></sub>
       </a>
     </td>
     <td align="center">

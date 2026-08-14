@@ -15,11 +15,12 @@ class UserController extends Controller
     public function index(): Response
     {
         $users = User::orderBy('name')->get()->map(fn (User $u) => [
-            'id'         => $u->id,
-            'name'       => $u->name,
-            'email'      => $u->email,
-            'is_admin'   => $u->is_admin,
-            'created_at' => $u->created_at,
+            'id'            => $u->id,
+            'name'          => $u->name,
+            'email'         => $u->email,
+            'is_admin'      => $u->is_admin,
+            'created_at'    => $u->created_at,
+            'last_login_at' => $u->last_login_at,
         ]);
 
         return Inertia::render('Admin/Users/Index', ['users' => $users]);

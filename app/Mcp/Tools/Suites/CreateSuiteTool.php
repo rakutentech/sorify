@@ -25,8 +25,18 @@ class CreateSuiteTool extends Tool
             'base_url' => $schema->string()->description('Base URL the suite\'s tests run against.'),
             'browser' => $schema->string()->enum(['chromium', 'firefox', 'webkit'])->description('Playwright browser to use.'),
             'headless' => $schema->boolean()->description('Whether to run headless.'),
-            'playwright_proxy' => $schema->string()->description('HTTP proxy server to use, if any (e.g. http://proxy:8080). Ignored when playwright_proxy_pac is set.'),
-            'playwright_proxy_pac' => $schema->string()->description('Raw PAC (Proxy Auto-Config) script content. Takes priority over playwright_proxy when both are set.'),
+            'playwright_proxy' => $schema->string()->description('Default HTTP proxy server to use for anything not matched by proxy_rules (e.g. http://proxy:8080).'),
+            'proxy_rules' => $schema->array()
+                ->items($schema->object([
+                    'domain' => $schema->string()->required()->description(
+                        "Regular expression tested against the request's hostname (case-insensitive). Examples:\n"
+                        .'- "^example\\.com$" — **exact host only**, matches example.com but not foo.example.com.'."\n"
+                        .'- "(^|\\.)example\\.com$" — **host or any subdomain**, matches example.com and foo.example.com, but not notexample.com.'."\n"
+                        .'- "example\\.com$" — avoid, also matches unrelated hosts like notexample.com.'
+                    ),
+                    'proxy' => $schema->string()->required()->description('Proxy server to use for requests whose hostname matches domain (e.g. http://proxy:8080).'),
+                ]))
+                ->description('Per-host proxy overrides, evaluated against every request made during a test (including each hop of a redirect chain). The first matching rule wins; falls back to playwright_proxy when nothing matches.'),
             'history_retention' => $schema->integer()->enum([3, 5, 10])->description('Number of past runs to keep per test (3, 5, or 10). Older results and screenshots are pruned automatically. Defaults to 5.'),
             'timeout_ms' => $schema->integer()->enum([10000, 30000, 60000, 120000])->description('Per-action timeout in milliseconds (10000, 30000, 60000, or 120000). Defaults to 30000.'),
             'take_screenshot' => $schema->boolean()->description('Whether to capture screenshots during test runs. Disable for faster runs. Defaults to true.'),
@@ -40,8 +50,14 @@ class CreateSuiteTool extends Tool
     public function handle(Request $request): Response|ResponseFactory
     {
         $data = $request->validate((new StoreSuiteRequest)->rules());
+        $proxyRules = $data['proxy_rules'] ?? null;
+        unset($data['proxy_rules']);
 
         $suite = TestSuite::create([...$data, 'created_by' => Auth::id()]);
+
+        if ($proxyRules) {
+            $suite->proxyRules()->createMany($proxyRules);
+        }
 
         if (Auth::id()) {
             $suite->members()->attach(Auth::id(), [
@@ -52,6 +68,6 @@ class CreateSuiteTool extends Tool
             ]);
         }
 
-        return Response::structured(['suite' => $suite->toArray()]);
+        return Response::structured(['suite' => $suite->load('proxyRules')->toArray()]);
     }
 }

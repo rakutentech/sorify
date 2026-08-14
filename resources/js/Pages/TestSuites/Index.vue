@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Button, TextField, Modal, SuiteName, AvatarGroup } from '@/Components/ui';
+import { Card, Button, TextField, Modal, SuiteName, AvatarGroup, SettingBadge } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 function debounce(fn, delay) {
@@ -43,8 +43,8 @@ const showModal = ref(false);
 const form = useForm({
     name: '',
     playwright_proxy: '',
-    playwright_proxy_pac: '',
     history_retention: 5,
+    max_retries: 0,
     description: '',
 });
 
@@ -131,7 +131,6 @@ function formatPassRate(rate) {
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Runs</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Pass Rate</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Last Run</th>
-                            <th class="px-5 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
@@ -142,33 +141,18 @@ function formatPassRate(rate) {
                         >
                             <td class="px-5 py-4">
                                 <div>
-                                    <p class="md-body-medium text-[var(--md-sys-color-on-surface)]"><SuiteName :name="suite.name" /></p>
+                                    <Link
+                                        :href="`/sorify/suites/${suite.id}`"
+                                        class="md-body-medium text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
+                                    >
+                                        <SuiteName :name="suite.name" />
+                                    </Link>
                                     <p v-if="suite.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate max-w-xs">{{ suite.description }}</p>
                                     <div class="flex flex-wrap gap-1.5 mt-1.5">
-                                        <span
-                                            class="inline-flex items-center px-2 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small"
-                                            :class="suite.has_teams_webhook ? 'bg-[var(--md-ext-color-success-container)] text-[var(--md-ext-color-on-success-container)]' : 'bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)]'"
-                                        >
-                                            Teams: {{ suite.has_teams_webhook ? 'Enabled' : 'Disabled' }}
-                                        </span>
-                                        <span
-                                            class="inline-flex items-center px-2 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small"
-                                            :class="suite.take_screenshot ? 'bg-[var(--md-ext-color-success-container)] text-[var(--md-ext-color-on-success-container)]' : 'bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)]'"
-                                        >
-                                            Screenshots: {{ suite.take_screenshot ? 'Enabled' : 'Disabled' }}
-                                        </span>
-                                        <span
-                                            class="inline-flex items-center px-2 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small"
-                                            :class="(suite.playwright_proxy_pac || suite.playwright_proxy) ? 'bg-[var(--md-ext-color-success-container)] text-[var(--md-ext-color-on-success-container)]' : 'bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)]'"
-                                        >
-                                            Proxy: {{ suite.playwright_proxy_pac ? 'PAC' : (suite.playwright_proxy ? 'HTTP' : 'Not set') }}
-                                        </span>
-                                        <span
-                                            class="inline-flex items-center px-2 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small"
-                                            :class="suite.schedule && suite.schedule.is_enabled ? 'bg-[var(--md-ext-color-success-container)] text-[var(--md-ext-color-on-success-container)]' : 'bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)]'"
-                                        >
-                                            Schedule: {{ suite.schedule ? (suite.schedule.is_enabled ? 'On' : 'Paused') : 'Off' }}
-                                        </span>
+                                        <SettingBadge label="Teams" :active="!!suite.has_teams_webhook" />
+                                        <SettingBadge label="Screenshots" :active="!!suite.take_screenshot" />
+                                        <SettingBadge label="Proxy" :active="!!(suite.proxy_rules_count || suite.playwright_proxy)" />
+                                        <SettingBadge label="Schedule" :active="!!(suite.schedule && suite.schedule.is_enabled)" />
                                     </div>
                                 </div>
                             </td>
@@ -190,14 +174,6 @@ function formatPassRate(rate) {
                                 </span>
                             </td>
                             <td class="px-5 py-4 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(suite.last_run_at) }}</td>
-                            <td class="px-5 py-4 text-right">
-                                <Link
-                                    :href="`/sorify/suites/${suite.id}`"
-                                    class="md-label-small text-[var(--md-sys-color-primary)] hover:underline"
-                                >
-                                    View Suite &rarr;
-                                </Link>
-                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -254,22 +230,9 @@ function formatPassRate(rate) {
                             v-model="form.playwright_proxy"
                             label="HTTP Proxy"
                             placeholder="http://proxy.example.com:8080"
-                            hint="Proxy used by Playwright when running tests. Leave empty for direct connection."
+                            hint="Proxy used by Playwright when running tests. Leave empty for direct connection. Per-domain proxy rules can be added after creating the suite, from Edit Suite."
                             :error="form.errors.playwright_proxy"
                         />
-
-                        <TextField
-                            v-model="form.playwright_proxy_pac"
-                            label="Proxy Auto-Config (PAC)"
-                            type="textarea"
-                            :rows="6"
-                            placeholder="function FindProxyForURL(url, host) { return 'PROXY proxy.example.com:8080'; }"
-                            hint="Paste a raw PAC script to route requests by domain. Supported for Chromium and Firefox; ignored for WebKit."
-                            :error="form.errors.playwright_proxy_pac"
-                        />
-                        <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] -mt-1">
-                            Precedence: if both fields above are filled in, the Proxy Auto-Config (PAC) script is used and the HTTP Proxy is ignored. If only one is set, that one is used. If both are empty, tests connect directly.
-                        </p>
 
                         <div>
                             <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Keep History</label>
@@ -283,6 +246,20 @@ function formatPassRate(rate) {
                             </select>
                             <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-1.5">Older runs (and their screenshots) are deleted automatically per test.</p>
                             <p v-if="form.errors.history_retention" class="md-body-small text-[var(--md-sys-color-error)] mt-1.5">{{ form.errors.history_retention }}</p>
+                        </div>
+
+                        <div>
+                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Retries</label>
+                            <select
+                                v-model="form.max_retries"
+                                class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                            >
+                                <option :value="0">No retries</option>
+                                <option :value="1">Retry once</option>
+                                <option :value="2">Retry twice</option>
+                                <option :value="3">Retry 3 times</option>
+                            </select>
+                            <p v-if="form.errors.max_retries" class="md-body-small text-[var(--md-sys-color-error)] mt-1.5">{{ form.errors.max_retries }}</p>
                         </div>
 
                         <TextField v-model="form.description" label="Description" type="textarea" :rows="3" placeholder="Optional description..." :error="form.errors.description" />

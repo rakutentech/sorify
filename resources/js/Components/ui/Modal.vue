@@ -1,4 +1,6 @@
 <script setup>
+import { ref } from 'vue';
+
 defineProps({
     show: { type: Boolean, required: true },
     title: { type: String, default: null },
@@ -7,7 +9,19 @@ defineProps({
     overlayClass: { type: String, default: 'bg-[var(--md-sys-color-scrim)]/60' },
 });
 
-defineEmits(['close']);
+const emit = defineEmits(['close']);
+
+const mousedownOnOverlay = ref(false);
+
+function handleOverlayMousedown(event) {
+    mousedownOnOverlay.value = event.target === event.currentTarget;
+}
+
+function handleOverlayClick(event) {
+    if (mousedownOnOverlay.value && event.target === event.currentTarget) {
+        emit('close');
+    }
+}
 </script>
 
 <template>
@@ -17,7 +31,8 @@ defineEmits(['close']);
             class="fixed inset-0 z-50 flex items-center justify-center p-4"
             :class="overlayClass"
             tabindex="-1"
-            @click.self="$emit('close')"
+            @mousedown="handleOverlayMousedown"
+            @click="handleOverlayClick"
             @keydown.escape="$emit('close')"
         >
             <template v-if="bare">
