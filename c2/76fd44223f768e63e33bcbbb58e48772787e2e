@@ -1,0 +1,42 @@
+resources/js/Components/TestCodeEditor.vue
+  s_403bea22c0ecc3::t_4fab9ad41a1718 2-7,19-30,34,57-86
+package.json
+  s_403bea22c0ecc3::t_880e19e33f60a2 21
+resources/js/Pages/TestSuites/Show.vue
+  s_e659c3385af4f3::t_0e68f1dae2e9a1 272
+resources/css/app.css
+  s_403bea22c0ecc3::t_3bc9d397591ad4 141-173
+resources/js/Pages/Tests/Show.vue
+  s_e659c3385af4f3::t_8f493040b79d6e 194
+package-lock.json
+  s_403bea22c0ecc3::t_640bdeb425bd30 12,1531-1539
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "c276fd44223f768e63e33bcbbb58e48772787e2e",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_403bea22c0ecc3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "732adf38-6f97-49bc-b9a6-0bbd81243ab3",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_e659c3385af4f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "680f11c8-3f21-4913-843d-ccc96aacc514",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
