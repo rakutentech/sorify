@@ -1,0 +1,35 @@
+routes/web.php
+  s_adf976e3591344::t_cbc6c2e9f53f14 16-19
+resources/js/Components/ui/Avatar.vue
+  s_48fa82d74ae5e5::t_54ae21b8050dce 10-20
+  s_48fa82d74ae5e5::t_5da8195220b214 26-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "9fae418b9cd2396888c1877974660302b13e6856",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_48fa82d74ae5e5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7cea0936-1a09-4f6b-bc88-3429cfc6a8f7",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_adf976e3591344": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "65e254d5-1fe2-4715-9bae-733e77e98c13",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
