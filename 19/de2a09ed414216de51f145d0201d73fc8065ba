@@ -1,0 +1,241 @@
+resources/css/app.css
+  s_ed8bffe57763dc::t_e5d4941753bcbf 180-201
+app/Models/User.php
+  s_45ebfc45ab138a::t_acb08dc0b9dfab 32
+resources/playwright/harness.cjs
+  s_34c5c0b3b0d2fa::t_20cf82de8ea3e0 205,207
+  s_34c5c0b3b0d2fa::t_947d1391fc1a6b 48-49,51-74
+  s_34c5c0b3b0d2fa::t_dd816b77379dcf 12,21-26
+  s_34c5c0b3b0d2fa::t_7a0ed550661c0d 143
+  s_34c5c0b3b0d2fa::t_f8713eec653325 181,274,292
+  s_34c5c0b3b0d2fa::t_135214fac52386 4-5,33-44,46-47,50,75-93,95-101,103-104,107-119,121-125,172,179-180,201-204,206,208-209,213,272-273,290-291
+  s_34c5c0b3b0d2fa::t_9ba2ba597ba131 10-11,18-20,27-32,45,94,102,105-106,120,126-128,139,157,161
+  s_34c5c0b3b0d2fa::t_b9f25c249a07f3 196
+  s_a9918971bb345d::t_40f47c32dc005e 13-17
+  s_34c5c0b3b0d2fa::t_0e7f83dbb06e79 200
+resources/js/Components/ui/TextField.vue
+  s_45ebfc45ab138a::t_fbc52579e39223 13
+  s_45ebfc45ab138a::t_cd09e12c9904c0 35
+  s_45ebfc45ab138a::t_3f6be1d5ddcdec 34,36-39
+resources/js/Pages/TestSuites/Show.vue
+  s_416852291b6dd9::t_c05106b8f198ef 2
+  s_416852291b6dd9::t_18dba43dca975f 454-455
+  s_34c5c0b3b0d2fa::t_ae905513e475fb 61
+  s_45ebfc45ab138a::t_4744c7a8213773 513
+  s_416852291b6dd9::t_367ecbb0507aca 169-197
+  s_a9918971bb345d::t_71b378b013be09 642-643
+  s_45ebfc45ab138a::t_f60ecf5bb1f073 472
+  s_45ebfc45ab138a::t_726d8031326291 483
+  s_45ebfc45ab138a::t_2eb8d20c057d74 66
+  s_416852291b6dd9::t_c0e0a1275a7e38 230
+  s_45ebfc45ab138a::t_e5cb3e45a236f3 503,505-510,512,514-518
+  s_416852291b6dd9::t_b0faa16ccd5d4f 208-211
+  s_a9918971bb345d::t_3d73e0eb8f8ed7 638-639,641,644-645
+  s_34c5c0b3b0d2fa::t_8e7b92d68ecf88 511
+  s_45ebfc45ab138a::t_68ff51b314c55f 321
+  s_45ebfc45ab138a::t_625a3855289d3b 6
+  s_34c5c0b3b0d2fa::t_c6fe04c4d37389 78
+  s_34c5c0b3b0d2fa::t_b786c5868a6ac0 630,635,654
+  s_45ebfc45ab138a::t_4fafece823e32f 732
+  s_45ebfc45ab138a::t_61a6da8f377a56 394
+  s_45ebfc45ab138a::t_4f3d3dea7da393 704,723-731
+  s_34c5c0b3b0d2fa::t_31ff81e51a5ae2 99-106
+  s_416852291b6dd9::t_510017ed700c68 437
+  s_45ebfc45ab138a::t_6abfc4207c77fd 553
+  s_34c5c0b3b0d2fa::t_d63616dc91380c 313
+  s_45ebfc45ab138a::t_1a17a639a31992 83
+  s_34c5c0b3b0d2fa::t_651f0c6375d315 628,633-634,636-637,640,646-653,655-674
+  s_34c5c0b3b0d2fa::t_e3cafa3f80e796 374
+  s_45ebfc45ab138a::t_6aa03806576e9f 531
+  s_45ebfc45ab138a::t_14b739e3a00aff 431-436
+routes/web.php
+  s_adf976e3591344::t_cbc6c2e9f53f14 16-19
+resources/js/Pages/TestRuns/Show.vue
+  s_45ebfc45ab138a::t_cbbc98f088f936 227
+  s_ed8bffe57763dc::t_5f21df4e636857 33
+  s_ed8bffe57763dc::t_6c6aca5e857963 61-63
+  s_ed8bffe57763dc::t_ac70b0c4824399 88-115
+  s_ed8bffe57763dc::t_346a95143c3b1a 333,340,346-349,351-355
+  s_ed8bffe57763dc::t_29360f0fa3775c 2
+  s_ed8bffe57763dc::t_ae35e4648c119b 365
+  s_ed8bffe57763dc::t_85d04ccb05a4f1 211
+  s_ed8bffe57763dc::t_86512731607135 303,319
+app/Http/Controllers/AuthController.php
+  s_45ebfc45ab138a::t_b03344dde34da4 70-71
+  s_45ebfc45ab138a::t_cf432c6bf3dba6 38-39
+public/.well-known/mcp.json
+  s_416852291b6dd9::t_532d43e77c3535 1-23
+resources/playwright/runner.cjs
+  s_34c5c0b3b0d2fa::t_5ef5e960e44335 88
+  s_34c5c0b3b0d2fa::t_fefdbeb50a2214 8-9
+  s_34c5c0b3b0d2fa::t_cdd70a58fa8f0f 11-14
+  s_34c5c0b3b0d2fa::t_92111cbc5eb06b 102
+  s_34c5c0b3b0d2fa::t_cb1c009e0a1303 41-42
+resources/js/Pages/TestSuites/Index.vue
+  s_45ebfc45ab138a::t_4f32d38ee7957c 144-149
+  s_45ebfc45ab138a::t_a3021fb3a7baaf 47
+  s_45ebfc45ab138a::t_97dbdd1b78f183 5
+  s_34c5c0b3b0d2fa::t_6929b96793ec66 154
+  s_45ebfc45ab138a::t_5ff8a885bc4f95 152-153,155
+  s_34c5c0b3b0d2fa::t_f38aca0a1d8977 233
+  s_45ebfc45ab138a::t_54e8c9e8da131d 251-264
+resources/js/Pages/Profile/Show.vue
+  s_45ebfc45ab138a::t_4be1089a6d92e6 38,40
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_34c5c0b3b0d2fa::t_8ad1aa6bf9d1fa 56-58,62-68,73
+  s_34c5c0b3b0d2fa::t_db44a11ec9a786 38,40
+  s_34c5c0b3b0d2fa::t_fa023b2bad33d2 29-31,39
+  s_a9918971bb345d::t_0bb1a3d4db1606 32-33,36-37
+  s_a9918971bb345d::t_4adfce752b3d23 34-35
+resources/js/Components/ui/Avatar.vue
+  s_48fa82d74ae5e5::t_5da8195220b214 26-27
+  s_48fa82d74ae5e5::t_54ae21b8050dce 10-20
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_45ebfc45ab138a::t_9816138059fb92 24
+  s_34c5c0b3b0d2fa::t_f63b9071612488 32-40
+  s_34c5c0b3b0d2fa::t_9f4e1b1225d5df 17,19
+  s_34c5c0b3b0d2fa::t_65f10a68cdbd6d 18
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_34c5c0b3b0d2fa::t_a0f63d37a15149 28-30,38
+  s_34c5c0b3b0d2fa::t_66165680f5154a 53-54,58-60
+  s_34c5c0b3b0d2fa::t_500353ca6891e1 61
+  s_a9918971bb345d::t_ca30950e17557e 33-34
+  s_34c5c0b3b0d2fa::t_65d20cef7b68a9 71
+  s_34c5c0b3b0d2fa::t_d2c698b05b099b 37,39
+  s_a9918971bb345d::t_6a06dba1b95395 31-32,35-36
+database/migrations/2026_08_14_000004_create_test_suite_proxy_rules_table.php
+  s_34c5c0b3b0d2fa::t_9f973963d9568e 1-24
+resources/js/Components/ui/index.js
+  s_45ebfc45ab138a::t_0767713c6d4a9b 13
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_34c5c0b3b0d2fa::t_456a2ef71fb08a 32-40
+  s_34c5c0b3b0d2fa::t_c611094cb3588f 18
+  s_34c5c0b3b0d2fa::t_4ddaef1a2efb16 17,19
+README.md
+  s_416852291b6dd9::t_6260bc85af319a 106
+  h_f44dfe84a46cdf 99-105,107-112,155-160,167-174
+app/Http/Controllers/Admin/UserController.php
+  s_45ebfc45ab138a::t_71c22f8f5a8f44 18-23
+database/migrations/2026_08_14_000003_drop_playwright_proxy_pac_from_test_suites_table.php
+  s_34c5c0b3b0d2fa::t_7f92df9b005f8f 1-22
+resources/js/Pages/Admin/Users/Index.vue
+  s_45ebfc45ab138a::t_85a5e1525e93a2 104
+  s_45ebfc45ab138a::t_38975fe8339635 83
+  s_45ebfc45ab138a::t_02508290b73d9e 123
+database/migrations/2026_08_14_000002_add_last_login_at_to_users_table.php
+  s_45ebfc45ab138a::t_b0e9abded5d86c 1-22
+plugins/sorify/commands/gateway.md
+  s_a9918971bb345d::t_8de3762a63b44d 103-112
+resources/js/Components/ui/Modal.vue
+  s_8f1c7c0228a473::t_29eb64f71f9593 34-35
+  s_8f1c7c0228a473::t_8a3eabd1e5ac66 2-3,12-24
+app/Models/TestSuiteProxyRule.php
+  s_34c5c0b3b0d2fa::t_dc248939565e74 1-20
+app/Services/PlaywrightRunnerService.php
+  s_34c5c0b3b0d2fa::t_3ca5a895b87092 263-264
+  s_34c5c0b3b0d2fa::t_2b953cbc200845 154-155
+  s_34c5c0b3b0d2fa::t_0892d4e3e46a80 140
+  s_34c5c0b3b0d2fa::t_bb208039cd74cd 139,145-153
+  s_45ebfc45ab138a::t_a7a51681156916 49
+  s_ed8bffe57763dc::t_9e38bfb17172fd 175-179,183-190
+  s_45ebfc45ab138a::t_87a8ab9e35ce10 84-104
+  s_ed8bffe57763dc::t_19c37bdd998b69 191
+  s_34c5c0b3b0d2fa::t_0cf6d630457a87 113-115
+resources/js/Pages/Tests/Show.vue
+  s_45ebfc45ab138a::t_161a0307fa48c6 216
+resources/js/Components/ui/SettingBadge.vue
+  s_45ebfc45ab138a::t_591c7caf9f1527 1-20
+app/Http/Controllers/TestSuiteController.php
+  s_34c5c0b3b0d2fa::t_5f9ff6cd9fb306 72
+  s_416852291b6dd9::t_ab8d9f8916c1de 125,128
+  s_34c5c0b3b0d2fa::t_e5c13262d19b59 152-164
+  s_34c5c0b3b0d2fa::t_9066a515c10a38 60-63,65,69-71
+  s_34c5c0b3b0d2fa::t_d4222b72a1b17b 87
+  s_416852291b6dd9::t_2b7e28dd455bae 118
+  s_34c5c0b3b0d2fa::t_7451691fe28e1d 26
+app/Models/TestSuite.php
+  s_34c5c0b3b0d2fa::t_ea097e704b2a4e 76-80
+  s_45ebfc45ab138a::t_7a60a832aaff3e 38
+  s_45ebfc45ab138a::t_cdeb9d8e57da14 24
+database/migrations/2026_08_14_000001_add_max_retries_to_test_suites_table.php
+  s_45ebfc45ab138a::t_b64a3d1ebd7629 1-22
+app/Mcp/Tools/Suites/GetSuiteTool.php
+  s_34c5c0b3b0d2fa::t_59a88cc89fc62e 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "19de2a09ed414216de51f145d0201d73fc8065ba",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_34c5c0b3b0d2fa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9b15fd8d-dc48-4055-8d7b-a8c4ac5cad20",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_416852291b6dd9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be6b429d-fca2-406e-8715-4aa364804f46",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_45ebfc45ab138a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d35b62d0-a833-4b2d-8734-6f5c7d757de3",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_48fa82d74ae5e5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7cea0936-1a09-4f6b-bc88-3429cfc6a8f7",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_8f1c7c0228a473": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1f7207d8-cb7d-4fa9-8871-64b640a7486f",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_a9918971bb345d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e15bf144-2413-4640-ba8b-718fc4b2d192",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_adf976e3591344": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "65e254d5-1fe2-4715-9bae-733e77e98c13",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_ed8bffe57763dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "badcc1a1-e74b-4414-ab4b-d455eb36188d",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
