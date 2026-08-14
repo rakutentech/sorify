@@ -6,6 +6,7 @@ use App\Mcp\Servers\SorifyServer;
 use App\Mcp\Tools\Runs\DeleteRunTool;
 use App\Mcp\Tools\Runs\GetRunStatusTool;
 use App\Mcp\Tools\Runs\GetRunTool;
+use App\Jobs\RunSingleTestJob;
 use App\Mcp\Tools\Runs\TriggerRunTool;
 use App\Models\TestSuite;
 use App\Models\User;
@@ -26,20 +27,35 @@ class RunsToolsTest extends TestCase
     {
         Queue::fake();
 
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+        $suite->tests()->create(['name' => 'Test 1', 'playwright_code' => '// noop', 'status' => 'active']);
+
+        SorifyServer::actingAs($user)
+            ->tool(TriggerRunTool::class, ['suite_id' => $suite->id])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json->where('status', 'running')->etc());
+
+        $this->assertDatabaseHas('test_runs', ['test_suite_id' => $suite->id, 'triggered_by' => 'mcp', 'status' => 'running']);
+        Queue::assertPushed(RunSingleTestJob::class, 1);
+    }
+
+    public function test_trigger_run_with_no_tests_completes_immediately(): void
+    {
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
 
         SorifyServer::actingAs($user)
             ->tool(TriggerRunTool::class, ['suite_id' => $suite->id])
             ->assertOk()
-            ->assertStructuredContent(fn ($json) => $json->where('status', 'pending')->etc());
+            ->assertStructuredContent(fn ($json) => $json->where('status', 'completed')->etc());
 
-        $this->assertDatabaseHas('test_runs', ['test_suite_id' => $suite->id, 'triggered_by' => 'mcp', 'status' => 'pending']);
+        $this->assertDatabaseHas('test_runs', ['test_suite_id' => $suite->id, 'triggered_by' => 'mcp', 'status' => 'completed']);
     }
 
     public function test_get_run_status_returns_counts(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $run = $suite->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp', 'passed_count' => 3, 'failed_count' => 1, 'total_tests' => 4]);
 
@@ -58,7 +74,7 @@ class RunsToolsTest extends TestCase
 
     public function test_get_run_includes_results(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $run = $suite->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp']);
 
@@ -70,7 +86,7 @@ class RunsToolsTest extends TestCase
 
     public function test_delete_run_removes_it(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = $this->suite();
         $run = $suite->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp']);
 

@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Suites;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use App\Services\ReportingService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -12,6 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 class ListSuitesTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'list_suites';
 
     protected string $description = 'List test suites, optionally filtered by a search term, with pass-rate stats for each.';
@@ -38,7 +41,7 @@ class ListSuitesTool extends Tool
         $perPage = $data['per_page'] ?? 10;
         $search = $data['search'] ?? '';
 
-        $query = TestSuite::withCount(['tests', 'testRuns'])->latest();
+        $query = $this->visibleSuitesQuery()->withCount(['tests', 'testRuns'])->latest();
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {

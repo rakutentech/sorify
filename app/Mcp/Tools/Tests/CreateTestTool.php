@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools\Tests;
 
 use App\Http\Requests\Api\StoreApiTestRequest;
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use App\Services\PlaywrightCodeValidatorService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -13,6 +14,8 @@ use Laravel\Mcp\Server\Tool;
 
 class CreateTestTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'create_test';
 
     protected string $description = 'Create a test (with its Playwright code) in a suite.';
@@ -34,6 +37,7 @@ class CreateTestTool extends Tool
     public function handle(Request $request): Response|ResponseFactory
     {
         $suite = TestSuite::findOrFail($request->validate(['suite_id' => 'required|integer|exists:test_suites,id'])['suite_id']);
+        $this->authorizeSuite('edit', $suite);
 
         $data = $request->validate((new StoreApiTestRequest)->rules());
 

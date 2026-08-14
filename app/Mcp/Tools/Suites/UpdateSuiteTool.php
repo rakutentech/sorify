@@ -4,6 +4,7 @@ namespace App\Mcp\Tools\Suites;
 
 use App\Http\Requests\Api\StoreSuiteRequest;
 use App\Jobs\PruneSuiteHistoryJob;
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -13,6 +14,8 @@ use Laravel\Mcp\Server\Tool;
 
 class UpdateSuiteTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'update_suite';
 
     protected string $description = 'Update an existing test suite.';
@@ -51,6 +54,7 @@ class UpdateSuiteTool extends Tool
     public function handle(Request $request): Response|ResponseFactory
     {
         $suite = TestSuite::findOrFail($request->validate(['suite_id' => 'required|integer|exists:test_suites,id'])['suite_id']);
+        $this->authorizeSuite('edit', $suite);
 
         $data = $request->validate((new StoreSuiteRequest)->rules());
         $hasProxyRules = array_key_exists('proxy_rules', $data);

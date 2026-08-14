@@ -52,11 +52,14 @@ class TestSuiteController extends Controller
         return Inertia::render('TestSuites/Index', [
             'suites'   => $paginator,
             'filters'  => ['search' => $search, 'per_page' => $perPage],
+            'can'      => ['create' => $request->user()->can('create', TestSuite::class)],
         ]);
     }
 
     public function store(StoreTestSuiteRequest $request)
     {
+        $this->authorize('create', TestSuite::class);
+
         $data = $request->validated();
         $proxyRules = $data['proxy_rules'] ?? null;
         unset($data['proxy_rules']);
@@ -95,20 +98,21 @@ class TestSuiteController extends Controller
         if ($canManageUsers) {
             $members = $suite->members()
                 ->orderBy('users.name')
-                ->get(['users.id', 'users.name', 'users.email'])
+                ->get(['users.id', 'users.name', 'users.email', 'users.is_view_only'])
                 ->map(fn (User $u) => [
-                    'id'         => $u->id,
-                    'name'       => $u->name,
-                    'email'      => $u->email,
-                    'can_view'   => (bool) $u->pivot->can_view,
-                    'can_edit'   => (bool) $u->pivot->can_edit,
-                    'can_delete' => (bool) $u->pivot->can_delete,
-                    'can_run'    => (bool) $u->pivot->can_run,
+                    'id'           => $u->id,
+                    'name'         => $u->name,
+                    'email'        => $u->email,
+                    'is_view_only' => (bool) $u->is_view_only,
+                    'can_view'     => (bool) $u->pivot->can_view,
+                    'can_edit'     => (bool) $u->pivot->can_edit,
+                    'can_delete'   => (bool) $u->pivot->can_delete,
+                    'can_run'      => (bool) $u->pivot->can_run,
                 ]);
 
             $candidates = User::whereNotIn('id', $suite->members()->pluck('users.id'))
                 ->orderBy('name')
-                ->get(['id', 'name', 'email']);
+                ->get(['id', 'name', 'email', 'is_view_only']);
         }
 
         return Inertia::render('TestSuites/Show', [

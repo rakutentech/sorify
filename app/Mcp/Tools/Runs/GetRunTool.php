@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Runs;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestRun;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -11,6 +12,8 @@ use Laravel\Mcp\Server\Tool;
 
 class GetRunTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'get_run';
 
     protected string $description = 'Get a test run with its results and screenshots.';
@@ -27,6 +30,8 @@ class GetRunTool extends Tool
         $data = $request->validate(['run_id' => 'required|integer|exists:test_runs,id']);
 
         $run = TestRun::findOrFail($data['run_id']);
+        $this->authorizeSuite('view', $run->testSuite);
+
         $run->load('testSuite:id,name');
 
         $results = $run->testResults()

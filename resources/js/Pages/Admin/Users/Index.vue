@@ -19,7 +19,7 @@ const addForm = useForm({
     name: '',
     email: '',
     password: '',
-    is_admin: false,
+    role: 'member',
 });
 
 function openAddModal() {
@@ -42,8 +42,13 @@ function deleteUser(user) {
 }
 
 function changeRole(user, event) {
-    const isAdmin = event.target.value === '1';
-    router.put(`/sorify/admin/users/${user.id}`, { is_admin: isAdmin });
+    router.put(`/sorify/admin/users/${user.id}`, { role: event.target.value });
+}
+
+function roleOf(user) {
+    if (user.is_admin) return 'admin';
+    if (user.is_view_only) return 'viewer';
+    return 'member';
 }
 
 function resetPassword(user) {
@@ -90,14 +95,15 @@ watch(
                             <td class="px-4 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ user.email }}</td>
                             <td class="px-4 py-3">
                                 <select
-                                    :value="user.is_admin ? '1' : '0'"
+                                    :value="roleOf(user)"
                                     :disabled="user.id === currentUserId"
                                     :title="user.id === currentUserId ? 'You cannot change your own role.' : 'Change role'"
                                     @change="changeRole(user, $event)"
                                     class="md-label-small font-medium rounded-[var(--md-sys-shape-corner-extra-small)] border border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-high)] px-2 py-1 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
-                                    <option value="1">Admin</option>
-                                    <option value="0">User</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="member">Member</option>
+                                    <option value="viewer">Viewer</option>
                                 </select>
                             </td>
                             <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(user.created_at) }}</td>
@@ -141,14 +147,18 @@ watch(
                             :error="addForm.errors.password"
                         />
 
-                        <label class="flex items-center gap-3 cursor-pointer">
-                            <input
-                                v-model="addForm.is_admin"
-                                type="checkbox"
-                                class="w-4 h-4 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)]"
-                            />
-                            <span class="md-body-medium text-[var(--md-sys-color-on-surface)]">Admin user</span>
-                        </label>
+                        <div>
+                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Role</label>
+                            <select
+                                v-model="addForm.role"
+                                class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                            >
+                                <option value="admin">Admin</option>
+                                <option value="member">Member</option>
+                                <option value="viewer">Viewer</option>
+                            </select>
+                            <p v-if="addForm.errors.role" class="md-body-small text-[var(--md-sys-color-error)] mt-1.5">{{ addForm.errors.role }}</p>
+                        </div>
 
                         <div class="flex justify-end gap-3 pt-2">
                             <Button type="button" variant="text" @click="showAddModal = false">Cancel</Button>

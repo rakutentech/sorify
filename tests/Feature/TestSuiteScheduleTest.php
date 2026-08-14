@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\RunTestSuiteJob;
 use App\Models\TestSuite;
 use App\Models\TestSuiteSchedule;
 use App\Models\User;
@@ -93,7 +92,9 @@ class TestSuiteScheduleTest extends TestCase
         $this->assertSame(0, $notDueSuite->testRuns()->count());
         $this->assertSame(0, $disabledSuite->testRuns()->count());
 
-        Queue::assertPushed(RunTestSuiteJob::class, 1);
+        // The due suite has no tests, so its run completes synchronously without queuing anything.
+        Queue::assertNothingPushed();
+        $this->assertSame('completed', $dueSuite->testRuns()->where('triggered_by', 'schedule')->first()->status);
 
         $this->assertNotNull($dueSuite->schedule()->first()->last_run_at);
     }

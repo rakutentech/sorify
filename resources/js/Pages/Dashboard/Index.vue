@@ -103,17 +103,17 @@ function formatPassRate(rate) {
                             :key="run.id"
                             class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
                         >
-                            <td class="px-5 py-3 md-body-medium font-medium">
+                            <td class="px-5 py-3 md-body-medium">
                                 <Link
                                     v-if="run.suite_id"
                                     :href="`/sorify/suites/${run.suite_id}`"
                                     class="text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] transition-colors"
                                 >
-                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" />
+                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" :bold="false" />
                                     <span v-else>—</span>
                                 </Link>
                                 <span v-else class="text-[var(--md-sys-color-on-surface)]">
-                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" />
+                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" :bold="false" />
                                     <span v-else>—</span>
                                 </span>
                             </td>

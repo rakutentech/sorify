@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Suites;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -11,6 +12,8 @@ use Laravel\Mcp\Server\Tool;
 
 class DeleteSuiteTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'delete_suite';
 
     protected string $description = 'Delete a test suite and all of its tests and runs.';
@@ -26,7 +29,10 @@ class DeleteSuiteTool extends Tool
     {
         $data = $request->validate(['suite_id' => 'required|integer|exists:test_suites,id']);
 
-        TestSuite::findOrFail($data['suite_id'])->delete();
+        $suite = TestSuite::findOrFail($data['suite_id']);
+        $this->authorizeSuite('delete', $suite);
+
+        $suite->delete();
 
         return Response::structured(['deleted' => true, 'suite_id' => $data['suite_id']]);
     }
