@@ -10,6 +10,7 @@ defineProps({
     autocomplete: { type: String, default: null },
     required: { type: Boolean, default: false },
     rows: { type: Number, default: null },
+    mono: { type: Boolean, default: false },
 });
 
 defineEmits(['update:modelValue']);
@@ -30,9 +31,12 @@ const id = useId();
             :required="required"
             @input="$emit('update:modelValue', $event.target.value)"
             class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border text-[var(--md-sys-color-on-surface)] md-body-medium placeholder:text-[var(--md-sys-color-on-surface-variant)] focus:outline-none focus:ring-2 transition-colors"
-            :class="error
-                ? 'border-[var(--md-sys-color-error)] focus:ring-[var(--md-sys-color-error)]'
-                : 'border-[var(--md-sys-color-outline)] focus:ring-[var(--md-sys-color-primary)] focus:border-transparent'"
+            :class="[
+                mono ? '!font-mono !text-sm' : '',
+                error
+                    ? 'border-[var(--md-sys-color-error)] focus:ring-[var(--md-sys-color-error)]'
+                    : 'border-[var(--md-sys-color-outline)] focus:ring-[var(--md-sys-color-primary)] focus:border-transparent',
+            ]"
         />
         <input
             v-else

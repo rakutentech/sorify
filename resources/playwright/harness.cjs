@@ -1,9 +1,130 @@
 'use strict'
 
 const fs = require('fs')
+const http = require('http')
+const net = require('net')
 const path = require('path')
 // Resolve playwright relative to this file so it works regardless of cwd or machine
 const playwright = require(path.join(__dirname, '..', '..', 'node_modules', 'playwright'))
+
+/**
+ * Picks the proxy (if any) that should handle a request to `host`, based on
+ * per-domain rules, falling back to `defaultProxy`. Each rule's `domain` is a
+ * regular expression tested against the hostname (case-insensitive). Examples:
+ *   - "^example\\.com$"         exact host only: example.com, not foo.example.com
+ *   - "(^|\\.)example\\.com$"   host or subdomain: example.com, foo.example.com; not notexample.com
+ *   - "example\\.com$"         avoid: also matches unrelated hosts like notexample.com
+ * An invalid pattern is skipped (logged to stderr) rather than aborting the whole run.
+ */
+function resolveProxyForHost (host, proxyRules, defaultProxy) {
+    for (const rule of proxyRules) {
+        try {
+            if (new RegExp(rule.domain, 'i').test(host)) {
+                return rule.proxy
+            }
+        } catch (err) {
+            console.error(`Invalid proxy rule pattern "${rule.domain}": ${err.message}`)
+        }
+    }
+    return defaultProxy || null
+}
+
+/**
+ * Starts a tiny local forward proxy that dispatches each CONNECT tunnel (i.e.
+ * every HTTPS connection Chromium makes) either straight to its real target
+ * (DIRECT) or through a specific upstream proxy, based on resolveProxyForHost().
+ *
+ * This exists because Playwright's context only supports one static proxy for
+ * its whole lifetime, and Chromium's native --proxy-pac-url mechanism (the
+ * only way to get per-domain routing from Chromium itself) turned out to be
+ * unreliable in this deployment. Chromium is instead pointed at this local
+ * dispatcher as its one-and-only proxy — a mechanism proven reliable here —
+ * and the dispatcher does the actual per-domain routing itself in Node, where
+ * it sees every real TCP connection (including every hop of a redirect chain,
+ * unlike Playwright's route() interception, which does not re-fire per hop).
+ */
+function startProxyDispatcher (proxyRules, defaultProxy) {
+    return new Promise((resolveServer, rejectServer) => {
+        // Plain HTTP requests arrive as absolute-URI proxy requests (not CONNECT) —
+        // relay them to the real target or an upstream proxy, matching the same rules.
+        const server = http.createServer((req, res) => {
+            let targetUrl
+            try {
+                targetUrl = new URL(req.url)
+            } catch {
+                res.writeHead(400)
+                res.end()
+                return
+            }
+
+            const upstream = resolveProxyForHost(targetUrl.hostname, proxyRules, defaultProxy)
+            const relayVia = upstream ? new URL(upstream.includes('://') ? upstream : `http://${upstream}`) : targetUrl
+
+            const relayReq = http.request({
+                host: relayVia.hostname,
+                port: Number(relayVia.port) || 80,
+                method: req.method,
+                path: upstream ? req.url : (targetUrl.pathname + targetUrl.search),
+                headers: req.headers
+            }, (relayRes) => {
+                res.writeHead(relayRes.statusCode, relayRes.headers)
+                relayRes.pipe(res)
+            })
+            relayReq.on('error', () => { res.writeHead(502); res.end() })
+            req.pipe(relayReq)
+        })
+
+        server.on('connect', (req, clientSocket, head) => {
+            clientSocket.on('error', () => {})
+
+            const [host, portStr] = req.url.split(':')
+            const port = parseInt(portStr, 10) || 443
+            const upstream = resolveProxyForHost(host, proxyRules, defaultProxy)
+
+            if (!upstream) {
+                const upstreamSocket = net.connect(port, host, () => {
+                    clientSocket.write('HTTP/1.1 200 Connection Established\r\n\r\n')
+                    upstreamSocket.write(head)
+                    upstreamSocket.pipe(clientSocket)
+                    clientSocket.pipe(upstreamSocket)
+                })
+                upstreamSocket.on('error', () => clientSocket.end())
+                return
+            }
+
+            let upstreamUrl
+            try {
+                upstreamUrl = new URL(upstream.includes('://') ? upstream : `http://${upstream}`)
+            } catch {
+                clientSocket.end()
+                return
+            }
+
+            const upstreamSocket = net.connect(Number(upstreamUrl.port) || 80, upstreamUrl.hostname, () => {
+                upstreamSocket.write(`CONNECT ${host}:${port} HTTP/1.1\r\nHost: ${host}:${port}\r\n\r\n`)
+            })
+
+            let tunnelEstablished = false
+            upstreamSocket.on('data', (chunk) => {
+                if (tunnelEstablished) return
+                tunnelEstablished = true
+                if (/^HTTP\/1\.[01] 200/.test(chunk.toString('latin1'))) {
+                    clientSocket.write('HTTP/1.1 200 Connection Established\r\n\r\n')
+                    upstreamSocket.write(head)
+                    upstreamSocket.pipe(clientSocket)
+                    clientSocket.pipe(upstreamSocket)
+                } else {
+                    clientSocket.end()
+                    upstreamSocket.end()
+                }
+            })
+            upstreamSocket.on('error', () => clientSocket.end())
+        })
+
+        server.on('error', rejectServer)
+        server.listen(0, '127.0.0.1', () => resolveServer(server))
+    })
+}
 
 /**
  * runWithHarness
@@ -15,12 +136,11 @@ const playwright = require(path.join(__dirname, '..', '..', 'node_modules', 'pla
  * @param {string}  outputDir      Directory where screenshot PNGs are written
  * @param {string}  baseUrl        Base URL passed into the generated code scope
  * @param {number}  timeout        Navigation / action timeout in milliseconds
- * @param {string|null} proxy      HTTP proxy URL for Playwright (e.g. http://proxy:8080), or null
+ * @param {string|null} defaultProxy  HTTP proxy URL used when no proxyRule matches a request's host, or null
  * @param {string}      browserName  Browser engine: 'chromium' | 'firefox' | 'webkit'
  * @param {boolean}     headless   Whether to run headless
  * @param {boolean}     takeScreenshot  Whether page.screenshot() calls actually capture a PNG
- * @param {string|null} proxyPacPath  Path to a PAC script file. Takes priority over `proxy`
- *                                    when set. Supported for chromium and firefox only.
+ * @param {Array<{domain: string, proxy: string}>} proxyRules  Per-host proxy overrides; `domain` is a regex tested against the hostname
  * @returns {Promise<{
  *   status: 'passed'|'failed'|'error',
  *   duration_ms: number,
@@ -34,11 +154,11 @@ async function runWithHarness (
     outputDir,
     baseUrl,
     timeout,
-    proxy = null,
+    defaultProxy = null,
     browserName = 'chromium',
     headless = true,
     takeScreenshot = true,
-    proxyPacPath = null
+    proxyRules = []
 ) {
     // Ensure output directory exists before anything else
     fs.mkdirSync(outputDir, { recursive: true })
@@ -49,11 +169,15 @@ async function runWithHarness (
     const startTime = Date.now()
 
     let browser = null
+    let dispatcher = null
 
     // Clean shutdown on SIGTERM
     const sigTermHandler = async () => {
         if (browser) {
             await browser.close().catch(() => {})
+        }
+        if (dispatcher) {
+            dispatcher.close()
         }
         process.exit(0)
     }
@@ -69,24 +193,24 @@ async function runWithHarness (
         if (browserType === 'chromium') {
             const systemChrome =
                 '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-            if (require('fs').existsSync(systemChrome)) {
+            if (fs.existsSync(systemChrome)) {
                 launchOpts.executablePath = systemChrome
             }
         }
-        // A configured PAC script takes priority over a plain proxy server URL.
-        // Chromium and Firefox support PAC natively; WebKit has no PAC mechanism, so it's ignored there.
-        if (proxyPacPath && browserType === 'chromium') {
-            launchOpts.args = [...(launchOpts.args || []), `--proxy-pac-url=file://${proxyPacPath}`]
-        } else if (proxyPacPath && browserType === 'firefox') {
-            launchOpts.firefoxUserPrefs = {
-                ...(launchOpts.firefoxUserPrefs || {}),
-                'network.proxy.type': 2,
-                'network.proxy.autoconfig_url': `file://${proxyPacPath}`
-            }
+
+        // With per-domain rules, each request needs its own routing decision, so
+        // Chromium is pointed at a local dispatcher that decides per-connection.
+        // Without rules, the simpler direct path is used: a single default proxy
+        // (or none) for the whole context.
+        const hasProxyRules = Array.isArray(proxyRules) && proxyRules.length > 0
+        let proxyServer = defaultProxy || null
+        if (hasProxyRules) {
+            dispatcher = await startProxyDispatcher(proxyRules, defaultProxy)
+            proxyServer = `http://127.0.0.1:${dispatcher.address().port}`
         }
 
         browser = await playwright[browserType].launch(launchOpts)
-        const contextOpts = (!proxyPacPath && proxy) ? { proxy: { server: proxy } } : {}
+        const contextOpts = proxyServer ? { proxy: { server: proxyServer } } : {}
         const context = await browser.newContext(contextOpts)
         const page = await context.newPage()
 
@@ -145,6 +269,9 @@ async function runWithHarness (
 
         process.removeListener('SIGTERM', sigTermHandler)
         await browser.close()
+        if (dispatcher) {
+            dispatcher.close()
+        }
 
         return {
             status: 'passed',
@@ -159,6 +286,9 @@ async function runWithHarness (
         process.removeListener('SIGTERM', sigTermHandler)
         if (browser) {
             await browser.close().catch(() => {})
+        }
+        if (dispatcher) {
+            dispatcher.close()
         }
 
         // Distinguish a deliberate test assertion failure from an unexpected harness error.
