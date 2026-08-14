@@ -1,0 +1,34 @@
+public/.well-known/mcp.json
+  s_416852291b6dd9::t_532d43e77c3535 1-23
+resources/playwright/harness.cjs
+  s_34c5c0b3b0d2fa::t_850d6e5e11fe44 78-89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "13dacdbd0cd43ff801807f2fb417d01e049f45a6",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_34c5c0b3b0d2fa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9b15fd8d-dc48-4055-8d7b-a8c4ac5cad20",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_416852291b6dd9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be6b429d-fca2-406e-8715-4aa364804f46",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
