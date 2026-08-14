@@ -1,0 +1,49 @@
+README.md
+  h_f44dfe84a46cdf 99-105,107-112,156-158
+  s_416852291b6dd9::t_6260bc85af319a 106
+  h_f44dfe84a46cdf 155,159-160,167-174
+resources/js/Pages/TestSuites/Show.vue
+  s_416852291b6dd9::t_367ecbb0507aca 161-189
+  s_416852291b6dd9::t_510017ed700c68 429
+  s_416852291b6dd9::t_c05106b8f198ef 2
+  s_416852291b6dd9::t_b0faa16ccd5d4f 200-203
+  s_416852291b6dd9::t_18dba43dca975f 446-447
+  s_416852291b6dd9::t_c0e0a1275a7e38 222
+resources/playwright/harness.cjs
+  s_34c5c0b3b0d2fa::t_af230f8a7f405d 4
+  s_34c5c0b3b0d2fa::t_fee480772da716 89-93,95-98,102-116
+  s_34c5c0b3b0d2fa::t_ce96f94b7ff994 53-54,58-60,64-65
+  s_34c5c0b3b0d2fa::t_f8713eec653325 66,172-178,191-193,197-199
+app/Http/Controllers/TestSuiteController.php
+  s_416852291b6dd9::t_ab8d9f8916c1de 117,120
+  s_416852291b6dd9::t_2b7e28dd455bae 110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8a52c8004f6a96a4328dcf2ae24a8d7e23409d2e",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_34c5c0b3b0d2fa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9b15fd8d-dc48-4055-8d7b-a8c4ac5cad20",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_416852291b6dd9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be6b429d-fca2-406e-8715-4aa364804f46",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
