@@ -1,0 +1,20 @@
+.github/workflows/release.yml
+  s_487562319e5206::t_8055e81e1711f8 24-27
+  s_487562319e5206::t_768088959106a0 48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "906091ddec2689f2ba94658a4440a0a5c67b75dd",
+  "prompts": {},
+  "sessions": {
+    "s_487562319e5206": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7ebb953b-2810-41b5-95d2-1d405733ce97",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
