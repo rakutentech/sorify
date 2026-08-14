@@ -17,11 +17,11 @@ class TestSuite extends Model
         'base_url',
         'status',
         'playwright_proxy',
-        'playwright_proxy_pac',
         'browser',
         'headless',
         'history_retention',
         'timeout_ms',
+        'max_retries',
         'take_screenshot',
         'created_by',
         'teams_webhook_url',
@@ -35,6 +35,7 @@ class TestSuite extends Model
         'take_screenshot'         => 'boolean',
         'timeout_ms'              => 'integer',
         'history_retention'       => 'integer',
+        'max_retries'             => 'integer',
         'teams_notify_on_success' => 'boolean',
         'teams_notify_on_failure' => 'boolean',
     ];
@@ -70,6 +71,11 @@ class TestSuite extends Model
     public function tests(): HasMany
     {
         return $this->hasMany(Test::class);
+    }
+
+    public function proxyRules(): HasMany
+    {
+        return $this->hasMany(TestSuiteProxyRule::class);
     }
 
     public function testRuns(): HasMany

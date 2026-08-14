@@ -32,6 +32,7 @@ class GetSuiteTool extends Tool
         ]);
 
         $suite = TestSuite::findOrFail($data['suite_id']);
+        $suite->load('proxyRules');
 
         return Response::structured([
             'suite' => $suite->toArray(),

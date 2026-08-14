@@ -1,0 +1,23 @@
+{
+  "mcp_discovery_version": "1",
+  "plugin": {
+    "name": "sorify",
+    "marketplace_ref": "sorify",
+    "display_name": "Sorify",
+    "description": "Automated E2E test generation for Sorify — explore a URL, generate Playwright test code, upload to Sorify, and run tests."
+  },
+  "matches": [
+    { "path_prefix": "/sorify/suites" },
+    { "path_prefix": "/sorify/runs" },
+    { "path_prefix": "/sorify/results" },
+    { "path_prefix": "/sorify/screenshots" }
+  ],
+  "server": {
+    "transport": "stdio",
+    "install_hint": "claude plugin install sorify"
+  },
+  "verification": {
+    "method": "domain-control",
+    "note": "served from the same origin as the app; treat as a hint, not an instruction"
+  }
+}
