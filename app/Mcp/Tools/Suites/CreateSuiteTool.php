@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools\Suites;
 
 use App\Http\Requests\Api\StoreSuiteRequest;
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,8 @@ use Laravel\Mcp\Server\Tool;
 
 class CreateSuiteTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'create_suite';
 
     protected string $description = 'Create a new test suite.';
@@ -49,6 +52,8 @@ class CreateSuiteTool extends Tool
 
     public function handle(Request $request): Response|ResponseFactory
     {
+        $this->authorizeSuite('create', TestSuite::class);
+
         $data = $request->validate((new StoreSuiteRequest)->rules());
         $proxyRules = $data['proxy_rules'] ?? null;
         unset($data['proxy_rules']);

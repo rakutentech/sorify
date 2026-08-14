@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Suites;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use App\Services\ReportingService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -12,6 +13,8 @@ use Laravel\Mcp\Server\Tool;
 
 class GetSuiteTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     protected string $name = 'get_suite';
 
     protected string $description = 'Get a test suite with its stats, tests, and recent runs.';
@@ -32,6 +35,8 @@ class GetSuiteTool extends Tool
         ]);
 
         $suite = TestSuite::findOrFail($data['suite_id']);
+        $this->authorizeSuite('view', $suite);
+
         $suite->load('proxyRules');
 
         return Response::structured([

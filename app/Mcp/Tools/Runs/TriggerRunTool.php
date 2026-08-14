@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Runs;
 
+use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use App\Services\TestRunService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -13,6 +14,8 @@ use Laravel\Mcp\Server\Tool;
 
 class TriggerRunTool extends Tool
 {
+    use AuthorizesSuiteAccess;
+
     public function __construct(private readonly TestRunService $runs) {}
 
     protected string $name = 'trigger_run';
@@ -36,6 +39,7 @@ class TriggerRunTool extends Tool
         ]);
 
         $suite = TestSuite::findOrFail($data['suite_id']);
+        $this->authorizeSuite('run', $suite);
 
         $run = $this->runs->triggerRun($suite, $data['test_ids'] ?? null, 'mcp', Auth::id());
 

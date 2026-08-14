@@ -61,6 +61,7 @@ class AuthController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
+            'is_view_only' => true,
         ]);
 
         Auth::login($user);

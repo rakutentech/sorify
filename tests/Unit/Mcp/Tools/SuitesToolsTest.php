@@ -21,7 +21,7 @@ class SuitesToolsTest extends TestCase
 
     public function test_create_suite_creates_a_suite(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
 
         SorifyServer::actingAs($user)
             ->tool(CreateSuiteTool::class, ['name' => 'Smoke tests', 'base_url' => 'https://example.com'])
@@ -32,7 +32,7 @@ class SuitesToolsTest extends TestCase
 
     public function test_create_suite_grants_creator_owner_privileges(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
 
         SorifyServer::actingAs($user)
             ->tool(CreateSuiteTool::class, ['name' => 'Smoke tests', 'base_url' => 'https://example.com'])
@@ -52,7 +52,7 @@ class SuitesToolsTest extends TestCase
 
     public function test_create_suite_requires_a_name(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
 
         SorifyServer::actingAs($user)
             ->tool(CreateSuiteTool::class, [])
@@ -61,7 +61,7 @@ class SuitesToolsTest extends TestCase
 
     public function test_list_suites_returns_created_suites(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         TestSuite::create(['name' => 'Alpha', 'base_url' => 'https://a.example.com']);
         TestSuite::create(['name' => 'Beta', 'base_url' => 'https://b.example.com']);
 
@@ -75,7 +75,7 @@ class SuitesToolsTest extends TestCase
 
     public function test_get_suite_returns_a_single_suite(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = TestSuite::create(['name' => 'Alpha', 'base_url' => 'https://a.example.com']);
 
         SorifyServer::actingAs($user)
@@ -88,7 +88,7 @@ class SuitesToolsTest extends TestCase
 
     public function test_update_suite_updates_fields(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = TestSuite::create(['name' => 'Alpha', 'base_url' => 'https://a.example.com']);
 
         SorifyServer::actingAs($user)
@@ -100,7 +100,7 @@ class SuitesToolsTest extends TestCase
 
     public function test_create_suite_defaults_history_retention_to_five(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
 
         SorifyServer::actingAs($user)
             ->tool(CreateSuiteTool::class, ['name' => 'Smoke tests', 'base_url' => 'https://example.com'])
@@ -111,7 +111,7 @@ class SuitesToolsTest extends TestCase
 
     public function test_create_suite_rejects_invalid_history_retention(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
 
         SorifyServer::actingAs($user)
             ->tool(CreateSuiteTool::class, ['name' => 'Smoke tests', 'history_retention' => 7])
@@ -122,7 +122,7 @@ class SuitesToolsTest extends TestCase
     {
         Queue::fake();
 
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = TestSuite::create(['name' => 'Alpha', 'base_url' => 'https://a.example.com', 'history_retention' => 5]);
 
         SorifyServer::actingAs($user)
@@ -137,7 +137,7 @@ class SuitesToolsTest extends TestCase
     {
         Queue::fake();
 
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = TestSuite::create(['name' => 'Alpha', 'base_url' => 'https://a.example.com', 'history_retention' => 5]);
 
         SorifyServer::actingAs($user)
@@ -149,7 +149,7 @@ class SuitesToolsTest extends TestCase
 
     public function test_delete_suite_removes_it(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $suite = TestSuite::create(['name' => 'Alpha', 'base_url' => 'https://a.example.com']);
 
         SorifyServer::actingAs($user)

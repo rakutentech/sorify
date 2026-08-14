@@ -17,71 +17,13 @@ class PlaywrightRunnerService
 
     public function __construct(
         private readonly ScreenshotService $screenshotService,
-        private readonly HistoryPruningService $pruningService,
     ) {
         $this->runnerScript = config('sorify.runner_script_path');
         $this->tmpDir       = config('sorify.tmp_dir');
         $this->timeoutMs    = (int) config('sorify.max_test_timeout_ms', 30000);
     }
 
-    public function run(TestRun $testRun, ?array $testIds = null): void
-    {
-        $query = $testRun->testSuite->activeTests();
-        if ($testIds !== null) {
-            $query->whereIn('id', $testIds);
-        }
-        $tests = $query->get();
-
-        $testRun->update([
-            'total_tests' => $tests->count(),
-            'started_at'  => now(),
-            'status'      => 'running',
-        ]);
-
-        $passed = $failed = $errors = 0;
-        $start  = now();
-
-        foreach ($tests as $test) {
-            if ($testRun->refresh()->status === 'cancelled') {
-                break;
-            }
-
-            $result = $this->runWithRetries($test, $testRun);
-
-            match ($result->status) {
-                'passed'            => $passed++,
-                'failed', 'timeout' => $failed++,
-                'cancelled'         => null,
-                default             => $errors++,
-            };
-
-            $test->update([
-                'last_run_at'     => now(),
-                'last_run_status' => in_array($result->status, ['passed', 'failed', 'error', 'timeout', 'cancelled'])
-                    ? $result->status
-                    : 'error',
-            ]);
-
-            $this->pruningService->pruneTestHistory($test, $testRun->testSuite->history_retention ?? 5);
-
-            if ($testRun->refresh()->status === 'cancelled') {
-                break;
-            }
-        }
-
-        $testRun->refresh();
-
-        $testRun->update([
-            'passed_count'  => $passed,
-            'failed_count'  => $failed,
-            'error_count'   => $errors,
-            'duration_ms'   => $start->diffInMilliseconds(now()),
-            'completed_at'  => now(),
-            'status'        => $testRun->status === 'cancelled' ? 'cancelled' : 'completed',
-        ]);
-    }
-
-    private function runWithRetries(Test $test, TestRun $testRun): TestResult
+    public function runWithRetries(Test $test, TestRun $testRun): TestResult
     {
         $maxAttempts = 1 + max(0, (int) ($testRun->testSuite->max_retries ?? 0));
 

@@ -17,6 +17,37 @@ use Illuminate\Support\Facades\Route;
 // well-known file also needs to be reachable at /sorify/.well-known/mcp.json.
 Route::get('sorify/.well-known/mcp.json', fn () => response()->file(public_path('.well-known/mcp.json')));
 
+// Public: built Vite assets. In production the reverse proxy aliases /sorify
+// straight to public/, so /sorify/build/* resolves without touching Laravel.
+// `php artisan serve` has no such alias, so serve the built assets directly.
+// Content-Type is forced by extension: finfo content-sniffing misidentifies
+// minified JS/CSS (e.g. as text/x-java), which browsers then refuse to load.
+Route::get('sorify/build/{path}', function (string $path) {
+    $mimeTypes = [
+        'js' => 'text/javascript',
+        'mjs' => 'text/javascript',
+        'css' => 'text/css',
+        'json' => 'application/json',
+        'map' => 'application/json',
+        'svg' => 'image/svg+xml',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'woff' => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf' => 'font/ttf',
+        'eot' => 'application/vnd.ms-fontobject',
+    ];
+
+    $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+    return response()->file(public_path('build/'.$path), [
+        'Content-Type' => $mimeTypes[$extension] ?? 'application/octet-stream',
+    ]);
+})->where('path', '.*');
+
 // Public: login and password reset only
 Route::prefix('sorify')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
