@@ -1,0 +1,202 @@
+app/Mcp/Tools/Tests/GetTestTool.php
+  s_128ef3266a8a8b::t_bba4a1ef52beac 37-38
+  s_128ef3266a8a8b::t_8b3d67e91503ff 5,7,16-17
+app/Mcp/Tools/Tests/UpdateTestTool.php
+  s_128ef3266a8a8b::t_ca8e5a51d49480 6,8,17-18
+  s_128ef3266a8a8b::t_5730ba26fcfc8b 41-42
+app/Mcp/Tools/Suites/DeleteSuiteTool.php
+  s_128ef3266a8a8b::t_601eab442b6909 5,15-16
+  s_128ef3266a8a8b::t_6dcc8da5389f6d 32-35
+resources/js/Pages/Admin/Users/Index.vue
+  s_128ef3266a8a8b::t_b583131e3c611b 98,104-106
+  s_128ef3266a8a8b::t_39149322b1ebc6 150-161
+  s_128ef3266a8a8b::t_47605dc3017077 45-51
+  s_128ef3266a8a8b::t_9b48565327c636 22
+app/Mcp/Tools/Screenshots/GetScreenshotTool.php
+  s_128ef3266a8a8b::t_4215a3c7630219 5,16-17
+  s_128ef3266a8a8b::t_55b37ae358691c 34
+app/Services/PlaywrightRunnerService.php
+  s_f61494fa2908d8::t_c405e058147697 26
+tests/Unit/Mcp/Tools/ScreenshotsToolsTest.php
+  s_128ef3266a8a8b::t_161b9851886804 35,56,74
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_128ef3266a8a8b::t_b9f1868f0eaca8 7,17-18
+  s_128ef3266a8a8b::t_77ab718f05a149 57
+app/Mcp/Tools/Tests/DeleteTestTool.php
+  s_128ef3266a8a8b::t_3aa40dae7ad7cc 37-38
+  s_128ef3266a8a8b::t_cfb3cf21419737 5,7,16-17
+README.md
+  s_f61494fa2908d8::t_7914b0c58f0245 132-134
+app/Mcp/Tools/Runs/TriggerRunTool.php
+  s_128ef3266a8a8b::t_427a6470e20f88 42
+  s_128ef3266a8a8b::t_3070ac09795bfa 5,17-18
+app/Http/Controllers/TestSuiteController.php
+  s_128ef3266a8a8b::t_d40c1fb69d77ee 101,103-110,115
+  s_128ef3266a8a8b::t_8bc18f80250cb5 55,61-62
+app/Mcp/Tools/Tests/CreateTestTool.php
+  s_128ef3266a8a8b::t_f0302a44d3ec6a 40
+  s_128ef3266a8a8b::t_a898a59d0a1866 6,17-18
+database/migrations/2026_08_14_000005_add_is_view_only_to_users_table.php
+  s_128ef3266a8a8b::t_4c98d6e4ad9a30 1-22
+resources/js/Pages/Profile/Show.vue
+  s_c00f37629a88da::t_dd53de950dea4d 66-73
+  s_c00f37629a88da::t_7eeb4f77cd92a9 10-15
+tests/Unit/Mcp/Tools/SuitesToolsTest.php
+  s_128ef3266a8a8b::t_92dd61b97320e8 24,35,55,64,78,91,103,114,125,140,152
+app/Mcp/Tools/Concerns/AuthorizesSuiteAccess.php
+  s_128ef3266a8a8b::t_804a7d0b3f2e18 1-30
+app/Mcp/Tools/Tests/ListTestsTool.php
+  s_128ef3266a8a8b::t_4a5a3b4e7d621e 5,15-16
+  s_128ef3266a8a8b::t_887b0b151e89dc 33
+app/Mcp/Tools/Tests/UpdateTestCodeTool.php
+  s_128ef3266a8a8b::t_47c3f14d565c39 47-48
+  s_128ef3266a8a8b::t_61ca769d68295a 5,7,19-20
+app/Mcp/Tools/Suites/GetSuiteTool.php
+  s_128ef3266a8a8b::t_2047072ba65127 5,16-17
+  s_128ef3266a8a8b::t_ddea494398930b 38-39
+app/Http/Controllers/TestSuiteMemberController.php
+  s_128ef3266a8a8b::t_f56adb02c3cf53 63-73
+  s_128ef3266a8a8b::t_899160b4d39361 16-18,25-26,34,41-45
+  s_128ef3266a8a8b::t_444c00707ec3be 46
+app/Mcp/Tools/Suites/UpdateSuiteScheduleTool.php
+  s_128ef3266a8a8b::t_32de51f27e5037 6,18-19
+  s_128ef3266a8a8b::t_d2753b545986aa 37
+tests/Unit/Mcp/Tools/TestsToolsTest.php
+  s_128ef3266a8a8b::t_9b7d6e4b04aaa3 31,47,63,82,94,109,136,149,162,175,188
+app/Mcp/Tools/Runs/GetRunTool.php
+  s_128ef3266a8a8b::t_eacabfe9526239 5,15-16
+  s_128ef3266a8a8b::t_e116d8da6ec0be 33-34
+app/Policies/TestSuitePolicy.php
+  s_128ef3266a8a8b::t_73359eabbf01b4 15-19
+app/Mcp/Tools/Suites/DeleteSuiteScheduleTool.php
+  s_128ef3266a8a8b::t_42f61eb88a1020 5,15-16
+  s_128ef3266a8a8b::t_5bc9939a29cf2c 33-34
+app/Models/TestSuite.php
+  s_128ef3266a8a8b::t_efe20d7a72e400 110,115-122
+app/Mcp/Tools/Tests/ToggleTestStatusTool.php
+  s_128ef3266a8a8b::t_2ba3522b9d6a1c 5,7,16-17
+  s_128ef3266a8a8b::t_d87d2585c46840 37-38
+app/Mcp/Tools/Tests/BulkDeleteTestsTool.php
+  s_128ef3266a8a8b::t_ee25fb9a440979 38
+  s_128ef3266a8a8b::t_073771e0a58b5d 5,15-16
+routes/web.php
+  s_16b74bad8afede::t_74baaafa0bbecd 23-49
+  s_16b74bad8afede::t_3e5a4849eca269 20-22,50
+docker-compose.yml
+  s_f61494fa2908d8::t_86322303a036a0 55-56
+app/Models/User.php
+  s_128ef3266a8a8b::t_ddc01db1b98fa7 32
+  s_128ef3266a8a8b::t_3a30e860714871 14
+app/Services/TestRunService.php
+  s_f61494fa2908d8::t_685a606a4585ca 5-7,10-11,23-44,49-59
+  s_f61494fa2908d8::t_b097d47c19fc08 60-61
+app/Mcp/Tools/Suites/ListSuitesTool.php
+  s_128ef3266a8a8b::t_c6b297cb91f592 5,16-17
+  s_128ef3266a8a8b::t_354866e54e267a 44
+resources/js/Components/ui/SuiteName.vue
+  s_44181df3c81c18::t_9ab58f92a0f5e1 5
+  s_44181df3c81c18::t_7a903153d07da1 10
+app/Mcp/Tools/Runs/DeleteRunTool.php
+  s_128ef3266a8a8b::t_aa321409882bd7 5,15-16
+  s_128ef3266a8a8b::t_4b648cf883d2cc 32-35
+app/Mcp/Tools/Runs/CancelRunTool.php
+  s_128ef3266a8a8b::t_ff2ee57155b52c 35-38
+  s_128ef3266a8a8b::t_a89c8e33a12425 5,16-17
+app/Jobs/RunSingleTestJob.php
+  s_f61494fa2908d8::t_e0439911d8477f 1-54
+resources/js/Pages/TestSuites/Index.vue
+  s_128ef3266a8a8b::t_8b26fc894f023e 90
+  s_44181df3c81c18::t_0be6b8e785b2ca 152
+  s_128ef3266a8a8b::t_e408eff32d676b 117,120
+  s_128ef3266a8a8b::t_c0302fa6c4b36c 22-25
+resources/js/Pages/Dashboard/Index.vue
+  s_44181df3c81c18::t_5212e79751754b 106
+  s_44181df3c81c18::t_460eba8342c6a4 112,116
+app/Mcp/Tools/Tests/BulkCreateTestsTool.php
+  s_128ef3266a8a8b::t_22c21293d7e577 47
+  s_128ef3266a8a8b::t_da7e65b1201ed7 6,17-18
+tests/Unit/Mcp/Tools/RunsToolsTest.php
+  s_128ef3266a8a8b::t_0ef0595624504f 30,58,77,89
+  s_f61494fa2908d8::t_dacccae34c036e 9
+  s_f61494fa2908d8::t_4638378c1394f5 32,37,39-53
+database/factories/UserFactory.php
+  s_128ef3266a8a8b::t_54d04e5d90ff60 34,51-55
+  s_128ef3266a8a8b::t_83fd6bd7d17d0f 56-57
+tests/Feature/ViewOnlyUserTest.php
+  s_128ef3266a8a8b::t_e35906b06b7d53 1-130,164
+  s_128ef3266a8a8b::t_c3a58d35336ff3 131-163
+app/Http/Controllers/ProfileController.php
+  s_c00f37629a88da::t_815c3d5a911447 19-23
+tests/Feature/TestSuiteScheduleTest.php
+  s_f61494fa2908d8::t_d685ad42a1515e 95-97
+app/Http/Controllers/Admin/UserController.php
+  s_128ef3266a8a8b::t_f202d27df99752 37,41-45
+  s_128ef3266a8a8b::t_e482452a67bea3 69,72-75
+  s_128ef3266a8a8b::t_f16a7ef67f2f7c 10
+  s_128ef3266a8a8b::t_02d7a828eb5767 23
+app/Mcp/Tools/Screenshots/ListScreenshotsTool.php
+  s_128ef3266a8a8b::t_be3303f3585c8c 5,15-16
+  s_128ef3266a8a8b::t_2efc059d096b94 33
+tests/Feature/RegistrationTest.php
+  s_128ef3266a8a8b::t_6632dd4d62db44 38
+app/Mcp/Tools/Runs/GetRunStatusTool.php
+  s_128ef3266a8a8b::t_e48d3eac60a817 33
+  s_128ef3266a8a8b::t_932294c9435799 5,15-16
+app/Http/Controllers/AuthController.php
+  s_128ef3266a8a8b::t_4e1c4dc5b4e581 64
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_128ef3266a8a8b::t_3197acf3dc037c 55-56
+  s_128ef3266a8a8b::t_1dddb7eeadf096 6,17-18
+resources/js/Pages/TestSuites/Show.vue
+  s_128ef3266a8a8b::t_b0de8979a57d87 122-134
+  s_128ef3266a8a8b::t_c45e50ffe8797d 828,835,838,841
+  s_128ef3266a8a8b::t_699c27bd668cce 870,873,876
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "20643af3d3018a794f9d60372aac30b30cf754fa",
+  "prompts": {},
+  "sessions": {
+    "s_128ef3266a8a8b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0b0607c7-93a5-4ce6-9543-c3e787a93796",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_16b74bad8afede": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04495194-a7fa-4ce0-9116-210e9bc4e4a5",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_44181df3c81c18": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "137861e9-0bb8-407b-b5ca-368835b7e74b",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_c00f37629a88da": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d079d027-3eac-4f2c-b8d5-be34b1866e0a",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_f61494fa2908d8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0c04dd5a-cf84-4930-af7c-1af2b2db6725",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
