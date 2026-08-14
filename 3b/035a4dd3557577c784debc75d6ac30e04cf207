@@ -1,0 +1,36 @@
+resources/css/app.css
+  s_ed8bffe57763dc::t_e5d4941753bcbf 180-201
+app/Services/PlaywrightRunnerService.php
+  s_ed8bffe57763dc::t_9e38bfb17172fd 171-175,179-186
+  s_ed8bffe57763dc::t_19c37bdd998b69 187
+resources/js/Pages/TestRuns/Show.vue
+  s_ed8bffe57763dc::t_86512731607135 303,319
+  s_ed8bffe57763dc::t_5f21df4e636857 33
+  s_ed8bffe57763dc::t_6c6aca5e857963 61-63
+  s_ed8bffe57763dc::t_ae35e4648c119b 365
+  s_ed8bffe57763dc::t_29360f0fa3775c 2
+  s_ed8bffe57763dc::t_85d04ccb05a4f1 211
+  s_ed8bffe57763dc::t_ac70b0c4824399 88-115
+  s_ed8bffe57763dc::t_346a95143c3b1a 333,340,346-349,351-355
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3b035a4dd3557577c784debc75d6ac30e04cf207",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_ed8bffe57763dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "badcc1a1-e74b-4414-ab4b-d455eb36188d",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
