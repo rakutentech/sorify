@@ -56,7 +56,7 @@ codex plugin marketplace add https://github.com/rakutentech/sorify.git
 ```
 
 <p align="center">
-  <img src="https://i.imgur.com/Yh2Fos3.png" width="650" alt="Sorify workflow"/>
+  <img src="https://i.imgur.com/8KCPq9A.png" width="650" alt="Sorify workflow"/>
 </p>
 
 ### SKILL 1 - Sorify MCP
