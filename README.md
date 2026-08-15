@@ -73,24 +73,31 @@ SORIFY_PASSWORD=changeme
 /sorify:gateway Update the test suite http://localhost:8000/sorify/suites/{id} by adding retry twice
 ```
 
-### SKILL 2 - QA Skills
+### SKILL 2 - Inbuilt QA Skills
 
 ```sh
 # Tests from source code (git)
-/sorify:generate Scan my code and generate tests for <github.com/your/repo> <further prompt..>
+/sorify:generate Scan my code and generate tests for <github.com/your/repo>
 
 # Tests from source code (path)
-/sorify:generate Scan my code and generate tests for </path/to/your/source> <further prompt..>
+/sorify:generate Scan my code and generate tests for </path/to/your/source>
 
 # Tests from url (remote)
-/sorify:generate Crawl site and generate tests for https://rakuten.co.jp <further prompt..>
+/sorify:generate Crawl site and generate tests for https://rakuten.co.jp
 
 # Tests from url (local)
-/sorify:generate Crawl site and generate tests for http://localhost:3000/awesome-app <further prompt..>
+/sorify:generate Crawl site and generate tests for http://localhost:3000/my-awesome-app
 
 # Tests from requirements
 /sorify:generate Read requirements here <link to docs> <path to docs> <raw paste>
 <you got the idea...>
+```
+
+#### OR SKILL BYO - Bring your own QA Skills
+
+```sh
+/my:qa:skill Create detailed tests <...>
+...then /sorify:gateway once done - upload, run and invetigate failed tests
 ```
 
 ### SKILL 3 - Record, Capture, Generate, upload (Chrome extension)
@@ -127,17 +134,10 @@ If not, then you can using `~/.sorify-bin/sorify-recorder-mcp`.
 
 **Tip:** to check the port `lsof -nP -iTCP:7420 -sTCP:LISTEN`
 
-(5) Generate tests
+**No 5.** Generate tests
 
 ```sh
 /sorify:recording latest
-```
-
-
-### SKILL BYO - Bring your own QA Skills
-
-```sh
-/my:qa:skill Create detailed tests <...> /sorify:gateway once done, upload, run and invetigate failed tests
 ```
 
 **AI Healing**
