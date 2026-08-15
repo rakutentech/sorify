@@ -1,0 +1,44 @@
+version: 2
+
+project_name: sorify-recorder-mcp
+
+before:
+  hooks:
+    - go mod tidy -C mcp/sorify-recorder-mcp
+
+builds:
+  -
+    id: sorify-recorder-mcp
+    dir: mcp/sorify-recorder-mcp
+    main: .
+    binary: sorify-recorder-mcp
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  -
+    ids:
+      - sorify-recorder-mcp
+    format: binary
+    name_template: "{{ .Binary }}-{{ .Os }}-{{ .Arch }}"
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^bin'

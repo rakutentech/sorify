@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools\Runs;
 
+use App\Exceptions\RunRateLimitExceededException;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use App\Services\TestRunService;
@@ -41,7 +42,11 @@ class TriggerRunTool extends Tool
         $suite = TestSuite::findOrFail($data['suite_id']);
         $this->authorizeSuite('run', $suite);
 
-        $run = $this->runs->triggerRun($suite, $data['test_ids'] ?? null, 'mcp', Auth::id());
+        try {
+            $run = $this->runs->triggerRun($suite, $data['test_ids'] ?? null, 'mcp', Auth::id());
+        } catch (RunRateLimitExceededException $e) {
+            return Response::error($e->getMessage());
+        }
 
         return Response::structured(['run_id' => $run->id, 'status' => $run->status]);
     }

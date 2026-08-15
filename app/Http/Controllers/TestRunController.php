@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\RunRateLimitExceededException;
 use App\Models\TestRun;
 use App\Models\TestSuite;
 use App\Services\TestRunService;
@@ -18,7 +19,11 @@ class TestRunController extends Controller
 
         $testIds = request()->input('test_ids');
 
-        $run = $this->runs->triggerRun($suite, $testIds, 'manual', request()->user()?->id);
+        try {
+            $run = $this->runs->triggerRun($suite, $testIds, 'manual', request()->user()?->id);
+        } catch (RunRateLimitExceededException $e) {
+            return back()->withErrors(['run' => $e->getMessage()]);
+        }
 
         return redirect(route('runs.show', $run, absolute: false));
     }
@@ -27,7 +32,7 @@ class TestRunController extends Controller
     {
         $this->authorize('view', $run->testSuite);
 
-        $run->load(['testSuite:id,name', 'triggeredByUser:id,name']);
+        $run->load(['testSuite:id,name', 'triggeredByUser:id,name,email']);
 
         return Inertia::render('TestRuns/Show', [
             'run'     => array_merge($run->toArray(), ['suite' => $run->testSuite]),
