@@ -19,7 +19,7 @@ const sourceLabel = computed(() => SOURCE_LABELS[props.triggeredBy] ?? 'Manual')
 
 <template>
     <span v-if="triggeredByUser" class="inline-flex items-center gap-2">
-        <Avatar :name="triggeredByUser.name" />
+        <Avatar :name="triggeredByUser.name" :email="triggeredByUser.email" />
         <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ triggeredByUser.name }}</span>
     </span>
     <span

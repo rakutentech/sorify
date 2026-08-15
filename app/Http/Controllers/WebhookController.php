@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\RunRateLimitExceededException;
 use App\Models\TestRun;
 use App\Services\TestRunService;
 use Illuminate\Http\Request;
@@ -16,7 +17,12 @@ class WebhookController extends Controller
 
         $testIds = $request->input('test_ids');
 
-        $run = $this->runs->triggerRun($suite, $testIds, 'ci');
+        try {
+            $run = $this->runs->triggerRun($suite, $testIds, 'ci');
+        } catch (RunRateLimitExceededException $e) {
+            return response()->json(['message' => $e->getMessage()], 429)
+                ->header('Retry-After', $e->retryAfterSeconds);
+        }
 
         return response()->json([
             'run_id' => $run->id,

@@ -50,7 +50,7 @@ class TestController extends Controller
             'history' => $test->testResults()
                 ->with([
                     'testRun:id,status,created_at,triggered_by,triggered_by_user_id',
-                    'testRun.triggeredByUser:id,name',
+                    'testRun.triggeredByUser:id,name,email',
                     'screenshots',
                 ])
                 ->latest()
@@ -115,6 +115,19 @@ class TestController extends Controller
 
         $ids = request()->input('test_ids', []);
         $suite->tests()->whereIn('id', $ids)->delete();
+        return back();
+    }
+
+    public function bulkUpdateStatus(TestSuite $suite)
+    {
+        $this->authorize('edit', $suite);
+
+        $status = request()->input('status');
+        abort_unless(in_array($status, ['active', 'disabled'], true), 422);
+
+        $ids = request()->input('test_ids', []);
+        $suite->tests()->whereIn('id', $ids)->update(['status' => $status]);
+
         return back();
     }
 

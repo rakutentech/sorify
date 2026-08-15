@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Screenshot;
 use App\Models\TestResult;
 use App\Models\TestRun;
 use App\Models\TestSuite;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class TeamsNotificationService
 {
@@ -102,6 +104,7 @@ class TeamsNotificationService
         ];
 
         array_push($body, ...$this->buildTestsSection($run));
+        array_push($body, ...$this->buildScreenshotsSection($run));
 
         return [
             'type' => 'message',
@@ -178,6 +181,52 @@ class TeamsNotificationService
                 'text'     => $lines->implode("\n\n"),
                 'wrap'     => true,
                 'isSubtle' => true,
+            ],
+        ];
+    }
+
+    private function buildScreenshotsSection(TestRun $run): array
+    {
+        $maxScreenshots = (int) config('sorify.teams_max_screenshots', 3);
+
+        if ($maxScreenshots <= 0) {
+            return [];
+        }
+
+        $results = $run->testResults()
+            ->with(['screenshots', 'test:id,name'])
+            ->get()
+            ->sortBy(fn (TestResult $result) => in_array($result->status, ['failed', 'error'], true) ? 0 : 1);
+
+        $screenshots = $results
+            ->flatMap(fn (TestResult $result) => $result->screenshots->map(fn (Screenshot $screenshot) => [$screenshot, $result]))
+            ->take($maxScreenshots);
+
+        if ($screenshots->isEmpty()) {
+            return [];
+        }
+
+        $images = $screenshots->map(function (array $pair) {
+            [$screenshot, $result] = $pair;
+
+            return [
+                'type'    => 'Image',
+                'url'     => Storage::disk('screenshots')->url($screenshot->path),
+                'altText' => $result->test->name ?? $screenshot->filename,
+            ];
+        })->values()->all();
+
+        return [
+            [
+                'type'    => 'TextBlock',
+                'text'    => 'Screenshots',
+                'weight'  => 'bolder',
+                'spacing' => 'medium',
+            ],
+            [
+                'type'      => 'ImageSet',
+                'imageSize' => 'medium',
+                'images'    => $images,
             ],
         ];
     }

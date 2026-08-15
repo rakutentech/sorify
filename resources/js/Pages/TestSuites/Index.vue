@@ -17,7 +17,7 @@ const props = defineProps({
     },
     filters: {
         type: Object,
-        default: () => ({ search: '', per_page: 10 }),
+        default: () => ({ search: '', per_page: 30 }),
     },
     can: {
         type: Object,
@@ -26,7 +26,7 @@ const props = defineProps({
 });
 
 const search  = ref(props.filters.search ?? '');
-const perPage = ref(props.filters.per_page ?? 10);
+const perPage = ref(props.filters.per_page ?? 30);
 
 function reload(overrides = {}) {
     router.get(
@@ -216,6 +216,7 @@ function formatPassRate(rate) {
                         class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                     >
                         <option :value="10">10 / page</option>
+                        <option :value="30">30 / page</option>
                         <option :value="50">50 / page</option>
                         <option :value="100">100 / page</option>
                     </select>
