@@ -1,0 +1,49 @@
+app/Exceptions/RunRateLimitExceededException.php
+  s_c15aa60aa3249a::t_56459e893ff754 1-11
+app/Services/TestRunService.php
+  s_c15aa60aa3249a::t_fb279fec9c55f2 71-88
+  s_c15aa60aa3249a::t_90ef709e872dcc 6,13,17-19,22-25
+app/Http/Controllers/TestRunController.php
+  s_c15aa60aa3249a::t_f4e4fe39a05e22 5,22-26
+tests/Unit/TeamsNotificationScreenshotsTest.php
+  s_c15aa60aa3249a::t_70449a242ac9e1 89
+  s_c15aa60aa3249a::t_5b9126cd05421e 1-6,8-18,20,22-26,28-30,32-46,82-88,90-99
+  s_c15aa60aa3249a::t_245284b502d5c9 7
+  s_c15aa60aa3249a::t_3dcf9db044403b 19,21,27,31,47-81
+app/Http/Controllers/WebhookController.php
+  s_c15aa60aa3249a::t_980f256e58f01d 5,20-25
+tests/Feature/RunTriggerRateLimitTest.php
+  s_c15aa60aa3249a::t_5336da07fef596 31-32
+  s_c15aa60aa3249a::t_c25d4a78c227f0 1-30,33-83
+app/Mcp/Tools/Runs/TriggerRunTool.php
+  s_c15aa60aa3249a::t_a55ab3953534f2 5
+  s_c15aa60aa3249a::t_46a821ac1ed066 45-49
+config/sorify.php
+  s_c15aa60aa3249a::t_1f9a0f9b42d557 9-15
+app/Services/TeamsNotificationService.php
+  s_c15aa60aa3249a::t_be91dc0ce7cd3f 187-195,200,205-207,211,218-232
+  s_c15aa60aa3249a::t_1d41b4b6b8e8f1 107
+  s_c15aa60aa3249a::t_d449f158baa866 196-199,201-204,208-210,212-217
+  s_c15aa60aa3249a::t_f279931ce3ea49 5,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a1eab0fb7425d8b082e40c370b39708f515ce2c5",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_c15aa60aa3249a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a74f1a05-cd45-4a0e-94ba-7ee82ec10f45",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
