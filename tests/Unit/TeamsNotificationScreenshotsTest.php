@@ -59,17 +59,17 @@ class TeamsNotificationScreenshotsTest extends TestCase
 
         Http::assertSent(function ($request) {
             $body = $request['attachments'][0]['content']['body'];
-            $imageSet = collect($body)->firstWhere('type', 'ImageSet');
+            $actionSet = collect($body)->firstWhere('type', 'ActionSet');
 
-            if (! $imageSet) {
+            if (! $actionSet) {
                 return false;
             }
 
-            $urls = collect($imageSet['images'])->pluck('url');
+            $urls = collect($actionSet['actions'])->pluck('url');
 
             return $urls->count() === 2
-                && $urls->contains(Storage::disk('screenshots')->url('passed.png'))
-                && $urls->contains(Storage::disk('screenshots')->url('failed.png'));
+                && $urls->contains(fn ($url) => str_contains($url, 'screenshots'))
+                && collect($actionSet['actions'])->every(fn ($action) => $action['type'] === 'Action.OpenUrl');
         });
     }
 
@@ -84,16 +84,14 @@ class TeamsNotificationScreenshotsTest extends TestCase
 
         Http::assertSent(function ($request) {
             $body = $request['attachments'][0]['content']['body'];
-            $imageSet = collect($body)->firstWhere('type', 'ImageSet');
+            $actionSet = collect($body)->firstWhere('type', 'ActionSet');
 
-            if (! $imageSet) {
+            if (! $actionSet) {
                 return false;
             }
 
-            $urls = collect($imageSet['images'])->pluck('url');
-
-            return $urls->count() === 1
-                && $urls->first() === Storage::disk('screenshots')->url('failed.png');
+            return count($actionSet['actions']) === 1
+                && $actionSet['actions'][0]['title'] === 'Failing';
         });
     }
 }

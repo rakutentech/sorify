@@ -12,6 +12,7 @@ const user = computed(() => page.props.auth?.user ?? null);
 
 const navLinks = computed(() => [
     { label: 'Dashboard', href: '/sorify/' },
+    { label: 'Runs', href: '/sorify/runs' },
     { label: 'Test Suites', href: '/sorify/suites' },
 ]);
 
@@ -73,7 +74,7 @@ function logout() {
                             <!-- Admin-only links, visually grouped -->
                             <div
                                 v-if="adminLinks.length"
-                                class="flex items-center gap-1 ml-1 pl-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-tertiary-container)]"
+                                class="flex items-center gap-1 ml-1 pl-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-tertiary)]/15 border border-[var(--md-sys-color-tertiary)]/30"
                             >
                                 <template v-for="link in adminLinks" :key="link.href">
                                     <a
@@ -173,7 +174,7 @@ function logout() {
 
                 <div
                     v-if="adminLinks.length"
-                    class="flex items-center gap-1 ml-1 pl-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-tertiary-container)]"
+                    class="flex items-center gap-1 ml-1 pl-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-tertiary)]/15 border border-[var(--md-sys-color-tertiary)]/30"
                 >
                     <template v-for="link in adminLinks" :key="link.href">
                         <a
