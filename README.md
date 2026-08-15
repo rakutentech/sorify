@@ -98,12 +98,12 @@ SORIFY_PASSWORD=changeme
 Generate tests from a real recorded session instead of DOM exploration — chrome-mcp-playwright `sorify-recorder-mcp`
 
 
-(1) Load the extension
+**No 1.** Load the extension
 
 
 `chrome://extensions/` → enable **"Developer mode"** → "Load unpacked" → select `extension/` folder
 
-(2) Install the mcp
+No 2. Install the mcp
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/rakutentech/sorify/main/mcp/install-mcp.sh | sh
@@ -111,7 +111,7 @@ curl -fsSL https://raw.githubusercontent.com/rakutentech/sorify/main/mcp/install
 
 *we don't have npx, sorry*
 
-(3) Recorder start
+**No 3.** Recorder start
 
 Sorify recorder should start automatically, when you launch claude/codex
 
@@ -119,7 +119,7 @@ You can check using `/mcp` → `plugin:sorify:sorify-recorder`
 
 If not, then you can using `~/.sorify-bin/sorify-recorder-mcp`.
 
-(4) Click the extension icon → Connect → Start recording
+**No 4.** Click the extension icon → Connect → Start recording
 
 ![Chrome extension recorder](https://i.imgur.com/59imHA1.png)
 
