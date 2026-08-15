@@ -1,0 +1,22 @@
+resources/js/Pages/Profile/Show.vue
+  s_c00f37629a88da::t_dd53de950dea4d 66-73
+  s_c00f37629a88da::t_7eeb4f77cd92a9 10-15
+app/Http/Controllers/ProfileController.php
+  s_c00f37629a88da::t_815c3d5a911447 19-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "42e9ed9aaa44ca0ab43fb32cafd97c2103e9401f",
+  "prompts": {},
+  "sessions": {
+    "s_c00f37629a88da": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d079d027-3eac-4f2c-b8d5-be34b1866e0a",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

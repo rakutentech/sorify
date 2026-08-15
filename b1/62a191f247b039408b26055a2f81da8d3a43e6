@@ -1,0 +1,277 @@
+resources/js/Components/ui/RanBy.vue
+  s_36b97fe40c077d::t_664d6082ea4a9b 22
+app/Services/TestRunService.php
+  s_c15aa60aa3249a::t_fb279fec9c55f2 71-88
+  s_c15aa60aa3249a::t_90ef709e872dcc 6,13,17-19,22-25
+extension/README.md
+  s_818cc94d148de5::t_1c88a740c0a085 1-22
+extension/background.js
+  s_d3c0534880e8ec::t_8cbd06727019d1 74-77,79
+  s_d3c0534880e8ec::t_c51c1f54ee2fae 1-73,78,80-122
+resources/js/Pages/Tests/Show.vue
+  s_2830298c1c7590::t_6871cb637f2a8b 201-206
+  s_2830298c1c7590::t_c1d1ada57d6536 8
+  s_2830298c1c7590::t_ddf9889252c156 28-32
+  s_1ee5044d65ced7::t_011d3ff0d91e60 6
+  s_1ee5044d65ced7::t_fec4f5b75e0000 273
+public/frankenphp-worker.php
+  h_f44dfe84a46cdf 1-7
+extension/manifest.json
+  s_d3c0534880e8ec::t_955c3c2c9db604 1-7,14-18,26-35
+  s_1a3a2638dab7b5::t_ae2fc93a783ad4 8-13,19-25
+composer.lock
+  s_5bbc9841a5f2de::t_7ae776dc42623d 7,645,649,653-654,659,753,769,773,777,781-782,837,853,1062,1066,1070-1071,1076,1081,1084,1128,1130,1222,1226,1230-1231,1235,1251,1257,1445,1449,1453,1457-1458,1519,1523,1527,1531-1532,1608,1612,1616,1620-1621,1665,1667,1801,1805,1809-1810,1847,1904,2463,2467,2471-2472,2564,3711,3715,3719-3720,3787,3807,3951,3955,3959-3960,4008,4028,4032,4036,4040-4041,4094,4114,4266,4270,4274-4275,4323,4343,4347,4351,4355-4356,4372,4405,4433,4453,4457,4461,4465-4466,4513,4533,4537,4541,4545-4546,4599,4619,4706,4710,4714-4715,4764,4784,5209,5213,5217-5218,5265,5285,5289,5293,5297-5298,5345,5365,5604,5608,5612-5613,5660,5680,5771,5775,5779-5780,5837,5857,5861,5865,5869-5870,5930,5950,6036,6040,6044-6045,6090,6110,6114,6118,6122-6123,6139,6177,6197,6484-6560,6810,6814,6818-6819,6830,6872,6956,6960,6964-6965,6980,6982-6987,7037,7041,7045,7049-7050,7058,7061-7063,7065,7067,7070,7107,7111,7115,7119-7120,7124,7132,7136-7137,7169,8926,8930,8934-8935,8978,8998
+extension/content_script.js
+  s_310d002e980561::t_8b5d504a5057e5 6-20,24-44,46-48,56,61-116,119-129,137-139,150,152-154,158-165,167-172,178-187
+  s_d3c0534880e8ec::t_8def070dc143d9 202-203,205-206
+  s_d3c0534880e8ec::t_8977e534d1c7ad 1-5,21-23,45,49-55,57-60,117-118,130-136,140-149,151,155-157,166,173-177,188-201,204,207-258
+app/Mcp/Tools/Runs/TriggerRunTool.php
+  s_c15aa60aa3249a::t_a55ab3953534f2 5
+  s_c15aa60aa3249a::t_46a821ac1ed066 45-49
+extension/popup.html
+  s_1a3a2638dab7b5::t_958d364cde90f1 155-156
+  s_1a3a2638dab7b5::t_4afc4b0c059fa1 37-38,41-42,44-49
+  s_d3c0534880e8ec::t_32fd5f3f8989bf 1-6,20,27,58,60-64,66-69,71,74,76,79,81-82,84-85,137-138,140,142,145-148,150-153,157-158,164,166-167,170,172-180
+  s_1a3a2638dab7b5::t_12f482383823f2 7-19,21-26,28-36,39-40,43,50-57,59,65,70,72-73,75,77-78,80,83,86-136,139,141,143-144,149,154,159-163,165,168-169,171
+app/Exceptions/RunRateLimitExceededException.php
+  s_c15aa60aa3249a::t_56459e893ff754 1-11
+resources/js/Pages/TestSuites/Index.vue
+  s_2830298c1c7590::t_f13c6e09338489 219
+  s_2830298c1c7590::t_dd12359388e67a 20
+  s_2830298c1c7590::t_c143fd84c8b22b 29
+app/Http/Controllers/DashboardController.php
+  s_36b97fe40c077d::t_47770ddad91778 21
+.goreleaser.yml
+  s_22441cbf02dde4::t_57379398867428 7
+  s_6717e7fb952559::t_beec6f363beec9 1-6,8-11,13-44
+  s_22441cbf02dde4::t_57933f04037939 12
+tests/Unit/TeamsNotificationScreenshotsTest.php
+  s_c15aa60aa3249a::t_3dcf9db044403b 19,21,27,31,47-81
+  s_c15aa60aa3249a::t_5b9126cd05421e 1-6,8-18,20,22-26,28-30,32-46,82-88,90-99
+  s_c15aa60aa3249a::t_245284b502d5c9 7
+  s_c15aa60aa3249a::t_70449a242ac9e1 89
+plugins/sorify/.mcp.json
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 8
+  s_d3c0534880e8ec::t_abd02d212a9489 6-7
+app/Services/TeamsNotificationService.php
+  s_c15aa60aa3249a::t_be91dc0ce7cd3f 187-195,200,205-207,211,218-232
+  s_c15aa60aa3249a::t_d449f158baa866 196-199,201-204,208-210,212-217
+  s_c15aa60aa3249a::t_f279931ce3ea49 5,11
+  s_c15aa60aa3249a::t_1d41b4b6b8e8f1 107
+routes/web.php
+  s_1ee5044d65ced7::t_dfe3506c637fc7 86
+app/Http/Controllers/TestSuiteController.php
+  s_36b97fe40c077d::t_197dfdba3637c3 153
+  s_2830298c1c7590::t_c2e9199f19c403 122-147,151-152
+  s_2830298c1c7590::t_ae99759360250c 23-24
+  s_36b97fe40c077d::t_1b7f10e18b86a0 90
+  s_2830298c1c7590::t_803b35576967b6 95,98
+  s_2830298c1c7590::t_c9ccb5556c6761 96-97
+.gitignore
+  s_e0a124fe1083ab::t_6bd3e90ecbdf56 40
+  s_22441cbf02dde4::t_a0a87b36fe3dfa 41-42
+extension/LICENSE
+  s_818cc94d148de5::t_6dda61d5c90835 1-32
+mcp/install-mcp.sh
+  s_e0a124fe1083ab::t_1e0e100873212e 8
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 2,7
+  s_e0a124fe1083ab::t_4f0c7738952f1d 1,3-6,9-51
+config/sorify.php
+  s_c15aa60aa3249a::t_1f9a0f9b42d557 9-15
+app/Http/Controllers/WebhookController.php
+  s_c15aa60aa3249a::t_980f256e58f01d 5,20-25
+tests/Feature/RunTriggerRateLimitTest.php
+  s_c15aa60aa3249a::t_c25d4a78c227f0 1-30,33-83
+  s_c15aa60aa3249a::t_5336da07fef596 31-32
+mcp/build.sh
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 2,8
+  s_22441cbf02dde4::t_2467c691298d71 3
+  s_e0a124fe1083ab::t_341fb783da7952 1,4-5,7,9-38
+  s_22441cbf02dde4::t_f6779f8675db0e 6
+README.md
+  s_d3c0534880e8ec::t_a729dd51460063 111,134-135
+  h_f44dfe84a46cdf 4,8-9,16,18,20,22,24,26,28,30,34-49,58,61,66,68-70,76,78,96,98-108,110,112,114-133,136-137,150-151,157,159,191-200,270
+  s_e0a124fe1083ab::t_8ee4be8b1e4271 109,113
+  s_818cc94d148de5::t_9f10ea3e0ea97e 261-265
+  s_818cc94d148de5::t_45768a735b1bee 12-14
+plugins/sorify/commands/recording.md
+  s_d3c0534880e8ec::t_dae239358c224c 1-5,23-64,66-67,76-142,150-174,176,192-194,200-256
+  s_310d002e980561::t_34f56b6b813a1c 175,177-191,195-199
+  s_d3c0534880e8ec::t_b6e0c7a2e645f1 20-22,143-145
+  s_d3c0534880e8ec::t_be1d793016c406 9-19
+  s_310d002e980561::t_eeb55ca35b41d2 65,68-74
+  s_d3c0534880e8ec::t_671ab9166148de 6-8
+  s_310d002e980561::t_f4ecad844fd465 75
+  s_d3c0534880e8ec::t_88cbd0f94ac513 147-149
+  s_d3c0534880e8ec::t_383901f64238f3 146
+resources/js/Components/CopyButton.vue
+  s_1ee5044d65ced7::t_25cfe73c23d679 1-33
+extension/icons/logo.svg
+  s_1a3a2638dab7b5::t_50e9a87812d1bb 1-45
+resources/js/Pages/TestSuites/Show.vue
+  s_2830298c1c7590::t_4e7085f2448c16 520-535,540
+  s_1ee5044d65ced7::t_367930975da286 749
+  s_1ee5044d65ced7::t_0c560ff0628f7a 6
+  s_1ee5044d65ced7::t_31498680adacaa 731-745,752-766
+  s_36b97fe40c077d::t_adc2f93c8ee2d5 7
+  s_2830298c1c7590::t_4cc8fcc67ad2cc 315
+  s_2830298c1c7590::t_089534a0bcdf3c 484
+  s_2830298c1c7590::t_53c27d7e39f42b 43
+  s_2830298c1c7590::t_c85ab3aff1d31b 29
+  s_1ee5044d65ced7::t_2935374c81a675 338-369
+  s_1ee5044d65ced7::t_98d49db1135453 52-59
+  s_36b97fe40c077d::t_75e1cfbef80798 565-566,568
+  s_1ee5044d65ced7::t_280fd3e0e5dde3 47-51,60-68
+  s_2830298c1c7590::t_3a2771e72a5112 231
+  s_36b97fe40c077d::t_990fc088bb3f3c 411-416
+  s_36b97fe40c077d::t_75aade39054681 370-374
+  s_2830298c1c7590::t_48bcfe54f89880 625-658,660-664
+  s_1ee5044d65ced7::t_4013e3dcff9132 492-504
+  s_2830298c1c7590::t_161df8f4f6c4d4 659
+  s_1ee5044d65ced7::t_cd717f7f1e8e92 750
+  s_1ee5044d65ced7::t_41fdb1da53620c 702
+  s_1ee5044d65ced7::t_45472101adb670 706,708-730,746-748
+  s_2830298c1c7590::t_c1e68b4ce9d613 14
+  s_1ee5044d65ced7::t_34ee792acb7f4f 546
+  s_2830298c1c7590::t_84a6d24826e412 327
+  s_2830298c1c7590::t_1c72e2298f50ea 13,23-28,30-42
+  s_2830298c1c7590::t_04a3e00ab60e0f 455
+.github/workflows/release.yml
+  h_f44dfe84a46cdf 1-18,20-28
+  s_6717e7fb952559::t_3e8ce42e94c076 19
+mcp/sorify-recorder-mcp/go.mod
+  s_22441cbf02dde4::t_aac17679bfeb3e 1
+  s_22441cbf02dde4::t_ca39c38df2a285 2-4
+  s_22441cbf02dde4::t_42c071e41260bd 5-19
+extension/popup.js
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 11
+  s_d3c0534880e8ec::t_cc5be544796463 8-9,12-14,40-41,47
+  h_f44dfe84a46cdf 1-7,10,15-39,42-46,48-68
+app/Http/Controllers/TestController.php
+  s_36b97fe40c077d::t_c3947511238f49 53
+  s_1ee5044d65ced7::t_658a7031ab5b00 121-133
+app/Http/Controllers/TestRunController.php
+  s_36b97fe40c077d::t_59dade20ebaae2 35
+  s_c15aa60aa3249a::t_f4e4fe39a05e22 5,22-26
+mcp/sorify-recorder-mcp/go.sum
+  s_e0a124fe1083ab::t_423cd46b84fa3e 1-26
+mcp/sorify-recorder-mcp/main.go
+  s_e0a124fe1083ab::t_11008aa869b6d5 1-52
+mcp/sorify-recorder-mcp/mcpserver.go
+  s_e0a124fe1083ab::t_0eab95d59c9681 1-108
+mcp/sorify-recorder-mcp/wsserver.go
+  s_e0a124fe1083ab::t_d49bcb26dd9f7e 1-168
+mcp/sorify-recorder-mcp/store.go
+  s_e0a124fe1083ab::t_322d702927e13c 1-255
+mcp/sorify-recorder-mcp/store_test.go
+  s_e0a124fe1083ab::t_f1d5923415694f 1-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "b162a191f247b039408b26055a2f81da8d3a43e6",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_1a3a2638dab7b5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "139a9c30-0ffd-406d-b130-daeb0ca3e1f1",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_1ee5044d65ced7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17318d9a-d9d1-4cc6-9a83-f094eefc0bac",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_22441cbf02dde4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7e251567-75b4-4d4e-8b45-33753950151d",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_2830298c1c7590": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "067ce929-5b63-4cdd-b9a6-7b5e4654b2d0",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_310d002e980561": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1a0c5b65-d15b-4abb-a9dd-324866304cc0",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_36b97fe40c077d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fa70f3cc-f15f-4204-8582-7138c57e4e2b",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_5bbc9841a5f2de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1be3a07d-7d4a-479f-bb9d-eeed32b96128",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_6717e7fb952559": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "725e5082-8b50-4886-9a70-7c4177ca8c0c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_818cc94d148de5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "14fd07cc-0919-4a64-94c0-e6cb79a83d54",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_c15aa60aa3249a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a74f1a05-cd45-4a0e-94ba-7ee82ec10f45",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_d3c0534880e8ec": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "39966d6d-52f7-4194-8909-7ffa01f1f1bd",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_e0a124fe1083ab": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "673c07c8-de95-4dd0-b514-a8d516fae720",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

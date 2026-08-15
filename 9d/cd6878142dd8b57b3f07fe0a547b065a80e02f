@@ -1,0 +1,85 @@
+plugins/sorify/.mcp.json
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 8
+extension/manifest.json
+  s_1a3a2638dab7b5::t_ae2fc93a783ad4 8-13,19-25
+mcp/recorder-bridge/go.mod
+  s_e0a124fe1083ab::t_8d3d15a704b749 6-10
+  s_e0a124fe1083ab::t_0cb5967da9c0ba 1
+  s_e0a124fe1083ab::t_c17a75d5db9066 2-5,11-19
+README.md
+  s_e0a124fe1083ab::t_290a741db5aada 120
+  s_e0a124fe1083ab::t_8ee4be8b1e4271 114-117,121-122
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 119
+  h_f44dfe84a46cdf 4,8-9,13,15,17,19,21,23,25,27,175,177-184,245-253,258
+  h_f44dfe84a46cdf 176
+extension/icons/logo.svg
+  s_1a3a2638dab7b5::t_50e9a87812d1bb 1-45
+mcp/recorder-bridge/main.go
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 41,43,47,49
+  s_e0a124fe1083ab::t_cea04a85be1ab6 1-40,42,44-46,48,50-52
+mcp/recorder-bridge/store.go
+  s_e0a124fe1083ab::t_dbf646ebc595fc 128-130
+  s_e0a124fe1083ab::t_d9c9a07822e6dd 7
+  s_e0a124fe1083ab::t_f3eec4b7b15fd4 199
+  s_e0a124fe1083ab::t_cc357b94a12224 101
+  s_e0a124fe1083ab::t_84c3ff5ba28f68 1-6,8-100,102-127,131-198,200-255
+mcp/recorder-bridge/wsserver.go
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 40,42,52,55,104,109,116
+  s_e0a124fe1083ab::t_0a6b24886d6dd4 9
+  s_e0a124fe1083ab::t_ad9901d97dd16d 62
+  s_e0a124fe1083ab::t_c0bcac8951fdcf 1-8,10-39,41,43-51,53-54,56-61,63-103,105-108,110-115,117-168
+.gitignore
+  s_e0a124fe1083ab::t_aa80d4c705aedc 41
+  s_e0a124fe1083ab::t_6bd3e90ecbdf56 40
+  s_e0a124fe1083ab::t_b131871b74942a 42
+  s_e0a124fe1083ab::t_8a96333e2a1ef0 43
+extension/popup.js
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 11
+mcp/build.sh
+  s_e0a124fe1083ab::t_341fb783da7952 1,3-7,9-38
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 2,8
+mcp/recorder-bridge/mcpserver.go
+  s_e0a124fe1083ab::t_dbf646ebc595fc 80
+  s_e0a124fe1083ab::t_4c6031f2fe5262 1-79,81-108
+mcp/recorder-bridge/store_test.go
+  s_e0a124fe1083ab::t_957bb116f47491 1-112
+mcp/install-mcp.sh
+  s_e0a124fe1083ab::t_4f0c7738952f1d 1,3-6,9-51
+  s_e0a124fe1083ab::t_c08a63ed7c58b3 2,7
+  s_e0a124fe1083ab::t_1e0e100873212e 8
+extension/popup.html
+  s_1a3a2638dab7b5::t_4afc4b0c059fa1 37-38,41-42,44-49
+  s_1a3a2638dab7b5::t_958d364cde90f1 155-156
+  s_1a3a2638dab7b5::t_12f482383823f2 7-19,21-26,28-36,39-40,43,50-57,59,65,70,72-73,75,77-78,80,83,86-136,139,141,143-144,149,154,159-163,165,168-169,171
+mcp/recorder-bridge/go.sum
+  s_e0a124fe1083ab::t_a73137a4bd7b30 1-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "9dcd6878142dd8b57b3f07fe0a547b065a80e02f",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_1a3a2638dab7b5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "139a9c30-0ffd-406d-b130-daeb0ca3e1f1",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_e0a124fe1083ab": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "673c07c8-de95-4dd0-b514-a8d516fae720",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

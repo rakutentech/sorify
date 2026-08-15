@@ -1,0 +1,32 @@
+mcp/sorify-recorder-mcp/go.mod
+  s_22441cbf02dde4::t_aac17679bfeb3e 1
+.goreleaser.yml
+  s_22441cbf02dde4::t_57379398867428 7
+  s_22441cbf02dde4::t_57933f04037939 12
+.gitignore
+  s_22441cbf02dde4::t_a0a87b36fe3dfa 41-42
+mcp/build.sh
+  s_22441cbf02dde4::t_2467c691298d71 3
+  s_22441cbf02dde4::t_f6779f8675db0e 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2ddb256f148bc883f4ae1845f1d35728acec4aa9",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_22441cbf02dde4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7e251567-75b4-4d4e-8b45-33753950151d",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
