@@ -1,0 +1,69 @@
+app/Models/DashboardNote.php
+  s_72c804b9f6db57::t_481d72b6bddede 1-21
+routes/web.php
+  s_72c804b9f6db57::t_4fd70b513dcb5f 110
+  s_72c804b9f6db57::t_da5d71873993c3 6
+  s_72c804b9f6db57::t_cac29276c42a5a 76
+package.json
+  s_72c804b9f6db57::t_3d0f17bd83bad4 20-21
+tests/Feature/RunsIndexTest.php
+  s_72c804b9f6db57::t_c808af6348ed87 1-23,25-38,40-46
+  s_72c804b9f6db57::t_8716e0fac6f255 24,39
+app/Http/Controllers/TestRunController.php
+  s_72c804b9f6db57::t_f6e17c06d96d41 9,17-59
+  s_72c804b9f6db57::t_fbb0ca34f6804b 60
+app/Http/Controllers/DashboardNoteController.php
+  s_72c804b9f6db57::t_2f62c3dd480eb9 1-21
+resources/js/Pages/Dashboard/Index.vue
+  s_72c804b9f6db57::t_ee4951490bc34a 124,126-128
+  s_72c804b9f6db57::t_25fbef38cdb272 2,4-5
+  s_72c804b9f6db57::t_cfcb1bf5b1dbac 34-35
+  s_72c804b9f6db57::t_8814450d6f30a8 109,113
+  s_72c804b9f6db57::t_fd1d5cfce71171 3,7,19-25,33,36-54
+  s_72c804b9f6db57::t_cc035415edf80a 97,100-101,104-108,110-112,114-123,125,129-131,133-136
+README.md
+  h_f44dfe84a46cdf 275
+database/migrations/2026_08_16_000001_create_dashboard_notes_table.php
+  s_72c804b9f6db57::t_30a5616d8ff28e 1-23
+resources/js/Layouts/AppLayout.vue
+  s_72c804b9f6db57::t_7614f9e9b72438 15
+  s_4504294b595a73::t_34429353c3cd16 77
+  s_4504294b595a73::t_47fe9b1f5c0b93 177
+app/Http/Controllers/DashboardController.php
+  s_72c804b9f6db57::t_46e195d8f54b52 5,17,20-28
+resources/js/Pages/Runs/Index.vue
+  s_72c804b9f6db57::t_9ccff7ef006e0f 1-146
+tests/Feature/DashboardNoteTest.php
+  s_72c804b9f6db57::t_25bbb078014338 1-63
+package-lock.json
+  s_72c804b9f6db57::t_771ff3081d00c7 11-12,739-745,993-1001,1441-1452
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "ed177c774404d9e7dec588788bcdd78cb2e538e6",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_4504294b595a73": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cdd0f0b5-3e13-444e-8981-b1d134eae567",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_72c804b9f6db57": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "91a09552-3a64-465f-a94a-54ad36475970",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
