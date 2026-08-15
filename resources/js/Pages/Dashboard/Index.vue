@@ -1,6 +1,10 @@
 <script setup>
+import { computed, ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Chip, SuiteName, AvatarGroup, RanBy } from '@/Components/ui';
+import { Card, Button } from '@/Components/ui';
 
 const props = defineProps({
     stats: {
@@ -12,22 +16,41 @@ const props = defineProps({
             pass_rate_30d: null,
         }),
     },
-    recent_runs: {
-        type: Array,
-        default: () => [],
+    dashboard_note: {
+        type: Object,
+        default: () => ({ content: '', updated_by: null, updated_at: null }),
+    },
+    can: {
+        type: Object,
+        default: () => ({ edit_dashboard_note: false }),
     },
 });
-
-function formatDuration(ms) {
-    if (!ms && ms !== 0) return '—';
-    if (ms < 1000) return `${ms}ms`;
-    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-    return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
-}
 
 function formatPassRate(rate) {
     if (rate === null || rate === undefined) return '—';
     return `${Math.round(rate)}%`;
+}
+
+const renderedNote = computed(() => DOMPurify.sanitize(marked.parse(props.dashboard_note.content ?? '', { async: false })));
+
+const editing = ref(false);
+const form = useForm({ content: props.dashboard_note.content ?? '' });
+
+function startEditing() {
+    form.content = props.dashboard_note.content ?? '';
+    editing.value = true;
+}
+
+function cancelEditing() {
+    editing.value = false;
+    form.reset();
+    form.clearErrors();
+}
+
+function save() {
+    form.put('/sorify/dashboard-note', {
+        onSuccess: () => { editing.value = false; },
+    });
 }
 </script>
 
@@ -71,74 +94,46 @@ function formatPassRate(rate) {
             </Card>
         </div>
 
-        <!-- Recent runs -->
+        <!-- Dashboard note -->
         <Card padding="p-0">
             <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Recent Runs</h2>
-                <Link href="/sorify/suites" class="md-label-medium text-[var(--md-sys-color-primary)] hover:underline">All suites &rarr;</Link>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Notes</h2>
+                <Button v-if="can.edit_dashboard_note && !editing" variant="text" @click="startEditing">Edit</Button>
             </div>
 
-            <div v-if="!recent_runs.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                No runs yet. Create a test suite to get started.
-            </div>
+            <div class="px-5 py-4">
+                <template v-if="editing">
+                    <textarea
+                        v-model="form.content"
+                        rows="8"
+                        placeholder="Write something for the team to see on the dashboard... (Markdown supported)"
+                        class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] text-[var(--md-sys-color-on-surface)] md-body-medium !font-mono !text-sm placeholder:text-[var(--md-sys-color-on-surface-variant)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                    />
+                    <p v-if="form.errors.content" class="md-body-small text-[var(--md-sys-color-error)] mt-1.5">{{ form.errors.content }}</p>
+                    <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-1.5">Markdown supported.</p>
 
-            <div v-else class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Suite</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Users</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Status</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Passed</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Failed</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Duration</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Created by</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Ran by</th>
-                            <th class="px-5 py-3"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
-                        <tr
-                            v-for="run in recent_runs"
-                            :key="run.id"
-                            class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
-                        >
-                            <td class="px-5 py-3 md-body-medium">
-                                <Link
-                                    v-if="run.suite_id"
-                                    :href="`/sorify/suites/${run.suite_id}`"
-                                    class="text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] transition-colors"
-                                >
-                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" :bold="false" />
-                                    <span v-else>—</span>
-                                </Link>
-                                <span v-else class="text-[var(--md-sys-color-on-surface)]">
-                                    <SuiteName v-if="run.suite_name ?? run.suite?.name" :name="run.suite_name ?? run.suite?.name" :bold="false" />
-                                    <span v-else>—</span>
-                                </span>
-                            </td>
-                            <td class="px-5 py-3">
-                                <AvatarGroup :users="run.members ?? []" :suite-id="run.suite_id" />
-                            </td>
-                            <td class="px-5 py-3">
-                                <Chip :status="run.status" />
-                            </td>
-                            <td class="px-5 py-3 md-body-medium text-[var(--md-ext-color-success)]">{{ run.passed_count ?? '—' }}</td>
-                            <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-error)]">{{ run.failed_count ?? '—' }}</td>
-                            <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ formatDuration(run.duration_ms) }}</td>
-                            <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ run.created_by ?? '—' }}</td>
-                            <td class="px-5 py-3"><RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" /></td>
-                            <td class="px-5 py-3 text-right">
-                                <Link
-                                    :href="`/sorify/runs/${run.id}`"
-                                    class="md-label-small text-[var(--md-sys-color-primary)] hover:underline"
-                                >
-                                    View Run &rarr;
-                                </Link>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    <div class="flex justify-end gap-3 mt-3">
+                        <Button variant="text" @click="cancelEditing">Cancel</Button>
+                        <Button variant="filled" :disabled="form.processing" @click="save">
+                            {{ form.processing ? 'Saving...' : 'Save' }}
+                        </Button>
+                    </div>
+                </template>
+
+                <template v-else>
+                    <div
+                        v-if="dashboard_note.content"
+                        v-html="renderedNote"
+                        class="md-body-medium text-[var(--md-sys-color-on-surface)] [&_h1]:md-title-large [&_h2]:md-title-medium [&_h3]:md-title-small [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:mt-3 [&_h3]:mb-1.5 [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_li]:mb-1 [&_a]:text-[var(--md-sys-color-primary)] [&_a:hover]:underline [&_code]:font-mono [&_code]:text-sm [&_code]:bg-[var(--md-sys-color-surface-container-high)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_pre]:bg-[var(--md-sys-color-surface-container-high)] [&_pre]:p-3 [&_pre]:rounded-[var(--md-sys-shape-corner-small)] [&_pre]:overflow-x-auto [&_pre]:mb-3 [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--md-sys-color-outline)] [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-[var(--md-sys-color-on-surface-variant)] [&_strong]:font-semibold [&_hr]:border-[var(--md-sys-color-outline-variant)] [&_hr]:my-3"
+                    />
+                    <p v-else class="md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                        {{ can.edit_dashboard_note ? 'Nothing here yet. Click Edit to add a note.' : 'Nothing here yet.' }}
+                    </p>
+
+                    <p v-if="dashboard_note.updated_by" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-3">
+                        Last updated by {{ dashboard_note.updated_by }}
+                    </p>
+                </template>
             </div>
         </Card>
 

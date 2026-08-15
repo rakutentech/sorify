@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardNoteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScreenshotController;
 use App\Http\Controllers\TestController;
@@ -72,6 +73,7 @@ Route::prefix('sorify/webhooks/{token}')->middleware('sorify.webhook.auth')->nam
 Route::prefix('sorify')->middleware('auth')->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::put('/dashboard-note', [DashboardNoteController::class, 'update'])->middleware('admin')->name('dashboard.note.update');
 
     Route::prefix('suites')->name('suites.')->group(function () {
         Route::get('/', [TestSuiteController::class, 'index'])->name('index');
@@ -105,6 +107,7 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
     });
 
     Route::prefix('runs')->name('runs.')->group(function () {
+        Route::get('/', [TestRunController::class, 'index'])->name('index');
         Route::get('/{run}', [TestRunController::class, 'show'])->name('show');
         Route::get('/{run}/status', [TestRunController::class, 'status'])->name('status');
         Route::post('/{run}/cancel', [TestRunController::class, 'cancel'])->name('cancel');
