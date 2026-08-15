@@ -1,0 +1,19 @@
+config/log-viewer.php
+  s_c9919d82efe0f3::t_76522de373ff0e 177-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "1a12b186024c8883c6806a62ffe4630cc69f1f1e",
+  "prompts": {},
+  "sessions": {
+    "s_c9919d82efe0f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a3b2b741-d3f4-4a6e-aba5-508c970c5766",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
