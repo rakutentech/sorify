@@ -405,8 +405,6 @@ const RUN_DOT_CLASS = {
                 </div>
                 <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">Test Suite</span>
                 <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]"><SuiteName :name="suite.name" /></h1>
-                <p v-if="suite.proxy_rules?.length" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.proxy_rules.length }} domain rule(s)<span v-if="suite.playwright_proxy"> + default {{ suite.playwright_proxy }}</span></p>
-                <p v-else-if="suite.playwright_proxy" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.playwright_proxy }}</p>
                 <p v-if="suite.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1 whitespace-pre-line">{{ suite.description }}</p>
                 <div v-if="suite.created_by" class="flex items-center gap-2 mt-1.5">
                     <Avatar :name="suite.created_by.name" :email="suite.created_by.email" />

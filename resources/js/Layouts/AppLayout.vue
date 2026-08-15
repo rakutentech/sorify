@@ -13,8 +13,14 @@ const user = computed(() => page.props.auth?.user ?? null);
 const navLinks = computed(() => [
     { label: 'Dashboard', href: '/sorify/' },
     { label: 'Test Suites', href: '/sorify/suites' },
-    ...(user.value?.is_admin ? [{ label: 'Admin', href: '/sorify/admin/users' }] : []),
 ]);
+
+const docsLink = { label: 'Docs', href: 'https://github.com/rakutentech/sorify', external: true, newTab: true };
+
+const adminLinks = computed(() => user.value?.is_admin ? [
+    { label: 'Admin', href: '/sorify/admin/users' },
+    { label: 'Logs', href: '/sorify/log-viewer', external: true, newTab: true },
+] : []);
 
 function isActive(href) {
     const url = page.url;
@@ -54,6 +60,43 @@ function logout() {
                             >
                                 {{ link.label }}
                             </Link>
+
+                            <a
+                                :href="docsLink.href"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]"
+                            >
+                                {{ docsLink.label }}
+                            </a>
+
+                            <!-- Admin-only links, visually grouped -->
+                            <div
+                                v-if="adminLinks.length"
+                                class="flex items-center gap-1 ml-1 pl-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-tertiary-container)]"
+                            >
+                                <template v-for="link in adminLinks" :key="link.href">
+                                    <a
+                                        v-if="link.external"
+                                        :href="link.href"
+                                        :target="link.newTab ? '_blank' : undefined"
+                                        :rel="link.newTab ? 'noopener noreferrer' : undefined"
+                                        class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20"
+                                    >
+                                        {{ link.label }}
+                                    </a>
+                                    <Link
+                                        v-else
+                                        :href="link.href"
+                                        :class="[
+                                            'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20',
+                                            isActive(link.href) && 'bg-[var(--md-sys-color-tertiary)]/30'
+                                        ]"
+                                    >
+                                        {{ link.label }}
+                                    </Link>
+                                </template>
+                            </div>
                         </div>
                     </div>
 
@@ -118,6 +161,42 @@ function logout() {
                 >
                     {{ link.label }}
                 </Link>
+
+                <a
+                    :href="docsLink.href"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]"
+                >
+                    {{ docsLink.label }}
+                </a>
+
+                <div
+                    v-if="adminLinks.length"
+                    class="flex items-center gap-1 ml-1 pl-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-tertiary-container)]"
+                >
+                    <template v-for="link in adminLinks" :key="link.href">
+                        <a
+                            v-if="link.external"
+                            :href="link.href"
+                            :target="link.newTab ? '_blank' : undefined"
+                            :rel="link.newTab ? 'noopener noreferrer' : undefined"
+                            class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20"
+                        >
+                            {{ link.label }}
+                        </a>
+                        <Link
+                            v-else
+                            :href="link.href"
+                            :class="[
+                                'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20',
+                                isActive(link.href) && 'bg-[var(--md-sys-color-tertiary)]/30'
+                            ]"
+                        >
+                            {{ link.label }}
+                        </Link>
+                    </template>
+                </div>
             </div>
         </nav>
 
