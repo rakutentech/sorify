@@ -18,7 +18,7 @@ class DashboardController extends Controller
             'testSuite:id,name,created_by',
             'testSuite.createdBy:id,name',
             'testSuite.members:id,name,email',
-            'triggeredByUser:id,name',
+            'triggeredByUser:id,name,email',
         ])->latest();
 
         if (!$request->user()->is_admin) {

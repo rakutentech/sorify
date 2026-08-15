@@ -3,13 +3,15 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
-import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, AvatarGroup, RanBy, SettingBadge } from '@/Components/ui';
+import CopyButton from '@/Components/CopyButton.vue';
+import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, Avatar, AvatarGroup, RanBy, SettingBadge } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
     suite: { type: Object, required: true },
     stats: { type: Object, default: () => ({}) },
-    tests: { type: Array, default: () => [] },
+    tests: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
+    filters: { type: Object, default: () => ({ search: '', per_page: 30 }) },
     recentRuns: { type: Array, default: () => [] },
     webhookUrl: { type: String, default: null },
     members: { type: Array, default: () => [] },
@@ -18,8 +20,51 @@ const props = defineProps({
     can: { type: Object, default: () => ({ edit: false, delete: false, run: false, manageUsers: false, manageSchedule: false }) },
 });
 
+function debounce(fn, delay) {
+    let timer;
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+}
+
+const testSearch = ref(props.filters.search ?? '');
+const testPerPage = ref(props.filters.per_page ?? 30);
+
+function reloadTests(overrides = {}) {
+    router.get(
+        `/sorify/suites/${props.suite.id}`,
+        { search: testSearch.value, per_page: testPerPage.value, ...overrides },
+        { preserveState: true, preserveScroll: true, replace: true },
+    );
+}
+
+const debouncedTestSearch = debounce(() => reloadTests({ page: 1 }), 350);
+
+watch(testSearch, () => debouncedTestSearch());
+watch(testPerPage, () => reloadTests({ page: 1 }));
+
 // CI webhook
 const statusUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/trigger$/, '/runs/{run}/status') : null);
+
+const showCurlExample = ref(false);
+const curlCommand = computed(() => props.webhookUrl
+    ? `curl -X POST "${props.webhookUrl}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"test_ids": [1, 2, 3]}'`
+    : '');
+
+const showTriggerResponseSample = ref(false);
+const triggerResponseSample = computed(() => JSON.stringify({
+    run_id: 42,
+    status: 'running',
+    status_url: statusUrlTemplate.value?.replace('{run}', '42') ?? null,
+}, null, 2));
+
+const showStatusResponseSample = ref(false);
+const statusResponseSample = JSON.stringify({
+    status: 'completed',
+    passed_count: 8,
+    failed_count: 1,
+    error_count: 0,
+    total_tests: 9,
+    duration_ms: 4213,
+}, null, 2);
 
 function regenerateWebhook() {
     if (!confirm('This will invalidate the current webhook URL. Any CI configuration using the old URL will stop working. Continue?')) return;
@@ -183,7 +228,7 @@ function deleteSuite() {
 let refreshTimer = null;
 
 const hasActiveTest = computed(() =>
-    props.tests.some(t => t.current_status === 'running' || t.current_status === 'pending'),
+    props.tests.data.some(t => t.current_status === 'running' || t.current_status === 'pending'),
 );
 
 function stopRefresh() {
@@ -267,7 +312,7 @@ function toggleStatus(test) {
 // Bulk selection & delete
 const selectedIds = ref(new Set());
 const hasSelection = computed(() => selectedIds.value.size > 0);
-const allSelected = computed(() => props.tests.length > 0 && selectedIds.value.size === props.tests.length);
+const allSelected = computed(() => props.tests.data.length > 0 && selectedIds.value.size === props.tests.data.length);
 const someSelected = computed(() => hasSelection.value && !allSelected.value);
 
 function toggleSelect(id) {
@@ -279,7 +324,7 @@ function toggleSelect(id) {
 
 function toggleSelectAll() {
     if (allSelected.value) selectedIds.value = new Set();
-    else selectedIds.value = new Set(props.tests.map(t => t.id));
+    else selectedIds.value = new Set(props.tests.data.map(t => t.id));
 }
 
 function bulkDelete() {
@@ -288,6 +333,43 @@ function bulkDelete() {
         data: { test_ids: [...selectedIds.value] },
         onSuccess: () => { selectedIds.value = new Set(); },
     });
+}
+
+const bulkRunning = ref(false);
+
+function bulkRun() {
+    bulkRunning.value = true;
+    router.post(
+        `/sorify/suites/${props.suite.id}/runs`,
+        { test_ids: [...selectedIds.value] },
+        {
+            async: true,
+            onSuccess: () => { selectedIds.value = new Set(); },
+            onFinish: () => {
+                bulkRunning.value = false;
+                router.reload({ only: ['tests', 'stats', 'recentRuns'] });
+            },
+        },
+    );
+}
+
+const bulkStatusProcessing = ref(false);
+
+function bulkSetStatus(status) {
+    bulkStatusProcessing.value = true;
+    router.patch(
+        `/sorify/suites/${props.suite.id}/tests/bulk/status`,
+        { test_ids: [...selectedIds.value], status },
+        {
+            onSuccess: () => { selectedIds.value = new Set(); },
+            onFinish: () => { bulkStatusProcessing.value = false; },
+        },
+    );
+}
+
+function uploader(email) {
+    const user = props.users.find(u => u.email === email);
+    return { name: user?.name ?? email, email };
 }
 
 function formatDuration(ms) {
@@ -326,9 +408,12 @@ const RUN_DOT_CLASS = {
                 <p v-if="suite.proxy_rules?.length" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.proxy_rules.length }} domain rule(s)<span v-if="suite.playwright_proxy"> + default {{ suite.playwright_proxy }}</span></p>
                 <p v-else-if="suite.playwright_proxy" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Proxy: {{ suite.playwright_proxy }}</p>
                 <p v-if="suite.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1 whitespace-pre-line">{{ suite.description }}</p>
-                <p v-if="suite.created_by" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-1">
-                    Created by <span>{{ suite.created_by.name }}</span>
-                </p>
+                <div v-if="suite.created_by" class="flex items-center gap-2 mt-1.5">
+                    <Avatar :name="suite.created_by.name" :email="suite.created_by.email" />
+                    <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                        Created by <span>{{ suite.created_by.name }}</span>
+                    </p>
+                </div>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0 ml-4">
                 <Button v-if="can.delete" variant="text" @click="deleteSuite" class="!text-[var(--md-sys-color-error)]">
@@ -367,7 +452,7 @@ const RUN_DOT_CLASS = {
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             <Card padding="px-4 py-3">
                 <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">Tests</p>
-                <p class="md-title-large text-[var(--md-sys-color-on-surface)] mt-1">{{ stats.test_count ?? tests.length }}</p>
+                <p class="md-title-large text-[var(--md-sys-color-on-surface)] mt-1">{{ stats.test_count ?? tests.total ?? tests.data.length }}</p>
             </Card>
             <Card padding="px-4 py-3">
                 <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">Runs</p>
@@ -396,7 +481,7 @@ const RUN_DOT_CLASS = {
                     <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
                         <div class="flex items-center gap-3">
                             <input
-                                v-if="tests.length && can.delete"
+                                v-if="tests.data.length && (can.delete || can.edit || can.run)"
                                 type="checkbox"
                                 :checked="allSelected"
                                 :indeterminate="someSelected"
@@ -404,6 +489,19 @@ const RUN_DOT_CLASS = {
                                 class="w-4 h-4 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
                             />
                             <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Tests</h2>
+                            <Button v-if="hasSelection && can.run" variant="text" size="sm" @click="bulkRun" :disabled="bulkRunning">
+                                <svg v-if="bulkRunning" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                </svg>
+                                {{ bulkRunning ? 'Starting...' : `Run (${selectedIds.size})` }}
+                            </Button>
+                            <Button v-if="hasSelection && can.edit" variant="text" size="sm" @click="bulkSetStatus('active')" :disabled="bulkStatusProcessing">
+                                Activate ({{ selectedIds.size }})
+                            </Button>
+                            <Button v-if="hasSelection && can.edit" variant="text" size="sm" @click="bulkSetStatus('disabled')" :disabled="bulkStatusProcessing">
+                                Deactivate ({{ selectedIds.size }})
+                            </Button>
                             <Button v-if="hasSelection && can.delete" variant="text" size="sm" @click="bulkDelete" class="!text-[var(--md-sys-color-error)]">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -419,19 +517,33 @@ const RUN_DOT_CLASS = {
                         </Button>
                     </div>
 
-                    <div v-if="!tests.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                        No tests yet. Add your first test.
+                    <div class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)]">
+                        <div class="relative max-w-sm">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                            </svg>
+                            <input
+                                v-model="testSearch"
+                                type="text"
+                                placeholder="Search tests by name or description..."
+                                class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] pl-9 pr-4 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                            />
+                        </div>
+                    </div>
+
+                    <div v-if="!tests.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                        {{ testSearch ? 'No tests match your search.' : 'No tests yet. Add your first test.' }}
                     </div>
 
                     <div v-else>
                         <div
-                            v-for="test in tests"
+                            v-for="test in tests.data"
                             :key="test.id"
                             :class="['px-5 py-4 hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors flex items-start justify-between gap-3 border-b border-[var(--md-sys-color-outline-variant)] last:border-b-0', test.status === 'disabled' ? 'opacity-60' : '']"
                         >
                             <!-- Row checkbox -->
                             <input
-                                v-if="can.delete"
+                                v-if="can.delete || can.edit || can.run"
                                 type="checkbox"
                                 :checked="selectedIds.has(test.id)"
                                 @change="toggleSelect(test.id)"
@@ -450,9 +562,10 @@ const RUN_DOT_CLASS = {
                                     <Chip v-if="test.current_status" :status="test.current_status" />
                                 </div>
                                 <p v-if="test.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate">{{ test.description }}</p>
-                                <div v-if="test.uploaded_by" class="mt-1">
+                                <div v-if="test.uploaded_by" class="flex items-center gap-2 mt-1">
+                                    <Avatar :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" />
                                     <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                        By <span>{{ test.uploaded_by }}</span>
+                                        By <span>{{ uploader(test.uploaded_by).name }}</span>
                                     </p>
                                 </div>
                                 <div v-if="test.recent_runs?.length" class="flex items-center gap-2.5 mt-1.5 flex-wrap">
@@ -509,6 +622,46 @@ const RUN_DOT_CLASS = {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Pagination footer -->
+                    <div
+                        v-if="tests.data.length"
+                        class="flex items-center justify-between px-5 py-3 border-t border-[var(--md-sys-color-outline-variant)]"
+                    >
+                        <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                            Showing {{ tests.from ?? 0 }}–{{ tests.to ?? 0 }} of {{ tests.total }} tests
+                        </p>
+
+                        <div class="flex items-center gap-3">
+                            <div v-if="tests.last_page > 1" class="flex items-center gap-1">
+                                <button
+                                    v-for="link in tests.links"
+                                    :key="link.label"
+                                    :disabled="!link.url || link.active"
+                                    @click="link.url && router.get(link.url, { search: testSearch, per_page: testPerPage }, { preserveState: true, preserveScroll: true, replace: true })"
+                                    class="px-2.5 py-1 rounded-[var(--md-sys-shape-corner-small)] md-label-small transition-colors"
+                                    :class="[
+                                        link.active
+                                            ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)] font-medium'
+                                            : link.url
+                                                ? 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]'
+                                                : 'text-[var(--md-sys-color-on-surface-variant)] opacity-50 cursor-not-allowed',
+                                    ]"
+                                    v-html="link.label"
+                                />
+                            </div>
+
+                            <select
+                                v-model="testPerPage"
+                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                            >
+                                <option :value="10">10 / page</option>
+                                <option :value="30">30 / page</option>
+                                <option :value="50">50 / page</option>
+                                <option :value="100">100 / page</option>
+                            </select>
+                        </div>
+                    </div>
                 </Card>
             </div>
 
@@ -546,14 +699,71 @@ const RUN_DOT_CLASS = {
                         </Button>
                     </div>
                     <div class="px-5 py-4">
+                        <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">Trigger a run</p>
                         <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-3">POST to this URL from CI (e.g. GitHub Actions) to trigger a run of this suite.</p>
                         <CopyableSecret v-if="webhookUrl" :value="webhookUrl" />
                         <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">No webhook configured.</p>
+
                         <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
-                                GET this URL (swap <code class="font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{run}</code> for the <code class="font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">run_id</code> returned by the trigger call, also available as <code class="font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">status_url</code> in that response) to poll for pass/fail so your CI job doesn't just stop at the initial 202 Accepted.
-                            </p>
+                            <button
+                                @click="showCurlExample = !showCurlExample"
+                                class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                            >
+                                <svg
+                                    class="w-3.5 h-3.5 transition-transform"
+                                    :class="{ 'rotate-90': showCurlExample }"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                                {{ showCurlExample ? 'Hide' : 'Show' }} curl example
+                            </button>
+                            <div v-if="showCurlExample" class="mt-2">
+                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
+                                    Pass <code class="font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">test_ids</code> in the JSON body to run only specific tests; omit it to run every active test in the suite.
+                                </p>
+                                <div class="relative">
+                                    <pre class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 pr-4 overflow-x-auto whitespace-pre">{{ curlCommand }}</pre>
+                                    <div class="absolute top-2 right-2">
+                                        <CopyButton :value="curlCommand" />
+                                    </div>
+                                </div>
+
+                                <button
+                                    @click="showTriggerResponseSample = !showTriggerResponseSample"
+                                    class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
+                                >
+                                    <svg
+                                        class="w-3.5 h-3.5 transition-transform"
+                                        :class="{ 'rotate-90': showTriggerResponseSample }"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                    {{ showTriggerResponseSample ? 'Hide' : 'Show' }} sample response
+                                </button>
+                                <pre v-if="showTriggerResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ triggerResponseSample }}</pre>
+                            </div>
+                        </div>
+
+                        <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">Poll run status</p>
                             <CopyableSecret :value="statusUrlTemplate" />
+
+                            <button
+                                @click="showStatusResponseSample = !showStatusResponseSample"
+                                class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
+                            >
+                                <svg
+                                    class="w-3.5 h-3.5 transition-transform"
+                                    :class="{ 'rotate-90': showStatusResponseSample }"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                                {{ showStatusResponseSample ? 'Hide' : 'Show' }} sample response
+                            </button>
+                            <pre v-if="showStatusResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ statusResponseSample }}</pre>
                         </div>
                     </div>
                 </Card>

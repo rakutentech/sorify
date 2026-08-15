@@ -83,6 +83,7 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
         Route::scopeBindings()->prefix('/{suite}/tests')->name('tests.')->group(function () {
             Route::post('/', [TestController::class, 'store'])->name('store');
             Route::delete('/bulk', [TestController::class, 'bulkDestroy'])->name('bulk-destroy');
+            Route::patch('/bulk/status', [TestController::class, 'bulkUpdateStatus'])->name('bulk-status');
             Route::get('/{test}', [TestController::class, 'show'])->name('show');
             Route::put('/{test}', [TestController::class, 'update'])->name('update');
             Route::delete('/{test}', [TestController::class, 'destroy'])->name('destroy');
