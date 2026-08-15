@@ -1,0 +1,44 @@
+README.md
+  h_f44dfe84a46cdf 9,32-39,46,66-67,95,147-148,154,156
+  h_f44dfe84a46cdf 31,40-45
+extension/content_script.js
+  s_310d002e980561::t_8b5d504a5057e5 6-20,24-44,46-48,56,61-116,119-129,137-139,150,152-154,158-165,167-172,178-187
+.goreleaser.yml
+  s_6717e7fb952559::t_beec6f363beec9 1-44
+plugins/sorify/commands/recording.md
+  s_310d002e980561::t_eeb55ca35b41d2 65,68-74
+  s_310d002e980561::t_34f56b6b813a1c 175,177-191,195-199
+  s_310d002e980561::t_f4ecad844fd465 75
+.github/workflows/release.yml
+  h_f44dfe84a46cdf 1-18,20-28
+  s_6717e7fb952559::t_3e8ce42e94c076 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "70bddd2b1f9f556316c9cd36a48f4f2ac8db9b6f",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_310d002e980561": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1a0c5b65-d15b-4abb-a9dd-324866304cc0",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_6717e7fb952559": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "725e5082-8b50-4886-9a70-7c4177ca8c0c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
