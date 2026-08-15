@@ -17,6 +17,8 @@
     "dependencies": {
         "@inertiajs/vue3": "^3.1.1",
         "@vitejs/plugin-vue": "^6.0.7",
+        "dompurify": "^3.4.13",
+        "marked": "^18.0.9",
         "playwright": "^1.60.0",
         "prismjs": "^1.30.0",
         "vue": "^3.5.34"
