@@ -103,10 +103,10 @@ Generate tests from a real recorded session instead of DOM exploration — chrom
 
 `chrome://extensions/` → enable **"Developer mode"** → "Load unpacked" → select `extension/` folder
 
-No 2. Install the mcp
+**No 2.** Install the mcp
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/rakutentech/sorify/main/mcp/install-mcp.sh | sh
+curl -fsSL https://raw.githubusercontent.com/rakutentech/sorify/master/mcp/install-mcp.sh | sh
 ```
 
 *we don't have npx, sorry*
