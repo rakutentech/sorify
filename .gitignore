@@ -37,3 +37,6 @@ docs/build
 docs/node_modules
 .editorconfig
 .gitattributes
+
+mcp/sorify-recorder-mcp/sorify-recorder-mcp
+mcp/sorify-recorder-mcp/dist

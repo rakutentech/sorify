@@ -20,8 +20,8 @@ class TestSuiteController extends Controller
     public function index(Request $request): Response
     {
         $search   = request()->string('search')->toString();
-        $perPage  = (int) request()->input('per_page', 10);
-        $perPage  = in_array($perPage, [10, 50, 100]) ? $perPage : 10;
+        $perPage  = (int) request()->input('per_page', 30);
+        $perPage  = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 30;
 
         $query = TestSuite::withCount(['tests', 'testRuns', 'proxyRules'])->with(['schedule', 'members:id,name,email'])->latest();
 
@@ -87,10 +87,14 @@ class TestSuiteController extends Controller
     {
         $this->authorize('view', $suite);
 
-        $suite->load('createdBy:id,name', 'schedule', 'members:id,name,email', 'proxyRules');
+        $suite->load('createdBy:id,name,email', 'schedule', 'members:id,name,email', 'proxyRules');
 
         $privileges = $suite->privilegesFor($request->user());
         $canManageUsers = $privileges['edit'];
+
+        $search  = $request->string('search')->toString();
+        $perPage = (int) $request->input('per_page', 30);
+        $perPage = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 30;
 
         $members = [];
         $candidates = [];
@@ -115,26 +119,38 @@ class TestSuiteController extends Controller
                 ->get(['id', 'name', 'email', 'is_view_only']);
         }
 
+        $testsQuery = $suite->tests()
+            ->with(['testResults' => fn ($query) => $query->latest()->limit(3)])
+            ->latest();
+
+        if ($search !== '') {
+            $testsQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $tests = $testsQuery->paginate($perPage)->withQueryString();
+
+        $tests->through(function (Test $test) {
+            $data = $test->toArray();
+            $data['recent_runs'] = $test->testResults->map(fn (TestResult $result) => [
+                'run_id'     => $result->test_run_id,
+                'status'     => $result->status,
+                'created_at' => $result->created_at,
+            ]);
+            $data['current_status'] = $data['recent_runs'][0]['status'] ?? $test->last_run_status;
+            unset($data['test_results']);
+
+            return $data;
+        });
+
         return Inertia::render('TestSuites/Show', [
             'suite'      => $suite,
             'stats'      => $this->reporting->suiteStats($suite),
-            'tests'      => $suite->tests()
-                ->with(['testResults' => fn ($query) => $query->latest()->limit(3)])
-                ->latest()
-                ->get()
-                ->map(function (Test $test) {
-                    $data = $test->toArray();
-                    $data['recent_runs'] = $test->testResults->map(fn (TestResult $result) => [
-                        'run_id'     => $result->test_run_id,
-                        'status'     => $result->status,
-                        'created_at' => $result->created_at,
-                    ]);
-                    $data['current_status'] = $data['recent_runs'][0]['status'] ?? $test->last_run_status;
-                    unset($data['test_results']);
-
-                    return $data;
-                }),
-            'recentRuns' => $suite->testRuns()->with('triggeredByUser:id,name')->latest()->limit(10)->get(),
+            'tests'      => $tests,
+            'filters'    => ['search' => $search, 'per_page' => $perPage],
+            'recentRuns' => $suite->testRuns()->with('triggeredByUser:id,name,email')->latest()->limit(10)->get(),
             'webhookUrl' => $suite->webhookUrl(),
             'members'    => $members,
             'candidates' => $candidates,

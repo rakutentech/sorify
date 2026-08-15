@@ -1,56 +1,52 @@
 <h1 align="center"><img src="resources/images/sorify-icon.svg" width="192" align="center"/></h1>
 
 <p align="center">
-  Next generation AI First - QA platform <br><br>
-  QA Platform over MCP<br>
+  Next generation AI First - Browser Testing platform <br><br>
   Low Tokens consumption<br>
   Built for AI Agents - Claude/Codex<br><br>
-  Zero-code test management<br>
   Built for developers, QA or both<br>
+  Control entire QA via MCP<br><br>
+  <b>Bonus</b> Chrome Extension & MCP...<br> ...with Recorder, AI Test Writer
 </p>
 
-<h3 align="center">Control entire QA thru MCP</h3>
+<p align="center">
+  <img src="https://i.imgur.com/xxVw65d.png" alt="Sorify screenshot"/>
+</p>
 
-**Automate:** Automate browser testing, using claude, codex - with skills, mcp, test runners & dashboard.
+★ **Automate:** Automate browser testing, using claude, codex - with skills, mcp, test runners & dashboard.
 
-**Zero Code:** Zero code management, playwright browser automation tests using AI.
+★ **Chrome Extension:** Capture browser actions, send to AI to write tests, upload, self heal.
 
-**Test Management:** Organize test suites and test cases, run them on demand or on a schedule.
+✴︎ **Test Management:** Organize test suites and test cases, run them on demand or on a schedule.
 
-**Test Runners:** Playwright-powered execution with full run history.
+✴︎ **Test Runners:** Playwright-powered execution with full run history.
 
-**Notifications:** Get notified when suites finish or fail.
+✴︎ **Notifications:** Get notified when suites finish or fail.
 
-**User Management:** Roles, permissions, and per-user IAM.
+✴︎ **User Management:** Roles, permissions, and per-user IAM.
 
-**MCP Server:** Low token consumption over MCP layer, control all aspects of tests cases, code.
+✴︎ **MCP Server:** Low token consumption over MCP layer, control all aspects of tests cases, code.
 
-**Agent Plugins:** Claude/Codex plugins for zero-code test generation and management.
-
-**Versioning:** Every test edit is snapshotted, so you can review and roll back changes.
+✴︎ **Agent Plugins:** Claude/Codex plugins for zero-code test generation and management.
 
 ## Feature Matrix
 
-| Feature | MCP | Dashboard | CI Webhook |
-|---|---|---|---|
-| Suites: list / get / create / update / delete | ✅ | ✅ | - |
-| Suite Teams-notification settings | ✅ | ✅ | - |
-| Suite schedule (cron): create/update/delete | ✅ | ✅ | - |
-| Tests: list / get / create / update / update code / toggle status / delete / bulk-delete | ✅ | ✅ | - |
-| Tests: bulk-create (up to 100) | ✅ | - | - |
-| Runs: trigger | ✅ | ✅ | ✅ |
-| Runs: get | ✅ | ✅ | - |
-| Runs: get status | ✅ | ✅ | ✅ |
-| Runs: cancel | ✅ | ✅ | - |
-| Runs: delete | ✅ | ✅ | - |
-| Screenshots: list / get | ✅ | ✅ | - |
-| Login / Register / Logout / Password reset | - | ✅ | - |
-| Profile: update name / password | - | ✅ | - |
-| Dashboard analytics (stats, recent runs) | - | ✅ | - |
-| Suite webhook token: regenerate | - | ✅ | - |
-| Suite members: add/update/remove privileges | - | ✅ | - |
-| Test code-version: restore | - | ✅ | - |
-| Admin: manage users (create, list, role, delete, reset password) | - | ✅ | - |
+| Feature                                                                                  | MCP | Dashboard | CI Webhook |
+| :--------------------------------------------------------------------------------------- | :-- | :-------- | :--------- |
+| Suites: list / get / create / update / delete  / edit                                    | ✅  | ✅        | -          |
+| **Tests**: list / get / create / update / update code / delete / bulk-delete             | ✅  | ✅        | -          |
+| **Tests**: bulk-create                                                                   | ✅  | -         | -          |
+| **Runs**: get / trigger / cancel / delete / logs                                         | ✅  | ✅        | -          |
+| **Runs**: status                                                                         | ✅  | ✅        | ✅         |
+| **Screenshots**: list / get                                                              | ✅  | ✅        | -          |
+| **Recorder**: chrome://extension events                                                  | ✅  | -         | -          |
+| Login / Register / Logout / Password reset                                               | -   | ✅        | -          |
+| Profile: update name / password                                                          | -   | ✅        | -          |
+| Dashboard analytics (stats, recent runs)                                                 | -   | ✅        | -          |
+| Suite webhook token: regenerate                                                          | -   | ✅        | -          |
+| Suite members: add/update/remove privileges                                              | -   | ✅        | -          |
+| Test code-version: restore                                                               | -   | ✅        | -          |
+| **Admin**: manage users (create, list, role, delete, reset password)                     | -   | ✅        | -          |
 
 ## AI Usage
 
@@ -59,26 +55,27 @@ claude /plugin marketplace add https://github.com/rakutentech/sorify.git
 codex plugin marketplace add https://github.com/rakutentech/sorify.git
 ```
 
-### STEP 1 - Setup Sorify MCP
+### SKILL 1 - Sorify MCP
 
 
-```
+```sh
 ╰─$ cat ~/.sorify
 SORIFY_URL=http://localhost:8000/sorify
 SORIFY_USERNAME=admin@sorify.local
 SORIFY_PASSWORD=changeme
+```
 
-
-/sorify:gateway create a test suite called "Awesome App"
-/sorify:gateway list latest failing tests
+```sh
+/sorify:gateway Create a test suite called "Awesome App"
+/sorify:gateway List latest failing tests
 
 /sorify:gateway Create new test suite. Get requirements from JIRA/GHE/Excel. Write using /sorify:generate
 /sorify:gateway Update the test suite http://localhost:8000/sorify/suites/{id} by adding retry twice
 ```
 
-### STEP 2 - QA Skills
+### SKILL 2 - QA Skills
 
-```
+```sh
 # Tests from source code (git)
 /sorify:generate Scan my code and generate tests for <github.com/your/repo> <further prompt..>
 
@@ -96,8 +93,48 @@ SORIFY_PASSWORD=changeme
 <you got the idea...>
 ```
 
-### BYO - Bring your own QA Skills
+### SKILL 3 - Record, Capture, Generate, upload (Chrome extension)
 
+Generate tests from a real recorded session instead of DOM exploration — chrome-mcp-playwright `sorify-recorder-mcp`
+
+
+(1) Load the extension
+
+
+`chrome://extensions/` → enable **"Developer mode"** → "Load unpacked" → select `extension/` folder
+
+(2) Install the mcp
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/rakutentech/sorify/main/mcp/install-mcp.sh | sh
+```
+
+*we don't have npx, sorry*
+
+(3) Recorder start
+
+Sorify recorder should start automatically, when you launch claude/codex
+
+You can check using `/mcp` → `plugin:sorify:sorify-recorder`
+
+If not, then you can using `~/.sorify-bin/sorify-recorder-mcp`.
+
+(4) Click the extension icon → Connect → Start recording
+
+![Chrome extension recorder](https://i.imgur.com/59imHA1.png)
+
+*Perform the clicks/inputs you want turned into a test, then Stop recording.*
+
+**Tip:** to check the port `lsof -nP -iTCP:7420 -sTCP:LISTEN`
+
+(5) Generate tests
+
+```sh
+/sorify:recording latest
+```
+
+
+### SKILL BYO - Bring your own QA Skills
 
 ```sh
 /my:qa:skill Create detailed tests <...> /sorify:gateway once done, upload, run and invetigate failed tests
@@ -110,12 +147,16 @@ SORIFY_PASSWORD=changeme
 /sorify:gateway why my test is failing <or-link-to-test>
 ```
 
+# Quick Start
+
 ## Development (local)
 
 **Option 1** - Simple
 
 ```sh
+# Update: APP_KEY, DB_PASSWORD, MYSQL_ROOT_PASSWORD
 cp .env.example .env
+
 composer setup
 php artisan dev
 ```
@@ -147,6 +188,16 @@ http://localhost:8000/sorify
 - **User:** admin@sorify.local
 - **Password:** changeme
 
+## Notes for users
+
+- Fully self hosted, no telemetry
+- What your AI does in yolo mode is your responsibility
+- Files and folders on your system, that this system creates/requires
+  - `~/.sorify`: your credentials
+  - `~/.sorify-bin/`: chrome extension mcp
+  - `~/.sorify-recordings/`: chrome extension mcp's events recordings
+
+---
 
 ## Owners
 
@@ -207,7 +258,13 @@ http://localhost:8000/sorify
 
 Licensed under the [Apache License, Version 2.0](LICENSE).
 
+The Chrome extension in [`extension/`](extension/) is licensed separately
+under the [BSD 3-Clause License](extension/LICENSE), which prohibits
+publishing it (or a derivative) under the "Sorify Recorder" name without
+permission. See [`extension/README.md`](extension/README.md) for details.
+
 # CHANGE LOG
 
 - v1 - Intial Release
 - v1.1 - Batteries added on user management, mcp enhancement
+- v1.2 - Chrome Extension to record and write playwright tests

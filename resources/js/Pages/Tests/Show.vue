@@ -3,8 +3,9 @@ import { ref, computed } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
+import CopyButton from '@/Components/CopyButton.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy, Avatar } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const props = defineProps({
@@ -23,6 +24,11 @@ const editForm = useForm({
 });
 
 const editMode = ref(false);
+
+function uploader(email) {
+    const user = props.users.find(u => u.email === email);
+    return { name: user?.name ?? email, email };
+}
 
 function saveEdit() {
     editForm.put(`/sorify/suites/${props.suite.id}/tests/${props.test.id}`, {
@@ -192,9 +198,12 @@ function onHistoryKeydown(e) {
                         <Chip v-if="test.status" :status="test.status" />
                     </div>
                     <p v-if="test.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1 whitespace-pre-line">{{ test.description }}</p>
-                    <p v-if="test.uploaded_by" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-1">
-                        Uploaded by <span class="font-medium">{{ test.uploaded_by }}</span>
-                    </p>
+                    <div v-if="test.uploaded_by" class="flex items-center gap-2 mt-1.5">
+                        <Avatar :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" />
+                        <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                            Uploaded by <span class="font-medium">{{ uploader(test.uploaded_by).name }}</span>
+                        </p>
+                    </div>
                 </template>
 
                 <template v-else>
@@ -261,6 +270,7 @@ function onHistoryKeydown(e) {
                 <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Playwright Code</h2>
                 <div class="flex items-center gap-2">
                     <span v-if="codeSaved" class="md-label-small text-[var(--md-ext-color-success)]">Saved!</span>
+                    <CopyButton v-if="codeForm.playwright_code" :value="codeForm.playwright_code" label="Copy code" />
                     <template v-if="!codeEditable">
                         <Button variant="tonal" size="sm" @click="codeEditable = true">Edit</Button>
                     </template>
