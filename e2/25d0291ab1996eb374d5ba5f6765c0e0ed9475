@@ -1,0 +1,19 @@
+plugins/sorify/commands/recording.md
+  s_7f61300f65be7b::t_6f6dc4767561fe 23-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "e225d0291ab1996eb374d5ba5f6765c0e0ed9475",
+  "prompts": {},
+  "sessions": {
+    "s_7f61300f65be7b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d1d6b699-61b0-4aea-b27b-b0c46a60b1ee",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
