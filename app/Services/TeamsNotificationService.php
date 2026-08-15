@@ -8,18 +8,17 @@ use App\Models\TestRun;
 use App\Models\TestSuite;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class TeamsNotificationService
 {
     private const TEST_LIST_LIMIT = 10;
 
     private const STATUS_ICONS = [
-        'passed'    => '✅',
-        'failed'    => '❌',
-        'error'     => '⚠️',
-        'timeout'   => '⏱️',
-        'skipped'   => '⏭️',
+        'passed' => '✅',
+        'failed' => '❌',
+        'error' => '⚠️',
+        'timeout' => '⏱️',
+        'skipped' => '⏭️',
         'cancelled' => '🚫',
     ];
 
@@ -27,17 +26,17 @@ class TeamsNotificationService
     {
         $suite = $run->testSuite;
 
-        if (!$suite || !$suite->teams_webhook_url || $run->status === 'cancelled') {
+        if (! $suite || ! $suite->teams_webhook_url || $run->status === 'cancelled') {
             return;
         }
 
         $isSuccess = (int) $run->failed_count === 0 && (int) $run->error_count === 0;
 
-        if ($isSuccess && !$suite->teams_notify_on_success) {
+        if ($isSuccess && ! $suite->teams_notify_on_success) {
             return;
         }
 
-        if (!$isSuccess && !$suite->teams_notify_on_failure) {
+        if (! $isSuccess && ! $suite->teams_notify_on_failure) {
             return;
         }
 
@@ -53,16 +52,16 @@ class TeamsNotificationService
             if ($response->failed()) {
                 Log::warning('Teams webhook rejected the notification for test run', [
                     'suite_id' => $suite->id,
-                    'run_id'   => $run->id,
-                    'status'   => $response->status(),
-                    'body'     => $response->body(),
+                    'run_id' => $run->id,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
                 ]);
             }
         } catch (\Throwable $e) {
             Log::warning('Failed to send Teams notification for test run', [
                 'suite_id' => $suite->id,
-                'run_id'   => $run->id,
-                'error'    => $e->getMessage(),
+                'run_id' => $run->id,
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -76,30 +75,30 @@ class TeamsNotificationService
 
         $body = [
             [
-                'type'   => 'TextBlock',
-                'id'     => 'title',
-                'text'   => "Sorify — Suite: {$suite->name} — {$status}",
-                'size'   => 'large',
+                'type' => 'TextBlock',
+                'id' => 'title',
+                'text' => "Sorify — Suite: {$suite->name} — {$status}",
+                'size' => 'large',
                 'weight' => 'bolder',
-                'wrap'   => true,
-                'color'  => $isSuccess ? 'good' : 'attention',
+                'wrap' => true,
+                'color' => $isSuccess ? 'good' : 'attention',
             ],
         ];
 
         if ($suite->description) {
             $body[] = [
-                'type'     => 'TextBlock',
-                'text'     => $suite->description,
+                'type' => 'TextBlock',
+                'text' => $suite->description,
                 'isSubtle' => true,
-                'wrap'     => true,
-                'spacing'  => 'none',
+                'wrap' => true,
+                'spacing' => 'none',
             ];
         }
 
         $body[] = [
-            'type'    => 'TextBlock',
-            'text'    => "Passed: {$run->passed_count}  •  Failed: {$run->failed_count}  •  Errors: {$run->error_count}  •  Duration: {$duration}",
-            'wrap'    => true,
+            'type' => 'TextBlock',
+            'text' => "Passed: {$run->passed_count}  •  Failed: {$run->failed_count}  •  Errors: {$run->error_count}  •  Duration: {$duration}",
+            'wrap' => true,
             'spacing' => 'small',
         ];
 
@@ -110,12 +109,12 @@ class TeamsNotificationService
             'type' => 'message',
             'attachments' => [[
                 'contentType' => 'application/vnd.microsoft.card.adaptive',
-                'contentUrl'  => null,
+                'contentUrl' => null,
                 'content' => [
                     '$schema' => 'http://adaptivecards.io/schemas/adaptive-card.json',
-                    'type'    => 'AdaptiveCard',
+                    'type' => 'AdaptiveCard',
                     'version' => '1.4',
-                    'body'    => $body,
+                    'body' => $body,
                     'actions' => [
                         ['type' => 'Action.OpenUrl', 'title' => 'View Test Suite', 'url' => $suiteUrl],
                         ['type' => 'Action.OpenUrl', 'title' => 'View Run', 'url' => $runUrl],
@@ -171,15 +170,15 @@ class TeamsNotificationService
 
         return [
             [
-                'type'    => 'TextBlock',
-                'text'    => 'Tests',
-                'weight'  => 'bolder',
+                'type' => 'TextBlock',
+                'text' => 'Tests',
+                'weight' => 'bolder',
                 'spacing' => 'medium',
             ],
             [
-                'type'     => 'TextBlock',
-                'text'     => $lines->implode("\n\n"),
-                'wrap'     => true,
+                'type' => 'TextBlock',
+                'text' => $lines->implode("\n\n"),
+                'wrap' => true,
                 'isSubtle' => true,
             ],
         ];
@@ -206,27 +205,31 @@ class TeamsNotificationService
             return [];
         }
 
-        $images = $screenshots->map(function (array $pair) {
+        // Screenshots can't be embedded inline: Sorify runs behind a VPN-only
+        // host, and Teams fetches card images server-side from Microsoft's
+        // own infrastructure, which can never reach it. Link out instead, the
+        // same way the "View Run"/"View Suite" actions already do — opened in
+        // the recipient's own browser, which is on the VPN.
+        $actions = $screenshots->map(function (array $pair) {
             [$screenshot, $result] = $pair;
 
             return [
-                'type'    => 'Image',
-                'url'     => Storage::disk('screenshots')->url($screenshot->path),
-                'altText' => $result->test->name ?? $screenshot->filename,
+                'type' => 'Action.OpenUrl',
+                'title' => $result->test->name ?? $screenshot->filename,
+                'url' => $this->absoluteUrl(route('screenshots.show', $screenshot, absolute: false)),
             ];
         })->values()->all();
 
         return [
             [
-                'type'    => 'TextBlock',
-                'text'    => 'Screenshots',
-                'weight'  => 'bolder',
+                'type' => 'TextBlock',
+                'text' => 'Screenshots',
+                'weight' => 'bolder',
                 'spacing' => 'medium',
             ],
             [
-                'type'      => 'ImageSet',
-                'imageSize' => 'medium',
-                'images'    => $images,
+                'type' => 'ActionSet',
+                'actions' => $actions,
             ],
         ];
     }

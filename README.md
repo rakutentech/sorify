@@ -272,3 +272,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - v1 - Intial Release
 - v1.1 - Batteries added on user management, mcp enhancement
 - v1.2 - Chrome Extension to record and write playwright tests
+- v1.3 - Skills updated, MS Teams notifications links to a screenshot, dashboard has admin editable msg
