@@ -53,14 +53,16 @@ function logout() {
                                 :key="link.href"
                                 :href="link.href"
                                 :class="[
-                                    'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors',
-                                    link.label === 'Test Suites'
-                                        ? 'bg-green-600 text-white hover:bg-green-700'
-                                        : isActive(link.href)
-                                            ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)]'
-                                            : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]'
+                                    'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors flex items-center gap-1.5',
+                                    isActive(link.href)
+                                        ? 'bg-green-600 text-white'
+                                        : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]',
+                                    link.label === 'Test Suites' ? 'font-bold' : ''
                                 ]"
                             >
+                                <svg v-if="link.label === 'Test Suites'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+                                </svg>
                                 {{ link.label }}
                             </Link>
 
@@ -68,9 +70,12 @@ function logout() {
                                 :href="docsLink.href"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]"
+                                class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] flex items-center gap-1.5"
                             >
                                 {{ docsLink.label }}
+                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6v6M20 4 10 14" />
+                                </svg>
                             </a>
 
                             <!-- Admin-only links, visually grouped -->
