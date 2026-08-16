@@ -9,11 +9,15 @@ use App\Mcp\Tools\Runs\GetRunTool;
 use App\Mcp\Tools\Runs\TriggerRunTool;
 use App\Mcp\Tools\Screenshots\GetScreenshotTool;
 use App\Mcp\Tools\Screenshots\ListScreenshotsTool;
+use App\Mcp\Tools\Suites\AddSuiteMemberTool;
 use App\Mcp\Tools\Suites\CreateSuiteTool;
 use App\Mcp\Tools\Suites\DeleteSuiteScheduleTool;
 use App\Mcp\Tools\Suites\DeleteSuiteTool;
 use App\Mcp\Tools\Suites\GetSuiteTool;
+use App\Mcp\Tools\Suites\ListSuiteMembersTool;
 use App\Mcp\Tools\Suites\ListSuitesTool;
+use App\Mcp\Tools\Suites\RemoveSuiteMemberTool;
+use App\Mcp\Tools\Suites\UpdateSuiteMemberTool;
 use App\Mcp\Tools\Suites\UpdateSuiteScheduleTool;
 use App\Mcp\Tools\Suites\UpdateSuiteTool;
 use App\Mcp\Tools\Tests\BulkCreateTestsTool;
@@ -43,6 +47,11 @@ class SorifyServer extends Server
         DeleteSuiteTool::class,
         UpdateSuiteScheduleTool::class,
         DeleteSuiteScheduleTool::class,
+
+        ListSuiteMembersTool::class,
+        AddSuiteMemberTool::class,
+        UpdateSuiteMemberTool::class,
+        RemoveSuiteMemberTool::class,
 
         ListTestsTool::class,
         GetTestTool::class,
