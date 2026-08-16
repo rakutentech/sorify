@@ -5,8 +5,9 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy, Avatar } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
+import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 
 const props = defineProps({
     suite: { type: Object, required: true },
@@ -135,6 +136,9 @@ function formatDuration(ms) {
     if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
     return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
 }
+
+// Screenshot lightbox
+const lightbox = useScreenshotLightbox();
 
 // History navigation — `history` is ordered newest-first (index 0 = most recent).
 const activeHistoryIndex = ref(null);
@@ -410,6 +414,7 @@ function onHistoryKeydown(e) {
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Date</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Status</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Duration</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Screenshots</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Ran by</th>
                             <th class="px-5 py-3"></th>
                         </tr>
@@ -428,6 +433,9 @@ function onHistoryKeydown(e) {
                             </td>
                             <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDuration(item.duration_ms) }}</td>
                             <td class="px-5 py-3" @click.stop>
+                                <ScreenshotThumbs :screenshots="item.screenshots ?? []" @open="lightbox.open" />
+                            </td>
+                            <td class="px-5 py-3" @click.stop>
                                 <RanBy :triggered-by="item.triggered_by" :triggered-by-user="item.triggered_by_user" />
                             </td>
                             <td class="px-5 py-3 text-right">
@@ -437,7 +445,7 @@ function onHistoryKeydown(e) {
                                     class="md-label-small text-[var(--md-sys-color-primary)] hover:underline"
                                     @click.stop
                                 >
-                                    View Run &rarr;
+                                    View Run<span v-if="item.run_total_tests != null"> ({{ item.run_total_tests }} {{ item.run_total_tests === 1 ? 'test' : 'tests' }})</span>
                                 </Link>
                             </td>
                         </tr>
@@ -544,5 +552,13 @@ function onHistoryKeydown(e) {
                 </div>
             </div>
         </Card>
+
+        <!-- Run history screenshot lightbox -->
+        <ScreenshotLightbox
+            :shots="lightbox.shots.value"
+            :index="lightbox.index.value"
+            @close="lightbox.close"
+            @update:index="lightbox.setIndex"
+        />
     </AppLayout>
 </template>

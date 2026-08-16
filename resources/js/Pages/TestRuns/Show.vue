@@ -3,8 +3,9 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, SuiteName, RanBy } from '@/Components/ui';
+import { Card, Chip, Button, SuiteName, RanBy, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
+import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 
 const props = defineProps({
     run: { type: Object, required: true },
@@ -46,6 +47,9 @@ watch(
     () => [props.run.id, props.run.status],
     () => startRefresh(),
 );
+
+// Screenshot lightbox
+const lightbox = useScreenshotLightbox();
 
 // Accordion state
 const expandedResults = ref(new Set());
@@ -293,9 +297,13 @@ const failedPct = computed(() => {
             <div v-else>
                 <div v-for="result in results" :key="result.id" class="border-b border-[var(--md-sys-color-outline-variant)] last:border-b-0">
                     <!-- Accordion header -->
-                    <button
-                        class="w-full flex items-center justify-between px-5 py-4 hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors text-left"
+                    <div
+                        class="w-full flex items-center justify-between px-5 py-4 hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors text-left cursor-pointer"
+                        role="button"
+                        tabindex="0"
                         @click="toggleResult(result.id)"
+                        @keydown.enter="toggleResult(result.id)"
+                        @keydown.space.prevent="toggleResult(result.id)"
                     >
                         <div class="flex items-center gap-3 flex-wrap min-w-0">
                             <svg
@@ -310,10 +318,13 @@ const failedPct = computed(() => {
                             </span>
                             <Chip :status="result.status" />
                         </div>
-                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] flex-shrink-0 ml-3">
-                            {{ formatDuration(result.duration_ms) }}
-                        </span>
-                    </button>
+                        <div class="flex items-center gap-3 flex-shrink-0 ml-3">
+                            <ScreenshotThumbs v-if="result.screenshots?.length" :screenshots="result.screenshots" @open="lightbox.open" @click.stop />
+                            <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                {{ formatDuration(result.duration_ms) }}
+                            </span>
+                        </div>
+                    </div>
 
                     <!-- Accordion body -->
                     <div v-if="isExpanded(result)" class="px-5 pb-5 bg-[var(--md-sys-color-surface-container-lowest)]">
@@ -369,5 +380,13 @@ const failedPct = computed(() => {
                 </div>
             </div>
         </Card>
+
+        <!-- Screenshot lightbox -->
+        <ScreenshotLightbox
+            :shots="lightbox.shots.value"
+            :index="lightbox.index.value"
+            @close="lightbox.close"
+            @update:index="lightbox.setIndex"
+        />
     </AppLayout>
 </template>

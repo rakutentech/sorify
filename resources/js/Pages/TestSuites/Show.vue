@@ -4,8 +4,9 @@ import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import CopyButton from '@/Components/CopyButton.vue';
-import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, Avatar, AvatarGroup, RanBy, SettingBadge } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, Avatar, AvatarGroup, RanBy, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
+import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 
 const props = defineProps({
     suite: { type: Object, required: true },
@@ -27,11 +28,12 @@ function debounce(fn, delay) {
 
 const testSearch = ref(props.filters.search ?? '');
 const testPerPage = ref(props.filters.per_page ?? 30);
+const testSort = ref(props.filters.sort ?? '');
 
 function reloadTests(overrides = {}) {
     router.get(
         `/sorify/suites/${props.suite.id}`,
-        { search: testSearch.value, per_page: testPerPage.value, ...overrides },
+        { search: testSearch.value, per_page: testPerPage.value, sort: testSort.value, ...overrides },
         { preserveState: true, preserveScroll: true, replace: true },
     );
 }
@@ -40,6 +42,7 @@ const debouncedTestSearch = debounce(() => reloadTests({ page: 1 }), 350);
 
 watch(testSearch, () => debouncedTestSearch());
 watch(testPerPage, () => reloadTests({ page: 1 }));
+watch(testSort, () => reloadTests({ page: 1 }));
 
 // CI webhook
 const statusUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/trigger$/, '/runs/{run}/status') : null);
@@ -379,16 +382,21 @@ function formatDuration(ms) {
     return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
 }
 
-const RUN_DOT_CLASS = {
-    passed: 'bg-[var(--md-ext-color-success)]',
-    failed: 'bg-[var(--md-sys-color-error)]',
-    error: 'bg-[var(--md-ext-color-warning)]',
-    timeout: 'bg-[var(--md-ext-color-warning)]',
-    running: 'bg-[var(--md-sys-color-primary)]',
-    pending: 'bg-[var(--md-sys-color-primary)]',
-    cancelled: 'bg-[var(--md-sys-color-on-surface-variant)]',
-    skipped: 'bg-[var(--md-sys-color-on-surface-variant)]',
-};
+// Recent-run screenshot lightbox
+const lightbox = useScreenshotLightbox();
+
+// Collapsed older runs per test
+const expandedRuns = ref(new Set());
+
+function toggleRunsExpanded(testId) {
+    const next = new Set(expandedRuns.value);
+    if (next.has(testId)) {
+        next.delete(testId);
+    } else {
+        next.add(testId);
+    }
+    expandedRuns.value = next;
+}
 </script>
 
 <template>
@@ -515,8 +523,8 @@ const RUN_DOT_CLASS = {
                         </Button>
                     </div>
 
-                    <div class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)]">
-                        <div class="relative max-w-sm">
+                    <div class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] flex items-center gap-3 flex-wrap">
+                        <div class="relative max-w-xs flex-1 min-w-[10rem]">
                             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                             </svg>
@@ -527,6 +535,29 @@ const RUN_DOT_CLASS = {
                                 class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] pl-9 pr-4 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                             />
                         </div>
+
+                        <select
+                            v-model="testSort"
+                            class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                        >
+                            <option value="">Sort: Newest run first</option>
+                            <optgroup label="Run Status">
+                                <option value="passed">Passed first</option>
+                                <option value="errors">Errors first</option>
+                                <option value="running">Running first</option>
+                            </optgroup>
+                            <optgroup label="Active / Disabled">
+                                <option value="status_active">Active first</option>
+                                <option value="status_disabled">Disabled first</option>
+                            </optgroup>
+                            <optgroup label="Run Duration">
+                                <option value="duration_long">Longest first</option>
+                                <option value="duration_short">Shortest first</option>
+                            </optgroup>
+                            <optgroup label="Run Date">
+                                <option value="oldest">Oldest run first</option>
+                            </optgroup>
+                        </select>
                     </div>
 
                     <div v-if="!tests.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
@@ -560,24 +591,34 @@ const RUN_DOT_CLASS = {
                                     <Chip v-if="test.current_status" :status="test.current_status" />
                                 </div>
                                 <p v-if="test.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate">{{ test.description }}</p>
-                                <div v-if="test.uploaded_by" class="flex items-center gap-2 mt-1">
-                                    <Avatar :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" />
-                                    <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                        By <span>{{ uploader(test.uploaded_by).name }}</span>
-                                    </p>
-                                </div>
-                                <div v-if="test.recent_runs?.length" class="flex items-center gap-2.5 mt-1.5 flex-wrap">
-                                    <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">Latest runs:</span>
-                                    <Link
-                                        v-for="run in test.recent_runs"
-                                        :key="run.run_id"
-                                        :href="`/sorify/runs/${run.run_id}`"
-                                        :title="run.status"
-                                        class="inline-flex items-center gap-1 md-label-small text-[var(--md-sys-color-primary)] hover:underline"
-                                    >
-                                        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="[RUN_DOT_CLASS[run.status] ?? 'bg-[var(--md-sys-color-on-surface-variant)]', run.status === 'running' ? 'animate-pulse' : '']" />
-                                        {{ run.status }} · {{ formatDate(run.created_at) }}
-                                    </Link>
+                                <div v-if="test.uploaded_by || test.recent_runs?.length" class="flex items-center gap-2.5 mt-1 flex-wrap">
+                                    <div v-if="test.uploaded_by" class="flex items-center gap-2">
+                                        <Avatar size="sm" :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" />
+                                        <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                            By <span>{{ uploader(test.uploaded_by).name }}</span>
+                                        </p>
+                                    </div>
+                                    <template v-if="test.recent_runs?.length">
+                                        <span v-if="test.uploaded_by" class="text-[var(--md-sys-color-outline-variant)]">·</span>
+                                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">Latest runs:</span>
+                                        <RunPill :run="test.recent_runs[0]" @open-lightbox="lightbox.open" />
+                                        <button
+                                            v-if="test.recent_runs.length > 1"
+                                            type="button"
+                                            class="md-label-small text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] hover:underline"
+                                            @click="toggleRunsExpanded(test.id)"
+                                        >
+                                            {{ expandedRuns.has(test.id) ? 'Hide' : `+${test.recent_runs.length - 1} more runs` }}
+                                        </button>
+                                        <div v-if="expandedRuns.has(test.id)" class="w-full flex items-center gap-2.5 flex-wrap">
+                                            <RunPill
+                                                v-for="run in test.recent_runs.slice(1)"
+                                                :key="run.run_id"
+                                                :run="run"
+                                                @open-lightbox="lightbox.open"
+                                            />
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
 
@@ -636,7 +677,7 @@ const RUN_DOT_CLASS = {
                                     v-for="link in tests.links"
                                     :key="link.label"
                                     :disabled="!link.url || link.active"
-                                    @click="link.url && router.get(link.url, { search: testSearch, per_page: testPerPage }, { preserveState: true, preserveScroll: true, replace: true })"
+                                    @click="link.url && router.get(link.url, { search: testSearch, per_page: testPerPage, sort: testSort }, { preserveState: true, preserveScroll: true, replace: true })"
                                     class="px-2.5 py-1 rounded-[var(--md-sys-shape-corner-small)] md-label-small transition-colors"
                                     :class="[
                                         link.active
@@ -821,7 +862,7 @@ const RUN_DOT_CLASS = {
                             <div class="flex items-center justify-between mb-1">
                                 <Chip :status="run.status" />
                                 <Link :href="`/sorify/runs/${run.id}`" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline">
-                                    View Run &rarr;
+                                    View Run<span v-if="run.total_tests != null"> ({{ run.total_tests }} {{ run.total_tests === 1 ? 'test' : 'tests' }})</span>
                                 </Link>
                             </div>
                             <div class="flex items-center gap-3 md-body-small text-[var(--md-sys-color-on-surface-variant)]">
@@ -833,6 +874,7 @@ const RUN_DOT_CLASS = {
                                 <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(run.created_at) }}</p>
                                 <RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" />
                             </div>
+                            <ScreenshotThumbs v-if="run.screenshots?.length" :screenshots="run.screenshots" class="mt-2" @open="lightbox.open" />
                         </div>
                     </div>
                 </Card>
@@ -1118,5 +1160,13 @@ const RUN_DOT_CLASS = {
                         </div>
                     </form>
         </Modal>
+
+        <!-- Recent-run screenshot lightbox -->
+        <ScreenshotLightbox
+            :shots="lightbox.shots.value"
+            :index="lightbox.index.value"
+            @close="lightbox.close"
+            @update:index="lightbox.setIndex"
+        />
     </AppLayout>
 </template>
