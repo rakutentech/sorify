@@ -2,7 +2,8 @@
 import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Chip, SuiteName, AvatarGroup, RanBy } from '@/Components/ui';
+import { Card, Chip, SuiteName, AvatarGroup, RanBy, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
+import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 
 const props = defineProps({
     runs: {
@@ -16,6 +17,7 @@ const props = defineProps({
 });
 
 const perPage = ref(props.filters.per_page ?? 30);
+const lightbox = useScreenshotLightbox();
 
 watch(perPage, () => {
     router.get('/sorify/runs', { per_page: perPage.value, page: 1 }, { preserveState: true, replace: true });
@@ -53,6 +55,7 @@ function formatDuration(ms) {
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Passed</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Failed</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Duration</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Screenshots</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Created by</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Ran by</th>
                             <th class="px-5 py-3"></th>
@@ -87,6 +90,9 @@ function formatDuration(ms) {
                             <td class="px-5 py-3 md-body-medium text-[var(--md-ext-color-success)]">{{ run.passed_count ?? '—' }}</td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-error)]">{{ run.failed_count ?? '—' }}</td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ formatDuration(run.duration_ms) }}</td>
+                            <td class="px-5 py-3">
+                                <ScreenshotThumbs :screenshots="run.screenshots ?? []" @open="lightbox.open" />
+                            </td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ run.created_by ?? '—' }}</td>
                             <td class="px-5 py-3"><RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" /></td>
                             <td class="px-5 py-3 text-right">
@@ -94,7 +100,7 @@ function formatDuration(ms) {
                                     :href="`/sorify/runs/${run.id}`"
                                     class="md-label-small text-[var(--md-sys-color-primary)] hover:underline"
                                 >
-                                    View Run &rarr;
+                                    View Run<span v-if="run.total_tests != null"> ({{ run.total_tests }} {{ run.total_tests === 1 ? 'test' : 'tests' }})</span>
                                 </Link>
                             </td>
                         </tr>
@@ -142,5 +148,13 @@ function formatDuration(ms) {
                 </div>
             </div>
         </Card>
+
+        <!-- Screenshot lightbox -->
+        <ScreenshotLightbox
+            :shots="lightbox.shots.value"
+            :index="lightbox.index.value"
+            @close="lightbox.close"
+            @update:index="lightbox.setIndex"
+        />
     </AppLayout>
 </template>

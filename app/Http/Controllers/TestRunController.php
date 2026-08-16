@@ -21,6 +21,7 @@ class TestRunController extends Controller
             'testSuite.createdBy:id,name',
             'testSuite.members:id,name,email',
             'triggeredByUser:id,name,email',
+            'testResults.screenshots',
         ])->latest();
 
         if (!$request->user()->is_admin) {
@@ -50,6 +51,13 @@ class TestRunController extends Controller
             'created_by'        => $run->testSuite->createdBy?->name,
             'triggered_by'      => $run->triggered_by,
             'triggered_by_user' => $run->triggeredByUser,
+            'screenshots'       => $run->testResults->flatMap(fn ($r) => $r->screenshots)->map(fn ($s) => [
+                'id'          => $s->id,
+                'filename'    => $s->filename,
+                'label'       => $s->label,
+                'taken_at_ms' => $s->taken_at_ms,
+                'url'         => $s->url,
+            ])->values(),
         ]);
 
         return Inertia::render('Runs/Index', [

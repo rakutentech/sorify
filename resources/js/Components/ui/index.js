@@ -10,4 +10,7 @@ export { default as SuiteName } from './SuiteName.vue';
 export { default as Avatar } from './Avatar.vue';
 export { default as AvatarGroup } from './AvatarGroup.vue';
 export { default as RanBy } from './RanBy.vue';
+export { default as RunPill } from './RunPill.vue';
 export { default as SettingBadge } from './SettingBadge.vue';
+export { default as ScreenshotThumbs } from './ScreenshotThumbs.vue';
+export { default as ScreenshotLightbox } from './ScreenshotLightbox.vue';
