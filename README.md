@@ -44,7 +44,7 @@
 | Profile: update name / password                                                          | -   | ✅        | -          |
 | Dashboard analytics (stats, recent runs)                                                 | -   | ✅        | -          |
 | Suite webhook token: regenerate                                                          | -   | ✅        | -          |
-| Suite members: add/update/remove privileges                                              | -   | ✅        | -          |
+| Suite members: list / add / update / remove privileges                                   | ✅  | ✅        | -          |
 | Test code-version: restore                                                               | -   | ✅        | -          |
 | **Admin**: manage users (create, list, role, delete, reset password)                     | -   | ✅        | -          |
 
@@ -273,3 +273,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - v1.1 - Batteries added on user management, mcp enhancement
 - v1.2 - Chrome Extension to record and write playwright tests
 - v1.3 - Skills updated, MS Teams notifications links to a screenshot, dashboard has admin editable msg
+- v1.4 - Manage users from MCP.
