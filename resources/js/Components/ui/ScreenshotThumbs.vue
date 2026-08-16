@@ -57,8 +57,8 @@ function hidePreview() {
             :style="{ top: `${hover.top}px`, left: `${hover.left}px` }"
         >
             <div class="p-1 rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-inverse-surface)] shadow-elevation-2">
-                <img :src="hover.shot.url" :alt="hover.shot.label || hover.shot.filename" class="w-[326px] h-[218px] object-contain rounded-[var(--md-sys-shape-corner-small)]" />
-                <p v-if="hover.shot.label || hover.shot.filename" class="mt-1 px-1 text-center text-[var(--md-sys-color-inverse-on-surface)] md-label-small truncate max-w-[326px]">{{ hover.shot.label || hover.shot.filename }}</p>
+                <img :src="hover.shot.url" :alt="hover.shot.label || hover.shot.filename" class="w-[261px] h-[174px] object-contain rounded-[var(--md-sys-shape-corner-small)]" />
+                <p v-if="hover.shot.label || hover.shot.filename" class="mt-1 px-1 text-center text-[var(--md-sys-color-inverse-on-surface)] md-label-small truncate max-w-[261px]">{{ hover.shot.label || hover.shot.filename }}</p>
             </div>
         </div>
     </Teleport>
