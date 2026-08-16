@@ -1,0 +1,39 @@
+app/Http/Controllers/TestSuiteController.php
+  s_dc6687f41bffce::t_0ff0a8703abd61 19-21
+  s_dc6687f41bffce::t_5ad4bc657632f2 158
+  s_dc6687f41bffce::t_a65120efd39640 12
+  s_dc6687f41bffce::t_07ab693dfe004c 174
+  s_dc6687f41bffce::t_a7bf632cf5bff8 128,137
+  s_dc6687f41bffce::t_3c8306f0ee9325 175-206
+  s_dc6687f41bffce::t_fa2836cede9c5b 100
+  s_dc6687f41bffce::t_b59a0447c40bee 138
+resources/js/Components/ui/Avatar.vue
+  s_dc6687f41bffce::t_51ab57ebf27208 7
+  s_dc6687f41bffce::t_b853526975cccd 12
+  s_dc6687f41bffce::t_d82323b17dff30 29
+  s_dc6687f41bffce::t_4a30bf293cc46c 13
+resources/js/Pages/TestSuites/Show.vue
+  s_dc6687f41bffce::t_ce6abd41429cc0 8
+  s_dc6687f41bffce::t_e52c80f2412ad8 30,35,44
+  s_dc6687f41bffce::t_d6476ecc6e6832 588-608
+  s_dc6687f41bffce::t_0f2467bd4e422b 520-521,532-554
+  s_dc6687f41bffce::t_f776f6e23e6f96 667
+resources/js/utils/date.js
+  s_dc6687f41bffce::t_cfa24c06178439 11-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2228e8bf577fce56f9b6b08b2b974c41ce8ce6b0",
+  "prompts": {},
+  "sessions": {
+    "s_dc6687f41bffce": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ede00618-9e6b-4935-8daf-64752575c1f0",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
