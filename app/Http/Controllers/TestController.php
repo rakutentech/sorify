@@ -49,7 +49,7 @@ class TestController extends Controller
                 ]),
             'history' => $test->testResults()
                 ->with([
-                    'testRun:id,status,created_at,triggered_by,triggered_by_user_id',
+                    'testRun:id,status,created_at,triggered_by,triggered_by_user_id,total_tests',
                     'testRun.triggeredByUser:id,name,email',
                     'screenshots',
                 ])
@@ -62,6 +62,7 @@ class TestController extends Controller
                     'duration_ms'       => $r->duration_ms,
                     'created_at'        => $r->created_at,
                     'run_id'            => $r->test_run_id,
+                    'run_total_tests'   => $r->testRun?->total_tests,
                     'triggered_by'      => $r->testRun?->triggered_by,
                     'triggered_by_user' => $r->testRun?->triggeredByUser,
                     'error_message' => $r->error_message,

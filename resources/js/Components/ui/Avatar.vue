@@ -4,9 +4,12 @@ import { computed } from 'vue';
 const props = defineProps({
     name: { type: String, required: true },
     email: { type: String, default: '' },
+    size: { type: String, default: 'md' },
 });
 
 const initial = computed(() => (props.name?.trim()?.[0] ?? '?').toUpperCase());
+
+const sizeClass = computed(() => (props.size === 'sm' ? 'w-5 h-5' : 'w-7 h-7'));
 
 const AVATAR_COLORS = [
     '#EF4444', '#F97316', '#F59E0B', '#EAB308', '#84CC16', '#22C55E',
@@ -23,7 +26,7 @@ const avatarColor = computed(() => {
 <template>
     <div class="group relative">
         <div
-            class="w-7 h-7 rounded-full ring-2 ring-[var(--md-sys-color-surface-container-low)] text-white flex items-center justify-center md-label-small font-medium select-none"
+            :class="[sizeClass, 'rounded-full ring-2 ring-[var(--md-sys-color-surface-container-low)] text-white flex items-center justify-center md-label-small font-medium select-none']"
             :style="{ backgroundColor: avatarColor }"
         >
             {{ initial }}
