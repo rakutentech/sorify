@@ -1,5 +1,5 @@
 <script setup>
-import { useId, ref, computed, watch } from 'vue';
+import { useId, ref, computed, watch, nextTick, onUnmounted } from 'vue';
 
 const props = defineProps({
     modelValue: { type: [String, Number], default: '' },
@@ -23,6 +23,41 @@ const id = useId();
 const query = ref(props.valueKey === 'email' ? props.modelValue : (props.options.find((o) => o[props.valueKey] === props.modelValue)?.email ?? ''));
 const open = ref(false);
 const activeIndex = ref(-1);
+const inputRef = ref(null);
+const menuStyle = ref({});
+
+function updateMenuPosition() {
+    if (!inputRef.value) return;
+    const rect = inputRef.value.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const openUpward = spaceBelow < 200 && spaceAbove > spaceBelow;
+
+    menuStyle.value = {
+        position: 'fixed',
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+        ...(openUpward
+            ? { bottom: `${window.innerHeight - rect.top + 4}px`, maxHeight: `${Math.min(384, spaceAbove - 8)}px` }
+            : { top: `${rect.bottom + 4}px`, maxHeight: `${Math.min(384, spaceBelow - 8)}px` }),
+    };
+}
+
+watch(open, (value) => {
+    if (value) {
+        nextTick(updateMenuPosition);
+        window.addEventListener('scroll', updateMenuPosition, true);
+        window.addEventListener('resize', updateMenuPosition);
+    } else {
+        window.removeEventListener('scroll', updateMenuPosition, true);
+        window.removeEventListener('resize', updateMenuPosition);
+    }
+});
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', updateMenuPosition, true);
+    window.removeEventListener('resize', updateMenuPosition);
+});
 
 watch(() => props.modelValue, (value) => {
     if (props.valueKey === 'email') {
@@ -34,10 +69,9 @@ watch(() => props.modelValue, (value) => {
 
 const filtered = computed(() => {
     const q = query.value.trim().toLowerCase();
-    const matches = q
+    return q
         ? props.options.filter((o) => o.name.toLowerCase().includes(q) || o.email.toLowerCase().includes(q))
         : props.options;
-    return matches.slice(0, 8);
 });
 
 function onInput(event) {
@@ -85,6 +119,7 @@ function onFocusout(event) {
         <div class="relative">
             <input
                 :id="id"
+                ref="inputRef"
                 type="text"
                 :value="query"
                 :placeholder="placeholder"
@@ -93,27 +128,36 @@ function onFocusout(event) {
                 @focus="open = true"
                 @keydown="onKeydown"
                 class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border text-[var(--md-sys-color-on-surface)] md-body-medium placeholder:text-[var(--md-sys-color-on-surface-variant)] focus:outline-none focus:ring-2 transition-colors"
-                :class="error
-                    ? 'border-[var(--md-sys-color-error)] focus:ring-[var(--md-sys-color-error)]'
-                    : 'border-[var(--md-sys-color-outline)] focus:ring-[var(--md-sys-color-primary)] focus:border-transparent'"
+                :class="[
+                    error
+                        ? 'border-[var(--md-sys-color-error)] focus:ring-[var(--md-sys-color-error)]'
+                        : 'border-[var(--md-sys-color-outline)] focus:ring-[var(--md-sys-color-primary)] focus:border-transparent',
+                    $slots.trailing ? 'pr-20' : '',
+                ]"
             />
-            <div
-                v-if="open && filtered.length"
-                class="absolute z-10 bottom-full mb-1 w-full bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] shadow-elevation-2 border border-[var(--md-sys-color-outline-variant)] max-h-56 overflow-y-auto"
-            >
-                <button
-                    v-for="(option, index) in filtered"
-                    :key="option.id"
-                    type="button"
-                    @click="select(option)"
-                    @mouseenter="activeIndex = index"
-                    class="w-full text-left px-3.5 py-2 transition-colors"
-                    :class="index === activeIndex ? 'bg-[var(--md-sys-color-surface-container-highest)]' : 'hover:bg-[var(--md-sys-color-surface-container-highest)]'"
-                >
-                    <p class="md-body-medium text-[var(--md-sys-color-on-surface)]">{{ option.name }}</p>
-                    <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ option.email }}</p>
-                </button>
+            <div v-if="$slots.trailing" class="absolute inset-y-0 right-1.5 flex items-center">
+                <slot name="trailing" />
             </div>
+            <Teleport to="body">
+                <div
+                    v-if="open && filtered.length"
+                    :style="menuStyle"
+                    class="z-[100] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] shadow-elevation-2 border border-[var(--md-sys-color-outline-variant)] overflow-y-auto"
+                >
+                    <button
+                        v-for="(option, index) in filtered"
+                        :key="option.id"
+                        type="button"
+                        @mousedown.prevent="select(option)"
+                        @mouseenter="activeIndex = index"
+                        class="w-full text-left px-3.5 py-2 transition-colors"
+                        :class="index === activeIndex ? 'bg-[var(--md-sys-color-surface-container-highest)]' : 'hover:bg-[var(--md-sys-color-surface-container-highest)]'"
+                    >
+                        <p class="md-body-medium text-[var(--md-sys-color-on-surface)]">{{ option.name }}</p>
+                        <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ option.email }}</p>
+                    </button>
+                </div>
+            </Teleport>
         </div>
         <p v-if="error" class="mt-1.5 md-body-small text-[var(--md-sys-color-error)]">{{ error }}</p>
         <p v-else-if="hint" class="mt-1.5 md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ hint }}</p>

@@ -1060,6 +1060,40 @@ function toggleRunsExpanded(testId) {
         <!-- Manage Users Modal -->
         <Modal :show="showManageUsersModal" title="Manage Users" max-width="max-w-2xl" @close="showManageUsersModal = false">
                     <div class="px-6 py-5 space-y-4">
+                        <p v-if="newMemberForm.errors.member" class="text-[var(--md-sys-color-error)] md-body-small">{{ newMemberForm.errors.member }}</p>
+
+                        <form v-if="candidates.length" @submit.prevent="submitAddMember" class="space-y-3 pb-4 border-b border-[var(--md-sys-color-outline-variant)]">
+                            <Autocomplete
+                                v-model="newMemberForm.user_id"
+                                :options="candidates"
+                                value-key="id"
+                                :emit-on-input="false"
+                                label="Add user"
+                                placeholder="Search by name or email…"
+                                :error="newMemberForm.errors.user_id"
+                                class="w-full"
+                            >
+                                <template #trailing>
+                                    <Button type="submit" variant="filled" size="sm" :disabled="newMemberForm.processing">Add</Button>
+                                </template>
+                            </Autocomplete>
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="newMemberForm.can_view" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> View
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="newMemberForm.can_edit" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> Edit
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="newMemberForm.can_delete" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> Delete
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="newMemberForm.can_run" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> Run
+                                </label>
+                            </div>
+                        </form>
+                        <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)] pb-4 border-b border-[var(--md-sys-color-outline-variant)]">All users already have access to this suite.</p>
+
                         <table class="w-full">
                             <thead>
                                 <tr class="text-left border-b border-[var(--md-sys-color-outline-variant)]">
@@ -1099,35 +1133,6 @@ function toggleRunsExpanded(testId) {
                                 </tr>
                             </tbody>
                         </table>
-
-                        <p v-if="newMemberForm.errors.member" class="text-[var(--md-sys-color-error)] md-body-small">{{ newMemberForm.errors.member }}</p>
-
-                        <form v-if="candidates.length" @submit.prevent="submitAddMember" class="flex items-end gap-3 pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <Autocomplete
-                                v-model="newMemberForm.user_id"
-                                :options="candidates"
-                                value-key="id"
-                                :emit-on-input="false"
-                                label="Add user"
-                                placeholder="Search by name or email…"
-                                :error="newMemberForm.errors.user_id"
-                                class="w-64"
-                            />
-                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
-                                <input type="checkbox" v-model="newMemberForm.can_view" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> View
-                            </label>
-                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
-                                <input type="checkbox" v-model="newMemberForm.can_edit" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> Edit
-                            </label>
-                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
-                                <input type="checkbox" v-model="newMemberForm.can_delete" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> Delete
-                            </label>
-                            <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)] pb-2.5">
-                                <input type="checkbox" v-model="newMemberForm.can_run" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> Run
-                            </label>
-                            <Button type="submit" variant="filled" size="sm" :disabled="newMemberForm.processing" class="mb-2.5">Add</Button>
-                        </form>
-                        <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)] pt-2 border-t border-[var(--md-sys-color-outline-variant)]">All users already have access to this suite.</p>
                     </div>
                     <template #footer>
                         <Button variant="text" @click="showManageUsersModal = false">Close</Button>

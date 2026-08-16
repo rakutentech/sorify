@@ -11,7 +11,7 @@ description: >
     /sorify:gateway what MCP tools are available for tests?
     /sorify:gateway list my test suites
     /sorify:gateway show suite 3
-allowed-tools: ["Bash", "Read", "mcp__plugin_sorify_sorify__list_suites", "mcp__plugin_sorify_sorify__get_suite", "mcp__plugin_sorify_sorify__list_tests", "mcp__plugin_sorify_sorify__get_test", "mcp__plugin_sorify_sorify__get_run", "mcp__plugin_sorify_sorify__get_run_status", "mcp__plugin_sorify_sorify__list_screenshots"]
+allowed-tools: ["Bash", "Read", "mcp__plugin_sorify_sorify__list_suites", "mcp__plugin_sorify_sorify__get_suite", "mcp__plugin_sorify_sorify__list_suite_members", "mcp__plugin_sorify_sorify__list_tests", "mcp__plugin_sorify_sorify__get_test", "mcp__plugin_sorify_sorify__get_run", "mcp__plugin_sorify_sorify__get_run_status", "mcp__plugin_sorify_sorify__list_screenshots"]
 ---
 
 # sorify:gateway
@@ -79,7 +79,7 @@ MCP Server
 ──────────────────────────────────────────────
 Name:    Sorify (registered in this plugin's .mcp.json as "sorify")
 Purpose: Manage Sorify test suites, tests, runs, and screenshots
-Tools:   23 total across 4 resource groups — run `/sorify:gateway tools` for
+Tools:   27 total across 4 resource groups — run `/sorify:gateway tools` for
          the full reference, or `/sorify:gateway {topic}` for one group
          (suites / tests / runs / screenshots)
 
@@ -102,6 +102,13 @@ section; if asked "what tools exist" generally, print all five.
 | `get_suite` | `suite_id` | One suite with stats, its tests, and 10 most recent runs. Includes `created_by` (user id, set automatically at creation time) |
 | `create_suite` | `name`, `description?`, `base_url?`, `browser?` (chromium/firefox/webkit), `headless?`, `playwright_proxy?`, `proxy_rules?` (array of `{domain, proxy}`), `history_retention?` (3/5/10), `timeout_ms?` (10000/30000/60000/120000), `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Create a suite. `created_by` is set automatically to the authenticated MCP user — not a caller-supplied param. `proxy_rules` entries are checked in order against each request's hostname (see **Proxy rule `domain` patterns** below); the first match wins, falling back to `playwright_proxy` |
 | `update_suite` | `suite_id`, `name`, `description?`, `base_url?`, `browser?`, `headless?`, `playwright_proxy?`, `proxy_rules?` (array of `{domain, proxy}`), `history_retention?`, `timeout_ms?`, `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Update a suite, including MS Teams run-completion notification settings. Changing `history_retention` prunes older runs/screenshots automatically. Passing `proxy_rules` replaces the suite's full rule set; omit it to leave existing rules untouched |
+| `delete_suite` | `suite_id` | Delete a suite and all of its tests and runs |
+| `update_suite_schedule` | `suite_id`, `cron_expression`, `timezone?`, `is_enabled?` | Create or update the cron schedule that runs a suite automatically |
+| `delete_suite_schedule` | `suite_id` | Remove a suite's cron schedule |
+| `list_suite_members` | `suite_id` | List users with access to a suite and their privileges (`can_view`/`can_edit`/`can_delete`/`can_run`), plus candidate users who could be added. Requires `manageUsers` (suite editor or admin) |
+| `add_suite_member` | `suite_id`, `user_id`, `can_view?`, `can_edit?`, `can_delete?`, `can_run?` | Add a user to a suite with the given privileges (each defaults to `false` if omitted). `user_id` must not already be a member. Privileges are forced to `false` (except `can_view`) if the target user is view-only |
+| `update_suite_member` | `suite_id`, `user_id`, `can_view?`, `can_edit?`, `can_delete?`, `can_run?` | Update an existing member's privileges. Errors if the user isn't a member, or if the change would remove edit access from the suite's last remaining editor |
+| `remove_suite_member` | `suite_id`, `user_id` | Remove a user from a suite. Errors if the user is the suite's last remaining editor |
 
 **Proxy rule `domain` patterns** — each rule's `domain` is a regular expression tested against the request's hostname (case-insensitive), checked on every request including each hop of a redirect chain:
 
@@ -110,9 +117,6 @@ section; if asked "what tools exist" generally, print all five.
 | `^example\.com$` | **Exact host only** — matches `example.com`, not `foo.example.com` |
 | `(^|\.)example\.com$` | **Host or any subdomain** — matches `example.com` and `foo.example.com`, but not `notexample.com` |
 | `example\.com$` | Avoid — unanchored at the start, so it also matches unrelated hosts like `notexample.com` |
-| `delete_suite` | `suite_id` | Delete a suite and all of its tests and runs |
-| `update_suite_schedule` | `suite_id`, `cron_expression`, `timezone?`, `is_enabled?` | Create or update the cron schedule that runs a suite automatically |
-| `delete_suite_schedule` | `suite_id` | Remove a suite's cron schedule |
 
 **Tests** — `App\Mcp\Tools\Tests\*`
 
@@ -160,6 +164,9 @@ tool directly and present the result — do not just describe the tool.
 "show suite {id}" / "details for suite {id}"
   → mcp__plugin_sorify_sorify__get_suite({ suite_id: {id} })
 
+"who has access to suite {id}" / "list members of suite {id}"
+  → mcp__plugin_sorify_sorify__list_suite_members({ suite_id: {id} })
+
 "list tests in suite {id}" / "what tests does {id} have"
   → mcp__plugin_sorify_sorify__list_tests({ suite_id: {id} })
 
@@ -181,9 +188,9 @@ tool first (e.g. `list_suites`) so the user can pick one, rather than
 asking them to look it up elsewhere.
 
 This command never calls the mutating tools (`create_*`, `update_*`,
-`delete_*`, `trigger_run`, `cancel_run`, `bulk_*`) — those belong to
-`/sorify:generate` or direct tool use with explicit user intent, not to a
-help/lookup command.
+`delete_*`, `trigger_run`, `cancel_run`, `bulk_*`, `add_suite_member`,
+`remove_suite_member`) — those belong to `/sorify:generate` or direct tool
+use with explicit user intent, not to a help/lookup command.
 
 ---
 
