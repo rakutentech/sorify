@@ -54,9 +54,11 @@ function logout() {
                                 :href="link.href"
                                 :class="[
                                     'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors',
-                                    isActive(link.href)
-                                        ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)]'
-                                        : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]'
+                                    link.label === 'Test Suites'
+                                        ? 'bg-green-600 text-white hover:bg-green-700'
+                                        : isActive(link.href)
+                                            ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)]'
+                                            : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]'
                                 ]"
                             >
                                 {{ link.label }}
