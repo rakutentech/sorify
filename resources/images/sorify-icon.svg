@@ -7,6 +7,12 @@
         font-size: 130px;
         fill: #22314F;
       }
+      .ink { fill: #22314F; }
+      .ink-stroke { stroke: #22314F; }
+      @media (prefers-color-scheme: dark) {
+        .letter, .ink { fill: #E8ECF5; }
+        .ink-stroke { stroke: #E8ECF5; }
+      }
     </style>
   </defs>
 
@@ -15,12 +21,12 @@
 
   <!-- "o" as a crying face -->
   <g>
-    <circle cx="160" cy="118" r="45" fill="#8FD3F4" stroke="#22314F" stroke-width="6"/>
+    <circle cx="160" cy="118" r="45" fill="#8FD3F4" stroke-width="6" class="ink-stroke"/>
     <!-- closed/sad eyes -->
-    <path d="M136 102 Q145 94 154 102" stroke="#22314F" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M166 102 Q175 94 184 102" stroke="#22314F" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M136 102 Q145 94 154 102" stroke-width="5" fill="none" stroke-linecap="round" class="ink-stroke"/>
+    <path d="M166 102 Q175 94 184 102" stroke-width="5" fill="none" stroke-linecap="round" class="ink-stroke"/>
     <!-- frown mouth (hill shape) -->
-    <path d="M141 140 Q160 122 179 140" stroke="#22314F" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M141 140 Q160 122 179 140" stroke-width="6" fill="none" stroke-linecap="round" class="ink-stroke"/>
     <!-- tears -->
     <path d="M132 108 Q125 125 132 137 Q139 125 132 108 Z" fill="#4AA9E0"/>
     <path d="M188 108 Q195 123 188 133 Q181 123 188 108 Z" fill="#4AA9E0"/>
@@ -34,12 +40,12 @@
   <!-- "y" as a smiling face with descender tail -->
   <g>
     <!-- descender tail -->
-    <path d="M445 158 Q454 182 442 205" stroke="#22314F" stroke-width="10" fill="none" stroke-linecap="round"/>
-    <circle cx="445" cy="118" r="45" fill="#FFD166" stroke="#22314F" stroke-width="6"/>
+    <path d="M445 158 Q454 182 442 205" stroke-width="10" fill="none" stroke-linecap="round" class="ink-stroke"/>
+    <circle cx="445" cy="118" r="45" fill="#FFD166" stroke-width="6" class="ink-stroke"/>
     <!-- happy eyes -->
-    <circle cx="429" cy="110" r="5.5" fill="#22314F"/>
-    <circle cx="461" cy="110" r="5.5" fill="#22314F"/>
+    <circle cx="429" cy="110" r="5.5" class="ink"/>
+    <circle cx="461" cy="110" r="5.5" class="ink"/>
     <!-- smile mouth (cup shape) -->
-    <path d="M422 132 Q445 156 468 132" stroke="#22314F" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M422 132 Q445 156 468 132" stroke-width="6" fill="none" stroke-linecap="round" class="ink-stroke"/>
   </g>
 </svg>
