@@ -21,7 +21,7 @@ class StoreSuiteRequest extends FormRequest
             'headless'         => 'nullable|boolean',
             'base_url'         => 'nullable|string|max:500',
             'history_retention' => 'nullable|integer|in:3,5,10',
-            'timeout_ms'       => 'nullable|integer|in:10000,30000,60000,120000',
+            'timeout_ms'       => 'nullable|integer|in:10000,30000,60000,120000,300000,600000',
             'take_screenshot'  => 'nullable|boolean',
             'teams_webhook_url' => 'nullable|string|max:500|url',
             'teams_webhook_proxy' => 'nullable|string|max:500',

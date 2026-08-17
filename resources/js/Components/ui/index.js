@@ -15,3 +15,4 @@ export { default as SettingBadge } from './SettingBadge.vue';
 export { default as ScreenshotThumbs } from './ScreenshotThumbs.vue';
 export { default as ScreenshotLightbox } from './ScreenshotLightbox.vue';
 export { default as LanguageSwitcher } from './LanguageSwitcher.vue';
+export { default as Pagination } from './Pagination.vue';

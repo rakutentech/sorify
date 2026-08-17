@@ -89,6 +89,8 @@ return [
     'supported_locales' => [
         'en' => 'English',
         'ja' => '日本語',
+        'ms' => 'Bahasa Melayu',
+        'zh-CN' => '简体中文',
     ],
 
     /*

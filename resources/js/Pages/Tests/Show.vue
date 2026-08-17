@@ -6,7 +6,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 
@@ -16,8 +16,9 @@ const props = defineProps({
     suite: { type: Object, required: true },
     test: { type: Object, required: true },
     users: { type: Array, default: () => [] },
-    history: { type: Array, default: () => [] },
-    codeVersions: { type: Array, default: () => [] },
+    history: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
+    codeVersions: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
+    codeVersionRetention: { type: Number, default: 10 },
 });
 
 // Edit form
@@ -58,54 +59,34 @@ function saveCode() {
     });
 }
 
-// Version history navigation — `codeVersions` is ordered newest-first (index 0 = most recent).
-const activeVersionIndex = ref(null);
-const restoring = ref(false);
+// Version history — each row expands its own code block independently.
+const expandedVersions = ref(new Set());
+const restoringVersionId = ref(null);
 
-const activeVersionItem = computed(() =>
-    activeVersionIndex.value !== null ? props.codeVersions[activeVersionIndex.value] : null,
-);
-
-function openVersion(index) {
-    activeVersionIndex.value = index;
-}
-
-function closeVersion() {
-    activeVersionIndex.value = null;
-}
-
-function prevVersion() {
-    if (activeVersionIndex.value < props.codeVersions.length - 1) {
-        activeVersionIndex.value++;
+function toggleVersion(id) {
+    if (expandedVersions.value.has(id)) {
+        expandedVersions.value.delete(id);
+    } else {
+        expandedVersions.value.add(id);
     }
 }
 
-function nextVersion() {
-    if (activeVersionIndex.value > 0) {
-        activeVersionIndex.value--;
-    }
-}
-
-function onVersionKeydown(e) {
-    if (activeVersionIndex.value === null) return;
-    if (e.key === 'ArrowLeft') prevVersion();
-    if (e.key === 'ArrowRight') nextVersion();
-    if (e.key === 'Escape') closeVersion();
+function isVersionExpanded(id) {
+    return expandedVersions.value.has(id);
 }
 
 function restoreVersion(version) {
     if (!confirm(t('testShow.confirmRestore', { version: version.version_number }))) return;
 
-    restoring.value = true;
+    restoringVersionId.value = version.id;
     router.post(
         `/sorify/suites/${props.suite.id}/tests/${props.test.id}/code-versions/${version.id}/restore`,
         {},
         {
             onSuccess: () => {
                 codeForm.playwright_code = props.test.playwright_code ?? '';
-                closeVersion();
             },
-            onFinish: () => { restoring.value = false; },
+            onFinish: () => { restoringVersionId.value = null; },
         },
     );
 }
@@ -143,12 +124,12 @@ function formatDuration(ms) {
 // Screenshot lightbox
 const lightbox = useScreenshotLightbox();
 
-// History navigation — `history` is ordered newest-first (index 0 = most recent).
+// History navigation — `history.data` is ordered newest-first (index 0 = most recent) within the current page.
 const activeHistoryIndex = ref(null);
 const showHistoryStdout = ref(false);
 
 const activeHistoryItem = computed(() =>
-    activeHistoryIndex.value !== null ? props.history[activeHistoryIndex.value] : null,
+    activeHistoryIndex.value !== null ? props.history.data[activeHistoryIndex.value] : null,
 );
 
 function openHistory(index) {
@@ -161,7 +142,7 @@ function closeHistory() {
 }
 
 function prevHistory() {
-    if (activeHistoryIndex.value < props.history.length - 1) {
+    if (activeHistoryIndex.value < props.history.data.length - 1) {
         activeHistoryIndex.value++;
         showHistoryStdout.value = false;
     }
@@ -302,9 +283,12 @@ function onHistoryKeydown(e) {
         <Card padding="p-0" class="mb-6">
             <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
                 <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testShow.versionHistory') }}</h2>
+                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5">
+                    {{ t('testShow.versionRetentionCaption', { count: codeVersionRetention }) }}
+                </p>
             </div>
 
-            <div v-if="!codeVersions.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+            <div v-if="!codeVersions.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                 {{ t('testShow.noVersionsYet') }}
             </div>
 
@@ -319,94 +303,68 @@ function onHistoryKeydown(e) {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
-                        <tr
-                            v-for="(version, index) in codeVersions"
-                            :key="version.id"
-                            class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors cursor-pointer"
-                            :class="{ 'bg-[var(--md-sys-color-surface-container-low)]': activeVersionIndex === index }"
-                            @click="openVersion(index)"
-                        >
-                            <td class="px-5 py-3">
-                                <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">
-                                    v{{ version.version_number }}
-                                </span>
-                            </td>
-                            <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.source }}</td>
-                            <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.created_by ?? '—' }}</td>
-                            <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(version.created_at) }}</td>
-                        </tr>
+                        <template v-for="version in codeVersions.data" :key="version.id">
+                            <tr
+                                class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors cursor-pointer"
+                                :class="{ 'bg-[var(--md-sys-color-surface-container-low)]': isVersionExpanded(version.id) }"
+                                @click="toggleVersion(version.id)"
+                            >
+                                <td class="px-5 py-3">
+                                    <span class="inline-flex items-center gap-2">
+                                        <svg
+                                            class="w-3.5 h-3.5 text-[var(--md-sys-color-on-surface-variant)] transition-transform"
+                                            :class="{ 'rotate-90': isVersionExpanded(version.id) }"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        >
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                        <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">
+                                            v{{ version.version_number }}
+                                        </span>
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.source }}</td>
+                                <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.created_by ?? '—' }}</td>
+                                <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(version.created_at) }}</td>
+                            </tr>
+                            <tr v-if="isVersionExpanded(version.id)">
+                                <td colspan="4" class="px-5 pb-5 bg-[var(--md-sys-color-surface-container-lowest)]">
+                                    <div class="flex items-center justify-end mt-3 mb-3">
+                                        <Button
+                                            variant="tonal"
+                                            size="sm"
+                                            @click="restoreVersion(version)"
+                                            :disabled="restoringVersionId === version.id"
+                                        >
+                                            {{ restoringVersionId === version.id ? t('testShow.restoring') : t('testShow.restoreVersion') }}
+                                        </Button>
+                                    </div>
+                                    <TestCodeEditor :code="version.playwright_code" :editable="false" />
+                                </td>
+                            </tr>
+                        </template>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Version detail panel -->
-            <div
-                v-if="activeVersionItem"
-                class="border-t border-[var(--md-sys-color-outline-variant)] px-5 py-5"
-                tabindex="-1"
-                @keydown="onVersionKeydown"
-            >
-                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">
-                            v{{ activeVersionItem.version_number }}
-                        </span>
-                        <span class="md-body-medium text-[var(--md-sys-color-on-surface)]">{{ formatDate(activeVersionItem.created_at) }}</span>
-                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ activeVersionItem.source }} &middot; {{ activeVersionItem.created_by ?? t('testShow.unknown') }}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mr-1">{{ activeVersionIndex + 1 }} / {{ codeVersions.length }}</span>
-                        <button
-                            :disabled="activeVersionIndex >= codeVersions.length - 1"
-                            @click="prevVersion"
-                            :title="t('testShow.olderVersion')"
-                            class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                            </svg>
-                        </button>
-                        <button
-                            :disabled="activeVersionIndex <= 0"
-                            @click="nextVersion"
-                            :title="t('testShow.newerVersion')"
-                            class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </button>
-                        <Button
-                            variant="tonal"
-                            size="sm"
-                            @click="restoreVersion(activeVersionItem)"
-                            :disabled="restoring"
-                        >
-                            {{ restoring ? t('testShow.restoring') : t('testShow.restoreVersion') }}
-                        </Button>
-                        <button
-                            @click="closeVersion"
-                            :title="t('testShow.close')"
-                            class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors ml-1"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <TestCodeEditor :code="activeVersionItem.playwright_code" :editable="false" />
-            </div>
+            <Pagination
+                v-if="codeVersions.data.length"
+                :paginator="codeVersions"
+                :label="t('testShow.showingVersions', { from: codeVersions.from ?? 0, to: codeVersions.to ?? 0, total: codeVersions.total })"
+            />
         </Card>
 
         <!-- Run history -->
         <Card padding="p-0">
             <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
                 <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testShow.runHistory') }}</h2>
+                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5">
+                    {{ t('testShow.historyRetentionCaption', { count: suite.history_retention ?? 5 }) }}
+                    <Link :href="`/sorify/suites/${suite.id}`" class="text-[var(--md-sys-color-primary)] hover:underline">{{ t('testShow.historyRetentionLink') }}</Link>
+                </p>
             </div>
 
-            <div v-if="!history.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+            <div v-if="!history.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                 {{ t('testShow.noRunsYet') }}
             </div>
 
@@ -424,7 +382,7 @@ function onHistoryKeydown(e) {
                     </thead>
                     <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
                         <tr
-                            v-for="(item, index) in history"
+                            v-for="(item, index) in history.data"
                             :key="item.id"
                             class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors cursor-pointer"
                             :class="{ 'bg-[var(--md-sys-color-surface-container-low)]': activeHistoryIndex === index }"
@@ -456,6 +414,12 @@ function onHistoryKeydown(e) {
                 </table>
             </div>
 
+            <Pagination
+                v-if="history.data.length"
+                :paginator="history"
+                :label="t('testShow.showingHistory', { from: history.from ?? 0, to: history.to ?? 0, total: history.total })"
+            />
+
             <!-- History detail panel -->
             <div
                 v-if="activeHistoryItem"
@@ -470,9 +434,9 @@ function onHistoryKeydown(e) {
                         <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDuration(activeHistoryItem.duration_ms) }}</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mr-1">{{ activeHistoryIndex + 1 }} / {{ history.length }}</span>
+                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mr-1">{{ activeHistoryIndex + 1 }} / {{ history.data.length }}</span>
                         <button
-                            :disabled="activeHistoryIndex >= history.length - 1"
+                            :disabled="activeHistoryIndex >= history.data.length - 1"
                             @click="prevHistory"
                             :title="t('testShow.olderRun')"
                             class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
