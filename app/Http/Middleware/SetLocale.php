@@ -12,7 +12,11 @@ class SetLocale
     {
         $supported = array_keys(config('app.supported_locales'));
 
+        $cookieLocale = $request->cookie('sorify-locale');
+        $cookieLocale = in_array($cookieLocale, $supported, true) ? $cookieLocale : null;
+
         $locale = $request->user()?->locale
+            ?? $cookieLocale
             ?? $request->getPreferredLanguage($supported)
             ?? config('app.fallback_locale');
 

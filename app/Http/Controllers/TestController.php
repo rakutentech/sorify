@@ -32,50 +32,58 @@ class TestController extends Controller
     {
         $this->authorize('view', $suite);
 
+        $codeVersions = $test->codeVersions()
+            ->with('createdBy:id,name')
+            ->paginate(10, ['*'], 'versions_page')
+            ->withQueryString();
+
+        $codeVersions->through(fn (TestCodeVersion $version) => [
+            'id'              => $version->id,
+            'version_number'  => $version->version_number,
+            'playwright_code' => $version->playwright_code,
+            'source'          => $version->source,
+            'created_by'      => $version->createdBy?->name,
+            'created_at'      => $version->created_at,
+        ]);
+
+        $history = $test->testResults()
+            ->with([
+                'testRun:id,status,created_at,triggered_by,triggered_by_user_id,total_tests',
+                'testRun.triggeredByUser:id,name,email',
+                'screenshots',
+            ])
+            ->latest()
+            ->paginate(10, ['*'], 'history_page')
+            ->withQueryString();
+
+        $history->through(fn ($r) => [
+            'id'                => $r->id,
+            'status'            => $r->status,
+            'duration_ms'       => $r->duration_ms,
+            'created_at'        => $r->created_at,
+            'run_id'            => $r->test_run_id,
+            'run_total_tests'   => $r->testRun?->total_tests,
+            'triggered_by'      => $r->testRun?->triggered_by,
+            'triggered_by_user' => $r->testRun?->triggeredByUser,
+            'error_message' => $r->error_message,
+            'error_stack'   => $r->error_stack,
+            'stdout'        => $r->stdout,
+            'screenshots'   => $r->screenshots->map(fn ($s) => [
+                'id'          => $s->id,
+                'filename'    => $s->filename,
+                'label'       => $s->label,
+                'taken_at_ms' => $s->taken_at_ms,
+                'url'         => $s->url,
+            ]),
+        ]);
+
         return Inertia::render('Tests/Show', [
-            'suite'        => $suite,
-            'test'         => $test,
-            'users'        => User::orderBy('name')->get(['id', 'name', 'email']),
-            'codeVersions' => $test->codeVersions()
-                ->with('createdBy:id,name')
-                ->get()
-                ->map(fn (TestCodeVersion $version) => [
-                    'id'              => $version->id,
-                    'version_number'  => $version->version_number,
-                    'playwright_code' => $version->playwright_code,
-                    'source'          => $version->source,
-                    'created_by'      => $version->createdBy?->name,
-                    'created_at'      => $version->created_at,
-                ]),
-            'history' => $test->testResults()
-                ->with([
-                    'testRun:id,status,created_at,triggered_by,triggered_by_user_id,total_tests',
-                    'testRun.triggeredByUser:id,name,email',
-                    'screenshots',
-                ])
-                ->latest()
-                ->limit(10)
-                ->get()
-                ->map(fn ($r) => [
-                    'id'                => $r->id,
-                    'status'            => $r->status,
-                    'duration_ms'       => $r->duration_ms,
-                    'created_at'        => $r->created_at,
-                    'run_id'            => $r->test_run_id,
-                    'run_total_tests'   => $r->testRun?->total_tests,
-                    'triggered_by'      => $r->testRun?->triggered_by,
-                    'triggered_by_user' => $r->testRun?->triggeredByUser,
-                    'error_message' => $r->error_message,
-                    'error_stack'   => $r->error_stack,
-                    'stdout'        => $r->stdout,
-                    'screenshots'   => $r->screenshots->map(fn ($s) => [
-                        'id'          => $s->id,
-                        'filename'    => $s->filename,
-                        'label'       => $s->label,
-                        'taken_at_ms' => $s->taken_at_ms,
-                        'url'         => $s->url,
-                    ]),
-                ]),
+            'suite'               => $suite,
+            'test'                => $test,
+            'users'               => User::orderBy('name')->get(['id', 'name', 'email']),
+            'codeVersions'        => $codeVersions,
+            'history'             => $history,
+            'codeVersionRetention' => (int) config('sorify.test_code_version_retention'),
         ]);
     }
 

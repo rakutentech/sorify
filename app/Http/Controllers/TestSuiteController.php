@@ -98,8 +98,8 @@ class TestSuiteController extends Controller
 
         $search  = $request->string('search')->toString();
         $sort    = $request->string('sort')->toString();
-        $perPage = (int) $request->input('per_page', 30);
-        $perPage = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 30;
+        $perPage = (int) $request->input('per_page', 50);
+        $perPage = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 50;
 
         $members = [];
         $candidates = [];

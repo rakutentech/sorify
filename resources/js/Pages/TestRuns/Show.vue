@@ -4,7 +4,7 @@ import { router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, SuiteName, RanBy, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
+import { Card, Chip, Button, SuiteName, RanBy, ScreenshotThumbs, ScreenshotLightbox, Pagination } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 
@@ -12,7 +12,8 @@ const { t } = useI18n();
 
 const props = defineProps({
     run: { type: Object, required: true },
-    results: { type: Array, default: () => [] },
+    results: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
+    resultTestIds: { type: Array, default: () => [] },
 });
 
 // Auto-refresh when run is active
@@ -54,6 +55,13 @@ watch(
 // Screenshot lightbox
 const lightbox = useScreenshotLightbox();
 
+// Results per-page
+const perPage = ref(props.results.per_page ?? 50);
+
+watch(perPage, () => {
+    router.get(window.location.pathname, { per_page: perPage.value, page: 1 }, { preserveState: true, replace: true });
+});
+
 // Accordion state
 const expandedResults = ref(new Set());
 
@@ -71,9 +79,9 @@ function isExpanded(result) {
 }
 
 function expandAll() {
-    const ids = new Set(props.results.map(r => r.id));
+    const ids = new Set(props.results.data.map(r => r.id));
     expandedResults.value = ids;
-    expandedStdout.value = new Set(props.results.filter(r => r.stdout).map(r => r.id));
+    expandedStdout.value = new Set(props.results.data.filter(r => r.stdout).map(r => r.id));
 }
 
 function collapseAll() {
@@ -110,7 +118,7 @@ function registerStdoutEl(id, el) {
 watch(
     () => props.results,
     () => {
-        for (const result of props.results) {
+        for (const result of props.results.data) {
             if (result.status === 'running') {
                 const el = stdoutEls.get(result.id);
                 if (el) el.scrollTop = el.scrollHeight;
@@ -133,7 +141,7 @@ const rerunning = ref(false);
 function rerun() {
     if (!props.run.suite) return;
     rerunning.value = true;
-    const testIds = props.results.map((r) => r.test_id).filter(Boolean);
+    const testIds = props.resultTestIds.filter(Boolean);
     router.post(
         `/sorify/suites/${props.run.suite.id}/runs`,
         testIds.length ? { test_ids: testIds } : {},
@@ -156,12 +164,16 @@ function cancelRun() {
     });
 }
 
-const results     = computed(() => props.results);
-const passedCount = computed(() => results.value.filter((r) => r.status === 'passed').length);
-const failedCount = computed(() => results.value.filter((r) => ['failed', 'error', 'timeout'].includes(r.status)).length);
+// Counts come from the run's own tallies (kept in sync server-side as each test
+// finishes) rather than the `results` page, since results are now paginated
+// and a page may hold only a fraction of the run's tests.
+const results     = computed(() => props.results.data);
+const passedCount = computed(() => props.run.passed_count ?? 0);
+const failedCount = computed(() => (props.run.failed_count ?? 0) + (props.run.error_count ?? 0));
 
 const totalTests     = computed(() => props.run.total_tests || 0);
-const completedCount = computed(() => results.value.filter((r) => r.status !== 'running').length);
+const completedCount = computed(() => passedCount.value + failedCount.value);
+const runningCount   = computed(() => (isActive.value ? Math.max(0, totalTests.value - completedCount.value) : 0));
 const progressPct    = computed(() => {
     if (totalTests.value === 0) return 0;
     return Math.round((completedCount.value / totalTests.value) * 100);
@@ -199,7 +211,6 @@ const failedPct = computed(() => {
                             <SuiteName v-if="run.suite" :name="run.suite.name" /><span v-else>{{ t('testRunShow.testRun') }}</span>
                             — {{ t('testRunShow.runNumber', { id: run.id }) }}
                         </h1>
-                        <Chip :status="run.status" />
                     </div>
                     <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1.5 flex items-center gap-2 flex-wrap">
                         <span>
@@ -239,7 +250,8 @@ const failedPct = computed(() => {
 
             <!-- Summary counts -->
             <div class="flex items-center gap-6 mt-4 md-body-medium">
-                <span class="text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.testsCount', { count: results.length }) }}</span>
+                <span class="text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.testsCount', { count: totalTests }) }}</span>
+                <span v-if="runningCount" class="text-[var(--md-sys-color-primary)] font-medium">{{ t('testRunShow.running', { count: runningCount }) }}</span>
                 <span class="text-[var(--md-ext-color-success)] font-medium">{{ t('testRunShow.passed', { count: passedCount }) }}</span>
                 <span class="text-[var(--md-sys-color-error)] font-medium">{{ t('testRunShow.failed', { count: failedCount }) }}</span>
             </div>
@@ -382,6 +394,24 @@ const failedPct = computed(() => {
                     </div>
                 </div>
             </div>
+
+            <Pagination
+                v-if="results.length"
+                :paginator="props.results"
+                :label="t('testRunShow.showingResults', { from: props.results.from ?? 0, to: props.results.to ?? 0, total: props.results.total })"
+            >
+                <template #extra>
+                    <select
+                        v-model="perPage"
+                        class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                    >
+                        <option :value="25">{{ t('testRunShow.perPage25') }}</option>
+                        <option :value="50">{{ t('testRunShow.perPage50') }}</option>
+                        <option :value="100">{{ t('testRunShow.perPage100') }}</option>
+                        <option :value="200">{{ t('testRunShow.perPage200') }}</option>
+                    </select>
+                </template>
+            </Pagination>
         </Card>
 
         <!-- Screenshot lightbox -->
