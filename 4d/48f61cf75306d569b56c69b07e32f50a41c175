@@ -1,0 +1,165 @@
+resources/js/Components/ui/index.js
+  s_491502face076e::t_714b7025beb0ae 17
+bootstrap/app.php
+  s_491502face076e::t_e61a30f9190f6f 17
+resources/js/Pages/Admin/Users/Index.vue
+  s_491502face076e::t_8751aafd1662f0 43
+  s_491502face076e::t_02c57b22522c24 10-11
+  s_491502face076e::t_bda7875242a641 4
+  s_491502face076e::t_d1b34ca1b53a59 74,78-79,87-92,103,107-109,113,118,120,125,127,132
+  s_491502face076e::t_a14d1994621d29 58
+  s_491502face076e::t_41e198610fe823 140,142-143,146,154,159-161,167,169-170,177,180,186
+database/migrations/2026_08_17_000001_add_locale_to_users_table.php
+  s_491502face076e::t_a137d28c0b7300 1-22
+resources/js/Pages/Profile/Show.vue
+  s_491502face076e::t_fef1067b39c441 3,7-8,14-16,42,45,49,55,63,71,80-81,88,94,102,110,119-120
+routes/web.php
+  s_491502face076e::t_33f0b1678e5991 126
+resources/js/Pages/TestSuites/Show.vue
+  s_491502face076e::t_5c876e6a4fcdc0 888,890-891,894,896,901-902,905,913
+  s_491502face076e::t_a79053b94b2743 500,506,509,512,518,525,537,546-550,552-554,556-558,560-561,567
+  s_491502face076e::t_f9b49fd8e7b73e 4
+  s_491502face076e::t_78ee9b8501f70e 103
+  s_491502face076e::t_7b88076f910438 662,674
+  s_491502face076e::t_7576028aab45c7 229
+  s_491502face076e::t_3d87011b259e07 601,606,614
+  s_491502face076e::t_a451a2e9138aee 204
+  s_491502face076e::t_566892fa773049 635,643,652
+  s_491502face076e::t_2a30876917eb5e 943,952,954-955,960,962-964,969,972,974-977,982,984-985,990,992-995,1003-1004,1009-1010,1017,1020,1025,1027,1034,1038,1040,1046,1048,1052,1055,1057
+  s_491502face076e::t_030b00cec190b3 12-13
+  s_491502face076e::t_3f0cd8d17d12b2 413,417,423,432,438,444,455,463,467,471,479,481
+  s_491502face076e::t_d72f25edf3c65c 337
+  s_491502face076e::t_2f563be3fc55c5 738,740,744-745,747,761,765,785,792,806,816,819,822,838,841-843,845,852,856
+  s_491502face076e::t_b6d177c5de45eb 868,872-873
+  s_491502face076e::t_fddac001878434 1075
+  s_491502face076e::t_a1e0c0eb7c008a 76
+  s_491502face076e::t_dea5fc6bb1cb61 1064,1074,1080,1085,1088,1091,1094,1098,1103-1107,1115,1122,1125,1128,1131,1135,1141,1146,1148,1151,1154,1160,1164,1166
+  s_491502face076e::t_c5cb0d042fa078 700-703,714,717-721,728
+app/Http/Middleware/SetLocale.php
+  s_491502face076e::t_7d52aad064813b 1-23
+app/Http/Controllers/ProfileController.php
+  s_491502face076e::t_9723e42c8a7db2 60-70
+  s_491502face076e::t_1969cde2ab9887 8
+resources/js/Layouts/AppLayout.vue
+  s_491502face076e::t_7581100dbc6606 4,6,9,16-18,21,24-25
+  s_491502face076e::t_a0b81ed5e88ae8 213-214
+  s_491502face076e::t_70fe6d149c32bd 127,130-133,138
+  s_491502face076e::t_0a07cfce3bdbf5 62,65
+package.json
+  s_491502face076e::t_06b63663d058c7 24-25
+resources/js/locales/en.json
+  s_491502face076e::t_6800a498ea9c80 57-102
+  s_491502face076e::t_d4d81f65aa3557 346-362
+  s_491502face076e::t_05e1a6d172acc7 251-265
+  s_491502face076e::t_5e1d193ee92de7 249-250
+  s_491502face076e::t_236664b2bca6f3 296-345
+  s_491502face076e::t_ab71eeeb393061 363-397
+  s_491502face076e::t_e02e488c4bca35 1-31,398-399
+  s_491502face076e::t_49e3152bd17907 32-56
+  s_491502face076e::t_7033e4e3a1579a 266-295
+  s_491502face076e::t_4e4a61c54ee082 103-248
+app/Http/Middleware/HandleInertiaRequests.php
+  s_491502face076e::t_176a6d4d11095c 48
+resources/js/composables/useLocale.js
+  s_491502face076e::t_c23290c5724284 1-32
+resources/js/Pages/Auth/Login.vue
+  s_491502face076e::t_0a7a9a52879830 29,52,60,70,77,83-84,89-90
+  s_491502face076e::t_51d8f1a3687c38 3,8
+resources/js/Pages/TestSuites/Index.vue
+  s_491502face076e::t_baac4de7aed71f 221-224
+  s_491502face076e::t_7b32c213a6e283 195
+  s_491502face076e::t_c6f3599abbfd88 4,9
+  s_491502face076e::t_f820594bdd01b1 83,90-91,97,110,120,127,135-140
+  s_491502face076e::t_b4e0b0836b5e89 159-162
+  s_491502face076e::t_01ba4fa857d01a 233,235,239-241,246,251-253,255,260,265-268,273,276,278
+  s_491502face076e::t_3bc75c0c053a0c 10
+resources/js/Pages/Runs/Index.vue
+  s_491502face076e::t_d309a0eb6c9fcb 106
+  s_491502face076e::t_567aef0ca30223 39,42-43,48,55-63
+  s_491502face076e::t_2b9c7bccb38f58 4,9
+  s_491502face076e::t_2adf6c70760035 146-149
+  s_491502face076e::t_5fce37a456ca20 120
+  s_491502face076e::t_d12cf4937a1f46 10
+resources/js/Pages/Tests/Show.vue
+  s_491502face076e::t_490cb184e3bab4 451
+  s_491502face076e::t_10bb184a989da6 13-14
+  s_491502face076e::t_665601a98e7ec3 118
+  s_491502face076e::t_94d44fea544fa1 355,362,372,385,389
+  s_491502face076e::t_72477e806114a0 304,308,315-318
+  s_491502face076e::t_9a131d936267ba 477,487,499,503
+  s_491502face076e::t_cb79b1720e36ef 515,521,538,545,554
+  s_491502face076e::t_912357202a1df3 4
+  s_491502face076e::t_9b863243f066a0 97
+  s_491502face076e::t_602fdd7e2339fa 130
+  s_491502face076e::t_f2ce2820b96a66 191,202,211,218-220,223,225,236,238,243,253,264
+  s_491502face076e::t_c9eed4cbb5c193 277,279-280,282,286,288
+  s_491502face076e::t_7188db98c889d4 406,410,417-421
+resources/js/locales/ja.json
+  s_491502face076e::t_0a954df4abf6ff 296-345
+  s_491502face076e::t_23a03ad0fd6510 32-56
+  s_491502face076e::t_74922d8f38f84c 251-265
+  s_491502face076e::t_d37fba6d746239 103-248
+  s_491502face076e::t_e2778f9575152e 266-295
+  s_491502face076e::t_0bc29c38f3f2bc 1-31,398-399
+  s_491502face076e::t_b4b8cdb3a85d34 57-102
+  s_491502face076e::t_de10807da67807 346-362
+  s_491502face076e::t_09b00baa2d767a 363-397
+  s_491502face076e::t_a67b4acf2acf8e 249-250
+resources/js/Components/ui/LanguageSwitcher.vue
+  s_491502face076e::t_897debc691a237 1-17
+resources/js/Pages/Dashboard/Index.vue
+  s_491502face076e::t_94a8d064b7def4 4,10
+  s_491502face076e::t_1c70f0402f4f14 62,66-67,73,77,81,85
+  s_491502face076e::t_ea5054d6eb4c44 103-104,112,116,119,121,133,137
+  s_491502face076e::t_0e6618227c4528 11
+resources/js/app.js
+  s_491502face076e::t_3ef8eac4a83f10 3,5-6,17-23,26
+config/app.php
+  s_491502face076e::t_a63634c95ee009 89-93
+resources/js/Pages/Auth/Register.vue
+  s_491502face076e::t_5c73211bcfdc42 3,8
+  s_491502face076e::t_9de1f447619363 54,62,71,80,89,98-99,104-105
+  s_491502face076e::t_09762aa85c90a8 31
+resources/js/Pages/Auth/ForgotPassword.vue
+  s_491502face076e::t_834a0115cebcd6 52,62,68,77-78,82
+  s_491502face076e::t_799ccf8d52cc21 29
+  s_491502face076e::t_ae70745a5ebf10 4,9
+resources/js/Pages/Auth/ResetPassword.vue
+  s_491502face076e::t_8b9c8cab004835 3,13
+  s_491502face076e::t_81ef85e3924618 36
+  s_491502face076e::t_d068534dc85c33 59,67,76,85,93-94
+app/Http/Controllers/AuthController.php
+  s_491502face076e::t_6dfe8adfe77cd2 72
+  s_491502face076e::t_f2ef6f6509da7e 38-45
+app/Models/User.php
+  s_491502face076e::t_5d1bfa7bee11fb 14
+resources/js/Pages/TestRuns/Show.vue
+  s_491502face076e::t_678eb978c3319f 289,291-292,297
+  s_491502face076e::t_5edd0205e0c023 254
+  s_491502face076e::t_693fddc92e79e6 279-282
+  s_491502face076e::t_d6c130c0289f25 181,185,189,196,199-200,206,218,230,235,242-244
+  s_491502face076e::t_eed0375687365b 320
+  s_491502face076e::t_bba6111c3730e6 336,342
+  s_491502face076e::t_603d560490fd60 359,362,369,374,380
+  s_491502face076e::t_4e1795cef910b9 151
+  s_491502face076e::t_23f903c5b8befa 4,11
+  s_491502face076e::t_2ed5124d8394c1 12
+package-lock.json
+  s_491502face076e::t_a6f3d33098f6d4 15-16,136-179,857-862,1916-1936
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "4d48f61cf75306d569b56c69b07e32f50a41c175",
+  "prompts": {},
+  "sessions": {
+    "s_491502face076e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4e23dbd7-2e44-4156-acef-73733b820cda",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
