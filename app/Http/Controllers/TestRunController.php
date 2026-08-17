@@ -87,29 +87,38 @@ class TestRunController extends Controller
 
         $run->load(['testSuite:id,name', 'triggeredByUser:id,name,email']);
 
+        $perPage = (int) request()->input('per_page', 50);
+        $perPage = in_array($perPage, [25, 50, 100, 200]) ? $perPage : 50;
+
+        $results = $run->testResults()
+            ->with(['test:id,name,test_suite_id', 'screenshots'])
+            ->orderBy('id')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $results->through(fn ($r) => [
+            'id'               => $r->id,
+            'test_id'          => $r->test->id,
+            'test_name'        => $r->test->name,
+            'status'           => $r->status,
+            'duration_ms'      => $r->duration_ms,
+            'error_message'    => $r->error_message,
+            'error_stack'      => $r->error_stack,
+            'stdout'           => $r->stdout,
+            'screenshot_count' => $r->screenshots->count(),
+            'screenshots'      => $r->screenshots->map(fn ($s) => [
+                'id'          => $s->id,
+                'filename'    => $s->filename,
+                'label'       => $s->label,
+                'taken_at_ms' => $s->taken_at_ms,
+                'url'         => $s->url,
+            ]),
+        ]);
+
         return Inertia::render('TestRuns/Show', [
-            'run'     => array_merge($run->toArray(), ['suite' => $run->testSuite]),
-            'results' => $run->testResults()
-                ->with(['test:id,name,test_suite_id', 'screenshots'])
-                ->get()
-                ->map(fn ($r) => [
-                    'id'               => $r->id,
-                    'test_id'          => $r->test->id,
-                    'test_name'        => $r->test->name,
-                    'status'           => $r->status,
-                    'duration_ms'      => $r->duration_ms,
-                    'error_message'    => $r->error_message,
-                    'error_stack'      => $r->error_stack,
-                    'stdout'           => $r->stdout,
-                    'screenshot_count' => $r->screenshots->count(),
-                    'screenshots'      => $r->screenshots->map(fn ($s) => [
-                        'id'          => $s->id,
-                        'filename'    => $s->filename,
-                        'label'       => $s->label,
-                        'taken_at_ms' => $s->taken_at_ms,
-                        'url'         => $s->url,
-                    ]),
-                ]),
+            'run'            => array_merge($run->toArray(), ['suite' => $run->testSuite]),
+            'results'        => $results,
+            'resultTestIds'  => $run->testResults()->pluck('test_id')->all(),
         ]);
     }
 

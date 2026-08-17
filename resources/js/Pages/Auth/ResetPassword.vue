@@ -2,7 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
-import { IconButton, Card, TextField, Button } from '@/Components/ui';
+import { IconButton, Card, TextField, Button, LanguageSwitcher } from '@/Components/ui';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
 const props = defineProps({
@@ -29,13 +29,14 @@ function submit() {
 
 <template>
     <div class="min-h-screen bg-[var(--md-sys-color-surface)] flex items-center justify-center px-4">
-        <!-- Theme toggle -->
-        <IconButton
-            class="fixed top-4 right-4"
-            variant="standard"
-            :label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
-            @click="toggleTheme"
-        >
+        <!-- Top-right controls -->
+        <div class="fixed top-4 right-4 flex items-center gap-2">
+            <LanguageSwitcher />
+            <IconButton
+                variant="standard"
+                :label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
+                @click="toggleTheme"
+            >
             <svg v-if="theme === 'dark'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <circle cx="12" cy="12" r="5"/>
                 <line x1="12" y1="1" x2="12" y2="3"/>
@@ -51,6 +52,7 @@ function submit() {
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
             </svg>
         </IconButton>
+        </div>
 
         <div class="w-full max-w-sm">
             <!-- Brand -->

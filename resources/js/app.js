@@ -4,6 +4,8 @@ import { createI18n } from 'vue-i18n';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import en from './locales/en.json';
 import ja from './locales/ja.json';
+import ms from './locales/ms.json';
+import zhCN from './locales/zh-CN.json';
 import '../css/app.css';
 
 createInertiaApp({
@@ -18,7 +20,7 @@ createInertiaApp({
             legacy: false,
             locale: props.initialPage.props.locale ?? 'en',
             fallbackLocale: 'en',
-            messages: { en, ja },
+            messages: { en, ja, ms, 'zh-CN': zhCN },
         });
 
         createApp({ render: () => h(App, props) })
