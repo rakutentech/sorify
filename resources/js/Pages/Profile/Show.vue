@@ -1,16 +1,19 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField } from '@/Components/ui';
+
+const { t } = useI18n();
 
 const props = defineProps({
     user: Object,
 });
 
 function roleOf(user) {
-    if (user.is_admin) return 'Admin';
-    if (user.is_view_only) return 'Viewer';
-    return 'Member';
+    if (user.is_admin) return t('profile.roleAdmin');
+    if (user.is_view_only) return t('profile.roleViewer');
+    return t('profile.roleMember');
 }
 
 const nameForm = useForm({
@@ -36,20 +39,20 @@ function submitPassword() {
 
 <template>
     <AppLayout>
-        <Head title="Profile" />
+        <Head :title="t('profile.title')" />
 
         <div class="max-w-4xl mx-auto space-y-6">
-            <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">Profile</h1>
+            <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">{{ t('profile.title') }}</h1>
 
             <!-- Account -->
             <Card padding="p-6">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4">Account</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4">{{ t('profile.account') }}</h2>
 
                 <form @submit.prevent="submitName" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <TextField
                             v-model="nameForm.name"
-                            label="Name"
+                            :label="t('profile.name')"
                             type="text"
                             autocomplete="name"
                             required
@@ -57,7 +60,7 @@ function submitPassword() {
                         />
                         <div>
                             <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">
-                                Email
+                                {{ t('profile.email') }}
                             </label>
                             <p class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] text-[var(--md-sys-color-on-surface-variant)] md-body-medium">
                                 {{ user.email }}
@@ -65,7 +68,7 @@ function submitPassword() {
                         </div>
                         <div>
                             <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">
-                                Role
+                                {{ t('profile.role') }}
                             </label>
                             <p class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] text-[var(--md-sys-color-on-surface-variant)] md-body-medium">
                                 {{ roleOf(user) }}
@@ -74,21 +77,21 @@ function submitPassword() {
                     </div>
 
                     <Button type="submit" variant="filled" :disabled="nameForm.processing">
-                        <span v-if="nameForm.processing">Updating…</span>
-                        <span v-else>Update Name</span>
+                        <span v-if="nameForm.processing">{{ t('profile.updating') }}</span>
+                        <span v-else>{{ t('profile.updateName') }}</span>
                     </Button>
                 </form>
             </Card>
 
             <!-- Change Password -->
             <Card padding="p-6">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4">Change Password</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4">{{ t('profile.changePassword') }}</h2>
 
                 <form @submit.prevent="submitPassword" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <TextField
                             v-model="passwordForm.current_password"
-                            label="Current Password"
+                            :label="t('profile.currentPassword')"
                             type="password"
                             autocomplete="current-password"
                             required
@@ -96,7 +99,7 @@ function submitPassword() {
                         />
                         <TextField
                             v-model="passwordForm.password"
-                            label="New Password"
+                            :label="t('profile.newPassword')"
                             type="password"
                             autocomplete="new-password"
                             required
@@ -104,7 +107,7 @@ function submitPassword() {
                         />
                         <TextField
                             v-model="passwordForm.password_confirmation"
-                            label="Confirm New Password"
+                            :label="t('profile.confirmNewPassword')"
                             type="password"
                             autocomplete="new-password"
                             required
@@ -113,8 +116,8 @@ function submitPassword() {
                     </div>
 
                     <Button type="submit" variant="filled" :disabled="passwordForm.processing">
-                        <span v-if="passwordForm.processing">Updating…</span>
-                        <span v-else>Update Password</span>
+                        <span v-if="passwordForm.processing">{{ t('profile.updating') }}</span>
+                        <span v-else>{{ t('profile.updatePassword') }}</span>
                     </Button>
                 </form>
             </Card>

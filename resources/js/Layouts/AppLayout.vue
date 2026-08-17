@@ -1,26 +1,28 @@
 <script setup>
 import { computed } from 'vue';
 import { usePage, Link, router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
-import { IconButton, Alert } from '@/Components/ui';
+import { IconButton, Alert, LanguageSwitcher } from '@/Components/ui';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
+const { t } = useI18n();
 const page = usePage();
 const flash = computed(() => page.props.flash ?? {});
 const { theme, toggleTheme } = useTheme();
 const user = computed(() => page.props.auth?.user ?? null);
 
 const navLinks = computed(() => [
-    { label: 'Dashboard', href: '/sorify/' },
-    { label: 'Runs', href: '/sorify/runs' },
-    { label: 'Test Suites', href: '/sorify/suites' },
+    { label: t('nav.dashboard'), href: '/sorify/' },
+    { label: t('nav.runs'), href: '/sorify/runs' },
+    { label: t('nav.testSuites'), href: '/sorify/suites' },
 ]);
 
-const docsLink = { label: 'Docs', href: 'https://github.com/rakutentech/sorify', external: true, newTab: true };
+const docsLink = computed(() => ({ label: t('nav.docs'), href: 'https://github.com/rakutentech/sorify', external: true, newTab: true }));
 
 const adminLinks = computed(() => user.value?.is_admin ? [
-    { label: 'Admin', href: '/sorify/admin/users' },
-    { label: 'Logs', href: '/sorify/log-viewer', external: true, newTab: true },
+    { label: t('nav.admin'), href: '/sorify/admin/users' },
+    { label: t('nav.logs'), href: '/sorify/log-viewer', external: true, newTab: true },
 ] : []);
 
 function isActive(href) {
@@ -57,10 +59,10 @@ function logout() {
                                     isActive(link.href)
                                         ? 'bg-green-600 text-white'
                                         : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]',
-                                    link.label === 'Test Suites' ? 'font-bold' : ''
+                                    link.href === '/sorify/suites' ? 'font-bold' : ''
                                 ]"
                             >
-                                <svg v-if="link.label === 'Test Suites'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <svg v-if="link.href === '/sorify/suites'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
                                 </svg>
                                 {{ link.label }}
@@ -122,15 +124,18 @@ function logout() {
                                 @click="logout"
                                 class="md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
                             >
-                                Logout
+                                {{ t('nav.logout') }}
                             </button>
                         </template>
-                        <span v-else class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">QA Platform</span>
+                        <span v-else class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('nav.qaPlatform') }}</span>
+
+                        <!-- Language switcher -->
+                        <LanguageSwitcher />
 
                         <!-- Theme toggle -->
                         <IconButton
                             variant="standard"
-                            :label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+                            :label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
                             @click="toggleTheme"
                         >
                             <!-- Sun icon (shown in dark mode) -->
@@ -205,6 +210,8 @@ function logout() {
                         </Link>
                     </template>
                 </div>
+
+                <LanguageSwitcher />
             </div>
         </nav>
 

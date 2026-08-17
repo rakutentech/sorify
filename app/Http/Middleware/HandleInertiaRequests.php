@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
                     'is_admin' => $request->user()->is_admin,
                 ] : null,
             ],
+            'locale' => app()->getLocale(),
             'flash' => [
                 'success'    => $request->session()->get('flash.success'),
                 'error'      => $request->session()->get('flash.error'),

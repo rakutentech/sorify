@@ -1,10 +1,12 @@
 <script setup>
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Card, TextField, Button, Alert } from '@/Components/ui';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
+const { t } = useI18n();
 const { theme, toggleTheme } = useTheme();
 const page = usePage();
 const flash = computed(() => page.props.flash ?? {});
@@ -24,7 +26,7 @@ function submit() {
         <IconButton
             class="fixed top-4 right-4"
             variant="standard"
-            :label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+            :label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
             @click="toggleTheme"
         >
             <svg v-if="theme === 'dark'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -47,7 +49,7 @@ function submit() {
             <!-- Brand -->
             <div class="text-center mb-8">
                 <img :src="sorifyLogo" alt="Sorify" class="h-20 mx-auto rounded-lg px-2 py-1" />
-                <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">Reset your password</p>
+                <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('auth.resetPasswordSubtitle') }}</p>
             </div>
 
             <!-- Card -->
@@ -57,13 +59,13 @@ function submit() {
                 </Alert>
 
                 <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mb-5">
-                    Enter your email address and we'll send you a link to reset your password.
+                    {{ t('auth.forgotPasswordInstructions') }}
                 </p>
 
                 <form @submit.prevent="submit" class="space-y-5">
                     <TextField
                         v-model="form.email"
-                        label="Email"
+                        :label="t('auth.email')"
                         type="email"
                         autocomplete="email"
                         required
@@ -72,12 +74,12 @@ function submit() {
 
                     <!-- Submit -->
                     <Button type="submit" variant="filled" :disabled="form.processing" class="w-full">
-                        <span v-if="form.processing">Sending…</span>
-                        <span v-else>Send reset link</span>
+                        <span v-if="form.processing">{{ t('auth.sending') }}</span>
+                        <span v-else>{{ t('auth.sendResetLink') }}</span>
                     </Button>
 
                     <a href="/sorify/login" class="block text-center md-label-small text-[var(--md-sys-color-primary)] hover:underline">
-                        Back to sign in
+                        {{ t('auth.backToSignIn') }}
                     </a>
                 </form>
             </Card>

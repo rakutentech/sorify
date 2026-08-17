@@ -1,11 +1,14 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
 import { Card, Chip, Button, SuiteName, RanBy, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+
+const { t } = useI18n();
 
 const props = defineProps({
     run: { type: Object, required: true },
@@ -145,7 +148,7 @@ function rerun() {
 const cancelling = ref(false);
 
 function cancelRun() {
-    if (!confirm('Cancel this run? Any test currently executing will be stopped immediately.')) return;
+    if (!confirm(t('testRunShow.confirmCancel'))) return;
     cancelling.value = true;
     router.post(`/sorify/runs/${props.run.id}/cancel`, {}, {
         async: true,
@@ -175,32 +178,32 @@ const failedPct = computed(() => {
 
 <template>
     <AppLayout>
-        <Head :title="`Run #${run.id}`" />
+        <Head :title="t('testRunShow.runNumber', { id: run.id })" />
 
         <!-- Breadcrumb -->
         <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-4">
-            <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">Test Suites</Link>
+            <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">{{ t('testSuites.title') }}</Link>
             <span>/</span>
             <Link v-if="run.suite" :href="`/sorify/suites/${run.suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors"><SuiteName :name="run.suite.name" /></Link>
             <span>/</span>
-            <span class="text-[var(--md-sys-color-on-surface)]">Run #{{ run.id }}</span>
+            <span class="text-[var(--md-sys-color-on-surface)]">{{ t('testRunShow.runNumber', { id: run.id }) }}</span>
         </div>
 
         <!-- Run header -->
         <Card class="mb-6">
             <div class="flex items-start justify-between flex-wrap gap-4">
                 <div>
-                    <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">Test Run</span>
+                    <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">{{ t('testRunShow.testRun') }}</span>
                     <div class="flex items-center gap-3 flex-wrap">
                         <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">
-                            <SuiteName v-if="run.suite" :name="run.suite.name" /><span v-else>Test Run</span>
-                            — Run #{{ run.id }}
+                            <SuiteName v-if="run.suite" :name="run.suite.name" /><span v-else>{{ t('testRunShow.testRun') }}</span>
+                            — {{ t('testRunShow.runNumber', { id: run.id }) }}
                         </h1>
                         <Chip :status="run.status" />
                     </div>
                     <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1.5 flex items-center gap-2 flex-wrap">
                         <span>
-                            Started {{ formatDate(run.started_at ?? run.created_at) }}
+                            {{ t('testRunShow.started', { date: formatDate(run.started_at ?? run.created_at) }) }}
                             <span v-if="run.duration_ms">&bull; {{ formatDuration(run.duration_ms) }}</span>
                         </span>
                         <span>&bull;</span>
@@ -212,7 +215,7 @@ const failedPct = computed(() => {
                     <!-- Live indicator -->
                     <div v-if="isActive" class="flex items-center gap-2 md-label-medium text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5">
                         <span class="w-2 h-2 rounded-full bg-current animate-pulse"></span>
-                        Live — refreshing every 2s
+                        {{ t('testRunShow.live') }}
                     </div>
 
                     <!-- Re-run -->
@@ -224,21 +227,21 @@ const failedPct = computed(() => {
                         <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
-                        {{ rerunning ? 'Starting...' : 'Re-run' }}
+                        {{ rerunning ? t('testRunShow.starting') : t('testRunShow.rerun') }}
                     </Button>
 
                     <!-- Cancel -->
                     <Button v-if="isActive" variant="text" class="!text-[var(--md-sys-color-error)]" @click="cancelRun" :disabled="cancelling">
-                        {{ cancelling ? 'Cancelling...' : 'Cancel' }}
+                        {{ cancelling ? t('testRunShow.cancelling') : t('testRunShow.cancel') }}
                     </Button>
                 </div>
             </div>
 
             <!-- Summary counts -->
             <div class="flex items-center gap-6 mt-4 md-body-medium">
-                <span class="text-[var(--md-sys-color-on-surface-variant)]">{{ results.length }} tests</span>
-                <span class="text-[var(--md-ext-color-success)] font-medium">{{ passedCount }} passed</span>
-                <span class="text-[var(--md-sys-color-error)] font-medium">{{ failedCount }} failed</span>
+                <span class="text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.testsCount', { count: results.length }) }}</span>
+                <span class="text-[var(--md-ext-color-success)] font-medium">{{ t('testRunShow.passed', { count: passedCount }) }}</span>
+                <span class="text-[var(--md-sys-color-error)] font-medium">{{ t('testRunShow.failed', { count: failedCount }) }}</span>
             </div>
         </Card>
 
@@ -248,7 +251,7 @@ const failedPct = computed(() => {
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-[var(--md-sys-color-primary)] animate-pulse"></span>
                     <span class="md-title-small text-[var(--md-sys-color-on-surface)]">
-                        {{ run.status === 'pending' ? 'Waiting to start…' : `Running tests — ${completedCount} of ${totalTests} complete` }}
+                        {{ run.status === 'pending' ? t('testRunShow.waitingToStart') : t('testRunShow.runningTests', { completed: completedCount, total: totalTests }) }}
                     </span>
                 </div>
                 <span class="md-title-small text-[var(--md-sys-color-on-surface)]">{{ progressPct }}%</span>
@@ -273,25 +276,25 @@ const failedPct = computed(() => {
             </div>
 
             <div class="flex items-center gap-4 mt-3 md-body-small text-[var(--md-sys-color-on-surface-variant)]">
-                <span v-if="totalTests">{{ totalTests }} total</span>
-                <span class="text-[var(--md-ext-color-success)]">{{ passedCount }} passed</span>
-                <span class="text-[var(--md-sys-color-error)]">{{ failedCount }} failed</span>
-                <span v-if="completedCount < totalTests">{{ totalTests - completedCount }} remaining</span>
+                <span v-if="totalTests">{{ t('testRunShow.totalCount', { count: totalTests }) }}</span>
+                <span class="text-[var(--md-ext-color-success)]">{{ t('testRunShow.passed', { count: passedCount }) }}</span>
+                <span class="text-[var(--md-sys-color-error)]">{{ t('testRunShow.failed', { count: failedCount }) }}</span>
+                <span v-if="completedCount < totalTests">{{ t('testRunShow.remainingCount', { count: totalTests - completedCount }) }}</span>
             </div>
         </Card>
 
         <!-- Results accordion -->
         <Card padding="p-0" class="overflow-hidden">
             <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Test Results</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testRunShow.testResults') }}</h2>
                 <div v-if="results.length" class="flex items-center gap-2">
-                    <Button variant="text" size="sm" @click="expandAll">Expand all</Button>
-                    <Button variant="text" size="sm" @click="collapseAll">Collapse all</Button>
+                    <Button variant="text" size="sm" @click="expandAll">{{ t('testRunShow.expandAll') }}</Button>
+                    <Button variant="text" size="sm" @click="collapseAll">{{ t('testRunShow.collapseAll') }}</Button>
                 </div>
             </div>
 
             <div v-if="!results.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                No results yet.
+                {{ t('testRunShow.noResultsYet') }}
             </div>
 
             <div v-else>
@@ -314,7 +317,7 @@ const failedPct = computed(() => {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
                             <span class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate">
-                                {{ result.test?.name ?? result.test_name ?? `Test #${result.id}` }}
+                                {{ result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id }) }}
                             </span>
                             <Chip :status="result.status" />
                         </div>
@@ -330,13 +333,13 @@ const failedPct = computed(() => {
                     <div v-if="isExpanded(result)" class="px-5 pb-5 bg-[var(--md-sys-color-surface-container-lowest)]">
                         <!-- Error message -->
                         <div v-if="result.error_message" class="mt-4">
-                            <p class="md-label-small font-medium text-[var(--md-sys-color-error)] uppercase tracking-wider mb-2">Error</p>
+                            <p class="md-label-small font-medium text-[var(--md-sys-color-error)] uppercase tracking-wider mb-2">{{ t('testRunShow.error') }}</p>
                             <pre class="text-[var(--md-sys-color-on-error-container)] md-body-small bg-[var(--md-sys-color-error-container)] rounded-[var(--md-sys-shape-corner-small)] p-3 overflow-x-auto whitespace-pre-wrap">{{ result.error_message }}</pre>
                         </div>
 
                         <!-- Stack trace -->
                         <div v-if="result.error_stack" class="mt-3">
-                            <p class="md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider mb-2">Stack Trace</p>
+                            <p class="md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider mb-2">{{ t('testRunShow.stackTrace') }}</p>
                             <pre class="text-[var(--md-sys-color-on-surface-variant)] md-body-small bg-code border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] p-3 overflow-x-auto whitespace-pre font-mono">{{ result.error_stack }}</pre>
                         </div>
 
@@ -353,28 +356,28 @@ const failedPct = computed(() => {
                                 >
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
-                                Stdout / Logs
+                                {{ t('testRunShow.stdoutLogs') }}
                                 <span v-if="result.status === 'running'" class="flex items-center gap-1 text-[var(--md-sys-color-primary)] normal-case tracking-normal">
                                     <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>
-                                    Live
+                                    {{ t('testRunShow.liveShort') }}
                                 </span>
                             </button>
                             <pre
                                 v-if="isStdoutExpanded(result)"
                                 :ref="(el) => registerStdoutEl(result.id, el)"
                                 class="text-[var(--md-sys-color-on-surface-variant)] md-body-small bg-code border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] p-3 overflow-x-auto whitespace-pre font-mono max-h-64"
-                            >{{ result.stdout || 'Waiting for output…' }}</pre>
+                            >{{ result.stdout || t('testRunShow.waitingForOutput') }}</pre>
                         </div>
 
                         <!-- Screenshots -->
                         <div v-if="result.screenshots?.length" class="mt-4">
-                            <p class="md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider mb-3">Screenshots</p>
+                            <p class="md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider mb-3">{{ t('testRunShow.screenshots') }}</p>
                             <ScreenshotGallery :screenshots="result.screenshots" />
                         </div>
 
                         <!-- Empty expanded state -->
                         <div v-if="result.status !== 'running' && !result.error_message && !result.stdout && !result.screenshots?.length" class="mt-4 md-body-small text-[var(--md-sys-color-on-surface-variant)] italic">
-                            No additional details.
+                            {{ t('testRunShow.noAdditionalDetails') }}
                         </div>
                     </div>
                 </div>
