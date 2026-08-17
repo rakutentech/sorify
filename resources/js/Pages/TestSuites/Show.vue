@@ -15,7 +15,7 @@ const props = defineProps({
     suite: { type: Object, required: true },
     stats: { type: Object, default: () => ({}) },
     tests: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
-    filters: { type: Object, default: () => ({ search: '', per_page: 30 }) },
+    filters: { type: Object, default: () => ({ search: '', per_page: 50 }) },
     recentRuns: { type: Array, default: () => [] },
     webhookUrl: { type: String, default: null },
     members: { type: Array, default: () => [] },
@@ -30,7 +30,7 @@ function debounce(fn, delay) {
 }
 
 const testSearch = ref(props.filters.search ?? '');
-const testPerPage = ref(props.filters.per_page ?? 30);
+const testPerPage = ref(props.filters.per_page ?? 50);
 const testSort = ref(props.filters.sort ?? '');
 
 function reloadTests(overrides = {}) {
@@ -975,6 +975,8 @@ function toggleRunsExpanded(testId) {
                                     <option :value="30000">{{ t('testSuiteShow.thirtySeconds') }}</option>
                                     <option :value="60000">{{ t('testSuiteShow.sixtySeconds') }}</option>
                                     <option :value="120000">{{ t('testSuiteShow.twoMinutes') }}</option>
+                                    <option :value="300000">{{ t('testSuiteShow.fiveMinutes') }}</option>
+                                    <option :value="600000">{{ t('testSuiteShow.tenMinutes') }}</option>
                                 </select>
                                 <p v-if="editForm.errors.timeout_ms" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.timeout_ms }}</p>
                             </div>
