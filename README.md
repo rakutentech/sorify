@@ -27,7 +27,7 @@
 
 ✴︎ **MCP Server:** Low token consumption over MCP layer, control all aspects of tests cases, code.
 
-✴︎ **Agent Plugins:** Claude/Codex plugins for zero-code test generation and management.
+✴︎ **Agent Plugins:** Claude/Codex plugins included - zero-code test code management.
 
 ## Feature Matrix
 
@@ -274,3 +274,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - v1.2 - Chrome Extension to record and write playwright tests
 - v1.3 - Skills updated, MS Teams notifications links to a screenshot, dashboard has admin editable msg
 - v1.4 - Manage users from MCP.
+- v1.5 - i18n support. English and Japanese for now.
