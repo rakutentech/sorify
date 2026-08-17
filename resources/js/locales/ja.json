@@ -258,12 +258,14 @@
         "colSuite": "スイート",
         "colUsers": "ユーザー",
         "colStatus": "ステータス",
+        "statusHasFailures": "失敗/中断",
         "colPassed": "成功",
         "colFailed": "失敗",
         "colDuration": "実行時間",
         "colScreenshots": "スクリーンショット",
         "colCreatedBy": "作成者",
         "colRanBy": "実行者",
+        "colRunDate": "実行日時",
         "showing": "{total}件中 {from}–{to}件を表示"
     },
     "testRunShow": {

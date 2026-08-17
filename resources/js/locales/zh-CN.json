@@ -258,12 +258,14 @@
         "colSuite": "套件",
         "colUsers": "用户",
         "colStatus": "状态",
+        "statusHasFailures": "失败/中断",
         "colPassed": "通过",
         "colFailed": "失败",
         "colDuration": "时长",
         "colScreenshots": "截图",
         "colCreatedBy": "创建者",
         "colRanBy": "运行者",
+        "colRunDate": "运行时间",
         "showing": "显示第 {from}–{to} 项，共 {total} 次运行"
     },
     "testRunShow": {
