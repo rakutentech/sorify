@@ -1,0 +1,37 @@
+resources/js/Pages/Auth/ResetPassword.vue
+  s_d08becd634425e::t_b0cf47b4147dbc 55
+  s_d08becd634425e::t_ae7260bcec652c 32-39
+  s_d08becd634425e::t_b44999c7d9f393 5
+resources/js/Pages/Auth/Register.vue
+  s_d08becd634425e::t_ea5677858f5d76 27-34
+  s_d08becd634425e::t_9cf8d30afe95a0 5
+  s_d08becd634425e::t_aa238796ae5032 50
+app/Http/Middleware/SetLocale.php
+  s_d08becd634425e::t_fc2475d250fd84 15-17,19
+resources/js/Pages/Auth/ForgotPassword.vue
+  s_d08becd634425e::t_56dc46ee88a366 25-32
+  s_d08becd634425e::t_d2d63125718a3f 48
+  s_d08becd634425e::t_0615ee77fc0535 6
+resources/js/Pages/Auth/Login.vue
+  s_d08becd634425e::t_ce76384b159f79 25-32
+  s_d08becd634425e::t_0bef6e182c64c8 5
+  s_d08becd634425e::t_04b7e5ccbab2fc 48
+resources/js/composables/useLocale.js
+  s_d08becd634425e::t_2fb4d68341ea7e 3,12-14,17-20,23,32-33,36-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "e3184f701f8744c6f4a649a8bc8f882230526cc8",
+  "prompts": {},
+  "sessions": {
+    "s_d08becd634425e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ff1075640ffeb82YRQDVvgxEkb",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
