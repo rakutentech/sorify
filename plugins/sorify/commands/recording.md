@@ -88,8 +88,9 @@ Interpreted steps:
 3. Fill #email with "user@example.com"
 4. Fill #password with (redacted — will be skipped, add a login snippet manually)
 5. Press Enter
-6. Navigate to {url}
+6. Navigate to {url}  (caused by: click on button#login-btn, navigation_type: form_submit)
 7. Click "Submit order" (button[data-testid="submit-order"])
+8. Expect toast "Order placed" to become visible  (assertion_hint after step 7)
 ...
 
 Proposed suite: "{hostname} - Recorded - {YYYY-MM-DD}"
@@ -100,6 +101,52 @@ Proposed test:  "REC: {label or session_id} — {starting hostname}"
 in their next message.** If the user declines, or asks for changes, stop here
 (or loop back and re-interpret) instead of proceeding to Step 2 — nothing has
 been created in Sorify yet at this point, so there is nothing to undo.
+
+## Field reference
+
+Beyond the basics (`selector`, `selector_strategy`, `tag_name`, `text`,
+`value`, `url`, `timestamp`), events may carry these fields — use them to
+produce more accurate Playwright code, not just a blind action replay:
+
+- `caused_by: {selector, tag_name, text, event_type}` — appears on
+  `navigation`, `network_request`, `new_tab_opened`, and `assertion_hint`
+  events. Ties the event back to the action that triggered it (e.g. "Click
+  'Checkout' → causes navigation to /confirm").
+- `navigation_type` — one of `link_click`, `typed_url`, `form_submit`,
+  `reload`, `redirect`, `forward_back`, `pushstate`, `replacestate`,
+  `history_api`, `hashchange`. Use it to decide whether to expect a full
+  `page.goto`/click-triggered navigation vs. an SPA route change.
+- `is_top_frame` / `frame_url` / `tab_id` — when `is_top_frame` is false, the
+  event happened inside an iframe; generate `page.frameLocator(...)` against
+  `frame_url` instead of acting on `page` directly.
+- `opener_tab_id` / `new_tab_id` / `new_tab_url` (on `new_tab_opened` /
+  `new_tab_loaded`) — a link/action opened a new tab. Generate
+  `const [newPage] = await Promise.all([context.waitForEvent('page'), ...])`.
+- `drag_and_drop` events, with a nested `source` (same shape as `describe()`)
+  — generate `page.locator(source.selector).dragTo(page.locator(selector))`.
+- `upload: true` / `files: [{name, size, type}]` on a `change` event — a file
+  input was used. Only metadata was captured (no real path/content), so
+  generate `.setInputFiles(...)` with a TODO/fixture placeholder rather than
+  inventing a fake path.
+- `select_multiple` / `selected_options: [{value, label}]` on a `change`
+  event from a `<select>` — generate `.selectOption({ label })` (or
+  `{ value }`), and pass an array if `select_multiple` is true.
+- `focus` / `hover` event types — generate `.focus()` / `.hover()`. A
+  `focus` event immediately before an `input`/`change` on the same selector
+  is usually just setup, not a separate assertable step.
+- `network_request` (`method`, `request_url`, `status`, `ok`, `duration_ms`),
+  `console_error` (`message`, `stack`), `page_error` (`message`, `filename`,
+  `lineno`) — only act on these when they carry a `caused_by` linking them to
+  a step you're already generating (e.g. `expect(response.status()).toBe(200)`
+  right after a submit). Ignore unlinked ones — they're usually
+  analytics/polling noise, not part of the tested flow.
+- `assertion_hint` (`appeared`, `disappeared`, `title_changed`, `url_changed`,
+  `caused_by`) — the primary signal for generating real assertions instead of
+  blind replay. Turn `appeared` entries into
+  `expect(page.locator(selector)).toBeVisible()`/`toHaveText(text)`,
+  `title_changed`/`url_changed` into `toHaveTitle()`/`toHaveURL()`. Note
+  `url_changed` here is informational only — a `navigation` event is the
+  authoritative source for "did a navigation happen," don't double-count.
 
 ## Notes
 

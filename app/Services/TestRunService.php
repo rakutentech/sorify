@@ -8,7 +8,6 @@ use App\Jobs\RunSingleTestJob;
 use App\Models\Test;
 use App\Models\TestRun;
 use App\Models\TestSuite;
-use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -49,20 +48,22 @@ class TestRunService
 
         Bus::batch($tests->map(fn (Test $test) => new RunSingleTestJob($run, $test))->all())
             ->onQueue('sorify')
-            ->finally(fn (Batch $batch) => app(self::class)->finalizeRun($run, $batch))
+            ->finally(fn () => app(self::class)->finalizeRun($run))
             ->dispatch();
 
         return $run;
     }
 
-    public function finalizeRun(TestRun $run, ?Batch $batch = null): void
+    public function finalizeRun(TestRun $run): void
     {
         $run->refresh();
+
+        $hasFailures = $run->failed_count > 0 || $run->error_count > 0;
 
         $run->update([
             'duration_ms'  => $run->started_at?->diffInMilliseconds(now()),
             'completed_at' => now(),
-            'status'       => $run->status === 'cancelled' ? 'cancelled' : ($batch?->hasFailures() ? 'failed' : 'completed'),
+            'status'       => $run->status === 'cancelled' ? 'cancelled' : ($hasFailures ? 'failed' : 'completed'),
         ]);
 
         TestRunCompleted::dispatch($run);

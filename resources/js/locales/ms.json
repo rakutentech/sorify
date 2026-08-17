@@ -258,12 +258,14 @@
         "colSuite": "Set",
         "colUsers": "Pengguna",
         "colStatus": "Status",
+        "statusHasFailures": "Gagal/Terganggu",
         "colPassed": "Lulus",
         "colFailed": "Gagal",
         "colDuration": "Tempoh",
         "colScreenshots": "Tangkap Layar",
         "colCreatedBy": "Dicipta oleh",
         "colRanBy": "Dijalankan oleh",
+        "colRunDate": "Tarikh larian",
         "showing": "Memaparkan {from}–{to} daripada {total} pelaksanaan"
     },
     "testRunShow": {
