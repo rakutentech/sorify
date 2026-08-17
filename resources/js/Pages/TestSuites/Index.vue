@@ -1,9 +1,12 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Modal, SuiteName, AvatarGroup, SettingBadge } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
+
+const { t } = useI18n();
 
 function debounce(fn, delay) {
     let timer;
@@ -77,21 +80,21 @@ function formatPassRate(rate) {
 
 <template>
     <AppLayout>
-        <Head title="Test Suites" />
+        <Head :title="t('testSuites.title')" />
 
         <div class="flex flex-col flex-1 min-h-0">
 
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">Test Suites</h1>
-                <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">Manage your automated test suites</p>
+                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ t('testSuites.title') }}</h1>
+                <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('testSuites.subtitle') }}</p>
             </div>
             <Button v-if="can.create" variant="filled" @click="openModal">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                New Suite
+                {{ t('testSuites.newSuite') }}
             </Button>
         </div>
 
@@ -104,7 +107,7 @@ function formatPassRate(rate) {
                 <input
                     v-model="search"
                     type="text"
-                    placeholder="Search suites..."
+                    :placeholder="t('testSuites.searchPlaceholder')"
                     class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] pl-9 pr-4 py-2.5 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                 />
             </div>
@@ -114,14 +117,14 @@ function formatPassRate(rate) {
         <Card padding="p-0" class="flex flex-col flex-1 min-h-0">
             <div v-if="!suites.data.length" class="px-5 py-12 text-center">
                 <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                    {{ search ? 'No suites match your search.' : (can.create ? 'No test suites yet.' : 'No test suites yet. Ask an admin to add you to one.') }}
+                    {{ search ? t('testSuites.noMatchSearch') : (can.create ? t('testSuites.noneYetCanCreate') : t('testSuites.noneYetNoCreate')) }}
                 </p>
                 <button
                     v-if="!search && can.create"
                     @click="openModal"
                     class="mt-3 md-label-medium text-[var(--md-sys-color-primary)] hover:underline"
                 >
-                    Create your first suite &rarr;
+                    {{ t('testSuites.createFirst') }}
                 </button>
             </div>
 
@@ -129,12 +132,12 @@ function formatPassRate(rate) {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Name</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Users</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Tests</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Runs</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Pass Rate</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Last Run</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colName') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colUsers') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colTests') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colRuns') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colPassRate') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colLastRun') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
@@ -153,10 +156,10 @@ function formatPassRate(rate) {
                                     </Link>
                                     <p v-if="suite.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate max-w-xs">{{ suite.description }}</p>
                                     <div class="flex flex-wrap gap-1.5 mt-1.5">
-                                        <SettingBadge label="Teams" :active="!!suite.has_teams_webhook" />
-                                        <SettingBadge label="Screenshots" :active="!!suite.take_screenshot" />
-                                        <SettingBadge label="Proxy" :active="!!(suite.proxy_rules_count || suite.playwright_proxy)" />
-                                        <SettingBadge label="Schedule" :active="!!(suite.schedule && suite.schedule.is_enabled)" />
+                                        <SettingBadge :label="t('testSuites.badgeTeams')" :active="!!suite.has_teams_webhook" />
+                                        <SettingBadge :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" />
+                                        <SettingBadge :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules_count || suite.playwright_proxy)" />
+                                        <SettingBadge :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" />
                                     </div>
                                 </div>
                             </td>
@@ -189,7 +192,7 @@ function formatPassRate(rate) {
                 class="flex items-center justify-between px-5 py-3 border-t border-[var(--md-sys-color-outline-variant)]"
             >
                 <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                    Showing {{ suites.from ?? 0 }}–{{ suites.to ?? 0 }} of {{ suites.total }} suites
+                    {{ t('testSuites.showing', { from: suites.from ?? 0, to: suites.to ?? 0, total: suites.total }) }}
                 </p>
 
                 <div class="flex items-center gap-3">
@@ -215,10 +218,10 @@ function formatPassRate(rate) {
                         v-model="perPage"
                         class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                     >
-                        <option :value="10">10 / page</option>
-                        <option :value="30">30 / page</option>
-                        <option :value="50">50 / page</option>
-                        <option :value="100">100 / page</option>
+                        <option :value="10">{{ t('testSuites.perPage10') }}</option>
+                        <option :value="30">{{ t('testSuites.perPage30') }}</option>
+                        <option :value="50">{{ t('testSuites.perPage50') }}</option>
+                        <option :value="100">{{ t('testSuites.perPage100') }}</option>
                     </select>
                 </div>
             </div>
@@ -227,52 +230,52 @@ function formatPassRate(rate) {
         </div><!-- end flex-1 column -->
 
         <!-- New Suite Modal -->
-        <Modal :show="showModal" title="New Test Suite" max-width="max-w-lg" @close="closeModal">
+        <Modal :show="showModal" :title="t('testSuites.modalTitle')" max-width="max-w-lg" @close="closeModal">
                     <form @submit.prevent="submit" class="px-6 py-5 space-y-4">
-                        <TextField v-model="form.name" label="Suite Name *" placeholder="My Test Suite" required :error="form.errors.name" />
+                        <TextField v-model="form.name" :label="t('testSuites.suiteName')" :placeholder="t('testSuites.suiteNamePlaceholder')" required :error="form.errors.name" />
 
                         <TextField
                             v-model="form.playwright_proxy"
-                            label="HTTP Proxy"
-                            placeholder="http://proxy.example.com:8080"
-                            hint="Proxy used by Playwright when running tests. Leave empty for direct connection. Per-domain proxy rules can be added after creating the suite, from Edit Suite."
+                            :label="t('testSuites.httpProxy')"
+                            :placeholder="t('testSuites.httpProxyPlaceholder')"
+                            :hint="t('testSuites.httpProxyHint')"
                             :error="form.errors.playwright_proxy"
                         />
 
                         <div>
-                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Keep History</label>
+                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('testSuites.keepHistory') }}</label>
                             <select
                                 v-model="form.history_retention"
                                 class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                             >
-                                <option :value="3">Last 3 runs</option>
-                                <option :value="5">Last 5 runs</option>
-                                <option :value="10">Last 10 runs</option>
+                                <option :value="3">{{ t('testSuites.last3Runs') }}</option>
+                                <option :value="5">{{ t('testSuites.last5Runs') }}</option>
+                                <option :value="10">{{ t('testSuites.last10Runs') }}</option>
                             </select>
-                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-1.5">Older runs (and their screenshots) are deleted automatically per test.</p>
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-1.5">{{ t('testSuites.historyHint') }}</p>
                             <p v-if="form.errors.history_retention" class="md-body-small text-[var(--md-sys-color-error)] mt-1.5">{{ form.errors.history_retention }}</p>
                         </div>
 
                         <div>
-                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Retries</label>
+                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('testSuites.retries') }}</label>
                             <select
                                 v-model="form.max_retries"
                                 class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                             >
-                                <option :value="0">No retries</option>
-                                <option :value="1">Retry once</option>
-                                <option :value="2">Retry twice</option>
-                                <option :value="3">Retry 3 times</option>
+                                <option :value="0">{{ t('testSuites.noRetries') }}</option>
+                                <option :value="1">{{ t('testSuites.retryOnce') }}</option>
+                                <option :value="2">{{ t('testSuites.retryTwice') }}</option>
+                                <option :value="3">{{ t('testSuites.retry3Times') }}</option>
                             </select>
                             <p v-if="form.errors.max_retries" class="md-body-small text-[var(--md-sys-color-error)] mt-1.5">{{ form.errors.max_retries }}</p>
                         </div>
 
-                        <TextField v-model="form.description" label="Description" type="textarea" :rows="3" placeholder="Optional description..." :error="form.errors.description" />
+                        <TextField v-model="form.description" :label="t('testSuites.description')" type="textarea" :rows="3" :placeholder="t('testSuites.descriptionPlaceholder')" :error="form.errors.description" />
 
                         <div class="flex justify-end gap-3 pt-2">
-                            <Button type="button" variant="text" @click="closeModal">Cancel</Button>
+                            <Button type="button" variant="text" @click="closeModal">{{ t('testSuites.cancel') }}</Button>
                             <Button type="submit" variant="filled" :disabled="form.processing">
-                                {{ form.processing ? 'Creating...' : 'Create Suite' }}
+                                {{ form.processing ? t('testSuites.creating') : t('testSuites.createSuite') }}
                             </Button>
                         </div>
                     </form>

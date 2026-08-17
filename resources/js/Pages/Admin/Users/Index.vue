@@ -1,10 +1,13 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Modal } from '@/Components/ui';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import { formatDate } from '@/utils/date';
+
+const { t } = useI18n();
 
 const props = defineProps({
     users: Array,
@@ -37,7 +40,7 @@ function submitAdd() {
 }
 
 function deleteUser(user) {
-    if (!confirm(`Delete user "${user.name}" (${user.email})? This cannot be undone.`)) return;
+    if (!confirm(t('adminUsers.confirmDeleteUser', { name: user.name, email: user.email }))) return;
     router.delete(`/sorify/admin/users/${user.id}`);
 }
 
@@ -52,7 +55,7 @@ function roleOf(user) {
 }
 
 function resetPassword(user) {
-    if (!confirm(`Generate a password reset link for "${user.name}" (${user.email})?`)) return;
+    if (!confirm(t('adminUsers.confirmResetPassword', { name: user.name, email: user.email }))) return;
     router.post(`/sorify/admin/users/${user.id}/reset-password`);
 }
 
@@ -68,12 +71,12 @@ watch(
 
 <template>
     <AppLayout>
-        <Head title="Admin — Users" />
+        <Head :title="t('adminUsers.pageTitle')" />
 
         <div class="space-y-5">
             <div class="flex items-center justify-between">
-                <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">Users</h1>
-                <Button variant="filled" @click="openAddModal">Add User</Button>
+                <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">{{ t('adminUsers.heading') }}</h1>
+                <Button variant="filled" @click="openAddModal">{{ t('adminUsers.addUser') }}</Button>
             </div>
 
             <!-- Users Table -->
@@ -81,12 +84,12 @@ watch(
                 <table class="w-full">
                     <thead>
                         <tr class="border-b border-[var(--md-sys-color-outline-variant)] text-left bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Name</th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Email</th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Role</th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Joined</th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Last Active</th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Actions</th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colName') }}</th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colEmail') }}</th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colRole') }}</th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colJoined') }}</th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colLastActive') }}</th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colActions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
@@ -97,36 +100,36 @@ watch(
                                 <select
                                     :value="roleOf(user)"
                                     :disabled="user.id === currentUserId"
-                                    :title="user.id === currentUserId ? 'You cannot change your own role.' : 'Change role'"
+                                    :title="user.id === currentUserId ? t('adminUsers.cannotChangeOwnRole') : t('adminUsers.changeRole')"
                                     @change="changeRole(user, $event)"
                                     class="md-label-small font-medium rounded-[var(--md-sys-shape-corner-extra-small)] border border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-high)] px-2 py-1 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
-                                    <option value="admin">Admin</option>
-                                    <option value="member">Member</option>
-                                    <option value="viewer">Viewer</option>
+                                    <option value="admin">{{ t('adminUsers.roleAdmin') }}</option>
+                                    <option value="member">{{ t('adminUsers.roleMember') }}</option>
+                                    <option value="viewer">{{ t('adminUsers.roleViewer') }}</option>
                                 </select>
                             </td>
                             <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(user.created_at) }}</td>
-                            <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ user.last_login_at ? formatDate(user.last_login_at) : 'Never' }}</td>
+                            <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ user.last_login_at ? formatDate(user.last_login_at) : t('adminUsers.never') }}</td>
                             <td class="px-4 py-3 space-x-3">
                                 <button
                                     @click="resetPassword(user)"
                                     class="md-label-small text-[var(--md-sys-color-primary)] hover:underline transition-colors"
-                                    title="Generate a password reset link"
+                                    :title="t('adminUsers.resetPasswordTitle')"
                                 >
-                                    Reset Password
+                                    {{ t('adminUsers.resetPasswordAction') }}
                                 </button>
                                 <button
                                     @click="deleteUser(user)"
                                     class="md-label-small text-[var(--md-sys-color-error)] hover:underline transition-colors"
-                                    title="Delete user"
+                                    :title="t('adminUsers.deleteTitle')"
                                 >
-                                    Delete
+                                    {{ t('adminUsers.deleteAction') }}
                                 </button>
                             </td>
                         </tr>
                         <tr v-if="!users.length">
-                            <td colspan="6" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">No users found.</td>
+                            <td colspan="6" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('adminUsers.noUsersFound') }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -134,13 +137,13 @@ watch(
         </div>
 
         <!-- Add User Modal -->
-        <Modal :show="showAddModal" title="Add User" max-width="max-w-md" @close="showAddModal = false">
+        <Modal :show="showAddModal" :title="t('adminUsers.addUserModalTitle')" max-width="max-w-md" @close="showAddModal = false">
                     <form @submit.prevent="submitAdd" class="px-6 py-5 space-y-4">
-                        <TextField v-model="addForm.name" label="Name" required :error="addForm.errors.name" />
-                        <TextField v-model="addForm.email" label="Email" type="email" required :error="addForm.errors.email" />
+                        <TextField v-model="addForm.name" :label="t('adminUsers.name')" required :error="addForm.errors.name" />
+                        <TextField v-model="addForm.email" :label="t('adminUsers.email')" type="email" required :error="addForm.errors.email" />
                         <TextField
                             v-model="addForm.password"
-                            label="Password"
+                            :label="t('adminUsers.password')"
                             type="password"
                             required
                             autocomplete="new-password"
@@ -148,40 +151,39 @@ watch(
                         />
 
                         <div>
-                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">Role</label>
+                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('adminUsers.role') }}</label>
                             <select
                                 v-model="addForm.role"
                                 class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                             >
-                                <option value="admin">Admin</option>
-                                <option value="member">Member</option>
-                                <option value="viewer">Viewer</option>
+                                <option value="admin">{{ t('adminUsers.roleAdmin') }}</option>
+                                <option value="member">{{ t('adminUsers.roleMember') }}</option>
+                                <option value="viewer">{{ t('adminUsers.roleViewer') }}</option>
                             </select>
                             <p v-if="addForm.errors.role" class="md-body-small text-[var(--md-sys-color-error)] mt-1.5">{{ addForm.errors.role }}</p>
                         </div>
 
                         <div class="flex justify-end gap-3 pt-2">
-                            <Button type="button" variant="text" @click="showAddModal = false">Cancel</Button>
+                            <Button type="button" variant="text" @click="showAddModal = false">{{ t('adminUsers.cancel') }}</Button>
                             <Button type="submit" variant="filled" :disabled="addForm.processing">
-                                <span v-if="addForm.processing">Creating…</span>
-                                <span v-else>Create User</span>
+                                <span v-if="addForm.processing">{{ t('adminUsers.creating') }}</span>
+                                <span v-else>{{ t('adminUsers.createUser') }}</span>
                             </Button>
                         </div>
                     </form>
         </Modal>
 
         <!-- Reset Password Link Modal -->
-        <Modal :show="!!resetLink" title="Password Reset Link" max-width="max-w-md" @close="resetLink = null">
+        <Modal :show="!!resetLink" :title="t('adminUsers.resetLinkModalTitle')" max-width="max-w-md" @close="resetLink = null">
                     <div class="px-6 py-5">
                         <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mb-4">
-                            A reset email was sent to <strong>{{ resetLink?.email }}</strong>. If SMTP delivery fails on this
-                            infra, copy the link below and send it to the user directly.
+                            {{ t('adminUsers.resetLinkInstructions', { email: resetLink?.email }) }}
                         </p>
 
                         <CopyableSecret v-if="resetLink" :value="resetLink.link" />
                     </div>
                     <template #footer>
-                        <Button type="button" variant="filled" @click="resetLink = null">Close</Button>
+                        <Button type="button" variant="filled" @click="resetLink = null">{{ t('adminUsers.close') }}</Button>
                     </template>
         </Modal>
     </AppLayout>

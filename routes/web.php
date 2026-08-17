@@ -123,6 +123,7 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'updateName'])->name('profile.update-name');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::patch('/profile/locale', [ProfileController::class, 'updateLocale'])->name('profile.update-locale');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 

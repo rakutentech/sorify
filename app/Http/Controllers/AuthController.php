@@ -35,7 +35,14 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        Auth::user()->forceFill(['last_login_at' => now()])->save();
+        $user = Auth::user();
+        $attributes = ['last_login_at' => now()];
+
+        if ($user->locale === null) {
+            $attributes['locale'] = $request->getPreferredLanguage(array_keys(config('app.supported_locales')));
+        }
+
+        $user->forceFill($attributes)->save();
 
         return redirect('/sorify/');
     }
@@ -62,6 +69,7 @@ class AuthController extends Controller
             'email' => $data['email'],
             'password' => $data['password'],
             'is_view_only' => true,
+            'locale' => $request->getPreferredLanguage(array_keys(config('app.supported_locales'))),
         ]);
 
         Auth::login($user);
