@@ -3,8 +3,9 @@ import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Chip, SuiteName, AvatarGroup, RanBy, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
+import { Card, Chip, SuiteName, RanBy, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+import { formatDate, formatRelativeTime } from '@/utils/date';
 
 const { t } = useI18n();
 
@@ -25,6 +26,10 @@ const lightbox = useScreenshotLightbox();
 watch(perPage, () => {
     router.get('/sorify/runs', { per_page: perPage.value, page: 1 }, { preserveState: true, replace: true });
 });
+
+function runStatusLabel(status) {
+    return status === 'failed' ? t('runs.statusHasFailures') : status;
+}
 
 function formatDuration(ms) {
     if (!ms && ms !== 0) return '—';
@@ -53,7 +58,6 @@ function formatDuration(ms) {
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colSuite') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colUsers') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colStatus') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colPassed') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colFailed') }}</th>
@@ -61,6 +65,7 @@ function formatDuration(ms) {
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colScreenshots') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colCreatedBy') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colRanBy') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colRunDate') }}</th>
                             <th class="px-5 py-3"></th>
                         </tr>
                     </thead>
@@ -85,10 +90,7 @@ function formatDuration(ms) {
                                 </span>
                             </td>
                             <td class="px-5 py-3">
-                                <AvatarGroup :users="run.members ?? []" :suite-id="run.suite_id" />
-                            </td>
-                            <td class="px-5 py-3">
-                                <Chip :status="run.status" />
+                                <Chip :status="run.status" :label="runStatusLabel(run.status)" />
                             </td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-ext-color-success)]">{{ run.passed_count ?? '—' }}</td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-error)]">{{ run.failed_count ?? '—' }}</td>
@@ -98,6 +100,16 @@ function formatDuration(ms) {
                             </td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ run.created_by ?? '—' }}</td>
                             <td class="px-5 py-3"><RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" /></td>
+                            <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                                <span class="group relative inline-flex items-center">
+                                    {{ formatRelativeTime(run.created_at) }}
+                                    <div class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap">
+                                        <div class="px-2.5 py-1.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-inverse-surface)] text-[var(--md-sys-color-inverse-on-surface)] md-label-small shadow-elevation-1">
+                                            {{ formatDate(run.created_at) }}
+                                        </div>
+                                    </div>
+                                </span>
+                            </td>
                             <td class="px-5 py-3 text-right">
                                 <Link
                                     :href="`/sorify/runs/${run.id}`"

@@ -258,12 +258,14 @@
         "colSuite": "Suite",
         "colUsers": "Users",
         "colStatus": "Status",
+        "statusHasFailures": "Failed/Interrupted",
         "colPassed": "Passed",
         "colFailed": "Failed",
         "colDuration": "Duration",
         "colScreenshots": "Screenshots",
         "colCreatedBy": "Created by",
         "colRanBy": "Ran by",
+        "colRunDate": "Run date",
         "showing": "Showing {from}–{to} of {total} runs"
     },
     "testRunShow": {
