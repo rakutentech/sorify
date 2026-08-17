@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import CopyButton from '@/Components/CopyButton.vue';
@@ -8,6 +9,8 @@ import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
 import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+
+const { t } = useI18n();
 
 const props = defineProps({
     suite: { type: Object, required: true },
@@ -91,7 +94,7 @@ function onVersionKeydown(e) {
 }
 
 function restoreVersion(version) {
-    if (!confirm(`Restore version v${version.version_number}? The current code will be kept as a new version.`)) return;
+    if (!confirm(t('testShow.confirmRestore', { version: version.version_number }))) return;
 
     restoring.value = true;
     router.post(
@@ -112,7 +115,7 @@ const running = ref(false);
 const runError = ref(null);
 
 function deleteTest() {
-    if (!confirm(`Delete test "${props.test.name}"? This cannot be undone.`)) return;
+    if (!confirm(t('testShow.confirmDelete', { name: props.test.name }))) return;
     router.delete(`/sorify/suites/${props.suite.id}/tests/${props.test.id}`);
 }
 
@@ -124,7 +127,7 @@ function runTest() {
         { test_ids: [props.test.id] },
         {
             async: true,
-            onError: () => { runError.value = 'Failed to start test run.'; },
+            onError: () => { runError.value = t('testShow.runFailedToStart'); },
             onFinish: () => { running.value = false; },
         },
     );
@@ -185,7 +188,7 @@ function onHistoryKeydown(e) {
 
         <!-- Breadcrumb -->
         <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-4">
-            <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">Test Suites</Link>
+            <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">{{ t('testSuites.title') }}</Link>
             <span>/</span>
             <Link :href="`/sorify/suites/${suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors"><SuiteName :name="suite.name" /></Link>
             <span>/</span>
@@ -196,7 +199,7 @@ function onHistoryKeydown(e) {
         <div class="flex items-start justify-between mb-6">
             <div class="flex-1 min-w-0">
                 <template v-if="!editMode">
-                    <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">Test Case</span>
+                    <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">{{ t('testShow.testCase') }}</span>
                     <div class="flex items-center gap-3 flex-wrap">
                         <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ test.name }}</h1>
                         <Chip v-if="test.status" :status="test.status" />
@@ -205,21 +208,21 @@ function onHistoryKeydown(e) {
                     <div v-if="test.uploaded_by" class="flex items-center gap-2 mt-1.5">
                         <Avatar :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" />
                         <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                            Uploaded by <span class="font-medium">{{ uploader(test.uploaded_by).name }}</span>
+                            {{ t('testShow.uploadedBy', { name: uploader(test.uploaded_by).name }) }}
                         </p>
                     </div>
                 </template>
 
                 <template v-else>
                     <form @submit.prevent="saveEdit" class="space-y-3 max-w-xl">
-                        <TextField v-model="editForm.name" label="Test name" :error="editForm.errors.name" />
-                        <TextField v-model="editForm.description" label="Description" type="textarea" :rows="2" :error="editForm.errors.description" />
-                        <Autocomplete v-model="editForm.uploaded_by" :options="users" label="Uploaded by" :error="editForm.errors.uploaded_by" />
+                        <TextField v-model="editForm.name" :label="t('testShow.testName')" :error="editForm.errors.name" />
+                        <TextField v-model="editForm.description" :label="t('testShow.description')" type="textarea" :rows="2" :error="editForm.errors.description" />
+                        <Autocomplete v-model="editForm.uploaded_by" :options="users" :label="t('testShow.uploadedByLabel')" :error="editForm.errors.uploaded_by" />
                         <div class="flex gap-2">
                             <Button type="submit" variant="filled" size="sm" :disabled="editForm.processing">
-                                {{ editForm.processing ? 'Saving...' : 'Save' }}
+                                {{ editForm.processing ? t('testShow.saving') : t('testShow.save') }}
                             </Button>
-                            <Button type="button" variant="text" size="sm" @click="editMode = false">Cancel</Button>
+                            <Button type="button" variant="text" size="sm" @click="editMode = false">{{ t('testShow.cancel') }}</Button>
                         </div>
                     </form>
                 </template>
@@ -230,14 +233,14 @@ function onHistoryKeydown(e) {
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
-                    Delete
+                    {{ t('testShow.delete') }}
                 </Button>
-                <Button v-if="!editMode" variant="tonal" @click="editMode = true">Edit</Button>
+                <Button v-if="!editMode" variant="tonal" @click="editMode = true">{{ t('testShow.edit') }}</Button>
                 <Button
                     variant="filled"
                     @click="runTest"
                     :disabled="running || !test.playwright_code"
-                    :title="!test.playwright_code ? 'No Playwright code — upload code first' : 'Run this test'"
+                    :title="!test.playwright_code ? t('testShow.noCodeTitle') : t('testShow.runThisTest')"
                 >
                     <svg v-if="running" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -247,7 +250,7 @@ function onHistoryKeydown(e) {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    {{ running ? 'Starting...' : 'Run Test' }}
+                    {{ running ? t('testShow.starting') : t('testShow.runTest') }}
                 </Button>
             </div>
         </div>
@@ -258,7 +261,7 @@ function onHistoryKeydown(e) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <div class="flex-1 min-w-0">
-                <p class="md-body-medium font-medium text-[var(--md-sys-color-on-error-container)]">Run failed to start</p>
+                <p class="md-body-medium font-medium text-[var(--md-sys-color-on-error-container)]">{{ t('testShow.runFailedTitle') }}</p>
                 <p class="md-body-small text-[var(--md-sys-color-on-error-container)] mt-0.5">{{ runError }}</p>
             </div>
             <button @click="runError = null" class="text-[var(--md-sys-color-on-error-container)] flex-shrink-0 transition-colors">
@@ -271,18 +274,18 @@ function onHistoryKeydown(e) {
         <!-- Code editor section -->
         <Card padding="p-0" class="mb-6">
             <div class="flex items-center justify-between px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)]">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Playwright Code</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testShow.playwrightCode') }}</h2>
                 <div class="flex items-center gap-2">
-                    <span v-if="codeSaved" class="md-label-small text-[var(--md-ext-color-success)]">Saved!</span>
-                    <CopyButton v-if="codeForm.playwright_code" :value="codeForm.playwright_code" label="Copy code" />
+                    <span v-if="codeSaved" class="md-label-small text-[var(--md-ext-color-success)]">{{ t('testShow.saved') }}</span>
+                    <CopyButton v-if="codeForm.playwright_code" :value="codeForm.playwright_code" :label="t('testShow.copyCode')" />
                     <template v-if="!codeEditable">
-                        <Button variant="tonal" size="sm" @click="codeEditable = true">Edit</Button>
+                        <Button variant="tonal" size="sm" @click="codeEditable = true">{{ t('testShow.edit') }}</Button>
                     </template>
                     <template v-else>
                         <Button variant="filled" size="sm" @click="saveCode" :disabled="codeForm.processing">
-                            {{ codeForm.processing ? 'Saving...' : 'Save Code' }}
+                            {{ codeForm.processing ? t('testShow.saving') : t('testShow.saveCode') }}
                         </Button>
-                        <Button variant="text" size="sm" @click="codeEditable = false">Cancel</Button>
+                        <Button variant="text" size="sm" @click="codeEditable = false">{{ t('testShow.cancel') }}</Button>
                     </template>
                 </div>
             </div>
@@ -298,21 +301,21 @@ function onHistoryKeydown(e) {
         <!-- Version history -->
         <Card padding="p-0" class="mb-6">
             <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Version History</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testShow.versionHistory') }}</h2>
             </div>
 
             <div v-if="!codeVersions.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                No previous versions yet.
+                {{ t('testShow.noVersionsYet') }}
             </div>
 
             <div v-else class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Version</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Source</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Saved by</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Date</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colVersion') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colSource') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colSavedBy') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colDate') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
@@ -349,14 +352,14 @@ function onHistoryKeydown(e) {
                             v{{ activeVersionItem.version_number }}
                         </span>
                         <span class="md-body-medium text-[var(--md-sys-color-on-surface)]">{{ formatDate(activeVersionItem.created_at) }}</span>
-                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ activeVersionItem.source }} &middot; {{ activeVersionItem.created_by ?? 'unknown' }}</span>
+                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ activeVersionItem.source }} &middot; {{ activeVersionItem.created_by ?? t('testShow.unknown') }}</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mr-1">{{ activeVersionIndex + 1 }} / {{ codeVersions.length }}</span>
                         <button
                             :disabled="activeVersionIndex >= codeVersions.length - 1"
                             @click="prevVersion"
-                            title="Older version"
+                            :title="t('testShow.olderVersion')"
                             class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,7 +369,7 @@ function onHistoryKeydown(e) {
                         <button
                             :disabled="activeVersionIndex <= 0"
                             @click="nextVersion"
-                            title="Newer version"
+                            :title="t('testShow.newerVersion')"
                             class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,11 +382,11 @@ function onHistoryKeydown(e) {
                             @click="restoreVersion(activeVersionItem)"
                             :disabled="restoring"
                         >
-                            {{ restoring ? 'Restoring...' : 'Restore this version' }}
+                            {{ restoring ? t('testShow.restoring') : t('testShow.restoreVersion') }}
                         </Button>
                         <button
                             @click="closeVersion"
-                            title="Close"
+                            :title="t('testShow.close')"
                             class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors ml-1"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -400,22 +403,22 @@ function onHistoryKeydown(e) {
         <!-- Run history -->
         <Card padding="p-0">
             <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">Run History</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testShow.runHistory') }}</h2>
             </div>
 
             <div v-if="!history.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                No runs yet.
+                {{ t('testShow.noRunsYet') }}
             </div>
 
             <div v-else class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Date</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Status</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Duration</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Screenshots</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Ran by</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colDate') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colStatus') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colDuration') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colScreenshots') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colRanBy') }}</th>
                             <th class="px-5 py-3"></th>
                         </tr>
                     </thead>
@@ -445,7 +448,7 @@ function onHistoryKeydown(e) {
                                     class="md-label-small text-[var(--md-sys-color-primary)] hover:underline"
                                     @click.stop
                                 >
-                                    View Run<span v-if="item.run_total_tests != null"> ({{ item.run_total_tests }} {{ item.run_total_tests === 1 ? 'test' : 'tests' }})</span>
+                                    {{ t('testSuiteShow.viewRun') }}<span v-if="item.run_total_tests != null"> ({{ item.run_total_tests }} {{ item.run_total_tests === 1 ? t('testSuiteShow.test') : t('testSuiteShow.testsPlural') }})</span>
                                 </Link>
                             </td>
                         </tr>
@@ -471,7 +474,7 @@ function onHistoryKeydown(e) {
                         <button
                             :disabled="activeHistoryIndex >= history.length - 1"
                             @click="prevHistory"
-                            title="Older run"
+                            :title="t('testShow.olderRun')"
                             class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -481,7 +484,7 @@ function onHistoryKeydown(e) {
                         <button
                             :disabled="activeHistoryIndex <= 0"
                             @click="nextHistory"
-                            title="Newer run"
+                            :title="t('testShow.newerRun')"
                             class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -493,11 +496,11 @@ function onHistoryKeydown(e) {
                             :href="`/sorify/runs/${activeHistoryItem.run_id}`"
                             class="md-label-small text-[var(--md-sys-color-primary)] hover:underline ml-1"
                         >
-                            Open full run &rarr;
+                            {{ t('testShow.openFullRun') }}
                         </Link>
                         <button
                             @click="closeHistory"
-                            title="Close"
+                            :title="t('testShow.close')"
                             class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-small)] p-1.5 transition-colors ml-1"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -509,13 +512,13 @@ function onHistoryKeydown(e) {
 
                 <!-- Error message -->
                 <div v-if="activeHistoryItem.error_message" class="mt-2">
-                    <p class="md-label-small font-medium text-[var(--md-sys-color-error)] uppercase tracking-wider mb-2">Error</p>
+                    <p class="md-label-small font-medium text-[var(--md-sys-color-error)] uppercase tracking-wider mb-2">{{ t('testShow.error') }}</p>
                     <pre class="text-[var(--md-sys-color-on-error-container)] md-body-small bg-[var(--md-sys-color-error-container)] rounded-[var(--md-sys-shape-corner-small)] p-3 overflow-x-auto whitespace-pre-wrap">{{ activeHistoryItem.error_message }}</pre>
                 </div>
 
                 <!-- Stack trace -->
                 <div v-if="activeHistoryItem.error_stack" class="mt-3">
-                    <p class="md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider mb-2">Stack Trace</p>
+                    <p class="md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider mb-2">{{ t('testShow.stackTrace') }}</p>
                     <pre class="text-[var(--md-sys-color-on-surface-variant)] md-body-small bg-code border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] p-3 overflow-x-auto whitespace-pre font-mono">{{ activeHistoryItem.error_stack }}</pre>
                 </div>
 
@@ -532,14 +535,14 @@ function onHistoryKeydown(e) {
                         >
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
-                        Stdout / Logs
+                        {{ t('testShow.stdoutLogs') }}
                     </button>
                     <pre v-if="showHistoryStdout" class="text-[var(--md-sys-color-on-surface-variant)] md-body-small bg-code border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] p-3 overflow-x-auto whitespace-pre font-mono max-h-64">{{ activeHistoryItem.stdout }}</pre>
                 </div>
 
                 <!-- Screenshots -->
                 <div v-if="activeHistoryItem.screenshots?.length" class="mt-4">
-                    <p class="md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider mb-3">Screenshots</p>
+                    <p class="md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider mb-3">{{ t('testShow.screenshots') }}</p>
                     <ScreenshotGallery :screenshots="activeHistoryItem.screenshots" />
                 </div>
 
@@ -548,7 +551,7 @@ function onHistoryKeydown(e) {
                     v-if="!activeHistoryItem.error_message && !activeHistoryItem.stdout && !activeHistoryItem.screenshots?.length"
                     class="mt-2 md-body-small text-[var(--md-sys-color-on-surface-variant)] italic"
                 >
-                    No additional details for this run.
+                    {{ t('testShow.noAdditionalDetails') }}
                 </div>
             </div>
         </Card>
