@@ -269,9 +269,10 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 
 # CHANGE LOG
 
-- v1 - Intial Release
-- v1.1 - Batteries added on user management, mcp enhancement
-- v1.2 - Chrome Extension to record and write playwright tests
-- v1.3 - Skills updated, MS Teams notifications links to a screenshot, dashboard has admin editable msg
-- v1.4 - Manage users from MCP.
-- v1.5 - i18n support. English and Japanese for now.
+- **v1** - Intial Release
+- **v1.1** - Batteries added on user management, mcp enhancement
+- **v1.2** - Chrome Extension to record and write playwright tests
+- **v1.3** - Skills updated, MS Teams notifications links to a screenshot, dashboard has admin editable msg
+- **v1.4** - Manage users from MCP.
+- **v1.5** - i18n support for English and Japanese for now.
+- **v1.6** - i18n support for Malay, Simplified Chinese. Extension captures file uploads, iframes, tabs, network.
