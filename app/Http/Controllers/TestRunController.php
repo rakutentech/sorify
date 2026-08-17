@@ -47,6 +47,7 @@ class TestRunController extends Controller
             'error_count'       => $run->error_count,
             'total_tests'       => $run->total_tests,
             'duration_ms'       => $run->duration_ms,
+            'created_at'        => $run->created_at,
             'completed_at'      => $run->completed_at,
             'created_by'        => $run->testSuite->createdBy?->name,
             'triggered_by'      => $run->triggered_by,

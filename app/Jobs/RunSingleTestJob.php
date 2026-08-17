@@ -7,6 +7,7 @@ use App\Models\TestResult;
 use App\Models\TestRun;
 use App\Services\HistoryPruningService;
 use App\Services\PlaywrightRunnerService;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -67,7 +68,15 @@ class RunSingleTestJob implements ShouldQueue
                 : 'error',
         ]);
 
-        $pruning->pruneTestHistory($this->test, $this->testRun->testSuite->history_retention ?? 5);
+        try {
+            $pruning->pruneTestHistory($this->test, $this->testRun->testSuite->history_retention ?? 5);
+        } catch (Throwable $exception) {
+            Log::warning('History pruning failed after test run', [
+                'test_id'     => $this->test->id,
+                'test_run_id' => $this->testRun->id,
+                'error'       => $exception->getMessage(),
+            ]);
+        }
     }
 
     /**

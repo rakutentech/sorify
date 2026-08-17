@@ -6,6 +6,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    label: {
+        type: String,
+        default: null,
+    },
 });
 
 const TONE_BY_STATUS = {
@@ -41,6 +45,6 @@ const pulse = computed(() => props.status === 'running');
         :class="TONE_CLASSES[tone]"
     >
         <span class="w-1.5 h-1.5 rounded-full bg-current" :class="pulse ? 'animate-pulse' : 'opacity-70'" />
-        {{ status }}
+        {{ label ?? status }}
     </span>
 </template>
