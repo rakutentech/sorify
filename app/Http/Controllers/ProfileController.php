@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -55,5 +56,16 @@ class ProfileController extends Controller
         $user->update(['password' => $request->password]);
 
         return back()->with('flash.success', 'Password updated successfully.');
+    }
+
+    public function updateLocale(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'locale' => ['required', 'string', Rule::in(array_keys(config('app.supported_locales')))],
+        ]);
+
+        auth()->user()->update(['locale' => $request->locale]);
+
+        return back();
     }
 }

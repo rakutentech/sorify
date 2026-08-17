@@ -1,9 +1,12 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Chip, SuiteName, AvatarGroup, RanBy, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+
+const { t } = useI18n();
 
 const props = defineProps({
     runs: {
@@ -33,31 +36,31 @@ function formatDuration(ms) {
 
 <template>
     <AppLayout>
-        <Head title="Runs" />
+        <Head :title="t('runs.title')" />
 
         <div class="mb-6">
-            <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">Runs</h1>
-            <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">All test runs across your suites</p>
+            <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ t('runs.title') }}</h1>
+            <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('runs.subtitle') }}</p>
         </div>
 
         <Card padding="p-0">
             <div v-if="!runs.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                No runs yet. Create a test suite to get started.
+                {{ t('runs.noneYet') }}
             </div>
 
             <div v-else class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Suite</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Users</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Status</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Passed</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Failed</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Duration</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Screenshots</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Created by</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">Ran by</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colSuite') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colUsers') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colStatus') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colPassed') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colFailed') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colDuration') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colScreenshots') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colCreatedBy') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colRanBy') }}</th>
                             <th class="px-5 py-3"></th>
                         </tr>
                     </thead>
@@ -100,7 +103,7 @@ function formatDuration(ms) {
                                     :href="`/sorify/runs/${run.id}`"
                                     class="md-label-small text-[var(--md-sys-color-primary)] hover:underline"
                                 >
-                                    View Run<span v-if="run.total_tests != null"> ({{ run.total_tests }} {{ run.total_tests === 1 ? 'test' : 'tests' }})</span>
+                                    {{ t('testSuiteShow.viewRun') }}<span v-if="run.total_tests != null"> ({{ run.total_tests }} {{ run.total_tests === 1 ? t('testSuiteShow.test') : t('testSuiteShow.testsPlural') }})</span>
                                 </Link>
                             </td>
                         </tr>
@@ -114,7 +117,7 @@ function formatDuration(ms) {
                 class="flex items-center justify-between px-5 py-3 border-t border-[var(--md-sys-color-outline-variant)]"
             >
                 <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                    Showing {{ runs.from ?? 0 }}–{{ runs.to ?? 0 }} of {{ runs.total }} runs
+                    {{ t('runs.showing', { from: runs.from ?? 0, to: runs.to ?? 0, total: runs.total }) }}
                 </p>
 
                 <div class="flex items-center gap-3">
@@ -140,10 +143,10 @@ function formatDuration(ms) {
                         v-model="perPage"
                         class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                     >
-                        <option :value="10">10 / page</option>
-                        <option :value="30">30 / page</option>
-                        <option :value="50">50 / page</option>
-                        <option :value="100">100 / page</option>
+                        <option :value="10">{{ t('testSuites.perPage10') }}</option>
+                        <option :value="30">{{ t('testSuites.perPage30') }}</option>
+                        <option :value="50">{{ t('testSuites.perPage50') }}</option>
+                        <option :value="100">{{ t('testSuites.perPage100') }}</option>
                     </select>
                 </div>
             </div>

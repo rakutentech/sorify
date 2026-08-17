@@ -1,9 +1,11 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Card, TextField, Button } from '@/Components/ui';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
+const { t } = useI18n();
 const { theme, toggleTheme } = useTheme();
 
 const form = useForm({
@@ -26,7 +28,7 @@ function submit() {
         <IconButton
             class="fixed top-4 right-4"
             variant="standard"
-            :label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+            :label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
             @click="toggleTheme"
         >
             <svg v-if="theme === 'dark'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -49,7 +51,7 @@ function submit() {
             <!-- Brand -->
             <div class="text-center mb-8">
                 <img :src="sorifyLogo" alt="Sorify" class="h-20 mx-auto rounded-lg px-2 py-1" />
-                <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">Create your account</p>
+                <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('auth.createAccountSubtitle') }}</p>
             </div>
 
             <!-- Card -->
@@ -57,7 +59,7 @@ function submit() {
                 <form @submit.prevent="submit" class="space-y-5">
                     <TextField
                         v-model="form.name"
-                        label="Name"
+                        :label="t('auth.name')"
                         type="text"
                         autocomplete="name"
                         required
@@ -66,7 +68,7 @@ function submit() {
 
                     <TextField
                         v-model="form.email"
-                        label="Email"
+                        :label="t('auth.email')"
                         type="email"
                         autocomplete="email"
                         required
@@ -75,7 +77,7 @@ function submit() {
 
                     <TextField
                         v-model="form.password"
-                        label="Password"
+                        :label="t('auth.password')"
                         type="password"
                         autocomplete="new-password"
                         required
@@ -84,7 +86,7 @@ function submit() {
 
                     <TextField
                         v-model="form.password_confirmation"
-                        label="Confirm password"
+                        :label="t('auth.confirmPassword')"
                         type="password"
                         autocomplete="new-password"
                         required
@@ -93,14 +95,14 @@ function submit() {
 
                     <!-- Submit -->
                     <Button type="submit" variant="filled" :disabled="form.processing" class="w-full">
-                        <span v-if="form.processing">Creating account…</span>
-                        <span v-else>Sign up</span>
+                        <span v-if="form.processing">{{ t('auth.creatingAccount') }}</span>
+                        <span v-else>{{ t('auth.signUp') }}</span>
                     </Button>
                 </form>
 
                 <p class="mt-5 text-center md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                    Already have an account?
-                    <a href="/sorify/login" class="text-[var(--md-sys-color-primary)] hover:underline">Sign in</a>
+                    {{ t('auth.haveAccount') }}
+                    <a href="/sorify/login" class="text-[var(--md-sys-color-primary)] hover:underline">{{ t('auth.signIn') }}</a>
                 </p>
             </Card>
         </div>
