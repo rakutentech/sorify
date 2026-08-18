@@ -328,7 +328,15 @@ const failedPct = computed(() => {
                             >
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
-                            <span class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate">
+                            <Link
+                                v-if="run.suite && (result.test_id ?? result.test?.id)"
+                                :href="`/sorify/suites/${run.suite.id}/tests/${result.test_id ?? result.test.id}`"
+                                class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
+                                @click.stop
+                            >
+                                {{ result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id }) }}
+                            </Link>
+                            <span v-else class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate">
                                 {{ result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id }) }}
                             </span>
                             <Chip :status="result.status" />
