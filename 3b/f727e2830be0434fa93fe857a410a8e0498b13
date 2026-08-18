@@ -1,0 +1,28 @@
+app/Support/TestSort.php
+  s_6a469193cda14b::t_fac470547f4691 1-43
+app/Mcp/Tools/Tests/ListTestsTool.php
+  s_6a469193cda14b::t_9d3f014221a6d9 60,72
+  s_6a469193cda14b::t_5194ee9d532b4a 7,26-27,35-41,46-59,61-62,67-71,73-74
+  s_6a469193cda14b::t_26c0dfc96d3c16 28-29
+app/Http/Controllers/TestSuiteController.php
+  s_6a469193cda14b::t_90442a044989a3 12
+  s_6a469193cda14b::t_925ebf860fbbb0 136
+plugins/sorify/commands/gateway.md
+  s_6a469193cda14b::t_38a96384e38357 125
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3bf727e2830be0434fa93fe857a410a8e0498b13",
+  "prompts": {},
+  "sessions": {
+    "s_6a469193cda14b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b19baad2-e270-48b7-9fe2-5f9eaa153dc5",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
