@@ -1,0 +1,84 @@
+extension/background.js
+  s_9f0f43ac11af18::t_69c041b4a1f1be 82-227,233,258-283,286
+extension/main_world_capture.js
+  s_9f0f43ac11af18::t_9f38546826d3a3 1-95
+extension/content_script.js
+  s_9f0f43ac11af18::t_bbbdb99e4a9ac1 190-191,200-201,212-318,324-338,341,366,372-463
+extension/manifest.json
+  s_9f0f43ac11af18::t_1d5ccaa85c5788 32-39
+  s_9f0f43ac11af18::t_d75f3a9878bf37 6
+plugins/sorify/commands/recording.md
+  s_9f0f43ac11af18::t_dff6d6206e0aa7 150
+  s_9f0f43ac11af18::t_3909b93b088abf 91,93,105-149
+resources/js/locales/ja.json
+  s_979bb5febe3b7b::t_fcdb30cd6887bc 268
+  s_e92070b87506a5::t_8ddb74087e2fb8 261
+app/Services/TestRunService.php
+  s_979bb5febe3b7b::t_324372b5e1fd56 61-62,66
+  s_04a7a35b9dbe62::t_775b969e4d51ce 57
+  s_04a7a35b9dbe62::t_e0ea023092606b 51
+resources/js/locales/ms.json
+  s_e92070b87506a5::t_fb65aaf2161f90 261
+  s_979bb5febe3b7b::t_57e16a669ff37f 268
+app/Http/Controllers/TestRunController.php
+  s_979bb5febe3b7b::t_de50266abd5c8e 50
+app/Jobs/RunSingleTestJob.php
+  s_04a7a35b9dbe62::t_949617e3710eac 71-79
+  s_04a7a35b9dbe62::t_ffb3b939c0649f 10
+resources/js/Components/ui/Chip.vue
+  s_e92070b87506a5::t_4989e9298195cc 9-12
+  s_e92070b87506a5::t_fdf8022dd05b4a 48
+resources/js/locales/en.json
+  s_979bb5febe3b7b::t_647f60b5286b37 268
+  s_e92070b87506a5::t_5f2ad175d6e186 261
+resources/js/Pages/Runs/Index.vue
+  s_e92070b87506a5::t_cd3f938355fe33 30-33
+  s_979bb5febe3b7b::t_a148e1705346cb 68
+  s_04a7a35b9dbe62::t_b46870f66bc62c 6
+  s_979bb5febe3b7b::t_3e08b730b198eb 8
+  s_e92070b87506a5::t_e3f59975a7d0e2 93
+  s_979bb5febe3b7b::t_065f7279cf456f 103-112
+resources/js/locales/zh-CN.json
+  s_979bb5febe3b7b::t_dc890846ea7c69 268
+  s_e92070b87506a5::t_7277e2e226bba4 261
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "c44ddb7fa44afd9770c1370b71ce6adbbfec098c",
+  "prompts": {},
+  "sessions": {
+    "s_04a7a35b9dbe62": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b0b5f98-2100-4cda-a779-4ab1efd4f2a2",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_979bb5febe3b7b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3f32414d-7768-4ff5-821f-175605fb61a7",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_9f0f43ac11af18": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bb03de64-1d9d-434c-865c-771d6f5a15e7",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_e92070b87506a5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "68fbde1c-88bc-43fa-9c37-b8f8bde517eb",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

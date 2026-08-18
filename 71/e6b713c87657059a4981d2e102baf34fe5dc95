@@ -1,0 +1,20 @@
+config/inertia.php
+  s_c956f82961e891::t_86eb27206fbc1e 1-75,77-205
+  s_c956f82961e891::t_a248f23f698627 76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "71e6b713c87657059a4981d2e102baf34fe5dc95",
+  "prompts": {},
+  "sessions": {
+    "s_c956f82961e891": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "76d5fe82-c323-48a1-97bc-733e33832132",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

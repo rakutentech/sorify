@@ -1,0 +1,28 @@
+config/app.php
+  s_d08becd634425e::t_3ba4fe11ddf9de 92-93
+resources/js/locales/ms.json
+  s_d08becd634425e::t_303326da1e46d4 1-399
+resources/js/composables/useLocale.js
+  s_d08becd634425e::t_ae1424b632fa38 8-9
+resources/js/app.js
+  s_d08becd634425e::t_90654047789064 7-8
+  s_d08becd634425e::t_3342189b58c291 23
+resources/js/locales/zh-CN.json
+  s_d08becd634425e::t_7961abbef3c1ef 1-399
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "fca76dfce27689813b2ab0d782e8b41ba48bfb96",
+  "prompts": {},
+  "sessions": {
+    "s_d08becd634425e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ff1075640ffeb82YRQDVvgxEkb",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

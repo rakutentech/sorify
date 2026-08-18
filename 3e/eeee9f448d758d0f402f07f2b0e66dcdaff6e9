@@ -1,0 +1,19 @@
+resources/js/Pages/Runs/Index.vue
+  s_04a7a35b9dbe62::t_b46870f66bc62c 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3eeeee9f448d758d0f402f07f2b0e66dcdaff6e9",
+  "prompts": {},
+  "sessions": {
+    "s_04a7a35b9dbe62": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b0b5f98-2100-4cda-a779-4ab1efd4f2a2",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

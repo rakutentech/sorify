@@ -1,0 +1,47 @@
+resources/js/Components/ui/index.js
+  s_dc18ad0cef02cc::t_e0ec29755fec0f 18
+resources/js/locales/zh-CN.json
+  s_dc18ad0cef02cc::t_73b6ed6896255f 334
+  s_dc18ad0cef02cc::t_5bca54cb75b036 321
+resources/js/locales/ms.json
+  s_dc18ad0cef02cc::t_a6d009e09342c5 334
+  s_dc18ad0cef02cc::t_55d120dbc07f4a 321
+resources/js/Pages/Tests/Show.vue
+  s_dc18ad0cef02cc::t_a80f7b04280260 9
+  s_dc18ad0cef02cc::t_13fc3fd6603dff 409-414,429,431
+  s_dc18ad0cef02cc::t_1f2529ced3d8cf 126,131,144
+  s_dc18ad0cef02cc::t_d384c1cc76481f 328
+  s_dc18ad0cef02cc::t_a37a306f1ce97f 359
+  s_dc18ad0cef02cc::t_513968df8c9dc6 61-63,65-69,73-74,80,88
+  s_dc18ad0cef02cc::t_502747b1390a77 377
+  s_dc18ad0cef02cc::t_58e2c22120c9f3 19-20
+  s_dc18ad0cef02cc::t_23b844838ac75c 287,302-327,329-341,346-350
+app/Http/Controllers/TestController.php
+  s_dc18ad0cef02cc::t_f9012f438a04e2 35-79,84-85
+resources/js/Components/ui/Pagination.vue
+  s_dc18ad0cef02cc::t_9a4b448c692d04 1-37
+resources/js/locales/en.json
+  s_dc18ad0cef02cc::t_295157c151d684 321,334
+app/Jobs/RunSingleTestJob.php
+  s_dc18ad0cef02cc::t_f02a7174597651 72-100
+  s_dc18ad0cef02cc::t_237a9599ec29bc 6,10
+resources/js/locales/ja.json
+  s_dc18ad0cef02cc::t_d86221d26cbe76 321
+  s_dc18ad0cef02cc::t_55bd506a924ebf 334
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "dd66381c955db7506193f8332f7586bb2eb3589d",
+  "prompts": {},
+  "sessions": {
+    "s_dc18ad0cef02cc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e336d7a-a368-4902-b2ed-bf62dc93079b",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

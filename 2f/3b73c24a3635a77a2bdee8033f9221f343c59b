@@ -1,0 +1,45 @@
+app/Mcp/Tools/Suites/ListSuiteMembersTool.php
+  s_ac28c806528b01::t_46e0c7eb0403ea 1-59
+README.md
+  s_ac28c806528b01::t_e44bfa7132846f 47
+  h_f44dfe84a46cdf 276
+app/Mcp/Tools/Suites/RemoveSuiteMemberTool.php
+  s_ac28c806528b01::t_e8fc17719aaeff 1-48
+resources/js/Components/ui/Autocomplete.vue
+  s_ac28c806528b01::t_b109cc76fc0483 2
+  s_ac28c806528b01::t_c5a18b93658a61 26-60
+  s_ac28c806528b01::t_6ace6bfb0149e8 122,135-139,141-154
+  s_ac28c806528b01::t_8754b7bce78185 72
+app/Mcp/Tools/Concerns/ManagesSuiteMemberPrivileges.php
+  s_ac28c806528b01::t_66bbc2819b8b28 1-41
+app/Mcp/Tools/Suites/AddSuiteMemberTool.php
+  s_ac28c806528b01::t_2eba9c522b2b2b 1-65
+app/Mcp/Tools/Suites/UpdateSuiteMemberTool.php
+  s_ac28c806528b01::t_9354635c24129a 1-70
+app/Mcp/Servers/SorifyServer.php
+  s_ac28c806528b01::t_3c3a3b64a23cf7 51-55
+  s_ac28c806528b01::t_d53b6a2cd3e106 12,17,19-20
+plugins/sorify/commands/gateway.md
+  s_ac28c806528b01::t_06aa73c4c5310f 14,82,105-111,167-169,191-193
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2f3b73c24a3635a77a2bdee8033f9221f343c59b",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_ac28c806528b01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eb42b146-447a-44bb-b2e3-76429db9dfa1",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

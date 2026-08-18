@@ -1,0 +1,66 @@
+resources/js/Pages/Tests/Show.vue
+  s_dc18ad0cef02cc::t_faf523c7de0e2b 21
+  s_dc18ad0cef02cc::t_6fbad56824685c 286-288
+  s_dc18ad0cef02cc::t_6a39811d5060ae 361-364
+  s_dc18ad0cef02cc::t_b0b54089385003 332
+resources/js/Pages/TestRuns/Show.vue
+  s_dc18ad0cef02cc::t_a7718db5a3a433 82,84
+  s_dc18ad0cef02cc::t_e688436a8f7e83 408-411
+  s_dc18ad0cef02cc::t_a222d44da2c1be 167-172,175-176
+  s_dc18ad0cef02cc::t_d6600feb09b324 58-64
+  s_dc18ad0cef02cc::t_33ff2c5175ca6a 253-254
+  s_dc18ad0cef02cc::t_c056aa2f249264 402-407,412-414
+  s_dc18ad0cef02cc::t_a0c6d060cddd97 15-16
+  s_dc18ad0cef02cc::t_f49b4ab01a3ed8 397-401
+  s_dc18ad0cef02cc::t_5b771445f263b3 7
+  s_dc18ad0cef02cc::t_fbbf6020932470 144
+  s_dc18ad0cef02cc::t_3d8b60a54d6b5d 121
+resources/js/locales/en.json
+  s_dc18ad0cef02cc::t_a5aa0abf0ed208 288
+  s_dc18ad0cef02cc::t_5ebe71ec743aaa 326
+  s_dc18ad0cef02cc::t_155503463a5418 340-341
+  s_dc18ad0cef02cc::t_85446f519d2820 289-292
+  s_dc18ad0cef02cc::t_f73280afabe01d 280
+app/Http/Controllers/TestRunController.php
+  s_dc18ad0cef02cc::t_92dfa7cdfd5b27 93-94,97-117,119-121
+  s_dc18ad0cef02cc::t_3fc99492912799 90-92,96
+  s_dc18ad0cef02cc::t_6dabde34af9087 95
+app/Http/Controllers/TestController.php
+  s_dc18ad0cef02cc::t_2e9af762d61c87 81-86
+resources/js/locales/ja.json
+  s_dc18ad0cef02cc::t_c2d0ad83d77163 340-341
+  s_dc18ad0cef02cc::t_398e8b05c38caf 280
+  s_dc18ad0cef02cc::t_ad72f76df74943 288
+  s_dc18ad0cef02cc::t_bf7f8ef4e43f02 326
+  s_dc18ad0cef02cc::t_306abe1bdb9398 289-292
+resources/js/Components/ui/Pagination.vue
+  s_dc18ad0cef02cc::t_c56e2e5b94853f 19-38
+resources/js/locales/ms.json
+  s_dc18ad0cef02cc::t_ba1915b284c971 280
+  s_dc18ad0cef02cc::t_c84f99c4cc2464 289-292
+  s_dc18ad0cef02cc::t_9da8950ca4075b 288
+  s_dc18ad0cef02cc::t_cbf9a9e38f4c66 326
+  s_dc18ad0cef02cc::t_05c4bed3eaa30d 340-341
+resources/js/locales/zh-CN.json
+  s_dc18ad0cef02cc::t_347af4dec412e2 288
+  s_dc18ad0cef02cc::t_beaf95647e2be3 289-292
+  s_dc18ad0cef02cc::t_4505b90ed097da 326
+  s_dc18ad0cef02cc::t_27062cf3174e8a 340-341
+  s_dc18ad0cef02cc::t_0e19f35a27b0b5 280
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "1e03915d6d18702c8d461cbbc9f3b1dc492c627f",
+  "prompts": {},
+  "sessions": {
+    "s_dc18ad0cef02cc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e336d7a-a368-4902-b2ed-bf62dc93079b",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

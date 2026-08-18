@@ -1,0 +1,20 @@
+app/Jobs/RunSingleTestJob.php
+  s_04a7a35b9dbe62::t_ffb3b939c0649f 10
+  s_04a7a35b9dbe62::t_949617e3710eac 71-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5a4a6365de9da847d0703e216b69f4af8b3494b9",
+  "prompts": {},
+  "sessions": {
+    "s_04a7a35b9dbe62": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b0b5f98-2100-4cda-a779-4ab1efd4f2a2",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

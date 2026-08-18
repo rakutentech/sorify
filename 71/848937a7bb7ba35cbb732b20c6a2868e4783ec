@@ -1,0 +1,71 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_dc6687f41bffce::t_d6476ecc6e6832 594-612
+  s_dc6687f41bffce::t_0f2467bd4e422b 538-559,865
+  s_dc6687f41bffce::t_bb7f06fedac3d5 560
+  s_dc6687f41bffce::t_d55c1c98f542b1 613-615
+  s_4a16a24a0c3133::t_01a73287578981 7,9,31,36,45,385-399,526-527,616-621,680,877,1163-1170
+resources/js/Components/ui/Avatar.vue
+  s_dc6687f41bffce::t_51ab57ebf27208 7
+  s_dc6687f41bffce::t_b853526975cccd 12
+  s_dc6687f41bffce::t_d82323b17dff30 29
+  s_dc6687f41bffce::t_4a30bf293cc46c 13
+app/Http/Controllers/TestSuiteController.php
+  s_dc6687f41bffce::t_5ad4bc657632f2 166
+  s_dc6687f41bffce::t_a65120efd39640 12
+  s_dc6687f41bffce::t_0ff0a8703abd61 19-21
+  s_dc6687f41bffce::t_fa2836cede9c5b 100
+  s_dc6687f41bffce::t_3c8306f0ee9325 172,175,183-184,199-214,230
+  s_dc6687f41bffce::t_07ab693dfe004c 182
+  s_dc6687f41bffce::t_b59a0447c40bee 138
+  s_dc6687f41bffce::t_a7bf632cf5bff8 128,137
+  s_dc6687f41bffce::t_d95d6e40b1ab14 167-171
+  s_dc6687f41bffce::t_9d3aa4f0ddbab8 173-174
+  s_dc6687f41bffce::t_f41a18989a0ce0 176-181
+  s_dc6687f41bffce::t_67c41d9a5775ef 215-217,227-229
+  s_dc6687f41bffce::t_70b7afca4fda5b 231
+  s_4a16a24a0c3133::t_a6b84e3f9f98ac 144-154,218-226
+resources/js/utils/date.js
+  s_dc6687f41bffce::t_cfa24c06178439 11-25
+app/Http/Controllers/TestController.php
+  s_4a16a24a0c3133::t_69b8d606f78804 52,65
+app/Http/Controllers/TestRunController.php
+  s_4a16a24a0c3133::t_e432f3b6fe5510 24,54-60
+resources/js/Components/ui/RunPill.vue
+  s_4a16a24a0c3133::t_bb393190776f98 1-48
+resources/js/Components/ui/ScreenshotLightbox.vue
+  s_4a16a24a0c3133::t_4999faee7d2ba2 1-66
+resources/js/Components/ui/ScreenshotThumbs.vue
+  s_4a16a24a0c3133::t_b87b6df24bf8e4 1-65
+resources/js/Components/ui/index.js
+  s_4a16a24a0c3133::t_36fc50f90ed91d 13,15-16
+resources/js/Pages/Runs/Index.vue
+  s_4a16a24a0c3133::t_64709babcc8737 5-6,20,58,93-95,103,151-158
+resources/js/Pages/TestRuns/Show.vue
+  s_4a16a24a0c3133::t_a1e5ff74924b2b 6,8,51-53,300-303,305-306,321-327,383-390
+resources/js/composables/useScreenshotLightbox.js
+  s_4a16a24a0c3133::t_d157d0a7e87e5d 1-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "71848937a7bb7ba35cbb732b20c6a2868e4783ec",
+  "prompts": {},
+  "sessions": {
+    "s_4a16a24a0c3133": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5184a0e7-311d-45ce-ab52-2c89acd6abe6",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_dc6687f41bffce": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ede00618-9e6b-4935-8daf-64752575c1f0",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

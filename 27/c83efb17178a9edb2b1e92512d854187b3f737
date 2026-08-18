@@ -1,0 +1,22 @@
+app/Services/TeamsNotificationService.php
+  s_2ede5c5b8121db::t_e7975144c47f62 208-213,218,232
+  s_2ede5c5b8121db::t_d0a24d00ca43bf 17-21,29,35,39,55-57,63-64,78-81,83-84,90-91,93-94,99-101,112,115,117,173-175,179-181,217,219,225-227,231
+tests/Unit/TeamsNotificationScreenshotsTest.php
+  s_2ede5c5b8121db::t_448735d704b7f4 62,64,68,71-72,87,89,93-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "27c83efb17178a9edb2b1e92512d854187b3f737",
+  "prompts": {},
+  "sessions": {
+    "s_2ede5c5b8121db": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b35f95a-b918-4fb1-a059-59566bd16809",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
