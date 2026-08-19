@@ -24,7 +24,6 @@ const TONE_BY_STATUS = {
     pending: 'info',
     cancelled: 'neutral',
     disabled: 'neutral',
-    skipped: 'neutral',
 };
 
 const TONE_CLASSES = {

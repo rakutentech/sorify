@@ -9,14 +9,13 @@ use App\Models\TestResult;
 use App\Models\TestSuite;
 use App\Models\User;
 use App\Services\ReportingService;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Support\TestSort;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TestSuiteController extends Controller
 {
-    private const RUN_STATUSES = ['passed', 'failed', 'error', 'timeout', 'running', 'pending', 'cancelled', 'skipped'];
     private const ERROR_STATUSES = ['failed', 'error', 'timeout'];
 
     public function __construct(private readonly ReportingService $reporting) {}
@@ -98,6 +97,7 @@ class TestSuiteController extends Controller
 
         $search  = $request->string('search')->toString();
         $sort    = $request->string('sort')->toString();
+        $status  = array_values(array_filter((array) $request->input('status', [])));
         $perPage = (int) $request->input('per_page', 50);
         $perPage = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 50;
 
@@ -134,7 +134,8 @@ class TestSuiteController extends Controller
             });
         }
 
-        $this->applyTestSort($testsQuery, $sort);
+        TestSort::filter($testsQuery, $status);
+        TestSort::apply($testsQuery, $sort);
 
         $tests = $testsQuery->paginate($perPage)->withQueryString();
 
@@ -163,7 +164,7 @@ class TestSuiteController extends Controller
             'suite'      => $suite,
             'stats'      => $this->reporting->suiteStats($suite),
             'tests'      => $tests,
-            'filters'    => ['search' => $search, 'per_page' => $perPage, 'sort' => $sort],
+            'filters'    => ['search' => $search, 'per_page' => $perPage, 'sort' => $sort, 'status' => $status],
             'recentRuns' => $suite->testRuns()
                 ->with(['triggeredByUser:id,name,email', 'testResults.screenshots'])
                 ->latest()
@@ -196,38 +197,6 @@ class TestSuiteController extends Controller
         ]);
     }
 
-    private function applyTestSort(HasMany $query, string $sort): void
-    {
-        $latestStatus = "COALESCE((SELECT status FROM test_results WHERE test_results.test_id = tests.id ORDER BY created_at DESC LIMIT 1), tests.last_run_status)";
-        $latestDuration = '(SELECT duration_ms FROM test_results WHERE test_results.test_id = tests.id ORDER BY created_at DESC LIMIT 1)';
-
-        match (true) {
-            $sort === 'errors' => $query
-                ->orderByRaw("CASE WHEN {$latestStatus} IN ('failed', 'error', 'timeout') THEN 0 ELSE 1 END")
-                ->orderByDesc('last_run_at'),
-            in_array($sort, self::RUN_STATUSES, true) => $query
-                ->orderByRaw("CASE WHEN {$latestStatus} = ? THEN 0 ELSE 1 END", [$sort])
-                ->orderByDesc('last_run_at'),
-            $sort === 'status_active' => $query
-                ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
-                ->orderBy('name'),
-            $sort === 'status_disabled' => $query
-                ->orderByRaw("CASE WHEN status = 'disabled' THEN 0 ELSE 1 END")
-                ->orderBy('name'),
-            $sort === 'duration_long' => $query
-                ->orderByRaw("({$latestDuration}) IS NULL")
-                ->orderByRaw("{$latestDuration} DESC"),
-            $sort === 'duration_short' => $query
-                ->orderByRaw("({$latestDuration}) IS NULL")
-                ->orderByRaw("{$latestDuration} ASC"),
-            $sort === 'oldest' => $query
-                ->orderByRaw('last_run_at IS NULL')
-                ->orderBy('last_run_at'),
-            default => $query
-                ->orderByRaw('last_run_at IS NULL')
-                ->orderByDesc('last_run_at'),
-        };
-    }
 
     public function update(StoreTestSuiteRequest $request, TestSuite $suite)
     {

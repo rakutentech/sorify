@@ -17,7 +17,6 @@ const RUN_DOT_CLASS = {
     running: 'bg-[var(--md-sys-color-primary)]',
     pending: 'bg-[var(--md-sys-color-primary)]',
     cancelled: 'bg-[var(--md-sys-color-on-surface-variant)]',
-    skipped: 'bg-[var(--md-sys-color-on-surface-variant)]',
 };
 
 function formatDuration(ms) {

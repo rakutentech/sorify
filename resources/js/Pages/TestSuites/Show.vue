@@ -32,11 +32,14 @@ function debounce(fn, delay) {
 const testSearch = ref(props.filters.search ?? '');
 const testPerPage = ref(props.filters.per_page ?? 50);
 const testSort = ref(props.filters.sort ?? '');
+const testStatus = ref([...(props.filters.status ?? [])]);
+
+const STATUS_OPTIONS = ['passed', 'failed', 'error', 'timeout', 'running', 'pending', 'cancelled'];
 
 function reloadTests(overrides = {}) {
     router.get(
         `/sorify/suites/${props.suite.id}`,
-        { search: testSearch.value, per_page: testPerPage.value, sort: testSort.value, ...overrides },
+        { search: testSearch.value, per_page: testPerPage.value, sort: testSort.value, status: testStatus.value, ...overrides },
         { preserveState: true, preserveScroll: true, replace: true },
     );
 }
@@ -46,6 +49,31 @@ const debouncedTestSearch = debounce(() => reloadTests({ page: 1 }), 350);
 watch(testSearch, () => debouncedTestSearch());
 watch(testPerPage, () => reloadTests({ page: 1 }));
 watch(testSort, () => reloadTests({ page: 1 }));
+watch(testStatus, () => reloadTests({ page: 1 }), { deep: true });
+
+// Status filter dropdown
+const showStatusFilter = ref(false);
+const statusFilterRef = ref(null);
+
+function toggleStatusOption(status) {
+    const next = new Set(testStatus.value);
+    if (next.has(status)) next.delete(status);
+    else next.add(status);
+    testStatus.value = [...next];
+}
+
+function clearStatusFilter() {
+    testStatus.value = [];
+}
+
+function onClickOutsideStatusFilter(event) {
+    if (statusFilterRef.value && !statusFilterRef.value.contains(event.target)) {
+        showStatusFilter.value = false;
+    }
+}
+
+onMounted(() => document.addEventListener('mousedown', onClickOutsideStatusFilter));
+onUnmounted(() => document.removeEventListener('mousedown', onClickOutsideStatusFilter));
 
 // CI webhook
 const statusUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/trigger$/, '/runs/{run}/status') : null);
@@ -561,10 +589,50 @@ function toggleRunsExpanded(testId) {
                                 <option value="oldest">{{ t('testSuiteShow.sortOldest') }}</option>
                             </optgroup>
                         </select>
+
+                        <div ref="statusFilterRef" class="relative">
+                            <button
+                                type="button"
+                                @click="showStatusFilter = !showStatusFilter"
+                                class="flex items-center gap-1.5 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                            >
+                                {{ t('testSuiteShow.statusFilterLabel') }}<span v-if="testStatus.length">&nbsp;({{ testStatus.length }})</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <div
+                                v-if="showStatusFilter"
+                                class="absolute z-10 mt-1 w-48 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] shadow-lg py-1"
+                            >
+                                <label
+                                    v-for="status in STATUS_OPTIONS"
+                                    :key="status"
+                                    class="flex items-center gap-2 px-3 py-1.5 md-body-medium text-[var(--md-sys-color-on-surface)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        :checked="testStatus.includes(status)"
+                                        @change="toggleStatusOption(status)"
+                                        class="w-4 h-4 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
+                                    />
+                                    {{ t(`testSuiteShow.status_${status}`) }}
+                                </label>
+                                <button
+                                    v-if="testStatus.length"
+                                    type="button"
+                                    @click="clearStatusFilter"
+                                    class="w-full text-left px-3 py-1.5 mt-1 border-t border-[var(--md-sys-color-outline-variant)] md-label-small text-[var(--md-sys-color-primary)] hover:underline"
+                                >
+                                    {{ t('testSuiteShow.statusFilterClear') }}
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div v-if="!tests.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                        {{ testSearch ? t('testSuiteShow.noMatchSearch') : t('testSuiteShow.noneYet') }}
+                        {{ (testSearch || testStatus.length) ? t('testSuiteShow.noMatchSearch') : t('testSuiteShow.noneYet') }}
                     </div>
 
                     <div v-else>
@@ -680,7 +748,7 @@ function toggleRunsExpanded(testId) {
                                     v-for="link in tests.links"
                                     :key="link.label"
                                     :disabled="!link.url || link.active"
-                                    @click="link.url && router.get(link.url, { search: testSearch, per_page: testPerPage, sort: testSort }, { preserveState: true, preserveScroll: true, replace: true })"
+                                    @click="link.url && router.get(link.url, { search: testSearch, per_page: testPerPage, sort: testSort, status: testStatus }, { preserveState: true, preserveScroll: true, replace: true })"
                                     class="px-2.5 py-1 rounded-[var(--md-sys-shape-corner-small)] md-label-small transition-colors"
                                     :class="[
                                         link.active
