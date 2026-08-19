@@ -122,7 +122,7 @@ section; if asked "what tools exist" generally, print all five.
 
 | Tool | Params | Description |
 |---|---|---|
-| `list_tests` | `suite_id` | List tests in a suite (no Playwright code) |
+| `list_tests` | `suite_id`, `search?`, `sort?`, `status?` (array of passed/failed/error/timeout/running/pending/cancelled/skipped), `per_page?` (10/30/50/100), `page?` | List tests in a suite (no Playwright code); optional name/description search, sort, status filter (keeps only tests whose latest run status matches), pagination |
 | `get_test` | `suite_id`, `test_id` | One test with its Playwright code and last 10 run results |
 | `create_test` | `suite_id`, `name`, `playwright_code`, `description?`, `uploaded_by?` (must be an existing user's email), `status?` (active/disabled) | Create one test |
 | `bulk_create_tests` | `suite_id`, `tests[]` (1–100, each `{name, playwright_code, description?, uploaded_by?, status?}`) | Create up to 100 tests in one call |
