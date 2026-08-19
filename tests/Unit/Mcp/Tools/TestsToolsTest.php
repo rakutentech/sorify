@@ -89,6 +89,27 @@ class TestsToolsTest extends TestCase
             ->assertStructuredContent(fn ($json) => $json->has('data', 1)->etc());
     }
 
+    public function test_list_tests_filters_by_status(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+        $run = $suite->testRuns()->create(['status' => 'completed']);
+
+        $passed = $suite->tests()->create(['name' => 'Passing', 'playwright_code' => 'x', 'status' => 'active']);
+        $failed = $suite->tests()->create(['name' => 'Failing', 'playwright_code' => 'x', 'status' => 'active']);
+
+        \App\Models\TestResult::create(['test_run_id' => $run->id, 'test_id' => $passed->id, 'status' => 'passed', 'created_at' => now()]);
+        \App\Models\TestResult::create(['test_run_id' => $run->id, 'test_id' => $failed->id, 'status' => 'failed', 'created_at' => now()]);
+
+        SorifyServer::actingAs($user)
+            ->tool(ListTestsTool::class, ['suite_id' => $suite->id, 'status' => ['passed']])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->has('data', 1)
+                ->where('data.0.name', 'Passing')
+                ->etc());
+    }
+
     public function test_get_test_includes_code_and_history(): void
     {
         $user = User::factory()->admin()->create();

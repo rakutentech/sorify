@@ -141,6 +141,30 @@ class TestSuiteSortingTest extends TestCase
         $this->assertSame([$newer->name, $older->name], $names);
     }
 
+    public function test_status_filter_keeps_only_matching_statuses(): void
+    {
+        $suite = $this->suite();
+        $run   = TestRun::create(['test_suite_id' => $suite->id, 'status' => 'completed']);
+
+        $error   = $this->test($suite, ['name' => 'Erroring']);
+        $passed  = $this->test($suite, ['name' => 'Passing']);
+        $running = $this->test($suite, ['name' => 'Running']);
+
+        $this->makeResult($run, $passed, 'passed');
+        $this->makeResult($run, $error, 'error');
+        $this->makeResult($run, $running, 'running');
+
+        $names = $this->nameList($this->testList($suite, ['status' => ['passed']]));
+        $this->assertSame([$passed->name], $names);
+
+        $names = $this->nameList($this->testList($suite, ['status' => ['passed', 'running']]));
+        $this->assertEqualsCanonicalizing([$passed->name, $running->name], $names);
+
+        // No status filter returns everything.
+        $names = $this->nameList($this->testList($suite));
+        $this->assertCount(3, $names);
+    }
+
     private function makeResult(TestRun $run, Test $test, string $status, ?int $duration = null): TestResult
     {
         return TestResult::create([
