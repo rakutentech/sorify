@@ -1,0 +1,92 @@
+app/Http/Controllers/SuiteBookmarkController.php
+  s_0a0899d9947883::t_5fe008f4f9eef8 1-73
+app/Models/User.php
+  s_0a0899d9947883::t_e3e15f84dabdc4 43-47
+app/Mcp/Tools/Suites/ListBookmarkedSuitesTool.php
+  s_0a0899d9947883::t_04a4afb7171b43 1-76
+app/Mcp/Tools/Suites/UnbookmarkSuiteTool.php
+  s_0a0899d9947883::t_b03cf5cdd69772 1-34
+resources/js/locales/zh-CN.json
+  s_0a0899d9947883::t_45a7d400e194b7 6
+  s_0a0899d9947883::t_807a9442346b99 263-285
+resources/js/Layouts/AppLayout.vue
+  s_0a0899d9947883::t_d705641995890f 19
+app/Http/Controllers/TestSuiteController.php
+  s_0a0899d9947883::t_878b89948c713d 29-31
+  s_0a0899d9947883::t_349ae9734d1bfc 167-170
+  s_0a0899d9947883::t_01975f998f6712 51,53
+app/Mcp/Servers/SorifyServer.php
+  s_0a0899d9947883::t_2835bbe3dab81c 59-62
+  s_0a0899d9947883::t_8e95d06a236af8 13,18,22
+resources/js/locales/ms.json
+  s_0a0899d9947883::t_420adcaa331cae 6
+  s_0a0899d9947883::t_0a234af41c477c 263-285
+resources/js/Pages/Bookmarks/Index.vue
+  s_0a0899d9947883::t_c48436965b789e 1-43,45-144,153-177
+  s_0a0899d9947883::t_43127cd0153610 44
+  s_0a0899d9947883::t_7ad7bbe107939d 145-152
+app/Mcp/Tools/Suites/BookmarkSuiteTool.php
+  s_0a0899d9947883::t_b0a36e7add659d 1-38
+resources/js/Pages/TestSuites/Show.vue
+  s_0a0899d9947883::t_4a6f587ae07d0f 25
+  s_0a0899d9947883::t_dd4eecd6c1a5f6 468-483
+  s_0a0899d9947883::t_2bbef776e0f6e1 8
+  s_0a0899d9947883::t_ac5b98809f9b6f 104-114
+resources/js/locales/en.json
+  s_0a0899d9947883::t_7cb2157c858745 263-285
+  s_0a0899d9947883::t_7f367644bb53c4 6
+tests/Unit/Mcp/Tools/BookmarkToolsTest.php
+  s_0a0899d9947883::t_a86151f1e5652b 1-73
+database/migrations/2026_08_19_000001_create_suite_bookmarks_table.php
+  s_0a0899d9947883::t_e008cbb3da0a65 1-24
+resources/js/locales/ja.json
+  s_0a0899d9947883::t_6025c6cfaa7ece 263-285
+  s_0a0899d9947883::t_3092227ad3600a 6
+routes/web.php
+  s_0a0899d9947883::t_8ac637137fc7de 108-110,113
+  s_0a0899d9947883::t_d2608b4985c18e 9
+  s_235815bef895e9::t_4f992b8728139c 114
+app/Models/TestSuite.php
+  s_0a0899d9947883::t_0b7ca970d99908 103-112
+resources/js/Pages/TestSuites/Index.vue
+  s_0a0899d9947883::t_eddd52ce5dfb61 6
+  s_0a0899d9947883::t_459ffc5c782431 146
+  s_0a0899d9947883::t_da6e287e18bfe6 81-88
+  s_0a0899d9947883::t_dc3a5fe10c2133 79-80,89
+  s_0a0899d9947883::t_9475ba52f3cd92 162-178
+  s_2ac5893f6e7370::t_9b141de90b050c 161
+tests/Feature/SuiteBookmarkTest.php
+  s_0a0899d9947883::t_696492c6e989b4 1-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "564e165ec6fb834d8c1b30d6261ecd87193892dc",
+  "prompts": {},
+  "sessions": {
+    "s_0a0899d9947883": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e3dacc3f-23e6-4a85-9800-80ae35cc5684",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_235815bef895e9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe62b12f8ffenJ1WuBN79tdt6r",
+        "model": "DeepSeek-V4-Flash"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_2ac5893f6e7370": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe62b4dcbffelIj2frputl0OHe",
+        "model": "DeepSeek-V4-Flash"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
