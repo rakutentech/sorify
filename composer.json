@@ -12,6 +12,7 @@
         "laravel/framework": "^13.8",
         "laravel/mcp": "^0.9.1",
         "laravel/octane": "^2.17",
+        "laravel/socialite": "^5.30",
         "laravel/tinker": "^3.0",
         "opcodesio/log-viewer": "^3.24",
         "tightenco/ziggy": "^2.6"
@@ -45,6 +46,7 @@
             "php artisan key:generate",
             "php artisan migrate --force",
             "php artisan db:seed",
+            "php artisan storage:link",
             "npm install --ignore-scripts",
             "npm run build"
         ],

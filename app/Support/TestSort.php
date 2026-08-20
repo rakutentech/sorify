@@ -55,6 +55,14 @@ class TestSort
             $sort === 'oldest' => $query
                 ->orderByRaw('last_run_at IS NULL')
                 ->orderBy('last_run_at'),
+            $sort === 'created_newest' => $query
+                ->orderByDesc('created_at'),
+            $sort === 'created_oldest' => $query
+                ->orderBy('created_at'),
+            $sort === 'updated_newest' => $query
+                ->orderByDesc('updated_at'),
+            $sort === 'updated_oldest' => $query
+                ->orderBy('updated_at'),
             default => $query
                 ->orderByRaw('last_run_at IS NULL')
                 ->orderByDesc('last_run_at'),

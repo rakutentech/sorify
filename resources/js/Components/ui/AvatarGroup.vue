@@ -17,7 +17,7 @@ const visibleUsers = computed(() =>
 
 <template>
     <div class="flex flex-wrap items-center -space-x-2 gap-y-2">
-        <Avatar v-for="user in visibleUsers" :key="user.id" :name="user.name" :email="user.email" />
+        <Avatar v-for="user in visibleUsers" :key="user.id" :name="user.name" :email="user.email" :avatar-url="user.avatar_url" />
 
         <component
             :is="suiteId ? Link : 'div'"

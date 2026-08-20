@@ -1,11 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import CopyButton from '@/Components/CopyButton.vue';
-import { Card, Chip, Button, TextField, Autocomplete, Modal, SuiteName, Avatar, AvatarGroup, RanBy, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
+import { Card, Chip, Button, IconButton, TextField, Autocomplete, Modal, SuiteName, Avatar, AvatarGroup, RanBy, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 
@@ -22,6 +22,7 @@ const props = defineProps({
     candidates: { type: Array, default: () => [] },
     users: { type: Array, default: () => [] },
     can: { type: Object, default: () => ({ edit: false, delete: false, run: false, manageUsers: false, manageSchedule: false }) },
+    isBookmarked: { type: Boolean, default: false },
 });
 
 function debounce(fn, delay) {
@@ -100,6 +101,17 @@ const statusResponseSample = JSON.stringify({
     duration_ms: 4213,
 }, null, 2);
 
+function toggleBookmark() {
+    const options = { preserveState: true, preserveScroll: true, only: ['isBookmarked'] };
+    const url = `/sorify/suites/${props.suite.id}/bookmark`;
+
+    if (props.isBookmarked) {
+        router.delete(url, options);
+    } else {
+        router.post(url, {}, options);
+    }
+}
+
 function regenerateWebhook() {
     if (!confirm(t('testSuiteShow.confirmRegenerateWebhook'))) return;
     router.post(`/sorify/suites/${props.suite.id}/webhook/regenerate`);
@@ -138,12 +150,7 @@ const editForm = useForm({
     name: props.suite.name ?? '',
     playwright_proxy: props.suite.playwright_proxy ?? '',
     proxy_rules: (props.suite.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy })),
-    browser: props.suite.browser ?? 'chromium',
-    headless: props.suite.headless ?? true,
     history_retention: props.suite.history_retention ?? 5,
-    timeout_ms: props.suite.timeout_ms ?? 30000,
-    max_retries: props.suite.max_retries ?? 0,
-    take_screenshot: props.suite.take_screenshot ?? true,
     description: props.suite.description ?? '',
     teams_webhook_url: props.suite.teams_webhook_url ?? '',
     teams_webhook_proxy: props.suite.teams_webhook_proxy ?? '',
@@ -155,12 +162,7 @@ function openEditModal() {
     editForm.name = props.suite.name ?? '';
     editForm.playwright_proxy = props.suite.playwright_proxy ?? '';
     editForm.proxy_rules = (props.suite.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy }));
-    editForm.browser = props.suite.browser ?? 'chromium';
-    editForm.headless = props.suite.headless ?? true;
     editForm.history_retention = props.suite.history_retention ?? 5;
-    editForm.timeout_ms = props.suite.timeout_ms ?? 30000;
-    editForm.max_retries = props.suite.max_retries ?? 0;
-    editForm.take_screenshot = props.suite.take_screenshot ?? true;
     editForm.description = props.suite.description ?? '';
     editForm.teams_webhook_url = props.suite.teams_webhook_url ?? '';
     editForm.teams_webhook_proxy = props.suite.teams_webhook_proxy ?? '';
@@ -181,6 +183,57 @@ function addProxyRule() {
 
 function removeProxyRule(index) {
     editForm.proxy_rules.splice(index, 1);
+}
+
+// Inline quick settings (Browser, Mode, Timeout, Screenshots, Retries)
+// Edited directly from the tests table; auto-saved on change.
+const localSettings = reactive({
+    browser: props.suite.browser ?? 'chromium',
+    headless: props.suite.headless ?? true,
+    timeout_ms: props.suite.timeout_ms ?? 30000,
+    take_screenshot: props.suite.take_screenshot ?? true,
+    max_retries: props.suite.max_retries ?? 0,
+});
+
+watch(() => ({
+    browser: props.suite.browser,
+    headless: props.suite.headless,
+    timeout_ms: props.suite.timeout_ms,
+    take_screenshot: props.suite.take_screenshot,
+    max_retries: props.suite.max_retries,
+}), (s) => {
+    localSettings.browser = s.browser ?? 'chromium';
+    localSettings.headless = s.headless ?? true;
+    localSettings.timeout_ms = s.timeout_ms ?? 30000;
+    localSettings.take_screenshot = s.take_screenshot ?? true;
+    localSettings.max_retries = s.max_retries ?? 0;
+});
+
+const savingSetting = ref(false);
+const savedField = ref(null);
+let savedTimer = null;
+
+// Collapsible quick-settings panel (collapsed by default)
+const showRunSettings = ref(false);
+
+function updateSuiteSetting(field) {
+    savingSetting.value = true;
+    const oldValue = props.suite[field];
+    router.put(
+        `/sorify/suites/${props.suite.id}`,
+        { [field]: localSettings[field] },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onError: () => { localSettings[field] = oldValue; },
+            onFinish: () => {
+                savingSetting.value = false;
+                savedField.value = field;
+                clearTimeout(savedTimer);
+                savedTimer = setTimeout(() => { savedField.value = null; }, 1500);
+            },
+        },
+    );
 }
 
 // Manage Users modal
@@ -403,7 +456,7 @@ function bulkSetStatus(status) {
 
 function uploader(email) {
     const user = props.users.find(u => u.email === email);
-    return { name: user?.name ?? email, email };
+    return { name: user?.name ?? email, email, avatar_url: user?.avatar_url ?? null };
 }
 
 function formatDuration(ms) {
@@ -446,13 +499,29 @@ function toggleRunsExpanded(testId) {
                 <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]"><SuiteName :name="suite.name" /></h1>
                 <p v-if="suite.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1 whitespace-pre-line">{{ suite.description }}</p>
                 <div v-if="suite.created_by" class="flex items-center gap-2 mt-1.5">
-                    <Avatar :name="suite.created_by.name" :email="suite.created_by.email" />
+                    <Avatar :name="suite.created_by.name" :email="suite.created_by.email" :avatar-url="suite.created_by.avatar_url" />
                     <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
                         {{ t('testSuiteShow.createdBy', { name: suite.created_by.name }) }}
                     </p>
                 </div>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0 ml-4">
+                <IconButton
+                    variant="standard"
+                    :label="isBookmarked ? t('testSuiteShow.bookmarkRemove') : t('testSuiteShow.bookmarkAdd')"
+                    @click="toggleBookmark"
+                >
+                    <svg
+                        class="w-5 h-5"
+                        :class="isBookmarked ? 'text-[var(--md-sys-color-primary)]' : 'text-[var(--md-sys-color-on-surface-variant)]'"
+                        :fill="isBookmarked ? 'currentColor' : 'none'"
+                        stroke="currentColor"
+                        viewBox="0 0 20 20"
+                        stroke-width="1.5"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.539-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.958z"/>
+                    </svg>
+                </IconButton>
                 <Button v-if="can.delete" variant="text" @click="deleteSuite" class="!text-[var(--md-sys-color-error)]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -554,6 +623,135 @@ function toggleRunsExpanded(testId) {
                         </Button>
                     </div>
 
+                    <!-- Quick run settings (collapsible, edited inline, auto-saved on change) -->
+                    <div class="border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
+                        <button
+                            type="button"
+                            @click="showRunSettings = !showRunSettings"
+                            class="w-full flex items-center gap-2 px-5 py-2.5 text-left hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
+                        >
+                            <svg
+                                class="w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] transition-transform"
+                                :class="{ 'rotate-90': showRunSettings }"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                            <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.runSettings') }}</span>
+
+                            <!-- Compact summary when collapsed -->
+                            <span v-if="!showRunSettings" class="flex items-center gap-1.5 ml-1 flex-wrap">
+                                <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ localSettings.browser }}</span>
+                                <span class="text-[var(--md-sys-color-outline-variant)]">·</span>
+                                <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ localSettings.headless ? t('testSuiteShow.headless') : t('testSuiteShow.headedVisible') }}</span>
+                                <span class="text-[var(--md-sys-color-outline-variant)]">·</span>
+                                <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ localSettings.timeout_ms >= 60000 ? `${Math.round(localSettings.timeout_ms / 60000)}m` : `${localSettings.timeout_ms / 1000}s` }}</span>
+                                <span class="text-[var(--md-sys-color-outline-variant)]">·</span>
+                                <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ localSettings.take_screenshot ? t('testSuiteShow.enabled') : t('testSuiteShow.screenshotsDisabled') }}</span>
+                                <span class="text-[var(--md-sys-color-outline-variant)]">·</span>
+                                <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ localSettings.max_retries === 0 ? t('testSuites.noRetries') : `${localSettings.max_retries}×` }}</span>
+                            </span>
+
+                            <span v-if="savingSetting" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                </svg>
+                                {{ t('testSuiteShow.saving') }}
+                            </span>
+                            <span v-else-if="savedField" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-ext-color-success)]">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                {{ t('testSuiteShow.saved') }}
+                            </span>
+                        </button>
+
+                        <div v-if="showRunSettings" class="px-5 pb-3 pt-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                            <!-- Browser -->
+                            <div class="flex items-center justify-between gap-3">
+                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-browser-${suite.id}`">{{ t('testSuiteShow.browser') }}</label>
+                                <select
+                                    :id="`setting-browser-${suite.id}`"
+                                    v-model="localSettings.browser"
+                                    @change="updateSuiteSetting('browser')"
+                                    :disabled="!can.edit || savingSetting"
+                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    <option value="chromium">Chromium</option>
+                                    <option value="firefox">Firefox</option>
+                                    <option value="webkit">WebKit</option>
+                                </select>
+                            </div>
+
+                            <!-- Mode -->
+                            <div class="flex items-center justify-between gap-3">
+                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-mode-${suite.id}`">{{ t('testSuiteShow.mode') }}</label>
+                                <select
+                                    :id="`setting-mode-${suite.id}`"
+                                    v-model="localSettings.headless"
+                                    @change="updateSuiteSetting('headless')"
+                                    :disabled="!can.edit || savingSetting"
+                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    <option :value="true">{{ t('testSuiteShow.headless') }}</option>
+                                    <option :value="false">{{ t('testSuiteShow.headedVisible') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Timeout -->
+                            <div class="flex items-center justify-between gap-3">
+                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-timeout-${suite.id}`">{{ t('testSuiteShow.timeout') }}</label>
+                                <select
+                                    :id="`setting-timeout-${suite.id}`"
+                                    v-model="localSettings.timeout_ms"
+                                    @change="updateSuiteSetting('timeout_ms')"
+                                    :disabled="!can.edit || savingSetting"
+                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    <option :value="10000">{{ t('testSuiteShow.tenSeconds') }}</option>
+                                    <option :value="30000">{{ t('testSuiteShow.thirtySeconds') }}</option>
+                                    <option :value="60000">{{ t('testSuiteShow.sixtySeconds') }}</option>
+                                    <option :value="120000">{{ t('testSuiteShow.twoMinutes') }}</option>
+                                    <option :value="300000">{{ t('testSuiteShow.fiveMinutes') }}</option>
+                                    <option :value="600000">{{ t('testSuiteShow.tenMinutes') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Screenshots -->
+                            <div class="flex items-center justify-between gap-3">
+                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-screenshots-${suite.id}`">{{ t('testSuiteShow.screenshots') }}</label>
+                                <select
+                                    :id="`setting-screenshots-${suite.id}`"
+                                    v-model="localSettings.take_screenshot"
+                                    @change="updateSuiteSetting('take_screenshot')"
+                                    :disabled="!can.edit || savingSetting"
+                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    <option :value="true">{{ t('testSuiteShow.enabled') }}</option>
+                                    <option :value="false">{{ t('testSuiteShow.screenshotsDisabled') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Retries (spans full width on its row when alone) -->
+                            <div class="flex items-center justify-between gap-3 sm:col-span-2 sm:max-w-[calc(50%-0.75rem)]">
+                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-retries-${suite.id}`">{{ t('testSuiteShow.retries') }}</label>
+                                <select
+                                    :id="`setting-retries-${suite.id}`"
+                                    v-model="localSettings.max_retries"
+                                    @change="updateSuiteSetting('max_retries')"
+                                    :disabled="!can.edit || savingSetting"
+                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    <option :value="0">{{ t('testSuites.noRetries') }}</option>
+                                    <option :value="1">{{ t('testSuites.retryOnce') }}</option>
+                                    <option :value="2">{{ t('testSuites.retryTwice') }}</option>
+                                    <option :value="3">{{ t('testSuites.retry3Times') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] flex items-center gap-3 flex-wrap">
                         <div class="relative max-w-xs flex-1 min-w-[10rem]">
                             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -587,6 +785,12 @@ function toggleRunsExpanded(testId) {
                             </optgroup>
                             <optgroup :label="t('testSuiteShow.sortGroupDate')">
                                 <option value="oldest">{{ t('testSuiteShow.sortOldest') }}</option>
+                            </optgroup>
+                            <optgroup :label="t('testSuiteShow.sortGroupCreatedUpdated')">
+                                <option value="created_newest">{{ t('testSuiteShow.sortCreatedNewest') }}</option>
+                                <option value="created_oldest">{{ t('testSuiteShow.sortCreatedOldest') }}</option>
+                                <option value="updated_newest">{{ t('testSuiteShow.sortUpdatedNewest') }}</option>
+                                <option value="updated_oldest">{{ t('testSuiteShow.sortUpdatedOldest') }}</option>
                             </optgroup>
                         </select>
 
@@ -664,7 +868,7 @@ function toggleRunsExpanded(testId) {
                                 <p v-if="test.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate">{{ test.description }}</p>
                                 <div v-if="test.uploaded_by || test.recent_runs?.length" class="flex items-center gap-2.5 mt-1 flex-wrap">
                                     <div v-if="test.uploaded_by" class="flex items-center gap-2">
-                                        <Avatar size="sm" :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" />
+                                        <Avatar size="sm" :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" :avatar-url="uploader(test.uploaded_by).avatar_url" />
                                         <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
                                             {{ t('testSuiteShow.by', { name: uploader(test.uploaded_by).name }) }}
                                         </p>
@@ -1006,66 +1210,15 @@ function toggleRunsExpanded(testId) {
                                 </button>
                             </div>
                         </div>
-                        <div class="grid grid-cols-3 gap-4">
-                            <div>
-                                <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('testSuiteShow.browser') }}</label>
-                                <select v-model="editForm.browser" class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
-                                    <option value="chromium">Chromium</option>
-                                    <option value="firefox">Firefox</option>
-                                    <option value="webkit">WebKit</option>
-                                </select>
-                                <p v-if="editForm.errors.browser" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.browser }}</p>
-                            </div>
-                            <div>
-                                <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('testSuiteShow.mode') }}</label>
-                                <select v-model="editForm.headless" class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
-                                    <option :value="true">{{ t('testSuiteShow.headless') }}</option>
-                                    <option :value="false">{{ t('testSuiteShow.headedVisible') }}</option>
-                                </select>
-                                <p v-if="editForm.errors.headless" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.headless }}</p>
-                            </div>
-                            <div>
-                                <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('testSuiteShow.keepHistory') }}</label>
-                                <select v-model="editForm.history_retention" class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
-                                    <option :value="3">{{ t('testSuites.last3Runs') }}</option>
-                                    <option :value="5">{{ t('testSuites.last5Runs') }}</option>
-                                    <option :value="10">{{ t('testSuites.last10Runs') }}</option>
-                                </select>
-                                <p v-if="editForm.errors.history_retention" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.history_retention }}</p>
-                            </div>
-                        </div>
-                        <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.historyHint') }}</p>
-                        <div class="grid grid-cols-3 gap-4">
-                            <div>
-                                <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('testSuiteShow.timeout') }}</label>
-                                <select v-model="editForm.timeout_ms" class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
-                                    <option :value="10000">{{ t('testSuiteShow.tenSeconds') }}</option>
-                                    <option :value="30000">{{ t('testSuiteShow.thirtySeconds') }}</option>
-                                    <option :value="60000">{{ t('testSuiteShow.sixtySeconds') }}</option>
-                                    <option :value="120000">{{ t('testSuiteShow.twoMinutes') }}</option>
-                                    <option :value="300000">{{ t('testSuiteShow.fiveMinutes') }}</option>
-                                    <option :value="600000">{{ t('testSuiteShow.tenMinutes') }}</option>
-                                </select>
-                                <p v-if="editForm.errors.timeout_ms" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.timeout_ms }}</p>
-                            </div>
-                            <div>
-                                <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('testSuiteShow.screenshots') }}</label>
-                                <select v-model="editForm.take_screenshot" class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
-                                    <option :value="true">{{ t('testSuiteShow.enabled') }}</option>
-                                    <option :value="false">{{ t('testSuiteShow.screenshotsDisabled') }}</option>
-                                </select>
-                                <p v-if="editForm.errors.take_screenshot" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.take_screenshot }}</p>
-                            </div>
-                            <div>
-                                <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('testSuiteShow.retries') }}</label>
-                                <select v-model="editForm.max_retries" class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
-                                    <option :value="0">{{ t('testSuites.noRetries') }}</option>
-                                    <option :value="1">{{ t('testSuites.retryOnce') }}</option>
-                                    <option :value="2">{{ t('testSuites.retryTwice') }}</option>
-                                    <option :value="3">{{ t('testSuites.retry3Times') }}</option>
-                                </select>
-                                <p v-if="editForm.errors.max_retries" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.max_retries }}</p>
-                            </div>
+                        <div>
+                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">{{ t('testSuiteShow.keepHistory') }}</label>
+                            <select v-model="editForm.history_retention" class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 text-[var(--md-sys-color-on-surface)] md-body-medium focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent">
+                                <option :value="3">{{ t('testSuites.last3Runs') }}</option>
+                                <option :value="5">{{ t('testSuites.last5Runs') }}</option>
+                                <option :value="10">{{ t('testSuites.last10Runs') }}</option>
+                            </select>
+                            <p v-if="editForm.errors.history_retention" class="text-[var(--md-sys-color-error)] md-body-small mt-1.5">{{ editForm.errors.history_retention }}</p>
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('testSuiteShow.historyHint') }}</p>
                         </div>
                         <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
                             <TextField
