@@ -1,0 +1,19 @@
+tests/Feature/TestSuiteSortingTest.php
+  s_b4ba92d38c4af8::t_de7e7f3850e79d 28-29,33-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "45617c13b7f306f52f137251315e68229379624f",
+  "prompts": {},
+  "sessions": {
+    "s_b4ba92d38c4af8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe18cfae7ffeFt7SW9n4qeCXGl",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
