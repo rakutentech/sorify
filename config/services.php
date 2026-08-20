@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => env('GITHUB_REDIRECT_URI'),
+        // For GitHub Enterprise, set this to your instance base URL
+        // (e.g. https://ghe.example.com). Leave unset for github.com.
+        'url' => env('GITHUB_BASE_URL'),
+        'scopes' => ['user:email'],
+    ],
+
 ];

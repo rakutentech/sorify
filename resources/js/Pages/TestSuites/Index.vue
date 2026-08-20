@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Button, TextField, Modal, SuiteName, AvatarGroup, SettingBadge } from '@/Components/ui';
+import { Card, Button, TextField, Modal, SuiteName, AvatarGroup, SettingBadge, IconButton } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 
 const { t } = useI18n();
@@ -76,6 +76,17 @@ function formatPassRate(rate) {
     if (rate === null || rate === undefined) return '—';
     return `${Math.round(rate)}%`;
 }
+
+function toggleBookmark(suite) {
+    const options = { preserveState: true, preserveScroll: true, only: ['suites'] };
+    const url = `/sorify/suites/${suite.id}/bookmark`;
+
+    if (suite.is_bookmarked) {
+        router.delete(url, options);
+    } else {
+        router.post(url, {}, options);
+    }
+}
 </script>
 
 <template>
@@ -132,6 +143,7 @@ function formatPassRate(rate) {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
+                            <th class="w-10 px-5 py-3"></th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colName') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colUsers') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colTests') }}</th>
@@ -146,6 +158,24 @@ function formatPassRate(rate) {
                             :key="suite.id"
                             class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
                         >
+                            <td class="px-5 py-4">
+                                <IconButton
+                                    variant="standard"
+                                    :label="suite.is_bookmarked ? t('testSuites.bookmarkRemove') : t('testSuites.bookmarkAdd')"
+                                    @click="toggleBookmark(suite)"
+                                >
+                                    <svg
+                                        class="w-4 h-4"
+                                        :class="suite.is_bookmarked ? 'text-[var(--md-sys-color-primary)]' : 'text-[var(--md-sys-color-on-surface-variant)]'"
+                                        :fill="suite.is_bookmarked ? 'currentColor' : 'none'"
+                                        stroke="currentColor"
+                                        viewBox="0 0 20 20"
+                                        stroke-width="1.5"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.539-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.958z"/>
+                                    </svg>
+                                </IconButton>
+                            </td>
                             <td class="px-5 py-4">
                                 <div>
                                     <Link
