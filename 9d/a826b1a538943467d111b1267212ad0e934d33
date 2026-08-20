@@ -1,0 +1,239 @@
+tests/Feature/ProfileTest.php
+  s_db6412a6298434::t_ac99fc122f5e6a 7-9,40-209
+resources/js/locales/en.json
+  s_0a0899d9947883::t_7cb2157c858745 272-294
+  s_9dcc5a535e71cf::t_afae7b298cad72 142-146
+  s_7d473dce5bf821::t_6f0b4115526140 10
+  s_db6412a6298434::t_b3c41fef629ad5 419-427
+  s_0a0899d9947883::t_7f367644bb53c4 6
+  s_db6412a6298434::t_fc5733aa2140e9 58-61
+app/Services/Auth/GithubEnterpriseProvider.php
+  s_db6412a6298434::t_9bc4939f831afd 1-8,10-19,21-68
+  s_db6412a6298434::t_2280daafdd29d8 9,20
+resources/js/Pages/Tests/Show.vue
+  s_db6412a6298434::t_dadac3f376f13a 35
+  s_db6412a6298434::t_421167a3854f01 190
+app/Models/TestSuite.php
+  s_0a0899d9947883::t_0b7ca970d99908 103-112
+database/migrations/2026_08_19_000001_create_suite_bookmarks_table.php
+  s_0a0899d9947883::t_e008cbb3da0a65 1-24
+tests/Feature/TestSuiteSortingTest.php
+  s_9dcc5a535e71cf::t_03409735f7d3f6 144-175
+resources/js/Pages/TestSuites/Index.vue
+  s_0a0899d9947883::t_dc3a5fe10c2133 79-80,89
+  s_0a0899d9947883::t_9475ba52f3cd92 162-178
+  s_0a0899d9947883::t_459ffc5c782431 146
+  s_0a0899d9947883::t_eddd52ce5dfb61 6
+  s_0a0899d9947883::t_da6e287e18bfe6 81-88
+  s_2ac5893f6e7370::t_9b141de90b050c 161
+app/Http/Controllers/ProfileController.php
+  s_db6412a6298434::t_be9f9cba844106 53
+  s_db6412a6298434::t_9ae314dab96007 8,47-52,54,57-64,66-75,78,81,83-85,88,90-105
+  s_db6412a6298434::t_e4d52c0cfea5ce 21-25,27-28,55-56,65
+resources/js/Components/ui/AvatarGroup.vue
+  s_db6412a6298434::t_f47a3a3d587a80 20
+app/Http/Controllers/SuiteBookmarkController.php
+  s_db6412a6298434::t_ba44c1fe2819e9 25
+  s_db6412a6298434::t_e4d52c0cfea5ce 19,28,31,38,53
+  s_0a0899d9947883::t_5fe008f4f9eef8 1-18,20-24,26-27,29-30,32-37,39-52,54-73
+app/Http/Controllers/Admin/UserController.php
+  s_db6412a6298434::t_e4d52c0cfea5ce 19-25,35-36,38,42-45,74
+public/sorify
+  s_7d473dce5bf821::t_1bb3f29fc1ced0 1
+resources/js/Layouts/AppLayout.vue
+  s_0a0899d9947883::t_d705641995890f 19
+  s_7d473dce5bf821::t_0f751b43d75a07 38-57
+  s_db6412a6298434::t_761d4ce5ace75c 144
+  s_7d473dce5bf821::t_5accc3ae6a8048 137,139-140,146-166
+  s_7d473dce5bf821::t_fb23ddd7e9a92a 2
+  s_db6412a6298434::t_c189fa8aa5bc54 141,143
+  s_db6412a6298434::t_a79d395cc4aaf4 6
+resources/js/Pages/Bookmarks/Index.vue
+  s_0a0899d9947883::t_c48436965b789e 1-43,45-144,153-177
+  s_0a0899d9947883::t_43127cd0153610 44
+  s_0a0899d9947883::t_7ad7bbe107939d 145-152
+app/Support/TestSort.php
+  s_9dcc5a535e71cf::t_dcc50aace19f5c 58-65
+app/Models/User.php
+  s_db6412a6298434::t_fd4035aec95f27 40-43
+  s_db6412a6298434::t_63aac0bfbd75d6 30
+  s_db6412a6298434::t_b3da12734e5055 18
+  s_db6412a6298434::t_ccc397eefc85a8 9,24-29
+  s_db6412a6298434::t_c660daccb10098 14-15,17,58-59,61,63,65-71,73,87
+  s_db6412a6298434::t_ade0174a2656f9 60,62,64,72,74-86
+  s_0a0899d9947883::t_e3e15f84dabdc4 53-57
+app/Providers/AppServiceProvider.php
+  s_db6412a6298434::t_2fc2bac1984e6d 29-35
+  s_db6412a6298434::t_fd4035aec95f27 19,23
+  s_db6412a6298434::t_77e0ff5438a760 8,15
+  s_db6412a6298434::t_10b97b7f65bb7c 36
+resources/js/locales/ja.json
+  s_db6412a6298434::t_456432c00fc7d9 58-61
+  s_9dcc5a535e71cf::t_093d32958b72f1 142-146
+  s_db6412a6298434::t_c7f5736618e5b7 419-427
+  s_0a0899d9947883::t_3092227ad3600a 6
+  s_0a0899d9947883::t_6025c6cfaa7ece 272-294
+  s_7d473dce5bf821::t_d1c1a7aa53a6d9 10
+app/Mcp/Tools/Suites/UnbookmarkSuiteTool.php
+  s_0a0899d9947883::t_b03cf5cdd69772 1-34
+resources/js/Pages/TestSuites/Show.vue
+  s_0a0899d9947883::t_4a6f587ae07d0f 25
+  s_0a0899d9947883::t_dd4eecd6c1a5f6 468-483
+  s_0a0899d9947883::t_2bbef776e0f6e1 8
+  s_db6412a6298434::t_bfc743a9e4e414 418
+  s_0a0899d9947883::t_ac5b98809f9b6f 104-114
+  s_9dcc5a535e71cf::t_4bad1f06a8e02a 619-624
+  s_db6412a6298434::t_42e8371f3b8b66 701
+  s_db6412a6298434::t_41c480b1e2216c 461
+config/services.php
+  s_db6412a6298434::t_3cd7ce1de48066 38-47
+tests/Feature/GithubAuthTest.php
+  s_db6412a6298434::t_ddad0369ccb8a1 75-79,83-84
+  s_db6412a6298434::t_a652ce3ac25aac 184-185,187
+  s_db6412a6298434::t_06e885087cb098 8-9
+  s_db6412a6298434::t_f9c24089dc1296 11
+  s_db6412a6298434::t_c3505a84f42882 1-7,10,12-63,65-74,85-98,100-108,111,135-183,186,188-189
+  s_db6412a6298434::t_ab2ef8976b984a 64,80-82,99,109-110,112-134
+app/Http/Controllers/TestController.php
+  s_db6412a6298434::t_4c0872d99a201e 52
+  s_db6412a6298434::t_e4d52c0cfea5ce 23,41-42,44-46,60-66,69-74,76,81-85,95,108,119,129
+routes/web.php
+  s_0a0899d9947883::t_8ac637137fc7de 111-113,116
+  s_235815bef895e9::t_4f992b8728139c 117
+  s_0a0899d9947883::t_d2608b4985c18e 9
+  s_db6412a6298434::t_e5dac549a17e20 65-67
+  s_db6412a6298434::t_aea1073a68eeaa 135-136
+resources/js/locales/ms.json
+  s_0a0899d9947883::t_0a234af41c477c 272-294
+  s_7d473dce5bf821::t_f28f2b184506a3 10
+  s_9dcc5a535e71cf::t_1dd9552d965029 142-146
+  s_db6412a6298434::t_af11c54e5d840d 58-61
+  s_0a0899d9947883::t_420adcaa331cae 6
+  s_db6412a6298434::t_77cda41668fada 419-427
+app/Mcp/Servers/SorifyServer.php
+  s_0a0899d9947883::t_2835bbe3dab81c 59-62
+  s_0a0899d9947883::t_8e95d06a236af8 13,18,22
+.env.example
+  s_db6412a6298434::t_daa1ef171d601f 67-77
+database/migrations/2026_08_20_000002_add_avatar_to_users_table.php
+  s_db6412a6298434::t_fd55236f4547e4 1-25
+app/Http/Middleware/HandleInertiaRequests.php
+  s_db6412a6298434::t_e4d52c0cfea5ce 42-44,51-53
+  s_db6412a6298434::t_baf435c28de2f4 45
+database/migrations/2026_08_20_000001_add_github_auth_to_users_table.php
+  s_db6412a6298434::t_4770e50fb6bb8a 26
+  s_db6412a6298434::t_e1c095f4165a0a 1-25,27-34
+app/Http/Controllers/TestSuiteController.php
+  s_db6412a6298434::t_e4d52c0cfea5ce 25-27,33,36,43,59-61,83-84,86,101-103,115-118,120-123,137,149-151,154-156,158,168,170-172,181-183,185,192,194-200,235,244
+  s_db6412a6298434::t_7f3589f597ce86 30
+  s_0a0899d9947883::t_01975f998f6712 51,53
+  s_db6412a6298434::t_7ee204a86e2beb 174
+  s_0a0899d9947883::t_349ae9734d1bfc 169
+  s_db6412a6298434::t_39689b4534147d 96
+  s_db6412a6298434::t_3cf0a7c99a19fd 113,128
+  s_0a0899d9947883::t_878b89948c713d 29,31
+.env.docker.example
+  s_db6412a6298434::t_4fa40c868bbcf0 68-78
+resources/js/locales/zh-CN.json
+  s_7d473dce5bf821::t_dd65aee381a939 10
+  s_db6412a6298434::t_e8b21a545fa7b6 419-427
+  s_0a0899d9947883::t_45a7d400e194b7 6
+  s_0a0899d9947883::t_807a9442346b99 272-294
+  s_db6412a6298434::t_9e15126381e9f4 58-61
+  s_9dcc5a535e71cf::t_833659e5a776ff 142-146
+app/Mcp/Tools/Suites/BookmarkSuiteTool.php
+  s_0a0899d9947883::t_b0a36e7add659d 1-38
+composer.lock
+  s_db6412a6298434::t_80ef726c777ade 7,510-575,1796-1867,2314-2389,3223-3341,3417-3526
+composer.json
+  s_7d473dce5bf821::t_d1b0cae8639afc 49
+  s_db6412a6298434::t_3842c5127b74e5 15
+app/Http/Controllers/AuthController.php
+  s_db6412a6298434::t_fd4035aec95f27 13
+  s_db6412a6298434::t_76838ae87dea84 146-150
+  s_db6412a6298434::t_d3838c573ca945 143-145,151-179,183-189,195-197,199-206,210-216
+  s_db6412a6298434::t_cc83f43bdd137e 180-182,190-194,198
+  s_db6412a6298434::t_1d900882c75cd6 207-209
+tests/Unit/Mcp/Tools/BookmarkToolsTest.php
+  s_0a0899d9947883::t_a86151f1e5652b 1-73
+resources/js/Pages/Auth/Register.vue
+  s_db6412a6298434::t_5bf5a6c2f2451e 103-125
+tests/Feature/SuiteBookmarkTest.php
+  s_0a0899d9947883::t_696492c6e989b4 1-112
+resources/js/Pages/Profile/Show.vue
+  s_db6412a6298434::t_534a0fd010b361 4,6,28-29,36-37,43-62,72-99,139,141-144,149
+app/Http/Controllers/TestRunController.php
+  s_db6412a6298434::t_7f97ecec2527dd 89
+  s_db6412a6298434::t_0f56b55a2c79fb 22-23
+  s_db6412a6298434::t_e4d52c0cfea5ce 27,30,40-53,55-58,60,65,101-108,110-113,115,120-122,138,147
+resources/js/Pages/Auth/Login.vue
+  s_db6412a6298434::t_4e2e48a94dc65b 88-94,96-110
+  s_db6412a6298434::t_b67c0f1ffe8a6e 95
+resources/js/Components/ui/Avatar.vue
+  s_db6412a6298434::t_76cf3a4999ee64 7,30-31,33-40,52
+resources/js/Components/ui/RanBy.vue
+  s_db6412a6298434::t_c4f752cbed64b6 22
+app/Mcp/Tools/Suites/ListBookmarkedSuitesTool.php
+  s_0a0899d9947883::t_04a4afb7171b43 1-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "9da826b1a538943467d111b1267212ad0e934d33",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_0a0899d9947883": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e3dacc3f-23e6-4a85-9800-80ae35cc5684",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_235815bef895e9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe62b12f8ffenJ1WuBN79tdt6r",
+        "model": "DeepSeek-V4-Flash"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_2ac5893f6e7370": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe62b4dcbffelIj2frputl0OHe",
+        "model": "DeepSeek-V4-Flash"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_7d473dce5bf821": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17aa6a0c-eb1d-4a88-a2dd-829e6ef8a5fc",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_9dcc5a535e71cf": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe31a7eebffesWDR7o86yHq87L",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_db6412a6298434": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe56d43f6ffesqXXhDhFgr0ix3",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
