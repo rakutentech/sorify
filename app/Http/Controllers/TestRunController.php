@@ -19,15 +19,15 @@ class TestRunController extends Controller
         $query = TestRun::with([
             'testSuite:id,name,created_by',
             'testSuite.createdBy:id,name',
-            'testSuite.members:id,name,email',
-            'triggeredByUser:id,name,email',
+            'testSuite.members:id,name,email,avatar',
+            'triggeredByUser:id,name,email,avatar',
             'testResults.screenshots',
         ])->latest();
 
-        if (!$request->user()->is_admin) {
+        if (! $request->user()->is_admin) {
             $query->whereHas('testSuite.members', function ($q) use ($request) {
                 $q->where('users.id', $request->user()->id)
-                  ->where('test_suite_user.can_view', true);
+                    ->where('test_suite_user.can_view', true);
             });
         }
 
@@ -37,32 +37,32 @@ class TestRunController extends Controller
         $paginator = $query->paginate($perPage)->withQueryString();
 
         $paginator->through(fn ($run) => [
-            'id'                => $run->id,
-            'suite_id'          => $run->testSuite->id,
-            'suite_name'        => $run->testSuite->name,
-            'members'           => $run->testSuite->members,
-            'status'            => $run->status,
-            'passed_count'      => $run->passed_count,
-            'failed_count'      => $run->failed_count,
-            'error_count'       => $run->error_count,
-            'total_tests'       => $run->total_tests,
-            'duration_ms'       => $run->duration_ms,
-            'created_at'        => $run->created_at,
-            'completed_at'      => $run->completed_at,
-            'created_by'        => $run->testSuite->createdBy?->name,
-            'triggered_by'      => $run->triggered_by,
+            'id' => $run->id,
+            'suite_id' => $run->testSuite->id,
+            'suite_name' => $run->testSuite->name,
+            'members' => $run->testSuite->members,
+            'status' => $run->status,
+            'passed_count' => $run->passed_count,
+            'failed_count' => $run->failed_count,
+            'error_count' => $run->error_count,
+            'total_tests' => $run->total_tests,
+            'duration_ms' => $run->duration_ms,
+            'created_at' => $run->created_at,
+            'completed_at' => $run->completed_at,
+            'created_by' => $run->testSuite->createdBy?->name,
+            'triggered_by' => $run->triggered_by,
             'triggered_by_user' => $run->triggeredByUser,
-            'screenshots'       => $run->testResults->flatMap(fn ($r) => $r->screenshots)->map(fn ($s) => [
-                'id'          => $s->id,
-                'filename'    => $s->filename,
-                'label'       => $s->label,
+            'screenshots' => $run->testResults->flatMap(fn ($r) => $r->screenshots)->map(fn ($s) => [
+                'id' => $s->id,
+                'filename' => $s->filename,
+                'label' => $s->label,
                 'taken_at_ms' => $s->taken_at_ms,
-                'url'         => $s->url,
+                'url' => $s->url,
             ])->values(),
         ]);
 
         return Inertia::render('Runs/Index', [
-            'runs'    => $paginator,
+            'runs' => $paginator,
             'filters' => ['per_page' => $perPage],
         ]);
     }
@@ -86,7 +86,7 @@ class TestRunController extends Controller
     {
         $this->authorize('view', $run->testSuite);
 
-        $run->load(['testSuite:id,name', 'triggeredByUser:id,name,email']);
+        $run->load(['testSuite:id,name', 'triggeredByUser:id,name,email,avatar']);
 
         $perPage = (int) request()->input('per_page', 50);
         $perPage = in_array($perPage, [25, 50, 100, 200]) ? $perPage : 50;
@@ -98,28 +98,28 @@ class TestRunController extends Controller
             ->withQueryString();
 
         $results->through(fn ($r) => [
-            'id'               => $r->id,
-            'test_id'          => $r->test->id,
-            'test_name'        => $r->test->name,
-            'status'           => $r->status,
-            'duration_ms'      => $r->duration_ms,
-            'error_message'    => $r->error_message,
-            'error_stack'      => $r->error_stack,
-            'stdout'           => $r->stdout,
+            'id' => $r->id,
+            'test_id' => $r->test->id,
+            'test_name' => $r->test->name,
+            'status' => $r->status,
+            'duration_ms' => $r->duration_ms,
+            'error_message' => $r->error_message,
+            'error_stack' => $r->error_stack,
+            'stdout' => $r->stdout,
             'screenshot_count' => $r->screenshots->count(),
-            'screenshots'      => $r->screenshots->map(fn ($s) => [
-                'id'          => $s->id,
-                'filename'    => $s->filename,
-                'label'       => $s->label,
+            'screenshots' => $r->screenshots->map(fn ($s) => [
+                'id' => $s->id,
+                'filename' => $s->filename,
+                'label' => $s->label,
                 'taken_at_ms' => $s->taken_at_ms,
-                'url'         => $s->url,
+                'url' => $s->url,
             ]),
         ]);
 
         return Inertia::render('TestRuns/Show', [
-            'run'            => array_merge($run->toArray(), ['suite' => $run->testSuite]),
-            'results'        => $results,
-            'resultTestIds'  => $run->testResults()->pluck('test_id')->all(),
+            'run' => array_merge($run->toArray(), ['suite' => $run->testSuite]),
+            'results' => $results,
+            'resultTestIds' => $run->testResults()->pluck('test_id')->all(),
         ]);
     }
 
@@ -135,6 +135,7 @@ class TestRunController extends Controller
         $this->authorize('run', $run->testSuite);
 
         $this->runs->cancel($run);
+
         return back();
     }
 
@@ -143,6 +144,7 @@ class TestRunController extends Controller
         $this->authorize('delete', $run->testSuite);
 
         $run->delete();
+
         return back();
     }
 }

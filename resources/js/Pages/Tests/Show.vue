@@ -32,7 +32,7 @@ const editMode = ref(false);
 
 function uploader(email) {
     const user = props.users.find(u => u.email === email);
-    return { name: user?.name ?? email, email };
+    return { name: user?.name ?? email, email, avatar_url: user?.avatar_url ?? null };
 }
 
 function saveEdit() {
@@ -187,7 +187,7 @@ function onHistoryKeydown(e) {
                     </div>
                     <p v-if="test.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1 whitespace-pre-line">{{ test.description }}</p>
                     <div v-if="test.uploaded_by" class="flex items-center gap-2 mt-1.5">
-                        <Avatar :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" />
+                        <Avatar :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" :avatar-url="uploader(test.uploaded_by).avatar_url" />
                         <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
                             {{ t('testShow.uploadedBy', { name: uploader(test.uploaded_by).name }) }}
                         </p>

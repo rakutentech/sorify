@@ -276,3 +276,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v1.4** - Manage users from MCP.
 - **v1.5** - i18n support for English and Japanese for now.
 - **v1.6** - i18n support for Malay, Simplified Chinese. Extension captures file uploads, iframes, tabs, network.
+- **v1.7** - oAuth login, with Avatar.

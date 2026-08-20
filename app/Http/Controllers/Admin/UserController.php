@@ -16,12 +16,13 @@ class UserController extends Controller
     public function index(): Response
     {
         $users = User::orderBy('name')->get()->map(fn (User $u) => [
-            'id'            => $u->id,
-            'name'          => $u->name,
-            'email'         => $u->email,
-            'is_admin'      => $u->is_admin,
-            'is_view_only'  => $u->is_view_only,
-            'created_at'    => $u->created_at,
+            'id' => $u->id,
+            'name' => $u->name,
+            'email' => $u->email,
+            'avatar_url' => $u->avatar_url,
+            'is_admin' => $u->is_admin,
+            'is_view_only' => $u->is_view_only,
+            'created_at' => $u->created_at,
             'last_login_at' => $u->last_login_at,
         ]);
 
@@ -31,17 +32,17 @@ class UserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'unique:users,email'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:8'],
-            'role'     => ['required', Rule::in(['admin', 'member', 'viewer'])],
+            'role' => ['required', Rule::in(['admin', 'member', 'viewer'])],
         ]);
 
         User::create([
-            'name'         => $data['name'],
-            'email'        => $data['email'],
-            'password'     => $data['password'],
-            'is_admin'     => $data['role'] === 'admin',
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'is_admin' => $data['role'] === 'admin',
             'is_view_only' => $data['role'] === 'viewer',
         ]);
 
@@ -70,7 +71,7 @@ class UserController extends Controller
         ]);
 
         $user->update([
-            'is_admin'     => $data['role'] === 'admin',
+            'is_admin' => $data['role'] === 'admin',
             'is_view_only' => $data['role'] === 'viewer',
         ]);
 

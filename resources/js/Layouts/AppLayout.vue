@@ -1,9 +1,9 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onBeforeUnmount } from 'vue';
 import { usePage, Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
-import { IconButton, Alert, LanguageSwitcher } from '@/Components/ui';
+import { IconButton, Alert, LanguageSwitcher, Avatar } from '@/Components/ui';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
 const { t } = useI18n();
@@ -16,6 +16,7 @@ const navLinks = computed(() => [
     { label: t('nav.dashboard'), href: '/sorify/' },
     { label: t('nav.runs'), href: '/sorify/runs' },
     { label: t('nav.testSuites'), href: '/sorify/suites' },
+    { label: t('nav.bookmarks'), href: '/sorify/bookmarks' },
 ]);
 
 const docsLink = computed(() => ({ label: t('nav.docs'), href: 'https://github.com/rakutentech/sorify', external: true, newTab: true }));
@@ -34,6 +35,26 @@ function isActive(href) {
 function logout() {
     router.post('/sorify/logout');
 }
+
+const userMenuOpen = ref(false);
+const userMenuRef = ref(null);
+
+function toggleUserMenu() {
+    userMenuOpen.value = !userMenuOpen.value;
+}
+
+function closeUserMenu() {
+    userMenuOpen.value = false;
+}
+
+function onClickOutside(event) {
+    if (userMenuOpen.value && userMenuRef.value && !userMenuRef.value.contains(event.target)) {
+        closeUserMenu();
+    }
+}
+
+document.addEventListener('click', onClickOutside);
+onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
 </script>
 
 <template>
@@ -113,20 +134,36 @@ function logout() {
                     <!-- Right side -->
                     <div class="flex items-center gap-3">
                         <!-- User nav -->
-                        <template v-if="user">
-                            <Link
-                                href="/sorify/profile"
-                                class="md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
-                            >
-                                {{ user.name }}
-                            </Link>
+                        <div v-if="user" ref="userMenuRef" class="relative">
                             <button
-                                @click="logout"
-                                class="md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                                type="button"
+                                @click="toggleUserMenu"
+                                class="flex items-center gap-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
                             >
-                                {{ t('nav.logout') }}
+                                <Avatar :name="user.name" :email="user.email" :avatar-url="user.avatar_url" size="sm" />
+                                {{ user.name }}
                             </button>
-                        </template>
+
+                            <div
+                                v-if="userMenuOpen"
+                                class="absolute right-0 top-full mt-2 w-48 rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container)] shadow-elevation-2 py-1 z-30"
+                            >
+                                <Link
+                                    href="/sorify/profile"
+                                    @click="closeUserMenu"
+                                    class="block px-4 py-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                                >
+                                    {{ t('nav.profile') }}
+                                </Link>
+                                <button
+                                    type="button"
+                                    @click="logout"
+                                    class="block w-full text-left px-4 py-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                                >
+                                    {{ t('nav.logout') }}
+                                </button>
+                            </div>
+                        </div>
                         <span v-else class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('nav.qaPlatform') }}</span>
 
                         <!-- Language switcher -->
