@@ -1,0 +1,19 @@
+resources/playwright/harness.cjs
+  s_47855d3228f6da::t_c13bbe48c9249e 221-231,233,238,242,244-245,247-265
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "ab352dfe6f4f83bf73f7eb41af9bdefc9b845f28",
+  "prompts": {},
+  "sessions": {
+    "s_47855d3228f6da": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe07b415effe6E0NmTJ4DFpzS7",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
