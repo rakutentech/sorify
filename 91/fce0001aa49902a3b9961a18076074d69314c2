@@ -1,0 +1,69 @@
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_08736196acf251::t_c66b63b81c6cc5 9-12,17-18,20,22-24,26-28
+resources/js/locales/zh-CN.json
+  s_08736196acf251::t_6b1a1c98394032 237-241
+  s_08736196acf251::t_9c047fcd59b28d 242-244
+  s_08736196acf251::t_6fd3c032a69108 121
+app/Services/ReportingService.php
+  s_08736196acf251::t_2a6f4c6c1a42db 36-42,49
+resources/js/locales/en.json
+  s_08736196acf251::t_c51d7b261e256f 121
+  s_08736196acf251::t_59fb7fc4af54d8 242-244
+  s_08736196acf251::t_5cbcb0230dc9fa 237-241
+resources/js/locales/ja.json
+  s_08736196acf251::t_594ee52b594710 242-244
+  s_08736196acf251::t_b1f37ed8aa1959 121
+  s_08736196acf251::t_88810917daf9b9 237-241
+resources/playwright/harness.cjs
+  s_47855d3228f6da::t_c13bbe48c9249e 221-231,233,238,242,244-245,247-265
+resources/js/locales/ms.json
+  s_08736196acf251::t_057f70fbabbbb5 237-241
+  s_08736196acf251::t_3bc3d75b6f33f4 242-244
+  s_08736196acf251::t_12d34e2a067a39 121
+resources/js/Pages/TestSuites/Show.vue
+  s_08736196acf251::t_ef6c8d6b215411 907,909-910
+  s_08736196acf251::t_c295e61c3fe813 641-650
+  s_08736196acf251::t_c2b7cf921e0e1e 1024
+  s_08736196acf251::t_83e7f4734b3fbe 152,162,175-182,221-222
+  s_08736196acf251::t_f4d083268a5a00 569-576
+  s_08736196acf251::t_0cf9d3bab4b172 715-718
+  s_08736196acf251::t_a4ff328d52b5c5 1259,1261-1263
+  s_08736196acf251::t_1d9ee1ba59c292 905-906,908
+  s_08736196acf251::t_be26672a21daf5 824-883
+  s_08736196acf251::t_2fe0ed8e4919d0 9
+  s_08736196acf251::t_874afcab394bf5 1394-1396
+  s_08736196acf251::t_4e9e25cae11aa0 994-995,1010-1023
+  s_08736196acf251::t_c20c8e42cd2073 1397
+  s_08736196acf251::t_9e917c4f619fc0 1407,1409
+  s_08736196acf251::t_872c335485752c 1405-1406
+  s_08736196acf251::t_6d2e22862a3896 263,272,279
+  s_08736196acf251::t_8d33cf240737fd 697-714,719-823,884-886,1025
+  s_08736196acf251::t_c942469afda451 1359,1362-1363,1365-1392,1399
+  s_08736196acf251::t_c987a166582f81 144
+  s_08736196acf251::t_9e8cc00a0c0981 40-55
+  s_08736196acf251::t_39336112d33f51 172-174,183-220,223-245,247,251-252,255
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "91fce0001aa49902a3b9961a18076074d69314c2",
+  "prompts": {},
+  "sessions": {
+    "s_08736196acf251": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe058e2ddffepVrQb5AeJo1q6y",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_47855d3228f6da": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe07b415effe6E0NmTJ4DFpzS7",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
