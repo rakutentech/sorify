@@ -1,0 +1,33 @@
+resources/js/locales/en.json
+  s_e8e803046ed76a::t_c1bccb11fcd0fe 234-235
+resources/js/Pages/TestSuites/Show.vue
+  s_e8e803046ed76a::t_41a4adbe7b6a0f 188-215,219-238
+  s_e8e803046ed76a::t_5467a0b24be9a6 637,641,654,669,686,701,753-754
+  s_e8e803046ed76a::t_5ae82c7b187603 216-218
+  s_e8e803046ed76a::t_b1eba25a5b7fa6 2
+  s_e8e803046ed76a::t_f0ac8239d988f7 679,695,710,729,744
+  s_e8e803046ed76a::t_9d1ba063057a83 626-636,638-640,642-653,655-668,670-678,680-685,687-694,696-700,702-709,711-728,730-743,745-752
+  s_e8e803046ed76a::t_14c09b495f73a0 1213-1221
+resources/js/locales/ja.json
+  s_e8e803046ed76a::t_ac8c0c321e0b59 234-235
+resources/js/locales/ms.json
+  s_e8e803046ed76a::t_f1c167860ab4ad 234-235
+resources/js/locales/zh-CN.json
+  s_e8e803046ed76a::t_c371ef192ac179 234-235
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "c8df161d60313439c6d936e4846ad876eedbc72c",
+  "prompts": {},
+  "sessions": {
+    "s_e8e803046ed76a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe2084f35ffeKp5NiFoiuTyw5c",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
