@@ -39,17 +39,18 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user() ? [
-                    'id'       => $request->user()->id,
-                    'name'     => $request->user()->name,
-                    'email'    => $request->user()->email,
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'avatar_url' => $request->user()->avatar_url,
                     'is_admin' => $request->user()->is_admin,
                 ] : null,
             ],
             'locale' => app()->getLocale(),
             'flash' => [
-                'success'    => $request->session()->get('flash.success'),
-                'error'      => $request->session()->get('flash.error'),
-                'new_token'  => $request->session()->get('flash.new_token'),
+                'success' => $request->session()->get('flash.success'),
+                'error' => $request->session()->get('flash.error'),
+                'new_token' => $request->session()->get('flash.new_token'),
                 'reset_link' => $request->session()->get('flash.reset_link'),
             ],
         ];

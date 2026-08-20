@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardNoteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScreenshotController;
+use App\Http\Controllers\SuiteBookmarkController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TestRunController;
 use App\Http\Controllers\TestSuiteController;
@@ -61,6 +62,9 @@ Route::prefix('sorify')->group(function () {
     Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
     Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+
+    Route::get('/auth/github/redirect', [AuthController::class, 'redirectToGithub'])->name('github.redirect');
+    Route::get('/auth/github/callback', [AuthController::class, 'handleGithubCallback'])->name('github.callback');
 });
 
 // Public: CI webhooks, guarded by a per-suite token instead of session auth
@@ -104,7 +108,12 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
             Route::put('/{user}', [TestSuiteMemberController::class, 'update'])->name('update');
             Route::delete('/{user}', [TestSuiteMemberController::class, 'destroy'])->name('destroy');
         });
+
+        Route::post('/{suite}/bookmark', [SuiteBookmarkController::class, 'store'])->name('bookmark.store');
+        Route::delete('/{suite}/bookmark', [SuiteBookmarkController::class, 'destroy'])->name('bookmark.destroy');
     });
+
+    Route::get('/bookmarks', [SuiteBookmarkController::class, 'index'])->name('bookmarks.index');
 
     Route::prefix('runs')->name('runs.')->group(function () {
         Route::get('/', [TestRunController::class, 'index'])->name('index');
@@ -123,6 +132,8 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'updateName'])->name('profile.update-name');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.update-avatar');
+    Route::delete('/profile/avatar', [ProfileController::class, 'removeAvatar'])->name('profile.remove-avatar');
     Route::patch('/profile/locale', [ProfileController::class, 'updateLocale'])->name('profile.update-locale');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

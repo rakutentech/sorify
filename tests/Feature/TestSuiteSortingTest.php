@@ -141,6 +141,38 @@ class TestSuiteSortingTest extends TestCase
         $this->assertSame([$newer->name, $older->name], $names);
     }
 
+    public function test_sort_by_created_at_newest_and_oldest(): void
+    {
+        $suite = $this->suite();
+        $first  = $this->test($suite, ['name' => 'Created First', 'created_at' => now()->subDays(2), 'updated_at' => now()->subDays(2)]);
+        $second = $this->test($suite, ['name' => 'Created Second', 'created_at' => now()->subDay(), 'updated_at' => now()->subDay()]);
+        $third  = $this->test($suite, ['name' => 'Created Third', 'created_at' => now(), 'updated_at' => now()]);
+
+        // Newest created first.
+        $names = $this->nameList($this->testList($suite, ['sort' => 'created_newest']));
+        $this->assertSame([$third->name, $second->name, $first->name], $names);
+
+        // Oldest created first.
+        $names = $this->nameList($this->testList($suite, ['sort' => 'created_oldest']));
+        $this->assertSame([$first->name, $second->name, $third->name], $names);
+    }
+
+    public function test_sort_by_updated_at_newest_and_oldest(): void
+    {
+        $suite = $this->suite();
+        $stale    = $this->test($suite, ['name' => 'Updated Long Ago', 'created_at' => now()->subDays(3), 'updated_at' => now()->subDays(3)]);
+        $recent   = $this->test($suite, ['name' => 'Updated Recently', 'created_at' => now()->subDays(3), 'updated_at' => now()->subHour()]);
+        $latest   = $this->test($suite, ['name' => 'Updated Just Now', 'created_at' => now()->subDays(3), 'updated_at' => now()]);
+
+        // Newest updated first.
+        $names = $this->nameList($this->testList($suite, ['sort' => 'updated_newest']));
+        $this->assertSame([$latest->name, $recent->name, $stale->name], $names);
+
+        // Oldest updated first.
+        $names = $this->nameList($this->testList($suite, ['sort' => 'updated_oldest']));
+        $this->assertSame([$stale->name, $recent->name, $latest->name], $names);
+    }
+
     public function test_status_filter_keeps_only_matching_statuses(): void
     {
         $suite = $this->suite();

@@ -100,6 +100,16 @@ class TestSuite extends Model
             ->withTimestamps();
     }
 
+    public function bookmarkedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'suite_bookmarks')->withTimestamps();
+    }
+
+    public function isBookmarkedBy(?User $user): bool
+    {
+        return $user !== null && $this->bookmarkedBy()->where('users.id', $user->id)->exists();
+    }
+
     /**
      * @return array{view: bool, edit: bool, delete: bool, run: bool}
      */

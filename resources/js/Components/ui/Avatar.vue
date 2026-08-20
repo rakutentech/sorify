@@ -4,6 +4,7 @@ import { computed } from 'vue';
 const props = defineProps({
     name: { type: String, required: true },
     email: { type: String, default: '' },
+    avatarUrl: { type: String, default: null },
     size: { type: String, default: 'md' },
 });
 
@@ -26,10 +27,17 @@ const avatarColor = computed(() => {
 <template>
     <div class="group relative">
         <div
-            :class="[sizeClass, 'rounded-full ring-2 ring-[var(--md-sys-color-surface-container-low)] text-white flex items-center justify-center md-label-small font-medium select-none']"
-            :style="{ backgroundColor: avatarColor }"
+            :class="[sizeClass, 'rounded-full ring-2 ring-[var(--md-sys-color-surface-container-low)] text-white flex items-center justify-center md-label-small font-medium select-none overflow-hidden']"
+            :style="!avatarUrl ? { backgroundColor: avatarColor } : null"
         >
-            {{ initial }}
+            <img
+                v-if="avatarUrl"
+                :src="avatarUrl"
+                :alt="name"
+                class="w-full h-full object-cover"
+                referrerpolicy="no-referrer"
+            />
+            <template v-else>{{ initial }}</template>
         </div>
         <div
             class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap"
@@ -41,3 +49,4 @@ const avatarColor = computed(() => {
         </div>
     </div>
 </template>
+
