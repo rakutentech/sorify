@@ -1,0 +1,15 @@
+.env.prod
+  h_f44dfe84a46cdf 71-82
+  h_f44dfe84a46cdf 70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "16dc7ba8574224f5460b0982299bfe3db1daa0c7",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
