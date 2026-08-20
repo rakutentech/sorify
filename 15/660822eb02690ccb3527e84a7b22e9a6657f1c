@@ -1,0 +1,20 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_08736196acf251::t_0cf9d3bab4b172 704-708
+  s_08736196acf251::t_a4ff328d52b5c5 1194,1196-1198
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "15660822eb02690ccb3527e84a7b22e9a6657f1c",
+  "prompts": {},
+  "sessions": {
+    "s_08736196acf251": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe058e2ddffepVrQb5AeJo1q6y",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
