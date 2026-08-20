@@ -25,11 +25,14 @@ class TestSuiteSortingTest extends TestCase
 
     private function test(TestSuite $suite, array $attributes = []): Test
     {
-        return Test::create(array_merge([
+        $test = new Test;
+        $test->forceFill(array_merge([
             'test_suite_id' => $suite->id,
             'name'          => 'Test '.($suite->tests()->count() + 1),
             'status'        => 'active',
-        ], $attributes));
+        ], $attributes))->save();
+
+        return $test;
     }
 
     private function nameList(array $data): array
