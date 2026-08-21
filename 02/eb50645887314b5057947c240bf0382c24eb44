@@ -1,0 +1,32 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_f57ee352353f93::t_e14a12dfa4a99c 1113-1128
+resources/js/locales/ja.json
+  s_f57ee352353f93::t_67eb7aa96c6e70 160-161
+resources/js/locales/zh-CN.json
+  s_f57ee352353f93::t_b3029093669be6 160-161
+resources/js/locales/en.json
+  s_f57ee352353f93::t_472bef0d0d12de 160-161
+resources/js/locales/ms.json
+  s_f57ee352353f93::t_0285c7f6c3fb78 160-161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "02eb50645887314b5057947c240bf0382c24eb44",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_f57ee352353f93": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fde09a0c7ffe4LLJCr0jw890LF",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
