@@ -1,0 +1,372 @@
+database/migrations/2026_08_21_000001_add_duplication_status_to_test_suites_table.php
+  s_b6dd7a07c5e1ae::t_ce320448a9709b 1-28
+resources/playwright/harness.cjs
+  s_47855d3228f6da::t_c13bbe48c9249e 221-231,233,238,242,244-245,247-265
+resources/js/Components/ui/SettingBadge.vue
+  s_702b1e33ccae31::t_1f7148d7b2298b 12
+resources/js/locales/ms.json
+  s_b6dd7a07c5e1ae::t_db350c9998be4c 108-110,113-115
+  s_a8046a77b0fe2f::t_943377946a64c7 352-354
+  s_9104f94bf88f84::t_054fc187fa0605 321-335,337-351
+  s_f57ee352353f93::t_0285c7f6c3fb78 167-168
+  s_9104f94bf88f84::t_2ffb38f90a4e36 302-303
+  s_702b1e33ccae31::t_07685c60339c1b 320
+  s_08736196acf251::t_3bc3d75b6f33f4 254-256
+  s_08736196acf251::t_12d34e2a067a39 129
+  s_b6dd7a07c5e1ae::t_37b78405d3c838 297-299,304-319
+  s_a8046a77b0fe2f::t_66a96ec7c82412 180-181
+  s_b6dd7a07c5e1ae::t_3dcba5e66d3065 78
+  s_08736196acf251::t_057f70fbabbbb5 249-253
+  s_b6dd7a07c5e1ae::t_d74036c804ffe9 111-112
+  s_9104f94bf88f84::t_9d7180370cb2e9 300-301
+  s_b6dd7a07c5e1ae::t_57bce8dd8d8be4 139
+  s_b6dd7a07c5e1ae::t_8b4d602718b35d 482-487
+  s_9104f94bf88f84::t_0177c781c64995 336
+  s_702b1e33ccae31::t_228dbf9e0138df 213
+  s_b6dd7a07c5e1ae::t_8b38183218d307 136
+  s_b6dd7a07c5e1ae::t_94550014a31b7b 141-143,145,147-149,151-154
+resources/js/Components/ui/IconButton.vue
+  s_b6dd7a07c5e1ae::t_e7be853c8b2a9b 5
+  s_b6dd7a07c5e1ae::t_e1ba52d95abb51 6,13-33
+app/Http/Controllers/TestSuiteController.php
+  s_b6dd7a07c5e1ae::t_6a120e581f4ae1 321-340
+  s_b6dd7a07c5e1ae::t_5e4dc062207f92 210
+  s_03330c265bc460::t_20e4f76bc60da9 242,255-260
+  s_9104f94bf88f84::t_dbec1f6c65eacb 93-158
+  s_b6dd7a07c5e1ae::t_e53ee20460ddbc 240
+  s_b6dd7a07c5e1ae::t_4bb6d873246509 12
+  s_b6dd7a07c5e1ae::t_c6321d8c1c573a 170
+resources/js/Components/TestCodeEditor.vue
+  s_03330c265bc460::t_a33491bf414580 61
+  s_03330c265bc460::t_3c44e7f94f798c 50
+app/Support/TestSort.php
+  s_b6dd7a07c5e1ae::t_73401116457f71 16,18,20,39-41,45-46,48-54,60-61,63-65,68,70-72,74-81,87-91,93-96
+  s_b6dd7a07c5e1ae::t_c008b49c6334c8 17
+  s_b6dd7a07c5e1ae::t_ba86b5b1f22eee 15
+  s_b6dd7a07c5e1ae::t_95f552e375e0f9 13-14,42-44,92,97-107
+  s_b6dd7a07c5e1ae::t_caf36e6105ec40 19
+  s_b6dd7a07c5e1ae::t_9692f34d5f3442 21
+  s_b6dd7a07c5e1ae::t_0f8bbd805ce6d0 108-109
+  s_b6dd7a07c5e1ae::t_55eb42dd1bd273 66
+app/Http/Controllers/TestController.php
+  s_b6dd7a07c5e1ae::t_456dd6711ceba1 12
+  s_b6dd7a07c5e1ae::t_872ee6f3f48bc9 159
+  s_b6dd7a07c5e1ae::t_9cbb47db516762 148-158,160-169
+  s_b6dd7a07c5e1ae::t_31aa80a479ca0d 211
+  s_b6dd7a07c5e1ae::t_b52543db787273 200-210,212-223
+  s_b6dd7a07c5e1ae::t_bf4da3aacf3e7b 13
+app/Mcp/Tools/Tests/DuplicateTestTool.php
+  s_b6dd7a07c5e1ae::t_31aa80a479ca0d 28-31,38-39,41,58-61
+  s_b6dd7a07c5e1ae::t_ba05bbb0940244 1-27,32-37,40,42-57,62-64
+app/Mcp/Tools/Suites/DuplicateSuiteTool.php
+  s_b6dd7a07c5e1ae::t_e529394aac6244 1-28,30-36,38-46,49,51-53
+  s_b6dd7a07c5e1ae::t_31aa80a479ca0d 29,37,47-48,50
+app/Services/ReportingService.php
+  s_08736196acf251::t_2a6f4c6c1a42db 36-42,49
+resources/js/locales/en.json
+  s_08736196acf251::t_59fb7fc4af54d8 254-256
+  s_a8046a77b0fe2f::t_3d08aed13b423c 180-181
+  s_b6dd7a07c5e1ae::t_100cd98f085179 297-299,304-319
+  s_b6dd7a07c5e1ae::t_2a95de7dc5cbf0 141-143,145,147-149,151-154
+  s_b6dd7a07c5e1ae::t_1243e9deaa6f01 139
+  s_9104f94bf88f84::t_98a35fe46815cf 321-335,337-351
+  s_a8046a77b0fe2f::t_f55f78c04dc109 352-354
+  s_b6dd7a07c5e1ae::t_499d012977bafd 108-110,113-115
+  s_08736196acf251::t_c51d7b261e256f 129
+  s_b6dd7a07c5e1ae::t_7c72bbb84e3e39 78
+  s_03330c265bc460::t_6e040daa065c7a 320
+  s_f57ee352353f93::t_472bef0d0d12de 167-168
+  s_b6dd7a07c5e1ae::t_2bf118c6ada265 482-487
+  s_9104f94bf88f84::t_19829a1532c239 303
+  s_03330c265bc460::t_c448b2b864125d 302,336
+  s_b6dd7a07c5e1ae::t_05b882f26e7ca6 111-112
+  s_702b1e33ccae31::t_c0a50d0e557423 213
+  s_9104f94bf88f84::t_5371988cd68c28 300-301
+  s_08736196acf251::t_5cbcb0230dc9fa 249-253
+  s_b6dd7a07c5e1ae::t_e76a80358d1f50 136
+resources/js/Components/ui/Chip.vue
+  s_9104f94bf88f84::t_deaa790069656d 13-16,31,48-49
+app/Services/TestSuiteDuplicationService.php
+  s_b6dd7a07c5e1ae::t_2c6f41d9f15cf9 1-26,44-48,50-53,56,58-84,89,93-105,109,111-136
+  s_b6dd7a07c5e1ae::t_31aa80a479ca0d 27-43,49,54-55,57,85-88,90-92,106-108,110
+tests/Feature/DuplicationTest.php
+  s_b6dd7a07c5e1ae::t_31aa80a479ca0d 12,24-28,30-32,37,41-42,44,54-56,58,104-108,366-367,369,373,400-401,403,407,421-422,424,431,446-447,449,457,469-470,472,475,536,556-557,559,585-586,604-606
+  s_b6dd7a07c5e1ae::t_ba4cc920648a64 533,538,540-541,561
+  s_b6dd7a07c5e1ae::t_0d42a475b99fd3 1-11,13-23,29,33-36,38-40,43,45-53,57,59-103,109-309,358-365,368,370-372,374-399,402,404-406,408-420,423,425-430,432-445,448,450-456,458-468,471,473-474,476-498,500,502,505,507-532,534-535,537,539,542-555,558,560,562-584,587-595,603,611,613,620-624
+  s_b6dd7a07c5e1ae::t_a51bd5e03e871e 499,501,503-504,506
+  s_b6dd7a07c5e1ae::t_c712b4ba1f01f0 310-357
+  s_b6dd7a07c5e1ae::t_cab1462ace8b0d 596-602,607-610,612,614-619
+plugins/sorify/commands/gateway.md
+  s_b6dd7a07c5e1ae::t_e6d24e25dd9f9c 105
+  s_b6dd7a07c5e1ae::t_3159f427a2cc92 133
+  s_b6dd7a07c5e1ae::t_0d37c96d4f7bab 193-196
+  s_b6dd7a07c5e1ae::t_8c7f7ca7426816 82
+resources/js/Pages/TestSuites/Show.vue
+  s_03330c265bc460::t_b59f133ea0e119 1637
+  s_b6dd7a07c5e1ae::t_4d9bd1e8e918d0 456
+  s_b6dd7a07c5e1ae::t_11918fa107f0f9 1774-1794
+  s_b6dd7a07c5e1ae::t_6efe3f3ce807cd 1433
+  s_702b1e33ccae31::t_942499ac7a2d93 1355
+  s_03330c265bc460::t_9c03a49c8386a8 1580-1623,1634,1636,1638-1642
+  s_b6dd7a07c5e1ae::t_f4b5f385dd56af 1187-1226
+  s_08736196acf251::t_c942469afda451 1568-1579,1643
+  s_b6dd7a07c5e1ae::t_79c1fc1206147c 676-677,679-683,688-690,701-725
+  s_b6dd7a07c5e1ae::t_07698b6c58a9ff 678,692
+  s_702b1e33ccae31::t_5b264c370b4628 1566
+  s_b6dd7a07c5e1ae::t_15a2c87d074246 446-447,455,457-462,474,476,485
+  s_9104f94bf88f84::t_b4c0bfe7e3b6d7 1292-1295,1297-1303,1313-1314,1324,1328-1331,1333,1353
+  s_b6dd7a07c5e1ae::t_a5fb8300cac477 36
+  s_a8046a77b0fe2f::t_06fb22b9f6cf0f 651
+  s_03330c265bc460::t_e4868d4451ed41 1371-1372
+  s_08736196acf251::t_4e9e25cae11aa0 1139-1140,1155-1168
+  s_08736196acf251::t_39336112d33f51 192-194,203-240,243-265,267,271-272,275
+  s_08736196acf251::t_0cf9d3bab4b172 860-863
+  s_03330c265bc460::t_edf48be69ca0e2 1334-1349,1351-1352
+  s_9104f94bf88f84::t_778ffeb238d6e9 809-821
+  s_08736196acf251::t_c987a166582f81 164
+  s_9104f94bf88f84::t_16e56639bc53c4 52-69
+  s_08736196acf251::t_c2b7cf921e0e1e 1169
+  s_08736196acf251::t_83e7f4734b3fbe 172,182,195-202,241-242
+  s_08736196acf251::t_f4d083268a5a00 643-650
+  s_b6dd7a07c5e1ae::t_1e24172bf4f67d 693-694,696
+  s_b6dd7a07c5e1ae::t_feb0f5e73eb5f6 763-764,771,773-806,808
+  s_b6dd7a07c5e1ae::t_eb5a2e66a83759 807,823,827-831,834-835,837
+  s_08736196acf251::t_ef6c8d6b215411 1052,1054-1055
+  s_f57ee352353f93::t_e14a12dfa4a99c 1270-1285
+  s_702b1e33ccae31::t_4edf15950ce2b6 1378,1380
+  s_b6dd7a07c5e1ae::t_e00d19d5f39c87 78,88
+  s_08736196acf251::t_8d27b3e9547ebe 840-841
+  s_b6dd7a07c5e1ae::t_fee612fabbb7c9 1478
+  s_03330c265bc460::t_ea88f281dd0448 1356
+  s_08736196acf251::t_2fe0ed8e4919d0 9
+  s_b6dd7a07c5e1ae::t_e51fcc385dd3f1 35
+  s_b6dd7a07c5e1ae::t_93594a7d4eaf5a 726
+  s_03330c265bc460::t_f6b04e94d4ef9d 8
+  s_9104f94bf88f84::t_043e8d15d1f7cb 1315,1317-1321,1354
+  s_08736196acf251::t_be26672a21daf5 969-1028
+  s_08736196acf251::t_872c335485752c 1651-1652
+  s_a8046a77b0fe2f::t_074c223bb917d6 1401-1402,1404,1406-1407,1409,1411-1413
+  s_08736196acf251::t_8d33cf240737fd 842-854,856-859,864-968,1029,1170
+  s_03330c265bc460::t_fe00c6a0b60eb5 1357,1359
+  s_08736196acf251::t_1d9ee1ba59c292 1050-1051,1053
+  s_03330c265bc460::t_f45c7c74a23dc8 1393-1400
+  s_08736196acf251::t_6d2e22862a3896 283,292,299
+  s_a8046a77b0fe2f::t_a2ca0d2a3db16f 1635
+  s_03330c265bc460::t_4df95bb0809cdb 1367
+  s_b6dd7a07c5e1ae::t_b425fbfc34e035 1465
+  s_08736196acf251::t_9e8cc00a0c0981 41-51,70-74
+  s_08736196acf251::t_c295e61c3fe813 746-755
+  s_03330c265bc460::t_0a709fbd5f70d4 1624,1626,1628,1630
+  s_08736196acf251::t_9e917c4f619fc0 1653,1655
+  s_b6dd7a07c5e1ae::t_8fbde49b53274d 822,833
+  s_b6dd7a07c5e1ae::t_c0842923a00829 398-418,421,428-430,432,435-439
+  s_08736196acf251::t_a4ff328d52b5c5 1463,1466-1467
+  s_b6dd7a07c5e1ae::t_97a36194d23779 691
+  s_b6dd7a07c5e1ae::t_5f594fca3ae59c 419-420,422-427,431,433-434
+  s_a8046a77b0fe2f::t_c94b3f48a74ae6 1625,1627,1629,1631-1633
+  s_fcf20e51cfaaed::t_a7f2b7698d3c3c 450-451,453-454
+  s_a8046a77b0fe2f::t_ff306f758d7494 1403,1405,1408,1410
+  s_03330c265bc460::t_4c3d6707c4e3b9 1373,1379
+README.md
+  s_b6dd7a07c5e1ae::t_90115c8cba9048 280
+  s_b6dd7a07c5e1ae::t_8d06f4d69d3d6b 36-37
+resources/js/Components/ui/RanBy.vue
+  s_03330c265bc460::t_ed92b1cca13c14 21-27,29,31-39
+tests/Feature/TestSuiteSortingTest.php
+  s_b6dd7a07c5e1ae::t_95f552e375e0f9 21,31-32,47,93,95-96,115,201,203,217-219,233,235-236,257-261,265
+  s_b6dd7a07c5e1ae::t_eb8aa046ceeb62 118,122,127,139,143
+  s_b6dd7a07c5e1ae::t_2f4b8b82ca6ee3 38,70,82,86,104,108,119,123,140,144,157,173,177,183,187-189,194,206,210,222,226,243,246,250
+  s_b6dd7a07c5e1ae::t_990a7f28473aba 162-172,174-176,178-182,184-186,190-193,195-197
+  s_b6dd7a07c5e1ae::t_78f5c0524ba746 75-81,83-85,87-89
+  s_b6dd7a07c5e1ae::t_bfc87a8b961a00 198,205,209,214,221,225
+resources/js/locales/ja.json
+  s_08736196acf251::t_b1f37ed8aa1959 129
+  s_b6dd7a07c5e1ae::t_d816804d88cb94 111-112
+  s_9104f94bf88f84::t_4429012732d119 302-303
+  s_702b1e33ccae31::t_f9da9318540f4d 213
+  s_b6dd7a07c5e1ae::t_cddbd65571b917 78
+  s_08736196acf251::t_88810917daf9b9 249-253
+  s_9104f94bf88f84::t_ceae36e941e263 300-301
+  s_08736196acf251::t_594ee52b594710 254-256
+  s_9104f94bf88f84::t_bc7ea806dd08c5 321-335,337-351
+  s_702b1e33ccae31::t_08482d964a14bf 320
+  s_a8046a77b0fe2f::t_46420d5066c5af 352-354
+  s_b6dd7a07c5e1ae::t_a7dce1814a0682 139
+  s_a8046a77b0fe2f::t_bd9509d87aeaa7 180-181
+  s_f57ee352353f93::t_67eb7aa96c6e70 167-168
+  s_b6dd7a07c5e1ae::t_7f0dc287e28713 482-487
+  s_b6dd7a07c5e1ae::t_7eb6a4446d6d6a 136
+  s_b6dd7a07c5e1ae::t_52dea0bcb17f1f 141-143,145,147-149,151-154
+  s_9104f94bf88f84::t_4298fa7b84b4b5 336
+  s_b6dd7a07c5e1ae::t_1bf6bf9531ff7a 108-110,113-115
+  s_b6dd7a07c5e1ae::t_853187728caf21 297-299,304-319
+resources/js/Pages/TestSuites/Index.vue
+  s_b6dd7a07c5e1ae::t_7147f26c09c9e5 250-256
+  s_b6dd7a07c5e1ae::t_2b61f62fbfb850 7
+  s_b6dd7a07c5e1ae::t_ec7c709ce50dc1 90-109
+  s_b6dd7a07c5e1ae::t_cc18ae00a34de6 182-204,206-214
+  s_b6dd7a07c5e1ae::t_68f9dcb6182476 166
+app/Mcp/Servers/SorifyServer.php
+  s_b6dd7a07c5e1ae::t_3441457b249cb5 52,73
+  s_b6dd7a07c5e1ae::t_dad462e632948c 17,31
+resources/js/Pages/Tests/Show.vue
+  s_b6dd7a07c5e1ae::t_737a2244cd4e8a 233
+  s_b6dd7a07c5e1ae::t_3bbe2b1e6dd09e 234-242
+  s_b6dd7a07c5e1ae::t_44582507785285 103-105,107,109,111-116
+  s_03330c265bc460::t_98ebe06129e99c 356-357
+  s_b6dd7a07c5e1ae::t_20daeb615d079c 106,108,110
+resources/js/Pages/TestSuites/Review.vue
+  s_03330c265bc460::t_a0af276cffce63 269-284
+  s_9104f94bf88f84::t_d350f0b9ab50e5 1-7,10-194,196-200,202-203,209-219,233-265,267-268,285-378
+  s_a8046a77b0fe2f::t_496cd1ec2c22b5 222-232
+  s_9104f94bf88f84::t_1ce7ab6b8a8380 201,204-208
+  s_a8046a77b0fe2f::t_eb2017588b7b8c 9
+  s_03330c265bc460::t_b97423aa979fd5 8
+  s_a8046a77b0fe2f::t_ff79444770c39c 220-221
+  s_03330c265bc460::t_94e55c65384201 266
+  s_a8046a77b0fe2f::t_02680e418c52eb 195
+routes/web.php
+  s_9104f94bf88f84::t_ae586ef1fc7f1a 85
+  s_b6dd7a07c5e1ae::t_d34c08fe77adb2 89,102
+  s_b6dd7a07c5e1ae::t_9eb2a066553553 95
+resources/js/Components/ui/RunPill.vue
+  s_03330c265bc460::t_34dfdc7ee88433 31
+  s_03330c265bc460::t_ac5d905164a73a 32
+  s_702b1e33ccae31::t_b15c3b060808cd 34,41
+  s_03330c265bc460::t_39cfd8cf33bc58 35
+app/Http/Controllers/TestRunController.php
+  s_03330c265bc460::t_759aaed26c26d8 53
+resources/js/Pages/Runs/Index.vue
+  s_03330c265bc460::t_689e713ca97e49 6
+  s_03330c265bc460::t_169ae38afcca75 94-97
+  s_03330c265bc460::t_0ee4d26116148b 102-117
+app/Jobs/DuplicateTestSuiteJob.php
+  s_b6dd7a07c5e1ae::t_31aa80a479ca0d 22-23,54
+  s_b6dd7a07c5e1ae::t_7f760bea24ff6a 1-21,24-53,55-60
+resources/js/locales/zh-CN.json
+  s_b6dd7a07c5e1ae::t_bf5c3d832de157 78
+  s_08736196acf251::t_9c047fcd59b28d 254-256
+  s_f57ee352353f93::t_b3029093669be6 167-168
+  s_b6dd7a07c5e1ae::t_3498e1472e993d 482-487
+  s_b6dd7a07c5e1ae::t_6c125976e5d5ed 136
+  s_b6dd7a07c5e1ae::t_03a4d781acc69a 108-110,113-115
+  s_9104f94bf88f84::t_be576e2a7267ed 336
+  s_a8046a77b0fe2f::t_8bed3681c2b228 352-354
+  s_08736196acf251::t_6b1a1c98394032 249-253
+  s_b6dd7a07c5e1ae::t_4ba96538024f5b 297-299,304-319
+  s_b6dd7a07c5e1ae::t_5f1b20c35d0918 141-143,145,147-149,151-154
+  s_702b1e33ccae31::t_314587f35f03c2 213
+  s_9104f94bf88f84::t_b5f72c937c13a4 302-303
+  s_9104f94bf88f84::t_8ed8a1eef18f52 321-335,337-351
+  s_a8046a77b0fe2f::t_a45a2e419cfb08 180-181
+  s_9104f94bf88f84::t_f39a668d36dc3a 300-301
+  s_b6dd7a07c5e1ae::t_e69f04be87ed0c 111-112
+  s_702b1e33ccae31::t_09ac7623a154cf 320
+  s_08736196acf251::t_6fd3c032a69108 129
+  s_b6dd7a07c5e1ae::t_317e3dd593929f 139
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_08736196acf251::t_c66b63b81c6cc5 9-12,17-18,20,22-24,26-28
+app/Models/TestSuite.php
+  s_b6dd7a07c5e1ae::t_e096be4d7da6ba 31-32
+  s_b6dd7a07c5e1ae::t_31aa80a479ca0d 36-40,158,163-164,166
+  s_b6dd7a07c5e1ae::t_9b861bbd823120 68-81
+app/Http/Controllers/TestSuiteScheduleController.php
+  s_2922878fb01915::t_d0c3e2ba0e49a2 18-23,26-28
+app/Http/Requests/StoreTestSuiteScheduleRequest.php
+  s_2922878fb01915::t_1de4c16d8c87e6 10-13,18-19,23
+tests/Feature/TestSuiteScheduleTest.php
+  s_2922878fb01915::t_51783353bfb9b8 75-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "46781e0ef5f4992ac1783a75d4cc736bbb696e54",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_03330c265bc460": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fdb6bbd60ffeTNcOC0VeivSToz",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_08736196acf251": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe058e2ddffepVrQb5AeJo1q6y",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_2922878fb01915": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fdaeaad73fferUygPB77W7ZT4A",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_47855d3228f6da": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe07b415effe6E0NmTJ4DFpzS7",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_702b1e33ccae31": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ca008150-ef69-43b4-9fcb-4114116a0038",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_9104f94bf88f84": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fdb8b2d60ffelq7beUmTHg3zdq",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_a8046a77b0fe2f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fdb075c11ffeXaiNHAsAx6cr5X",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_b6dd7a07c5e1ae": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fddd8cae1ffeBu8y5vT6Vlto8H",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_f57ee352353f93": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fde09a0c7ffe4LLJCr0jw890LF",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_fcf20e51cfaaed": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fddee2bffffeTdIkWSWcmmkJy9",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
