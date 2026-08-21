@@ -1,0 +1,40 @@
+resources/js/locales/ja.json
+  s_a8046a77b0fe2f::t_46420d5066c5af 352-354
+  s_a8046a77b0fe2f::t_bd9509d87aeaa7 180-181
+resources/js/locales/zh-CN.json
+  s_a8046a77b0fe2f::t_8bed3681c2b228 352-354
+  s_a8046a77b0fe2f::t_a45a2e419cfb08 180-181
+resources/js/locales/ms.json
+  s_a8046a77b0fe2f::t_66a96ec7c82412 180-181
+  s_a8046a77b0fe2f::t_943377946a64c7 352-354
+resources/js/locales/en.json
+  s_a8046a77b0fe2f::t_3d08aed13b423c 180-181
+  s_a8046a77b0fe2f::t_f55f78c04dc109 352-354
+resources/js/Pages/TestSuites/Show.vue
+  s_a8046a77b0fe2f::t_074c223bb917d6 1401-1402,1404,1406-1407,1409,1411-1413
+  s_a8046a77b0fe2f::t_c94b3f48a74ae6 1625,1627,1629,1631-1633
+  s_a8046a77b0fe2f::t_06fb22b9f6cf0f 651
+  s_a8046a77b0fe2f::t_a2ca0d2a3db16f 1635
+  s_a8046a77b0fe2f::t_ff306f758d7494 1403,1405,1408,1410
+resources/js/Pages/TestSuites/Review.vue
+  s_a8046a77b0fe2f::t_eb2017588b7b8c 9
+  s_a8046a77b0fe2f::t_02680e418c52eb 195
+  s_a8046a77b0fe2f::t_496cd1ec2c22b5 222-232
+  s_a8046a77b0fe2f::t_ff79444770c39c 220-221
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "0b6609749ba73277b33637c3c4ab86feb346f1da",
+  "prompts": {},
+  "sessions": {
+    "s_a8046a77b0fe2f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fdb075c11ffeXaiNHAsAx6cr5X",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
