@@ -1,0 +1,97 @@
+resources/js/locales/ms.json
+  s_702b1e33ccae31::t_228dbf9e0138df 209
+  s_9104f94bf88f84::t_054fc187fa0605 317-331,333-349
+  s_9104f94bf88f84::t_2ffb38f90a4e36 298-299
+  s_9104f94bf88f84::t_9d7180370cb2e9 296-297
+  s_9104f94bf88f84::t_0177c781c64995 332
+routes/web.php
+  s_9104f94bf88f84::t_ae586ef1fc7f1a 85
+resources/js/locales/ja.json
+  s_702b1e33ccae31::t_f9da9318540f4d 209
+  s_9104f94bf88f84::t_ceae36e941e263 296-297
+  s_9104f94bf88f84::t_bc7ea806dd08c5 317-331,333-349
+  s_9104f94bf88f84::t_4298fa7b84b4b5 332
+  s_9104f94bf88f84::t_4429012732d119 298-299
+app/Http/Controllers/TestSuiteController.php
+  s_9104f94bf88f84::t_dbec1f6c65eacb 93-158
+  s_03330c265bc460::t_20e4f76bc60da9 242,255-260
+resources/js/Components/ui/Chip.vue
+  s_9104f94bf88f84::t_deaa790069656d 13-16,31,48-49
+resources/js/Pages/TestSuites/Review.vue
+  s_9104f94bf88f84::t_1ce7ab6b8a8380 200,203-207
+  s_9104f94bf88f84::t_d350f0b9ab50e5 1-7,9-199,201-202,208-352
+  s_03330c265bc460::t_b97423aa979fd5 8
+resources/js/Components/ui/SettingBadge.vue
+  s_702b1e33ccae31::t_1f7148d7b2298b 12
+resources/js/Components/ui/RunPill.vue
+  s_03330c265bc460::t_ac5d905164a73a 32
+  s_702b1e33ccae31::t_b15c3b060808cd 34,41
+  s_03330c265bc460::t_39cfd8cf33bc58 31,35
+resources/js/Components/TestCodeEditor.vue
+  s_03330c265bc460::t_a33491bf414580 61
+  s_03330c265bc460::t_3c44e7f94f798c 50
+resources/js/Pages/Tests/Show.vue
+  s_03330c265bc460::t_98ebe06129e99c 356-357
+resources/js/locales/zh-CN.json
+  s_9104f94bf88f84::t_b5f72c937c13a4 298-299
+  s_9104f94bf88f84::t_f39a668d36dc3a 296-297
+  s_9104f94bf88f84::t_8ed8a1eef18f52 317-331,333-349
+  s_9104f94bf88f84::t_be576e2a7267ed 332
+  s_702b1e33ccae31::t_314587f35f03c2 209
+resources/js/locales/en.json
+  s_9104f94bf88f84::t_19829a1532c239 299
+  s_9104f94bf88f84::t_98a35fe46815cf 317-331,333-349
+  s_9104f94bf88f84::t_5371988cd68c28 296-297
+  s_03330c265bc460::t_c448b2b864125d 298,332
+  s_702b1e33ccae31::t_c0a50d0e557423 209
+resources/js/Pages/TestSuites/Show.vue
+  s_9104f94bf88f84::t_043e8d15d1f7cb 1312,1314-1318,1351,1365-1370
+  s_03330c265bc460::t_ffdca4fd22037a 1564-1567,1588-1604,1619-1620
+  s_03330c265bc460::t_edf48be69ca0e2 1331-1346,1348-1349
+  s_03330c265bc460::t_f6b04e94d4ef9d 8
+  s_03330c265bc460::t_1a9f9181db2905 1353
+  s_03330c265bc460::t_a8563f9e36ce11 1618
+  s_03330c265bc460::t_4c3d6707c4e3b9 1377,1383
+  s_9104f94bf88f84::t_16e56639bc53c4 52-69
+  s_03330c265bc460::t_b59f133ea0e119 1606-1617
+  s_03330c265bc460::t_c86be6307813be 1375-1376
+  s_702b1e33ccae31::t_4edf15950ce2b6 1382,1384
+  s_03330c265bc460::t_0a709fbd5f70d4 1568-1586
+  s_702b1e33ccae31::t_942499ac7a2d93 1352,1363-1364
+  s_9104f94bf88f84::t_778ffeb238d6e9 809-821
+  s_702b1e33ccae31::t_5b264c370b4628 1546,1549,1626,1629
+  s_9104f94bf88f84::t_b4c0bfe7e3b6d7 1289-1292,1294-1300,1310-1311,1321,1325-1328,1330,1350
+  s_03330c265bc460::t_4df95bb0809cdb 1371,1605
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "c44f578971876d8e26f5820dcac6046cb84b3934",
+  "prompts": {},
+  "sessions": {
+    "s_03330c265bc460": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fdb6bbd60ffeTNcOC0VeivSToz",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_702b1e33ccae31": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ca008150-ef69-43b4-9fcb-4114116a0038",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_9104f94bf88f84": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fdb8b2d60ffelq7beUmTHg3zdq",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
