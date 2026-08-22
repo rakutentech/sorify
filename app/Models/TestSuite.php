@@ -28,14 +28,16 @@ class TestSuite extends Model
         'teams_webhook_proxy',
         'teams_notify_on_success',
         'teams_notify_on_failure',
+        'duplication_status',
+        'duplicated_from_suite_id',
     ];
 
     protected $casts = [
-        'headless'                => 'boolean',
-        'take_screenshot'         => 'boolean',
-        'timeout_ms'              => 'integer',
-        'history_retention'       => 'integer',
-        'max_retries'             => 'integer',
+        'headless' => 'boolean',
+        'take_screenshot' => 'boolean',
+        'timeout_ms' => 'integer',
+        'history_retention' => 'integer',
+        'max_retries' => 'integer',
         'teams_notify_on_success' => 'boolean',
         'teams_notify_on_failure' => 'boolean',
     ];
@@ -63,6 +65,20 @@ class TestSuite extends Model
         return $this->webhook_token ? route('webhooks.trigger', ['token' => $this->webhook_token]) : null;
     }
 
+    /**
+     * True while a background job is still copying tests into this suite
+     * from a `duplicate_suite` action.
+     */
+    public function isBeingDuplicated(): bool
+    {
+        return $this->duplication_status === 'pending';
+    }
+
+    public function duplicatedFrom(): BelongsTo
+    {
+        return $this->belongsTo(TestSuite::class, 'duplicated_from_suite_id');
+    }
+
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -76,6 +92,11 @@ class TestSuite extends Model
     public function proxyRules(): HasMany
     {
         return $this->hasMany(TestSuiteProxyRule::class);
+    }
+
+    public function variables(): HasMany
+    {
+        return $this->hasMany(TestSuiteVariable::class);
     }
 
     public function testRuns(): HasMany
@@ -139,15 +160,15 @@ class TestSuite extends Model
     {
         $membership = $this->members()->where('users.id', $user->id)->first();
 
-        if (!$membership) {
+        if (! $membership) {
             return null;
         }
 
         return [
-            'view'   => (bool) $membership->pivot->can_view,
-            'edit'   => (bool) $membership->pivot->can_edit,
+            'view' => (bool) $membership->pivot->can_view,
+            'edit' => (bool) $membership->pivot->can_edit,
             'delete' => (bool) $membership->pivot->can_delete,
-            'run'    => (bool) $membership->pivot->can_run,
+            'run' => (bool) $membership->pivot->can_run,
         ];
     }
 }

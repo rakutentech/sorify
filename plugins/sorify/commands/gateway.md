@@ -79,7 +79,7 @@ MCP Server
 ──────────────────────────────────────────────
 Name:    Sorify (registered in this plugin's .mcp.json as "sorify")
 Purpose: Manage Sorify test suites, tests, runs, and screenshots
-Tools:   27 total across 4 resource groups — run `/sorify:gateway tools` for
+Tools:   29 total across 4 resource groups — run `/sorify:gateway tools` for
          the full reference, or `/sorify:gateway {topic}` for one group
          (suites / tests / runs / screenshots)
 
@@ -100,8 +100,9 @@ section; if asked "what tools exist" generally, print all five.
 |---|---|---|
 | `list_suites` | `search?`, `per_page?` (10/50/100), `page?` | List suites with pass-rate stats; optional name/description search |
 | `get_suite` | `suite_id` | One suite with stats, its tests, and 10 most recent runs. Includes `created_by` (user id, set automatically at creation time) |
-| `create_suite` | `name`, `description?`, `base_url?`, `browser?` (chromium/firefox/webkit), `headless?`, `playwright_proxy?`, `proxy_rules?` (array of `{domain, proxy}`), `history_retention?` (3/5/10), `timeout_ms?` (10000/30000/60000/120000), `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Create a suite. `created_by` is set automatically to the authenticated MCP user — not a caller-supplied param. `proxy_rules` entries are checked in order against each request's hostname (see **Proxy rule `domain` patterns** below); the first match wins, falling back to `playwright_proxy` |
-| `update_suite` | `suite_id`, `name`, `description?`, `base_url?`, `browser?`, `headless?`, `playwright_proxy?`, `proxy_rules?` (array of `{domain, proxy}`), `history_retention?`, `timeout_ms?`, `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Update a suite, including MS Teams run-completion notification settings. Changing `history_retention` prunes older runs/screenshots automatically. Passing `proxy_rules` replaces the suite's full rule set; omit it to leave existing rules untouched |
+| `create_suite` | `name`, `description?`, `base_url?`, `browser?` (chromium/firefox/webkit), `headless?`, `playwright_proxy?`, `proxy_rules?` (array of `{domain, proxy}`), `variables?` (array of `{key, value}` — see **Suite variables** below), `history_retention?` (3/5/10), `timeout_ms?` (10000/30000/60000/120000), `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Create a suite. `created_by` is set automatically to the authenticated MCP user — not a caller-supplied param. `proxy_rules` entries are checked in order against each request's hostname (see **Proxy rule `domain` patterns** below); the first match wins, falling back to `playwright_proxy`. `variables` are injected into every test run as a `variables` object in the Playwright code scope |
+| `update_suite` | `suite_id`, `name`, `description?`, `base_url?`, `browser?`, `headless?`, `playwright_proxy?`, `proxy_rules?` (array of `{domain, proxy}`), `variables?` (array of `{key, value}`), `history_retention?`, `timeout_ms?`, `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Update a suite, including MS Teams run-completion notification settings. Changing `history_retention` prunes older runs/screenshots automatically. Passing `proxy_rules` replaces the suite's full rule set; omit it to leave existing rules untouched. Passing `variables` replaces the suite's full variable set; omit it to leave existing variables untouched |
+| `duplicate_suite` | `suite_id`, `name?` | Duplicate a suite — creates a new suite with all settings (name, description, proxy rules, **variables**, browser/timeout/retry settings, Teams config) copied, then copies every test in the **background**. Returns the new suite immediately. `duplication_status` on the returned suite starts at `pending` and moves to `complete` (or `failed`); poll `get_suite` on the new `suite_id` to watch tests stream in. `name` defaults to `"<original> (copy)"` and bumps ` (copy N)` if the source already ends with that suffix. Does **not** copy run history, screenshots, code-version history, schedule, webhook token or members beyond the calling user |
 | `delete_suite` | `suite_id` | Delete a suite and all of its tests and runs |
 | `update_suite_schedule` | `suite_id`, `cron_expression`, `timezone?`, `is_enabled?` | Create or update the cron schedule that runs a suite automatically |
 | `delete_suite_schedule` | `suite_id` | Remove a suite's cron schedule |
@@ -118,6 +119,13 @@ section; if asked "what tools exist" generally, print all five.
 | `(^|\.)example\.com$` | **Host or any subdomain** — matches `example.com` and `foo.example.com`, but not `notexample.com` |
 | `example\.com$` | Avoid — unanchored at the start, so it also matches unrelated hosts like `notexample.com` |
 
+**Suite variables** — key/value pairs stored on a suite and injected into every test run as a `variables` object in the Playwright code scope. Reference them in test code as `variables.KEY`. Use them for credentials, target URLs, or environment-specific values that should not be hardcoded in test code.
+
+- Each `key` must be a valid JavaScript identifier (`^[A-Za-z_][A-Za-z0-9_]*$`); `value` is a nullable string.
+- `get_suite` returns the suite's `variables` array (`[{key, value}, …]`) so you can discover what's already available before generating tests.
+- Passing `variables` to `create_suite`/`update_suite` replaces the full set (last write wins per duplicate key); omit the field to leave existing variables untouched, pass `[]` to clear them.
+- Duplicating a suite copies its variables.
+
 **Tests** — `App\Mcp\Tools\Tests\*`
 
 | Tool | Params | Description |
@@ -129,6 +137,7 @@ section; if asked "what tools exist" generally, print all five.
 | `update_test` | `suite_id`, `test_id`, `name`, `description` (min 10 chars), `uploaded_by?` (must be an existing user's email) | Update metadata only — not the code |
 | `update_test_code` | `suite_id`, `test_id`, `playwright_code` | Replace a test's code; reactivates the test |
 | `toggle_test_status` | `suite_id`, `test_id` | Flip active ⇄ disabled |
+| `duplicate_test` | `suite_id`, `test_id`, `target_suite_id?`, `name?` | Duplicate a single test — copies the current Playwright code, description, uploader and status into a new test in the same suite (or `target_suite_id` if given). Synchronous. `name` defaults to `"<original> (copy)"`. Does not copy run history or code-version history |
 | `delete_test` | `suite_id`, `test_id` | Delete one test |
 | `bulk_delete_tests` | `suite_id`, `test_ids[]` | Delete multiple tests |
 
@@ -188,9 +197,10 @@ tool first (e.g. `list_suites`) so the user can pick one, rather than
 asking them to look it up elsewhere.
 
 This command never calls the mutating tools (`create_*`, `update_*`,
-`delete_*`, `trigger_run`, `cancel_run`, `bulk_*`, `add_suite_member`,
-`remove_suite_member`) — those belong to `/sorify:generate` or direct tool
-use with explicit user intent, not to a help/lookup command.
+`delete_*`, `duplicate_*`, `trigger_run`, `cancel_run`, `bulk_*`,
+`add_suite_member`, `remove_suite_member`) — those belong to
+`/sorify:generate` or direct tool use with explicit user intent, not to a
+help/lookup command.
 
 ---
 

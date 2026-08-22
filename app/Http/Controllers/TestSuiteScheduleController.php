@@ -15,11 +15,17 @@ class TestSuiteScheduleController extends Controller
         $data = $request->validated();
         $timezone = $data['timezone'] ?? 'UTC';
 
+        if (($data['cron_expression'] ?? '') === '') {
+            $suite->schedule()->delete();
+
+            return back();
+        }
+
         $schedule = $suite->schedule()->updateOrCreate([], [
             'cron_expression' => $data['cron_expression'],
-            'timezone'        => $timezone,
-            'is_enabled'      => $data['is_enabled'] ?? true,
-            'created_by'      => $request->user()?->id,
+            'timezone' => $timezone,
+            'is_enabled' => $data['is_enabled'] ?? true,
+            'created_by' => $request->user()?->id,
         ]);
 
         $schedule->update([

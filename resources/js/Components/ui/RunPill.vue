@@ -28,20 +28,17 @@ function formatDuration(ms) {
 </script>
 
 <template>
-    <span class="inline-flex items-center gap-1">
-        <Link
-            :href="`/sorify/runs/${run.run_id}`"
-            class="group relative inline-flex items-center gap-1 md-label-small text-[var(--md-sys-color-primary)] hover:underline"
-        >
+    <span class="inline-flex items-center gap-2">
+        <span class="group relative inline-flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
             <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="[RUN_DOT_CLASS[run.status] ?? 'bg-[var(--md-sys-color-on-surface-variant)]', run.status === 'running' ? 'animate-pulse' : '']" />
-            {{ run.status }} · {{ formatRelativeTime(run.created_at) }}
-            <span v-if="run.duration_ms != null" class="text-[var(--md-sys-color-on-surface-variant)]">({{ formatDuration(run.duration_ms) }})</span>
+            <Link :href="`/sorify/runs/${run.run_id}`" class="text-[var(--md-sys-color-primary)] hover:underline">{{ run.status }}</Link>
+            <span class="opacity-60">· {{ formatRelativeTime(run.created_at) }}<span v-if="run.duration_ms != null"> ({{ formatDuration(run.duration_ms) }})</span></span>
             <div class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap">
                 <div class="px-2.5 py-1.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-inverse-surface)] text-[var(--md-sys-color-inverse-on-surface)] md-label-small shadow-elevation-1">
                     {{ formatDate(run.created_at) }}
                 </div>
             </div>
-        </Link>
+        </span>
         <ScreenshotThumbs :screenshots="run.screenshots ?? []" @open="(shots, i) => emit('open-lightbox', shots, i)" />
     </span>
 </template>
