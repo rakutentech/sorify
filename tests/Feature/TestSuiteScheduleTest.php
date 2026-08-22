@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\TestSuite;
-use App\Models\TestSuiteSchedule;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -68,6 +67,36 @@ class TestSuiteScheduleTest extends TestCase
 
         $this->actingAs($user)
             ->delete("/sorify/suites/{$suite->id}/schedule")
+            ->assertRedirect();
+
+        $this->assertNull($suite->schedule()->first());
+    }
+
+    public function test_empty_cron_expression_removes_the_schedule(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = TestSuite::create(['name' => 'Suite', 'base_url' => 'https://example.com']);
+        $suite->schedule()->create(['cron_expression' => '* * * * *', 'timezone' => 'UTC', 'is_enabled' => true]);
+
+        $this->actingAs($user)
+            ->put("/sorify/suites/{$suite->id}/schedule", [
+                'cron_expression' => '',
+                'timezone' => 'UTC',
+                'is_enabled' => true,
+            ])
+            ->assertRedirect();
+
+        $this->assertNull($suite->schedule()->first());
+    }
+
+    public function test_missing_cron_expression_removes_the_schedule(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = TestSuite::create(['name' => 'Suite', 'base_url' => 'https://example.com']);
+        $suite->schedule()->create(['cron_expression' => '* * * * *', 'timezone' => 'UTC', 'is_enabled' => true]);
+
+        $this->actingAs($user)
+            ->put("/sorify/suites/{$suite->id}/schedule", [])
             ->assertRedirect();
 
         $this->assertNull($suite->schedule()->first());

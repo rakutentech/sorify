@@ -10,6 +10,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    fixed: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const TONE_BY_STATUS = {
@@ -24,6 +28,7 @@ const TONE_BY_STATUS = {
     pending: 'info',
     cancelled: 'neutral',
     disabled: 'neutral',
+    never_ran: 'neutral',
 };
 
 const TONE_CLASSES = {
@@ -40,8 +45,8 @@ const pulse = computed(() => props.status === 'running');
 
 <template>
     <span
-        class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small"
-        :class="TONE_CLASSES[tone]"
+        class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small flex-shrink-0"
+        :class="[TONE_CLASSES[tone], fixed ? 'min-w-[6.5rem] justify-center' : '']"
     >
         <span class="w-1.5 h-1.5 rounded-full bg-current" :class="pulse ? 'animate-pulse' : 'opacity-70'" />
         {{ label ?? status }}

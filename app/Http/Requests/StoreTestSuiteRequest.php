@@ -6,23 +6,29 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTestSuiteRequest extends FormRequest
 {
-    public function authorize(): bool { return true; }
+    public function authorize(): bool
+    {
+        return true;
+    }
 
     public function rules(): array
     {
         return [
-            'name'             => 'required|string|max:255',
-            'description'      => 'nullable|string',
+            'name' => $this->isMethod('POST') ? 'required|string|max:255' : 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'playwright_proxy' => 'nullable|string|max:500',
-            'proxy_rules'         => 'nullable|array',
+            'proxy_rules' => 'nullable|array',
             'proxy_rules.*.domain' => ['required_with:proxy_rules', 'string', 'max:255', $this->validRegexRule()],
-            'proxy_rules.*.proxy'  => 'required_with:proxy_rules|string|max:500',
-            'browser'          => 'nullable|string|in:chromium,firefox,webkit',
-            'headless'         => 'nullable|boolean',
+            'proxy_rules.*.proxy' => 'required_with:proxy_rules|string|max:500',
+            'variables' => 'nullable|array',
+            'variables.*.key' => ['required_with:variables', 'string', 'max:255', 'regex:/^[A-Za-z_][A-Za-z0-9_]*$/'],
+            'variables.*.value' => 'nullable|string',
+            'browser' => 'nullable|string|in:chromium,firefox,webkit',
+            'headless' => 'nullable|boolean',
             'history_retention' => 'nullable|integer|in:3,5,10',
-            'timeout_ms'       => 'nullable|integer|in:10000,30000,60000,120000,300000,600000',
-            'max_retries'      => 'nullable|integer|in:0,1,2,3',
-            'take_screenshot'  => 'nullable|boolean',
+            'timeout_ms' => 'nullable|integer|in:10000,30000,60000,120000,300000,600000',
+            'max_retries' => 'nullable|integer|in:0,1,2,3',
+            'take_screenshot' => 'nullable|boolean',
             'teams_webhook_url' => 'nullable|string|max:500|url',
             'teams_webhook_proxy' => 'nullable|string|max:500',
             'teams_notify_on_success' => 'nullable|boolean',

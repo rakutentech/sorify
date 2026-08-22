@@ -4,7 +4,7 @@ import { router, useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Modal, SuiteName, AvatarGroup, SettingBadge, IconButton } from '@/Components/ui';
-import { formatDate } from '@/utils/date';
+import { formatDate, formatRelativeTime } from '@/utils/date';
 
 const { t } = useI18n();
 
@@ -87,6 +87,26 @@ function toggleBookmark(suite) {
         router.post(url, {}, options);
     }
 }
+
+// ── Duplicate suite ────────────────────────────────────────────────────────
+const duplicatingSuiteIds = ref(new Set());
+
+function duplicateSuite(suite) {
+    if (!confirm(t('testSuites.confirmDuplicateSuite', { name: suite.name }))) return;
+
+    duplicatingSuiteIds.value = new Set([...duplicatingSuiteIds.value, suite.id]);
+    router.post(
+        `/sorify/suites/${suite.id}/duplicate`,
+        {},
+        {
+            onFinish: () => {
+                const next = new Set(duplicatingSuiteIds.value);
+                next.delete(suite.id);
+                duplicatingSuiteIds.value = next;
+            },
+        },
+    );
+}
 </script>
 
 <template>
@@ -143,7 +163,7 @@ function toggleBookmark(suite) {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="w-10 px-5 py-3"></th>
+                            <th class="w-10 px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colActions') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colName') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colUsers') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colTests') }}</th>
@@ -159,22 +179,39 @@ function toggleBookmark(suite) {
                             class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
                         >
                             <td class="px-5 py-4">
-                                <IconButton
-                                    variant="standard"
-                                    :label="suite.is_bookmarked ? t('testSuites.bookmarkRemove') : t('testSuites.bookmarkAdd')"
-                                    @click="toggleBookmark(suite)"
-                                >
-                                    <svg
-                                        class="w-4 h-4"
-                                        :class="suite.is_bookmarked ? 'text-[var(--md-sys-color-primary)]' : 'text-[var(--md-sys-color-on-surface-variant)]'"
-                                        :fill="suite.is_bookmarked ? 'currentColor' : 'none'"
-                                        stroke="currentColor"
-                                        viewBox="0 0 20 20"
-                                        stroke-width="1.5"
+                                <div class="flex items-center gap-1">
+                                    <IconButton
+                                        variant="standard"
+                                        :label="suite.is_bookmarked ? t('testSuites.bookmarkRemove') : t('testSuites.bookmarkAdd')"
+                                        @click="toggleBookmark(suite)"
                                     >
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.539-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.958z"/>
-                                    </svg>
-                                </IconButton>
+                                        <svg
+                                            class="w-4 h-4"
+                                            :class="suite.is_bookmarked ? 'text-[var(--md-sys-color-primary)]' : 'text-[var(--md-sys-color-on-surface-variant)]'"
+                                            :fill="suite.is_bookmarked ? 'currentColor' : 'none'"
+                                            stroke="currentColor"
+                                            viewBox="0 0 20 20"
+                                            stroke-width="1.5"
+                                        >
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.539-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.958z"/>
+                                        </svg>
+                                    </IconButton>
+                                    <IconButton
+                                        v-if="can.create"
+                                        variant="standard"
+                                        :label="t('testSuites.duplicate')"
+                                        :disabled="duplicatingSuiteIds.has(suite.id)"
+                                        @click="duplicateSuite(suite)"
+                                    >
+                                        <svg v-if="duplicatingSuiteIds.has(suite.id)" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                        </svg>
+                                        <svg v-else class="w-4 h-4 text-[var(--md-sys-color-on-surface-variant)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+                                        </svg>
+                                    </IconButton>
+                                </div>
                             </td>
                             <td class="px-5 py-4">
                                 <div>
@@ -210,7 +247,13 @@ function toggleBookmark(suite) {
                                     {{ formatPassRate(suite.pass_rate) }}
                                 </span>
                             </td>
-                            <td class="px-5 py-4 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(suite.last_run_at) }}</td>
+                            <td class="px-5 py-4 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                <span v-if="suite.last_run_at" class="relative group/tip">
+                                    <span class="cursor-default">{{ formatRelativeTime(suite.last_run_at) }}</span>
+                                    <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 rounded-[var(--md-sys-shape-corner-extra-small)] bg-gray-900 text-white md-label-small whitespace-nowrap opacity-0 group-hover/tip:opacity-100 transition-opacity duration-150 z-50">{{ formatDate(suite.last_run_at) }}</span>
+                                </span>
+                                <span v-else>—</span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

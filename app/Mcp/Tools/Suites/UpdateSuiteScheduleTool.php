@@ -25,7 +25,7 @@ class UpdateSuiteScheduleTool extends Tool
     {
         return [
             'suite_id' => $schema->integer()->required()->description('The test suite ID.'),
-            'cron_expression' => $schema->string()->required()->description('Cron expression for when the suite should run (e.g. "0 * * * *").'),
+            'cron_expression' => $schema->string()->description('Cron expression for when the suite should run (e.g. "0 * * * *"). Empty string removes the schedule.'),
             'timezone' => $schema->string()->description('Timezone for the schedule (e.g. "UTC", "Asia/Tokyo"). Defaults to UTC.'),
             'is_enabled' => $schema->boolean()->description('Whether the schedule is active. Defaults to true.'),
         ];
@@ -38,6 +38,12 @@ class UpdateSuiteScheduleTool extends Tool
 
         $data = $request->validate((new StoreTestSuiteScheduleRequest)->rules());
         $timezone = $data['timezone'] ?? 'UTC';
+
+        if (($data['cron_expression'] ?? '') === '') {
+            $suite->schedule()->delete();
+
+            return Response::structured(['schedule' => null]);
+        }
 
         $schedule = $suite->schedule()->updateOrCreate([], [
             'cron_expression' => $data['cron_expression'],

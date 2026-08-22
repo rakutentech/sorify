@@ -5,13 +5,16 @@
  *
  * Called by Laravel's PlaywrightRunnerService via:
  *   node runner.js --spec <path> --output <dir> [--timeout <ms>] [--base-url <url>] [--proxy <url>]
- *     [--proxy-rules <path-to-json-file>] [--browser chromium|firefox|webkit]
+ *     [--proxy-rules <path-to-json-file>] [--variables <path-to-json-file>] [--browser chromium|firefox|webkit]
  *     [--headless true|false] [--take-screenshot true|false]
  *
  * --proxy-rules points to a JSON file containing an array of {domain, proxy} objects,
  * where `domain` is a regular expression tested against each request's hostname.
  * The first matching rule's proxy is used; everything else uses --proxy as the
  * default (or connects directly).
+ *
+ * --variables points to a JSON file containing an object of {key: value} pairs
+ * that are injected into the test code's scope as a `variables` object.
  *
  * Writes a JSON result object to stdout and exits with:
  *   0  → status === 'passed'
@@ -40,6 +43,8 @@ function parseArgs(argv) {
       args.proxy = argv[++i];
     } else if (flag === '--proxy-rules' && argv[i + 1]) {
       args.proxyRules = argv[++i];
+    } else if (flag === '--variables' && argv[i + 1]) {
+      args.variables = argv[++i];
     } else if (flag === '--browser' && argv[i + 1]) {
       args.browser = argv[++i];
     } else if (flag === '--headless' && argv[i + 1]) {
@@ -86,6 +91,7 @@ function finish(result, exitCode) {
     const baseUrl = args.baseUrl || '';
     const proxy = args.proxy || null;
     const proxyRules = args.proxyRules ? JSON.parse(fs.readFileSync(path.resolve(args.proxyRules), 'utf8')) : [];
+    const variables = args.variables ? JSON.parse(fs.readFileSync(path.resolve(args.variables), 'utf8')) : {};
     const browser = args.browser || 'chromium';
     const headless = args.headless !== false;
     const takeScreenshot = args.takeScreenshot !== false;
@@ -99,7 +105,7 @@ function finish(result, exitCode) {
     }
 
     // Run the test
-    const result = await runWithHarness(generatedCode, outputDir, baseUrl, timeout, proxy, browser, headless, takeScreenshot, proxyRules);
+    const result = await runWithHarness(generatedCode, outputDir, baseUrl, timeout, proxy, browser, headless, takeScreenshot, proxyRules, variables);
 
     const exitCode = result.status === 'passed' ? 0 : 1;
     finish(result, exitCode);

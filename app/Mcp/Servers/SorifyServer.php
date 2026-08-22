@@ -14,6 +14,7 @@ use App\Mcp\Tools\Suites\BookmarkSuiteTool;
 use App\Mcp\Tools\Suites\CreateSuiteTool;
 use App\Mcp\Tools\Suites\DeleteSuiteScheduleTool;
 use App\Mcp\Tools\Suites\DeleteSuiteTool;
+use App\Mcp\Tools\Suites\DuplicateSuiteTool;
 use App\Mcp\Tools\Suites\GetSuiteTool;
 use App\Mcp\Tools\Suites\ListBookmarkedSuitesTool;
 use App\Mcp\Tools\Suites\ListSuiteMembersTool;
@@ -27,6 +28,7 @@ use App\Mcp\Tools\Tests\BulkCreateTestsTool;
 use App\Mcp\Tools\Tests\BulkDeleteTestsTool;
 use App\Mcp\Tools\Tests\CreateTestTool;
 use App\Mcp\Tools\Tests\DeleteTestTool;
+use App\Mcp\Tools\Tests\DuplicateTestTool;
 use App\Mcp\Tools\Tests\GetTestTool;
 use App\Mcp\Tools\Tests\ListTestsTool;
 use App\Mcp\Tools\Tests\ToggleTestStatusTool;
@@ -47,6 +49,7 @@ class SorifyServer extends Server
         GetSuiteTool::class,
         CreateSuiteTool::class,
         UpdateSuiteTool::class,
+        DuplicateSuiteTool::class,
         DeleteSuiteTool::class,
         UpdateSuiteScheduleTool::class,
         DeleteSuiteScheduleTool::class,
@@ -67,6 +70,7 @@ class SorifyServer extends Server
         UpdateTestTool::class,
         UpdateTestCodeTool::class,
         ToggleTestStatusTool::class,
+        DuplicateTestTool::class,
         DeleteTestTool::class,
         BulkDeleteTestsTool::class,
 
