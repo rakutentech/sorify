@@ -1,0 +1,24 @@
+plugins/sorify/commands/generate.md
+  s_b65da0055646f6::t_01c1f19bc38310 135-139
+  s_b65da0055646f6::t_93adf3472d2ded 119-128
+  s_b65da0055646f6::t_77e1cb29266c00 451-453
+plugins/sorify/commands/gateway.md
+  s_b65da0055646f6::t_c261c930722365 134-145
+  s_b65da0055646f6::t_eded6e7bd920d7 78-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "52f933019ecd8c22b3d58ddd42dfd0ef210f8ab0",
+  "prompts": {},
+  "sessions": {
+    "s_b65da0055646f6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd6a36b7affeigG5ve7pJgaq2Y",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
