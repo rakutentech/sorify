@@ -50,6 +50,7 @@ class TestRunController extends Controller
             'created_at' => $run->created_at,
             'completed_at' => $run->completed_at,
             'created_by' => $run->testSuite->createdBy?->name,
+            'created_by_user' => $run->testSuite->createdBy,
             'triggered_by' => $run->triggered_by,
             'triggered_by_user' => $run->triggeredByUser,
             'screenshots' => $run->testResults->flatMap(fn ($r) => $r->screenshots)->map(fn ($s) => [

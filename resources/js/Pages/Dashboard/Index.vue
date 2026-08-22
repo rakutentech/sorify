@@ -1,11 +1,9 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Button } from '@/Components/ui';
+import { Card, Button, MarkdownRenderer } from '@/Components/ui';
 
 const { t } = useI18n();
 
@@ -33,8 +31,6 @@ function formatPassRate(rate) {
     if (rate === null || rate === undefined) return '—';
     return `${Math.round(rate)}%`;
 }
-
-const renderedNote = computed(() => DOMPurify.sanitize(marked.parse(props.dashboard_note.content ?? '', { async: false })));
 
 const editing = ref(false);
 const form = useForm({ content: props.dashboard_note.content ?? '' });
@@ -124,10 +120,9 @@ function save() {
                 </template>
 
                 <template v-else>
-                    <div
+                    <MarkdownRenderer
                         v-if="dashboard_note.content"
-                        v-html="renderedNote"
-                        class="md-body-medium text-[var(--md-sys-color-on-surface)] [&_h1]:md-title-large [&_h2]:md-title-medium [&_h3]:md-title-small [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:mt-3 [&_h3]:mb-1.5 [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_li]:mb-1 [&_a]:text-[var(--md-sys-color-primary)] [&_a:hover]:underline [&_code]:font-mono [&_code]:text-sm [&_code]:bg-[var(--md-sys-color-surface-container-high)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_pre]:bg-[var(--md-sys-color-surface-container-high)] [&_pre]:p-3 [&_pre]:rounded-[var(--md-sys-shape-corner-small)] [&_pre]:overflow-x-auto [&_pre]:mb-3 [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--md-sys-color-outline)] [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-[var(--md-sys-color-on-surface-variant)] [&_strong]:font-semibold [&_hr]:border-[var(--md-sys-color-outline-variant)] [&_hr]:my-3"
+                        :content="dashboard_note.content"
                     />
                     <p v-else class="md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                         {{ can.edit_dashboard_note ? t('dashboard.nothingHereEdit') : t('dashboard.nothingHere') }}

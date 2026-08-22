@@ -9,6 +9,8 @@ use App\Models\TestSuite;
 use App\Models\User;
 use App\Services\PlaywrightCodeValidatorService;
 use App\Services\TestCodeVersionService;
+use App\Services\TestSuiteDuplicationService;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,6 +33,8 @@ class TestController extends Controller
     public function show(TestSuite $suite, Test $test): Response
     {
         $this->authorize('view', $suite);
+
+        $suite->load('variables');
 
         $codeVersions = $test->codeVersions()
             ->with('createdBy:id,name')
@@ -143,6 +147,28 @@ class TestController extends Controller
         return back();
     }
 
+    /**
+     * Duplicate multiple tests at once. Each selected test is copied into
+     * the same suite with an auto-generated "(copy)" name. Synchronous —
+     * the number of tests is bounded by the current page size (max 100).
+     */
+    public function bulkDuplicate(Request $request, TestSuite $suite, TestSuiteDuplicationService $duplication)
+    {
+        $this->authorize('view', $suite);
+        $this->authorize('edit', $suite);
+
+        $ids = $request->validate([
+            'test_ids' => 'required|array|min:1',
+            'test_ids.*' => 'integer|exists:tests,id',
+        ])['test_ids'];
+
+        $suite->tests()
+            ->whereIn('id', $ids)
+            ->each(fn (Test $test) => $duplication->duplicateTest($test, $suite));
+
+        return back();
+    }
+
     public function updateCode(TestSuite $suite, Test $test)
     {
         $this->authorize('edit', $suite);
@@ -172,5 +198,29 @@ class TestController extends Controller
         app(TestCodeVersionService::class)->restore($test, $codeVersion, 'manual', auth()->id());
 
         return back();
+    }
+
+    /**
+     * Duplicate a single test into the same suite (default) or a target
+     * suite. Synchronous — one row, no need for a background job.
+     */
+    public function duplicate(Request $request, TestSuite $suite, Test $test, TestSuiteDuplicationService $duplication)
+    {
+        $this->authorize('view', $suite);
+
+        $data = $request->validate([
+            'target_suite_id' => 'nullable|integer|exists:test_suites,id',
+            'name' => 'nullable|string|max:255',
+        ]);
+
+        $target = isset($data['target_suite_id'])
+            ? TestSuite::findOrFail($data['target_suite_id'])
+            : $suite;
+
+        $this->authorize('edit', $target);
+
+        $clone = $duplication->duplicateTest($test, $target, $data['name'] ?? null);
+
+        return redirect(route('suites.tests.show', [$target, $clone], absolute: false));
     }
 }

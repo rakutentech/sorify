@@ -82,20 +82,24 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
     Route::prefix('suites')->name('suites.')->group(function () {
         Route::get('/', [TestSuiteController::class, 'index'])->name('index');
         Route::post('/', [TestSuiteController::class, 'store'])->name('store');
+        Route::get('/{suite}/review', [TestSuiteController::class, 'review'])->name('review');
         Route::get('/{suite}', [TestSuiteController::class, 'show'])->name('show');
         Route::put('/{suite}', [TestSuiteController::class, 'update'])->name('update');
         Route::delete('/{suite}', [TestSuiteController::class, 'destroy'])->name('destroy');
+        Route::post('/{suite}/duplicate', [TestSuiteController::class, 'duplicate'])->name('duplicate');
 
         Route::scopeBindings()->prefix('/{suite}/tests')->name('tests.')->group(function () {
             Route::post('/', [TestController::class, 'store'])->name('store');
             Route::delete('/bulk', [TestController::class, 'bulkDestroy'])->name('bulk-destroy');
             Route::patch('/bulk/status', [TestController::class, 'bulkUpdateStatus'])->name('bulk-status');
+            Route::post('/bulk/duplicate', [TestController::class, 'bulkDuplicate'])->name('bulk-duplicate');
             Route::get('/{test}', [TestController::class, 'show'])->name('show');
             Route::put('/{test}', [TestController::class, 'update'])->name('update');
             Route::delete('/{test}', [TestController::class, 'destroy'])->name('destroy');
             Route::put('/{test}/code', [TestController::class, 'updateCode'])->name('update-code');
             Route::post('/{test}/code-versions/{codeVersion}/restore', [TestController::class, 'restoreCodeVersion'])->name('code-versions.restore');
             Route::patch('/{test}/toggle-status', [TestController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/{test}/duplicate', [TestController::class, 'duplicate'])->name('duplicate');
         });
 
         Route::post('/{suite}/runs', [TestRunController::class, 'store'])->name('runs.store');
