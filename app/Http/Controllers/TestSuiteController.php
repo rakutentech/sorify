@@ -9,6 +9,7 @@ use App\Models\TestResult;
 use App\Models\TestSuite;
 use App\Models\User;
 use App\Services\ReportingService;
+use App\Services\TestSuiteDuplicationService;
 use App\Support\TestSort;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -69,6 +70,8 @@ class TestSuiteController extends Controller
         $data = $request->validated();
         $proxyRules = $data['proxy_rules'] ?? null;
         unset($data['proxy_rules']);
+        $variables = $data['variables'] ?? null;
+        unset($data['variables']);
 
         $suite = TestSuite::create([
             ...$data,
@@ -77,6 +80,10 @@ class TestSuiteController extends Controller
 
         if ($proxyRules) {
             $suite->proxyRules()->createMany($proxyRules);
+        }
+
+        if ($variables) {
+            $this->syncVariables($suite, $variables);
         }
 
         $suite->members()->attach($request->user()->id, [
@@ -89,17 +96,84 @@ class TestSuiteController extends Controller
         return redirect(route('suites.show', $suite, absolute: false));
     }
 
+    /**
+     * Pull-request-style "review all tests in one go" view: lists every test
+     * in the suite with its Playwright code alongside its metadata, recent
+     * runs, and screenshots. Lets developers review the full test code
+     * without having to click into each test one by one.
+     */
+    public function review(Request $request, TestSuite $suite): Response
+    {
+        $this->authorize('view', $suite);
+
+        $suite->load('createdBy:id,name,email,avatar', 'schedule', 'members:id,name,email,avatar', 'variables');
+
+        $privileges = $suite->privilegesFor($request->user());
+
+        $search = $request->string('search')->toString();
+        $perPage = (int) $request->input('per_page', 50);
+        $perPage = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 50;
+
+        $testsQuery = $suite->tests()
+            ->with(['testResults' => fn ($query) => $query->latest()->limit(5)->with('screenshots')]);
+
+        if ($search !== '') {
+            $testsQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $testsQuery->orderBy('name');
+
+        $tests = $testsQuery->paginate($perPage)->withQueryString();
+
+        $tests->through(function (Test $test) {
+            $data = $test->toArray();
+            $data['recent_runs'] = $test->testResults->map(fn (TestResult $result) => [
+                'run_id' => $result->test_run_id,
+                'status' => $result->status,
+                'created_at' => $result->created_at,
+                'duration_ms' => $result->duration_ms,
+                'error_message' => $result->error_message,
+                'screenshots' => $result->screenshots->map(fn ($s) => [
+                    'id' => $s->id,
+                    'filename' => $s->filename,
+                    'label' => $s->label,
+                    'taken_at_ms' => $s->taken_at_ms,
+                    'url' => $s->url,
+                ]),
+            ]);
+            $data['current_status'] = $data['recent_runs'][0]['status'] ?? $test->last_run_status;
+            unset($data['test_results']);
+
+            return $data;
+        });
+
+        return Inertia::render('TestSuites/Review', [
+            'suite' => $suite,
+            'tests' => $tests,
+            'filters' => ['search' => $search, 'per_page' => $perPage],
+            'users' => User::orderBy('name')->get(['id', 'name', 'email', 'avatar']),
+            'can' => [
+                'edit' => $privileges['edit'],
+                'run' => $privileges['run'],
+            ],
+        ]);
+    }
+
     public function show(Request $request, TestSuite $suite): Response
     {
         $this->authorize('view', $suite);
 
-        $suite->load('createdBy:id,name,email,avatar', 'schedule', 'members:id,name,email,avatar', 'proxyRules');
+        $suite->load('createdBy:id,name,email,avatar', 'schedule', 'members:id,name,email,avatar', 'proxyRules', 'variables');
 
         $privileges = $suite->privilegesFor($request->user());
         $canManageUsers = $privileges['edit'];
 
         $search = $request->string('search')->toString();
         $sort = $request->string('sort')->toString();
+        $sortDir = $request->string('sort_dir')->toString();
         $status = array_values(array_filter((array) $request->input('status', [])));
         $perPage = (int) $request->input('per_page', 50);
         $perPage = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 50;
@@ -139,7 +213,7 @@ class TestSuiteController extends Controller
         }
 
         TestSort::filter($testsQuery, $status);
-        TestSort::apply($testsQuery, $sort);
+        TestSort::apply($testsQuery, $sort, $sortDir);
 
         $tests = $testsQuery->paginate($perPage)->withQueryString();
 
@@ -169,9 +243,9 @@ class TestSuiteController extends Controller
             'isBookmarked' => $suite->isBookmarkedBy($request->user()),
             'stats' => $this->reporting->suiteStats($suite),
             'tests' => $tests,
-            'filters' => ['search' => $search, 'per_page' => $perPage, 'sort' => $sort, 'status' => $status],
+            'filters' => ['search' => $search, 'per_page' => $perPage, 'sort' => $sort, 'sort_dir' => $sortDir, 'status' => $status],
             'recentRuns' => $suite->testRuns()
-                ->with(['triggeredByUser:id,name,email,avatar', 'testResults.screenshots'])
+                ->with(['triggeredByUser:id,name,email,avatar', 'testResults.screenshots', 'testResults.test:id,name'])
                 ->latest()
                 ->limit(10)
                 ->get()
@@ -184,6 +258,12 @@ class TestSuiteController extends Controller
                         'taken_at_ms' => $s->taken_at_ms,
                         'url' => $s->url,
                     ])->values();
+                    $data['test_names'] = $run->testResults
+                        ->map(fn ($r) => $r->test?->name)
+                        ->filter()
+                        ->unique()
+                        ->values()
+                        ->toArray();
                     unset($data['test_results']);
 
                     return $data;
@@ -210,6 +290,9 @@ class TestSuiteController extends Controller
         $hasProxyRules = array_key_exists('proxy_rules', $data);
         $proxyRules = $data['proxy_rules'] ?? null;
         unset($data['proxy_rules']);
+        $hasVariables = array_key_exists('variables', $data);
+        $variables = $data['variables'] ?? null;
+        unset($data['variables']);
 
         $suite->update($data);
 
@@ -218,6 +301,10 @@ class TestSuiteController extends Controller
             if ($proxyRules) {
                 $suite->proxyRules()->createMany($proxyRules);
             }
+        }
+
+        if ($hasVariables) {
+            $this->syncVariables($suite, $variables);
         }
 
         if ($suite->wasChanged('history_retention')) {
@@ -243,5 +330,58 @@ class TestSuiteController extends Controller
         $suite->regenerateWebhookToken();
 
         return back();
+    }
+
+    /**
+     * Duplicate a suite: creates a new suite shell with copied settings +
+     * proxy rules + membership, then dispatches a background job to copy
+     * all of the source suite's tests. Returns immediately so the user
+     * lands on the new suite and watches tests stream in.
+     */
+    public function duplicate(Request $request, TestSuite $suite, TestSuiteDuplicationService $duplication)
+    {
+        $this->authorize('view', $suite);
+        $this->authorize('create', TestSuite::class);
+
+        $data = $request->validate([
+            'name' => 'nullable|string|max:255',
+        ]);
+
+        $clone = $duplication->duplicate($suite, $request->user(), $data['name'] ?? null);
+
+        return redirect(route('suites.show', $clone, absolute: false));
+    }
+
+    /**
+     * Replace a suite's variables with the given set. Duplicate keys collapse
+     * to the last value (validation already restricts keys to valid JS
+     * identifiers, but the unique DB index guards against races too).
+     *
+     * @param  array<int, array{key: string, value?: string|null}>  $variables
+     */
+    private function syncVariables(TestSuite $suite, ?array $variables): void
+    {
+        $suite->variables()->delete();
+
+        if (! $variables) {
+            return;
+        }
+
+        $rows = [];
+        foreach ($variables as $variable) {
+            $key = $variable['key'] ?? null;
+            if ($key === null || $key === '') {
+                continue;
+            }
+            // Last write wins for duplicate keys within the same payload.
+            $rows[$key] = [
+                'key' => $key,
+                'value' => $variable['value'] ?? null,
+            ];
+        }
+
+        if ($rows) {
+            $suite->variables()->createMany(array_values($rows));
+        }
     }
 }

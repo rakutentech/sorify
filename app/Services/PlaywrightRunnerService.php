@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Exceptions\PlaywrightExecutionException;
 use App\Models\Test;
 use App\Models\TestResult;
 use App\Models\TestRun;
@@ -12,15 +11,17 @@ use Symfony\Component\Process\Process;
 class PlaywrightRunnerService
 {
     private string $runnerScript;
+
     private string $tmpDir;
+
     private int $timeoutMs;
 
     public function __construct(
         private readonly ScreenshotService $screenshotService,
     ) {
         $this->runnerScript = config('sorify.runner_script_path');
-        $this->tmpDir       = config('sorify.tmp_dir');
-        $this->timeoutMs    = (int) config('sorify.max_test_timeout_ms', 30000);
+        $this->tmpDir = config('sorify.tmp_dir');
+        $this->timeoutMs = (int) config('sorify.max_test_timeout_ms', 30000);
     }
 
     public function runWithRetries(Test $test, TestRun $testRun): TestResult
@@ -52,9 +53,10 @@ class PlaywrightRunnerService
 
         @mkdir($this->tmpDir, 0755, true);
 
-        $specPath       = $this->tmpDir . "/test-{$test->id}-{$testRun->id}.spec.js";
-        $outputDir      = $this->tmpDir . "/output-{$testRun->id}-{$test->id}";
+        $specPath = $this->tmpDir."/test-{$test->id}-{$testRun->id}.spec.js";
+        $outputDir = $this->tmpDir."/output-{$testRun->id}-{$test->id}";
         $proxyRulesPath = null;
+        $variablesPath = null;
 
         @mkdir($outputDir, 0755, true);
 
@@ -62,9 +64,9 @@ class PlaywrightRunnerService
 
         $result = TestResult::create([
             'test_run_id' => $testRun->id,
-            'test_id'     => $test->id,
-            'status'      => 'running',
-            'started_at'  => now(),
+            'test_id' => $test->id,
+            'status' => 'running',
+            'started_at' => now(),
         ]);
 
         try {
@@ -86,13 +88,24 @@ class PlaywrightRunnerService
 
             $proxyRules = $testRun->testSuite->proxyRules;
             if ($proxyRules->isNotEmpty()) {
-                $proxyRulesPath = $this->tmpDir . "/proxy-rules-{$testRun->id}-{$test->id}.json";
+                $proxyRulesPath = $this->tmpDir."/proxy-rules-{$testRun->id}-{$test->id}.json";
                 file_put_contents($proxyRulesPath, $proxyRules->map(fn ($rule) => [
                     'domain' => $rule->domain,
-                    'proxy'  => $rule->proxy,
+                    'proxy' => $rule->proxy,
                 ])->values()->toJson());
                 $command[] = '--proxy-rules';
                 $command[] = $proxyRulesPath;
+            }
+
+            $variables = $testRun->testSuite->variables;
+            if ($variables->isNotEmpty()) {
+                $variablesPath = $this->tmpDir."/variables-{$testRun->id}-{$test->id}.json";
+                file_put_contents($variablesPath, json_encode(
+                    $variables->mapWithKeys(fn ($v) => [$v->key => $v->value])->all(),
+                    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+                ));
+                $command[] = '--variables';
+                $command[] = $variablesPath;
             }
 
             $browser = $testRun->testSuite->browser ?? 'chromium';
@@ -114,10 +127,10 @@ class PlaywrightRunnerService
 
             $process->start();
 
-            $cancelled  = false;
+            $cancelled = false;
             $liveStdout = '';
             $liveStderr = '';
-            $lastFlush  = 0.0;
+            $lastFlush = 0.0;
 
             while ($process->isRunning()) {
                 $process->checkTimeout();
@@ -142,15 +155,16 @@ class PlaywrightRunnerService
 
             if ($cancelled) {
                 $result->update([
-                    'status'        => 'cancelled',
+                    'status' => 'cancelled',
                     'error_message' => 'Run was cancelled',
-                    'completed_at'  => now(),
+                    'completed_at' => now(),
                 ]);
+
                 return $result->refresh();
             }
 
             $rawOutput = trim($process->getOutput());
-            $stderr    = $process->getErrorOutput();
+            $stderr = $process->getErrorOutput();
 
             // Test code may emit console.log lines before the JSON result.
             // Extract the last line that starts with '{' — that's the runner payload.
@@ -166,22 +180,23 @@ class PlaywrightRunnerService
 
             if (! is_array($payload)) {
                 $result->update([
-                    'status'        => 'error',
-                    'stderr'        => $stderr ?: 'No JSON output from runner',
+                    'status' => 'error',
+                    'stderr' => $stderr ?: 'No JSON output from runner',
                     'error_message' => 'Runner produced no valid JSON output',
-                    'completed_at'  => now(),
+                    'completed_at' => now(),
                 ]);
+
                 return $result;
             }
 
             $result->update([
-                'status'        => $payload['status'] ?? 'error',
-                'duration_ms'   => $payload['duration_ms'] ?? null,
-                'stdout'        => $rawOutput,
-                'stderr'        => $stderr,
+                'status' => $payload['status'] ?? 'error',
+                'duration_ms' => $payload['duration_ms'] ?? null,
+                'stdout' => $rawOutput,
+                'stderr' => $stderr,
                 'error_message' => $payload['error_message'] ?? null,
-                'error_stack'   => $payload['error_stack'] ?? null,
-                'completed_at'  => now(),
+                'error_stack' => $payload['error_stack'] ?? null,
+                'completed_at' => now(),
             ]);
 
             if (! empty($payload['screenshots'])) {
@@ -195,15 +210,18 @@ class PlaywrightRunnerService
             Log::error('Playwright runner error', ['test_id' => $test->id, 'error' => $e->getMessage()]);
 
             $result->update([
-                'status'        => 'error',
+                'status' => 'error',
                 'error_message' => $e->getMessage(),
-                'error_stack'   => $e->getTraceAsString(),
-                'completed_at'  => now(),
+                'error_stack' => $e->getTraceAsString(),
+                'completed_at' => now(),
             ]);
         } finally {
             @unlink($specPath);
             if ($proxyRulesPath) {
                 @unlink($proxyRulesPath);
+            }
+            if ($variablesPath) {
+                @unlink($variablesPath);
             }
             $this->screenshotService->cleanTmpDir($outputDir);
             if (! $result->completed_at) {
@@ -217,12 +235,12 @@ class PlaywrightRunnerService
     private function createErrorResult(TestRun $testRun, Test $test, string $message): TestResult
     {
         return TestResult::create([
-            'test_run_id'   => $testRun->id,
-            'test_id'       => $test->id,
-            'status'        => 'error',
+            'test_run_id' => $testRun->id,
+            'test_id' => $test->id,
+            'status' => 'error',
             'error_message' => $message,
-            'started_at'    => now(),
-            'completed_at'  => now(),
+            'started_at' => now(),
+            'completed_at' => now(),
         ]);
     }
 }

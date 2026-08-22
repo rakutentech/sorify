@@ -6,7 +6,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination, MarkdownRenderer } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 
@@ -100,6 +100,20 @@ function deleteTest() {
     router.delete(`/sorify/suites/${props.suite.id}/tests/${props.test.id}`);
 }
 
+// ── Duplicate test ─────────────────────────────────────────────────────────
+const duplicating = ref(false);
+
+function duplicateTest() {
+    duplicating.value = true;
+    router.post(
+        `/sorify/suites/${props.suite.id}/tests/${props.test.id}/duplicate`,
+        {},
+        {
+            onFinish: () => { duplicating.value = false; },
+        },
+    );
+}
+
 function runTest() {
     running.value = true;
     runError.value = null;
@@ -167,25 +181,25 @@ function onHistoryKeydown(e) {
     <AppLayout>
         <Head :title="test.name" />
 
-        <!-- Breadcrumb -->
-        <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-4">
-            <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">{{ t('testSuites.title') }}</Link>
-            <span>/</span>
-            <Link :href="`/sorify/suites/${suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors"><SuiteName :name="suite.name" /></Link>
-            <span>/</span>
-            <span class="text-[var(--md-sys-color-on-surface)]">{{ test.name }}</span>
-        </div>
-
         <!-- Test header -->
         <div class="flex items-start justify-between mb-6">
             <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1">
+                    <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">{{ t('testSuites.title') }}</Link>
+                    <span>/</span>
+                    <Link :href="`/sorify/suites/${suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors"><SuiteName :name="suite.name" /></Link>
+                    <span>/</span>
+                    <span class="text-[var(--md-sys-color-on-surface)]">{{ test.name }}</span>
+                </div>
                 <template v-if="!editMode">
                     <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">{{ t('testShow.testCase') }}</span>
                     <div class="flex items-center gap-3 flex-wrap">
                         <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ test.name }}</h1>
                         <Chip v-if="test.status" :status="test.status" />
                     </div>
-                    <p v-if="test.description" class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1 whitespace-pre-line">{{ test.description }}</p>
+                    <div v-if="test.description" class="mt-1 opacity-80">
+                        <MarkdownRenderer :content="test.description" density="compact" collapsible :collapsed-lines="10" />
+                    </div>
                     <div v-if="test.uploaded_by" class="flex items-center gap-2 mt-1.5">
                         <Avatar :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" :avatar-url="uploader(test.uploaded_by).avatar_url" />
                         <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
@@ -197,7 +211,7 @@ function onHistoryKeydown(e) {
                 <template v-else>
                     <form @submit.prevent="saveEdit" class="space-y-3 max-w-xl">
                         <TextField v-model="editForm.name" :label="t('testShow.testName')" :error="editForm.errors.name" />
-                        <TextField v-model="editForm.description" :label="t('testShow.description')" type="textarea" :rows="2" :error="editForm.errors.description" />
+                        <TextField v-model="editForm.description" :label="t('testShow.description')" type="textarea" :rows="4" mono :hint="t('testShow.markdownSupported')" :error="editForm.errors.description" />
                         <Autocomplete v-model="editForm.uploaded_by" :options="users" :label="t('testShow.uploadedByLabel')" :error="editForm.errors.uploaded_by" />
                         <div class="flex gap-2">
                             <Button type="submit" variant="filled" size="sm" :disabled="editForm.processing">
@@ -210,13 +224,23 @@ function onHistoryKeydown(e) {
             </div>
 
             <div class="flex items-center gap-2 ml-4 flex-shrink-0">
-                <Button v-if="!editMode" variant="text" @click="deleteTest" class="!text-[var(--md-sys-color-error)]">
+                <Button v-if="!editMode" variant="tonal" @click="editMode = true">{{ t('testShow.edit') }}</Button>
+                <Button v-if="!editMode" variant="tonal" :disabled="duplicating" @click="duplicateTest">
+                    <svg v-if="duplicating" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+                    </svg>
+                    {{ duplicating ? t('testShow.duplicating') : t('testShow.duplicate') }}
+                </Button>
+                <Button v-if="!editMode" variant="tonal" @click="deleteTest" class="!text-[var(--md-sys-color-error)]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
                     {{ t('testShow.delete') }}
                 </Button>
-                <Button v-if="!editMode" variant="tonal" @click="editMode = true">{{ t('testShow.edit') }}</Button>
                 <Button
                     variant="filled"
                     @click="runTest"
@@ -266,14 +290,42 @@ function onHistoryKeydown(e) {
                         <Button variant="filled" size="sm" @click="saveCode" :disabled="codeForm.processing">
                             {{ codeForm.processing ? t('testShow.saving') : t('testShow.saveCode') }}
                         </Button>
-                        <Button variant="text" size="sm" @click="codeEditable = false">{{ t('testShow.cancel') }}</Button>
+                        <Button variant="text" size="sm" @click="codeEditable = false">{{ t('testShow.cancel') }}
+                        </Button>
                     </template>
                 </div>
             </div>
+
+            <!-- Suite variables available in this test's scope -->
+            <div v-if="(suite.variables ?? []).length" class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
+                <div class="flex items-center gap-2 mb-2 flex-wrap">
+                    <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testShow.suiteVariables') }}</p>
+                    <code class="md-label-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">variables.KEY</code>
+                    <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ t('testShow.variablesHint') }}</span>
+                </div>
+                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mb-2">
+                    {{ t('testShow.variablesManageCaption') }}
+                    <Link :href="`/sorify/suites/${suite.id}`" class="text-[var(--md-sys-color-primary)] hover:underline">{{ t('testSuiteShow.suiteSettings') }}</Link>.
+                </p>
+                <div class="flex flex-wrap gap-1.5">
+                    <div
+                        v-for="variable in suite.variables"
+                        :key="variable.key"
+                        class="flex items-center gap-1.5 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-extra-small)] px-2 py-1"
+                        :title="variable.value ? `${variable.key} = ${variable.value}` : variable.key"
+                    >
+                        <code class="md-label-small font-mono font-semibold text-[var(--md-sys-color-primary)]">{{ variable.key }}</code>
+                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">=</span>
+                        <code class="md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)] max-w-[12rem] truncate">{{ variable.value || '∅' }}</code>
+                    </div>
+                </div>
+            </div>
+
             <div class="p-1">
                 <TestCodeEditor
                     v-model:code="codeForm.playwright_code"
                     :editable="codeEditable"
+                    :variables="suite.variables ?? []"
                 />
                 <p v-if="codeForm.errors.playwright_code" class="text-[var(--md-sys-color-error)] md-body-small px-4 pt-2">{{ codeForm.errors.playwright_code }}</p>
             </div>
@@ -329,7 +381,8 @@ function onHistoryKeydown(e) {
                             </tr>
                             <tr v-if="isVersionExpanded(version.id)">
                                 <td colspan="4" class="px-5 pb-5 bg-[var(--md-sys-color-surface-container-lowest)]">
-                                    <div class="flex items-center justify-end mt-3 mb-3">
+                                    <div class="flex items-center justify-end gap-2 mt-3 mb-3">
+                                        <CopyButton :value="version.playwright_code" :label="t('testShow.copyCode')" />
                                         <Button
                                             variant="tonal"
                                             size="sm"

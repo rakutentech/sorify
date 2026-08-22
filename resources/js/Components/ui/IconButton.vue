@@ -2,24 +2,33 @@
 defineProps({
     variant: { type: String, default: 'standard' }, // standard | filled | tonal | outlined
     label: { type: String, required: true },
+    title: { type: String, default: null },
+    disabled: { type: Boolean, default: false },
 });
 
 defineEmits(['click']);
 </script>
 
 <template>
-    <button
-        type="button"
-        :aria-label="label"
-        @click="$emit('click')"
-        class="w-10 h-10 flex items-center justify-center rounded-[var(--md-sys-shape-corner-full)] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--md-sys-color-primary)]"
-        :class="{
-            'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]': variant === 'standard',
-            'bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] hover:brightness-90': variant === 'filled',
-            'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)] hover:brightness-90': variant === 'tonal',
-            'border border-[var(--md-sys-color-outline)] text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]': variant === 'outlined',
-        }"
-    >
-        <slot />
-    </button>
+    <div class="relative inline-flex group/tip">
+        <button
+            type="button"
+            :aria-label="label"
+            :disabled="disabled"
+            @click="$emit('click')"
+            class="w-10 h-10 flex items-center justify-center rounded-[var(--md-sys-shape-corner-full)] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--md-sys-color-primary)] disabled:opacity-40 disabled:pointer-events-none"
+            :class="{
+                'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]': variant === 'standard',
+                'bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] hover:brightness-90': variant === 'filled',
+                'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)] hover:brightness-90': variant === 'tonal',
+                'border border-[var(--md-sys-color-outline)] text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]': variant === 'outlined',
+            }"
+        >
+            <slot />
+        </button>
+        <span
+            v-if="(title ?? label) && !disabled"
+            class="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1.5 px-2 py-1 rounded-[var(--md-sys-shape-corner-extra-small)] bg-gray-900 text-white md-label-small whitespace-nowrap opacity-0 group-hover/tip:opacity-100 transition-opacity duration-150 z-50"
+        >{{ title ?? label }}</span>
+    </div>
 </template>

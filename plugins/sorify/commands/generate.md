@@ -8,7 +8,7 @@ description: >
     /sorify:generate https://stg.example.com/dashboard/
     /sorify:generate https://stg.example.com/ https://github.com/your-org/your-repo
     /sorify:generate https://stg.example.com/ /path/to/local/repo
-allowed-tools: ["Bash", "Read", "Write", "Edit", "mcp__playwright__browser_navigate", "mcp__playwright__browser_evaluate", "mcp__playwright__browser_click", "mcp__playwright__browser_wait_for", "mcp__playwright__browser_close", "mcp__playwright__browser_snapshot", "mcp__playwright__browser_take_screenshot", "mcp__plugin_sorify_sorify__create_suite", "mcp__plugin_sorify_sorify__bulk_create_tests", "mcp__plugin_sorify_sorify__trigger_run", "mcp__plugin_sorify_sorify__get_run_status"]
+allowed-tools: ["Bash", "Read", "Write", "Edit", "mcp__playwright__browser_navigate", "mcp__playwright__browser_evaluate", "mcp__playwright__browser_click", "mcp__playwright__browser_wait_for", "mcp__playwright__browser_close", "mcp__playwright__browser_snapshot", "mcp__playwright__browser_take_screenshot", "mcp__plugin_sorify_sorify__create_suite", "mcp__plugin_sorify_sorify__update_suite", "mcp__plugin_sorify_sorify__get_suite", "mcp__plugin_sorify_sorify__bulk_create_tests", "mcp__plugin_sorify_sorify__trigger_run", "mcp__plugin_sorify_sorify__get_run_status"]
 ---
 
 # sorify
@@ -108,36 +108,74 @@ UPLOADED_BY=$(grep "^SORIFY_USERNAME" ~/.sorify | cut -d= -f2)
 
 ## Step 5: Create Sorify suite
 
-Call the `create_suite` tool:
+**Determine suite variables first.** Collect any service-specific values the
+tests will need — typically login credentials, the target base URL, and any
+environment-specific values. These become **suite variables**: stored on the
+suite and injected into every test run as a `variables` object in the
+Playwright code scope (referenced as `variables.KEY`). Prefer variables over
+hardcoding secrets/values in the generated test code.
+
+- Variable `key`s must be valid JavaScript identifiers (`^[A-Za-z_][A-Za-z0-9_]*$`).
+- Target-webpage test-account credentials come from the user (supplied in the
+  `/sorify:generate` prompt) and/or are already configured on a reused suite.
+  Call `get_suite` first when reusing a suite to read its existing `variables`;
+  reuse any existing keys and only add missing ones, preferring existing suite
+  keys. Never redefine a key that already exists.
+- NEVER read `SORIFY_USERNAME`/`SORIFY_PASSWORD` from `~/.sorify` into suite
+  variables — those are private MCP-connection credentials, not test-account
+  credentials. The two are unrelated even when keys look similar.
+- If no test credentials are supplied and none exist on the suite, treat the
+  page as public: omit `USERNAME`/`PASSWORD` and still define `BASE_URL`.
+
+**If reusing an existing suite instead of creating a new one:** call
+`get_suite` first to read its existing `variables`, reuse any that are already
+present, and only call `update_suite` (passing `variables`) to add the missing
+ones. Never duplicate a key that already exists on the suite — extend the set.
+
+> ⚠️ **Credential boundary:** suite `variables` hold test-account credentials for
+> the target webpage ONLY. Never copy anything from `~/.sorify`
+> (`SORIFY_USERNAME`/`SORIFY_PASSWORD` are MCP-connection auth, private) into a
+> suite variable value.
+
+Call the `create_suite` tool with `variables`:
 
 ```
 mcp__plugin_sorify_sorify__create_suite({
   name: "{hostname} - {path} - {YYYY-MM-DD}",
   description: "/sorify:generate {target_url}",
   browser: "chromium",
-  base_url: "{scheme}://{hostname}"
+  base_url: "{scheme}://{hostname}",
+  variables: [
+    { key: "BASE_URL",  value: "{scheme}://{hostname}" },
+    { key: "USERNAME",  value: "<actual login email>" },   // omit if no login
+    { key: "PASSWORD",  value: "<actual login password>" } // omit if no login
+  ]
 })
 ```
 
 The result's `structuredContent.suite.id` is the `suite_id` — extract and keep it.
-Then **build LOGIN_SNIPPET** with actual values from `~/.sorify`:
+Then **build LOGIN_SNIPPET** that references `variables.*` (no hardcoded secrets):
 
 ```javascript
-// If credentials are available (fill in actual values — no placeholders):
-await page.goto('https://actual-target-url.com/', { waitUntil: 'domcontentloaded' });
+// If credentials are available (reference suite variables — no hardcoded secrets):
+await page.goto(variables.BASE_URL + '/', { waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(2000);
 if (page.url().includes('/login') || page.url().includes('/auth') || page.url().includes('/signin')) {
   await page.waitForSelector('actual-username-selector', { timeout: 15000 });
-  await page.fill('actual-username-selector', 'actual@email.com');
-  await page.fill('actual-password-selector', 'actualPassword');
+  await page.fill('actual-username-selector', variables.USERNAME);
+  await page.fill('actual-password-selector', variables.PASSWORD);
   await page.keyboard.press('Enter');
   await page.waitForSelector('actual-post-login-selector', { timeout: 30000 });
 }
 
 // If no credentials are configured (public page):
-await page.goto('https://actual-target-url.com/', { waitUntil: 'domcontentloaded' });
+await page.goto(variables.BASE_URL + '/', { waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(2000);
 ```
+
+> The generated DOM and condition-based test code (Steps 6) MUST reference
+> `variables.KEY` for any credential / URL / env-specific value rather than
+> hardcoding it — `variables` is in scope at run time.
 
 ---
 
@@ -405,5 +443,13 @@ View: {SORIFY_BASE_URL}/runs/{run_id}
 - Sub-agents run serially (each waits for the previous)
 - Screenshot path: `test-output/sorify-generate/{id}.png`
 - `page.route()` mocks do NOT affect SSR-rendered data — the analyzer determines this automatically
+- **Suite variables:** any credential, URL, or environment-specific value used
+  by a test MUST be defined as a suite `variable` and referenced in code as
+  `variables.KEY` (never hardcoded). When adding tests to an existing suite,
+  call `get_suite` first to reuse its existing variables and only `update_suite`
+  to add missing ones — do not redefine keys that already exist.
+- **Never publish `~/.sorify` values** (`SORIFY_USERNAME`/`SORIFY_PASSWORD`) as
+  suite variables or in test code — those are MCP-connection auth only; suite
+  variables hold target-webpage test-account credentials supplied by the user.
 
 The user's input is: $ARGUMENTS

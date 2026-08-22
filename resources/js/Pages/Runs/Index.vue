@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Chip, SuiteName, RanBy, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
+import { Card, Chip, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 
@@ -60,7 +60,6 @@ function formatDuration(ms) {
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colSuite') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colStatus') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colPassed') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colFailed') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colDuration') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colScreenshots') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colCreatedBy') }}</th>
@@ -92,13 +91,30 @@ function formatDuration(ms) {
                             <td class="px-5 py-3">
                                 <Chip :status="run.status" :label="runStatusLabel(run.status)" />
                             </td>
-                            <td class="px-5 py-3 md-body-medium text-[var(--md-ext-color-success)]">{{ run.passed_count ?? '—' }}</td>
-                            <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-error)]">{{ run.failed_count ?? '—' }}</td>
+                            <td class="px-5 py-3 md-body-medium">
+                                <span class="text-[var(--md-ext-color-success)]">{{ run.passed_count ?? 0 }}</span><span class="text-[var(--md-sys-color-on-surface-variant)]">/{{ run.total_tests ?? 0 }}</span>
+                                <span v-if="run.failed_count" class="text-[var(--md-sys-color-error)] ml-1.5">{{ t('testSuiteShow.failed', { count: run.failed_count }) }}</span>
+                            </td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ formatDuration(run.duration_ms) }}</td>
                             <td class="px-5 py-3">
                                 <ScreenshotThumbs :screenshots="run.screenshots ?? []" @open="lightbox.open" />
                             </td>
-                            <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ run.created_by ?? '—' }}</td>
+                            <td class="px-5 py-3">
+                                <Avatar
+                                    v-if="run.created_by_user"
+                                    :name="run.created_by_user.name"
+                                    :email="run.created_by_user.email"
+                                    :avatar-url="run.created_by_user.avatar_url"
+                                />
+                                <div
+                                    v-else
+                                    class="group relative w-7 h-7 rounded-full ring-2 ring-[var(--md-sys-color-surface-container-low)] bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)] flex items-center justify-center flex-shrink-0"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                </div>
+                            </td>
                             <td class="px-5 py-3"><RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" /></td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                                 <span class="group relative inline-flex items-center">

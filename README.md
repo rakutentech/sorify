@@ -33,8 +33,8 @@
 
 | Feature                                                                                  | MCP | Dashboard | CI Webhook |
 | :--------------------------------------------------------------------------------------- | :-- | :-------- | :--------- |
-| Suites: list / get / create / update / delete  / edit                                    | ✅  | ✅        | -          |
-| **Tests**: list / get / create / update / update code / delete / bulk-delete             | ✅  | ✅        | -          |
+| Suites: list / get / create / update / delete  / edit / duplicate                        | ✅  | ✅        | -          |
+| **Tests**: list / get / create / update / update code / delete / bulk-delete / duplicate | ✅  | ✅        | -          |
 | **Tests**: bulk-create                                                                   | ✅  | -         | -          |
 | **Runs**: get / trigger / cancel / delete / logs                                         | ✅  | ✅        | -          |
 | **Runs**: status                                                                         | ✅  | ✅        | ✅         |
@@ -277,3 +277,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v1.5** - i18n support for English and Japanese for now.
 - **v1.6** - i18n support for Malay, Simplified Chinese. Extension captures file uploads, iframes, tabs, network.
 - **v1.7** - oAuth login, with Avatar.
+- **v1.8** - Duplicate a test suite (background copy of tests) and duplicate a test case, available on the dashboard and via MCP (`duplicate_suite`, `duplicate_test`).
