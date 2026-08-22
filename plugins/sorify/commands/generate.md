@@ -116,14 +116,26 @@ Playwright code scope (referenced as `variables.KEY`). Prefer variables over
 hardcoding secrets/values in the generated test code.
 
 - Variable `key`s must be valid JavaScript identifiers (`^[A-Za-z_][A-Za-z0-9_]*$`).
-- If credentials are available (read from `~/.sorify` target-service fields, or
-  supplied by the user), define at least `USERNAME`, `PASSWORD`, and `BASE_URL`.
-- If no credentials are needed (public page), still define `BASE_URL`.
+- Target-webpage test-account credentials come from the user (supplied in the
+  `/sorify:generate` prompt) and/or are already configured on a reused suite.
+  Call `get_suite` first when reusing a suite to read its existing `variables`;
+  reuse any existing keys and only add missing ones, preferring existing suite
+  keys. Never redefine a key that already exists.
+- NEVER read `SORIFY_USERNAME`/`SORIFY_PASSWORD` from `~/.sorify` into suite
+  variables — those are private MCP-connection credentials, not test-account
+  credentials. The two are unrelated even when keys look similar.
+- If no test credentials are supplied and none exist on the suite, treat the
+  page as public: omit `USERNAME`/`PASSWORD` and still define `BASE_URL`.
 
 **If reusing an existing suite instead of creating a new one:** call
 `get_suite` first to read its existing `variables`, reuse any that are already
 present, and only call `update_suite` (passing `variables`) to add the missing
 ones. Never duplicate a key that already exists on the suite — extend the set.
+
+> ⚠️ **Credential boundary:** suite `variables` hold test-account credentials for
+> the target webpage ONLY. Never copy anything from `~/.sorify`
+> (`SORIFY_USERNAME`/`SORIFY_PASSWORD` are MCP-connection auth, private) into a
+> suite variable value.
 
 Call the `create_suite` tool with `variables`:
 
@@ -436,5 +448,8 @@ View: {SORIFY_BASE_URL}/runs/{run_id}
   `variables.KEY` (never hardcoded). When adding tests to an existing suite,
   call `get_suite` first to reuse its existing variables and only `update_suite`
   to add missing ones — do not redefine keys that already exist.
+- **Never publish `~/.sorify` values** (`SORIFY_USERNAME`/`SORIFY_PASSWORD`) as
+  suite variables or in test code — those are MCP-connection auth only; suite
+  variables hold target-webpage test-account credentials supplied by the user.
 
 The user's input is: $ARGUMENTS

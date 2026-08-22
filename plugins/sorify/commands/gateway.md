@@ -75,6 +75,11 @@ your shell profile) so the MCP client can build the server URL from it.
 USERNAME/PASSWORD are read directly by a helper script to build the
 request's Basic-Auth header — they don't need to be exported.
 
+These three values are MCP-connection credentials only — they authenticate the
+plugin's MCP client to the Sorify server. They are PRIVATE and must never be
+copied into, echoed as, or used as a suite variable `value` (suite variables are
+for target-webpage test accounts — see "Suite variables" below).
+
 MCP Server
 ──────────────────────────────────────────────
 Name:    Sorify (registered in this plugin's .mcp.json as "sorify")
@@ -125,6 +130,18 @@ section; if asked "what tools exist" generally, print all five.
 - `get_suite` returns the suite's `variables` array (`[{key, value}, …]`) so you can discover what's already available before generating tests.
 - Passing `variables` to `create_suite`/`update_suite` replaces the full set (last write wins per duplicate key); omit the field to leave existing variables untouched, pass `[]` to clear them.
 - Duplicating a suite copies its variables.
+
+**Credential scope — do not confuse the two credential stores:**
+- `~/.sorify` (`SORIFY_URL`/`SORIFY_USERNAME`/`SORIFY_PASSWORD`) = private
+  MCP-connection auth for this plugin. NEVER publish any of these values into a
+  suite variable, a test, chat output, or anywhere else.
+- suite `variables` = test-account credentials for the *target webpage under
+  test* (e.g. a staging login), supplied by the user or pre-configured on the
+  suite in the dashboard.
+
+Hard rule: a suite variable `value` must never be set to anything read from
+`~/.sorify`. The two stores are unrelated even when keys look similar
+(e.g. `SORIFY_USERNAME` ≠ a test account's `USERNAME`).
 
 **Tests** — `App\Mcp\Tools\Tests\*`
 
