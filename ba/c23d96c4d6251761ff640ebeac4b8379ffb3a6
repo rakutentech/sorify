@@ -1,0 +1,124 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_6923f2f1259c43::t_4a94a9802bd4fb 243,253,261
+  s_6923f2f1259c43::t_11d2188166fc15 1165-1167,1170,1172,1179-1181,1184,1188,1190
+  s_6923f2f1259c43::t_20ac2c46f07370 944
+  s_6923f2f1259c43::t_a84e6634f483e2 1125-1126
+  s_6923f2f1259c43::t_9575c8de76c14d 1099-1124,1127-1136
+  s_6923f2f1259c43::t_cb3609d045e628 156-157,163,165-209
+  s_6923f2f1259c43::t_fa0797bc1744f5 324-355
+app/Mcp/Tools/Suites/GetSuiteTool.php
+  s_6923f2f1259c43::t_cf51f352596e19 40
+resources/playwright/runner.cjs
+  s_6923f2f1259c43::t_0c260e67a793fb 46-47
+  s_6923f2f1259c43::t_a6b62ef2f9ed9f 8,16-17
+  s_6923f2f1259c43::t_ed9cc1612ccd93 94
+  s_6923f2f1259c43::t_bd555ce4af5a83 108
+  s_6923f2f1259c43::t_a53eb35cf7f828 18
+app/Models/TestSuiteVariable.php
+  s_6923f2f1259c43::t_9cd3add7958a53 1-20
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_6923f2f1259c43::t_b4ff7c226bce89 44-49
+  s_6923f2f1259c43::t_782c3071ff3dc8 69-71,82-85,90-95,97-120
+  s_6923f2f1259c43::t_73a244c462470f 96
+resources/playwright/harness.cjs
+  s_6923f2f1259c43::t_2c92f03837622d 144,162-163
+  s_6923f2f1259c43::t_935131b9e7b92a 272,281
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_6923f2f1259c43::t_0c23d7b1e33d06 77,88-93,95-112
+  s_6923f2f1259c43::t_89ee9524939c57 43-48
+  s_6923f2f1259c43::t_108e88f2be0b9a 66-67,75-76
+  s_6923f2f1259c43::t_73a244c462470f 94
+  s_6923f2f1259c43::t_6858663e9b9ab2 78
+resources/js/locales/ms.json
+  s_6923f2f1259c43::t_72d8e1906fbd09 232-235
+  s_6923f2f1259c43::t_6ba5db88f87639 462-463
+  s_6923f2f1259c43::t_9ca2f77e086ef4 82
+  s_6923f2f1259c43::t_8160a79d8256ba 464
+app/Http/Controllers/TestController.php
+  s_6923f2f1259c43::t_143c3f9bbcee75 37-38
+app/Models/TestSuite.php
+  s_6923f2f1259c43::t_a5ac0dc0d667fa 97-101
+app/Http/Controllers/TestSuiteController.php
+  s_6923f2f1259c43::t_73c700bf4ab78b 109
+  s_6923f2f1259c43::t_d13a9e41a89a1e 87,308,354-359,361-386
+  s_6923f2f1259c43::t_73a244c462470f 360
+  s_6923f2f1259c43::t_3cd0a599ed432e 169
+  s_6923f2f1259c43::t_848e5f349df15b 73-74,85-86
+  s_6923f2f1259c43::t_58f0b779af339b 293-295,306-307
+  s_6923f2f1259c43::t_9f0401615cd9b0 88
+  s_6923f2f1259c43::t_e984352ec7f5bc 309
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_6923f2f1259c43::t_73a244c462470f 9-12,17-18,20,22-28,30-31
+resources/js/locales/ja.json
+  s_6923f2f1259c43::t_5082edd5f66bd7 232-235
+  s_6923f2f1259c43::t_000e00d6a4b2db 464
+  s_6923f2f1259c43::t_348bef316fcddb 82
+  s_6923f2f1259c43::t_e3b289587c7245 462-463
+resources/js/locales/zh-CN.json
+  s_6923f2f1259c43::t_aa88d6550e7afb 82
+  s_6923f2f1259c43::t_1a0f79fc7c14f7 464
+  s_6923f2f1259c43::t_55187b4a249dc2 232-235
+  s_6923f2f1259c43::t_15a38c3a766480 462-463
+database/migrations/2026_08_22_000001_create_test_suite_variables_table.php
+  s_6923f2f1259c43::t_553fa9cb1dba23 1-26
+app/Services/PlaywrightRunnerService.php
+  s_6923f2f1259c43::t_6222d56c3cbc59 223-225
+  s_6923f2f1259c43::t_73a244c462470f 14,16,23-24,56-57,59,67-69,91,94,102,130,133,158,160,162,167,183-184,186,188,193-196,198-199,213,215-216,238-240,242-243
+  s_6923f2f1259c43::t_e7204d27dfc77d 100-101,103-110
+resources/js/locales/en.json
+  s_6923f2f1259c43::t_581b193dd9ab10 82
+  s_6923f2f1259c43::t_52ee05015b3fe6 464
+  s_6923f2f1259c43::t_82388be3fcc1ca 462-463
+  s_6923f2f1259c43::t_7fe30648205144 232-235
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_6923f2f1259c43::t_2bad082f38d6ce 23-25
+app/Services/TestSuiteDuplicationService.php
+  s_6923f2f1259c43::t_f4cfaf2cc7d93f 53-59
+  s_6923f2f1259c43::t_18f2f1aae67b29 23
+tests/Feature/SuiteVariablesTest.php
+  s_6923f2f1259c43::t_4a55711f64ebf7 130-150
+  s_6923f2f1259c43::t_ddb4e1a8aefb53 181-182,191-192
+  s_6923f2f1259c43::t_73a244c462470f 15,221
+  s_6923f2f1259c43::t_ef8d361adf4876 362
+  s_6923f2f1259c43::t_9d62774494927d 1-14,16-129,151-180,183-190,193-220,222-302,304-361,363-378
+  s_6923f2f1259c43::t_98121e5fcf6ba0 303
+resources/js/Components/TestCodeEditor.vue
+  s_6923f2f1259c43::t_3d0ece886f12c8 2,16-19,22,35-118,130-177,183
+resources/js/Pages/Tests/Show.vue
+  s_6923f2f1259c43::t_1c690f97e5d9b3 293-294,298,323
+  h_f44dfe84a46cdf 299-305,310-322
+  s_6923f2f1259c43::t_2cfb0b78e8bb2d 328
+  s_6923f2f1259c43::t_8a2462ecc87282 306-309
+plugins/sorify/commands/gateway.md
+  s_6923f2f1259c43::t_818fe02c7f1849 122-128
+  s_6923f2f1259c43::t_47a1fab0e9ad81 103-105
+plugins/sorify/commands/generate.md
+  s_6923f2f1259c43::t_54b21387897ee8 434-438
+  s_6923f2f1259c43::t_13dfc186d02276 111-128,135-140,145,148-149,153-154,160,164-166
+  s_6923f2f1259c43::t_58490889a2817a 11
+  s_6923f2f1259c43::t_1cbb33c48cf498 167
+resources/js/Pages/TestSuites/Review.vue
+  s_6923f2f1259c43::t_166cae4aecb0a8 162-165
+  s_6923f2f1259c43::t_8ae23658f8bc83 155-161,166-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "bac23d96c4d6251761ff640ebeac4b8379ffb3a6",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_6923f2f1259c43": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd7f1d5cfffe2pzFfnSwnLqWac",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
