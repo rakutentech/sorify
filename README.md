@@ -275,6 +275,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v1.3** - Skills updated, MS Teams notifications links to a screenshot, dashboard has admin editable msg
 - **v1.4** - Manage users from MCP.
 - **v1.5** - i18n support for English and Japanese for now.
-- **v1.6** - i18n support for Malay, Simplified Chinese. Extension captures file uploads, iframes, tabs, network.
-- **v1.7** - oAuth login, with Avatar.
-- **v1.8** - Duplicate a test suite (background copy of tests) and duplicate a test case, available on the dashboard and via MCP (`duplicate_suite`, `duplicate_test`).
+- **v1.6** - i18n support for Malay, Simplified Chinese. Extension captures file uploads, iframes, tabs, network. oAuth login, with Avatar. Duplicate a test suite (background copy of tests) and duplicate a test case, available on the dashboard and via MCP (`duplicate_suite`, `duplicate_test`).
