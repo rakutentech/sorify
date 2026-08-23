@@ -24,6 +24,7 @@ use App\Mcp\Tools\Suites\UnbookmarkSuiteTool;
 use App\Mcp\Tools\Suites\UpdateSuiteMemberTool;
 use App\Mcp\Tools\Suites\UpdateSuiteScheduleTool;
 use App\Mcp\Tools\Suites\UpdateSuiteTool;
+use App\Mcp\Tools\Suites\UploadSuiteCookiesTool;
 use App\Mcp\Tools\Tests\BulkCreateTestsTool;
 use App\Mcp\Tools\Tests\BulkDeleteTestsTool;
 use App\Mcp\Tools\Tests\CreateTestTool;
@@ -49,6 +50,7 @@ class SorifyServer extends Server
         GetSuiteTool::class,
         CreateSuiteTool::class,
         UpdateSuiteTool::class,
+        UploadSuiteCookiesTool::class,
         DuplicateSuiteTool::class,
         DeleteSuiteTool::class,
         UpdateSuiteScheduleTool::class,

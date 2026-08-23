@@ -4,9 +4,10 @@ import { router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, SuiteName, RanBy, ScreenshotThumbs, ScreenshotLightbox, Pagination } from '@/Components/ui';
-import { formatDate } from '@/utils/date';
+import { Card, Chip, Button, Breadcrumb, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination } from '@/Components/ui';
+import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+import { Activity, RotateCcw, LoaderCircle, ChevronRight, Search, ChevronDown, X } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -14,6 +15,8 @@ const props = defineProps({
     run: { type: Object, required: true },
     results: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
     resultTestIds: { type: Array, default: () => [] },
+    filters: { type: Object, default: () => ({ search: '', per_page: 50, status: [], test_id: null }) },
+    filteredTest: { type: Object, default: null },
 });
 
 // Auto-refresh when run is active
@@ -22,6 +25,14 @@ let refreshTimer = null;
 const isActive = computed(() =>
     props.run.status === 'running' || props.run.status === 'pending',
 );
+
+const SOURCE_LABELS = {
+    ci: 'CI (GitHub Actions)',
+    schedule: 'Scheduled',
+    mcp: 'MCP',
+    manual: 'Manual',
+};
+const sourceLabel = computed(() => SOURCE_LABELS[props.run.triggered_by] ?? 'Manual');
 
 function stopRefresh() {
     if (refreshTimer) {
@@ -55,12 +66,75 @@ watch(
 // Screenshot lightbox
 const lightbox = useScreenshotLightbox();
 
-// Results per-page
-const perPage = ref(props.results.per_page ?? 50);
+// Results filters: search, status (multi-select), per-page, and test_id
+// (test_id arrives via filter[test_id] from the RunPill links on the suite/
+//  review pages; the controller echoes it back as filters.test_id).
+function debounce(fn, delay) {
+    let timer;
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+}
 
-watch(perPage, () => {
-    router.get(window.location.pathname, { per_page: perPage.value, page: 1 }, { preserveState: true, replace: true });
-});
+const perPage = ref(props.filters.per_page ?? 50);
+const testSearch = ref(props.filters.search ?? '');
+const testStatus = ref([...(props.filters.status ?? [])]);
+const testId = ref(props.filters.test_id ?? null);
+
+const STATUS_OPTIONS = ['passed', 'failed', 'error', 'timeout', 'running', 'pending', 'cancelled'];
+
+function reloadResults(overrides = {}) {
+    const params = {
+        search: testSearch.value,
+        per_page: perPage.value,
+        status: testStatus.value,
+        page: 1,
+        ...overrides,
+    };
+    if (testId.value) {
+        params['filter[test_id]'] = testId.value;
+    }
+    router.get(window.location.pathname, params, { preserveState: true, preserveScroll: true, replace: true });
+}
+
+const debouncedTestSearch = debounce(() => reloadResults({ page: 1 }), 350);
+
+watch(testSearch, () => debouncedTestSearch());
+watch(testStatus, () => reloadResults({ page: 1 }), { deep: true });
+watch(perPage, () => reloadResults({ page: 1 }));
+
+// Status filter dropdown
+const showStatusFilter = ref(false);
+const statusFilterRef = ref(null);
+
+function toggleStatusOption(status) {
+    const next = new Set(testStatus.value);
+    if (next.has(status)) next.delete(status);
+    else next.add(status);
+    testStatus.value = [...next];
+}
+
+function clearStatusFilter() {
+    testStatus.value = [];
+}
+
+function clearTestFilter() {
+    testId.value = null;
+    const params = {
+        search: testSearch.value,
+        per_page: perPage.value,
+        status: testStatus.value,
+        page: 1,
+    };
+    router.get(window.location.pathname, params, { preserveState: true, preserveScroll: true, replace: true });
+}
+
+function onClickOutsideStatusFilter(event) {
+    if (statusFilterRef.value && !statusFilterRef.value.contains(event.target)) {
+        showStatusFilter.value = false;
+    }
+}
+
+onMounted(() => document.addEventListener('mousedown', onClickOutsideStatusFilter));
+onUnmounted(() => document.removeEventListener('mousedown', onClickOutsideStatusFilter));
 
 // Accordion state
 const expandedResults = ref(new Set());
@@ -193,32 +267,53 @@ const failedPct = computed(() => {
         <Head :title="t('testRunShow.runNumber', { id: run.id })" />
 
         <!-- Breadcrumb -->
-        <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-4">
-            <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">{{ t('testSuites.title') }}</Link>
-            <span>/</span>
-            <Link v-if="run.suite" :href="`/sorify/suites/${run.suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors"><SuiteName :name="run.suite.name" /></Link>
-            <span>/</span>
-            <span class="text-[var(--md-sys-color-on-surface)]">{{ t('testRunShow.runNumber', { id: run.id }) }}</span>
-        </div>
+        <Breadcrumb :crumbs="[
+            { label: t('testSuites.title'), href: '/sorify/suites' },
+            { label: run.suite?.name, href: run.suite ? `/sorify/suites/${run.suite.id}` : null, suite: true },
+            { label: t('testRunShow.runNumber', { id: run.id }) },
+        ]">
+            <template #crumb="{ crumb }">
+                <SuiteName v-if="crumb.suite" :name="crumb.label" />
+                <template v-else>{{ crumb.label }}</template>
+            </template>
+        </Breadcrumb>
 
         <!-- Run header -->
-        <Card class="mb-6">
+        <Card variant="plain" class="mb-6">
             <div class="flex items-start justify-between flex-wrap gap-4">
                 <div>
-                    <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">{{ t('testRunShow.testRun') }}</span>
+                    <span class="inline-flex items-center gap-3 mb-1.5">
+                        <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ t('testRunShow.testRun') }}</span>
+                        <span v-if="run.triggered_by_user" class="flex items-center gap-1.5">
+                            <Avatar :name="run.triggered_by_user.name" :email="run.triggered_by_user.email" :avatar-url="run.triggered_by_user.avatar_url" />
+                            <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.triggeredBy', { name: run.triggered_by_user.name }) }}</span>
+                        </span>
+                        <span v-else class="flex items-center gap-1.5">
+                            <RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" />
+                            <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ sourceLabel }}</span>
+                        </span>
+                    </span>
                     <div class="flex items-center gap-3 flex-wrap">
-                        <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">
-                            <SuiteName v-if="run.suite" :name="run.suite.name" /><span v-else>{{ t('testRunShow.testRun') }}</span>
-                            — {{ t('testRunShow.runNumber', { id: run.id }) }}
+                        <h1 class="md-title-large text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
+                            <Activity :size="26" :style="{ color: 'var(--md-ext-color-success)' }" />
+                            <span>
+                                <SuiteName v-if="run.suite" :name="run.suite.name" /><span v-else>{{ t('testRunShow.testRun') }}</span>
+                                — {{ t('testRunShow.runNumber', { id: run.id }) }}
+                            </span>
                         </h1>
                     </div>
                     <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1.5 flex items-center gap-2 flex-wrap">
-                        <span>
-                            {{ t('testRunShow.started', { date: formatDate(run.started_at ?? run.created_at) }) }}
-                            <span v-if="run.duration_ms">&bull; {{ formatDuration(run.duration_ms) }}</span>
+                        <span class="inline-flex items-center gap-2">
+                            <span class="group relative inline-flex items-center">
+                                {{ t('testRunShow.started', { date: formatRelativeTime(run.started_at ?? run.created_at) }) }}
+                                <div class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap">
+                                    <div class="px-2.5 py-1.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-inverse-surface)] text-[var(--md-sys-color-inverse-on-surface)] md-label-small shadow-elevation-1">
+                                        {{ formatDate(run.started_at ?? run.created_at) }}
+                                    </div>
+                                </div>
+                            </span>
+                            <span v-if="run.duration_ms">&bull; {{ formatDuration(run.duration_ms) }}<span v-if="run.completed_at"> ({{ formatRelativeTime(run.completed_at) }})</span></span>
                         </span>
-                        <span>&bull;</span>
-                        <RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" />
                     </p>
                 </div>
 
@@ -231,13 +326,10 @@ const failedPct = computed(() => {
 
                     <!-- Re-run -->
                     <Button v-if="run.suite" variant="filled" @click="rerun" :disabled="rerunning">
-                        <svg v-if="rerunning" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                        </svg>
-                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
+                        <template #leading>
+                            <LoaderCircle v-if="rerunning" :size="16" class="animate-spin" />
+                            <RotateCcw v-else :size="16" />
+                        </template>
                         {{ rerunning ? t('testRunShow.starting') : t('testRunShow.rerun') }}
                     </Button>
 
@@ -250,9 +342,8 @@ const failedPct = computed(() => {
 
             <!-- Summary counts -->
             <div class="flex items-center gap-6 mt-4 md-body-medium">
-                <span class="text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.testsCount', { count: totalTests }) }}</span>
                 <span v-if="runningCount" class="text-[var(--md-sys-color-primary)] font-medium">{{ t('testRunShow.running', { count: runningCount }) }}</span>
-                <span class="text-[var(--md-ext-color-success)] font-medium">{{ t('testRunShow.passed', { count: passedCount }) }}</span>
+                <span class="text-[var(--md-ext-color-success)] font-medium">{{ t('testRunShow.passedRatio', { passed: passedCount, total: totalTests }) }}</span>
                 <span class="text-[var(--md-sys-color-error)] font-medium">{{ t('testRunShow.failed', { count: failedCount }) }}</span>
             </div>
         </Card>
@@ -296,7 +387,7 @@ const failedPct = computed(() => {
         </Card>
 
         <!-- Results accordion -->
-        <Card padding="p-0" class="overflow-hidden">
+        <Card padding="p-0">
             <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
                 <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testRunShow.testResults') }}</h2>
                 <div v-if="results.length" class="flex items-center gap-2">
@@ -305,7 +396,71 @@ const failedPct = computed(() => {
                 </div>
             </div>
 
+            <!-- Filter toolbar: search + status + active-test chip -->
+            <div class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] flex items-center gap-3 flex-wrap">
+                <div class="relative max-w-xs flex-1 min-w-[10rem]">
+                    <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" />
+                    <input
+                        v-model="testSearch"
+                        type="text"
+                        :placeholder="t('testRunShow.searchResultsPlaceholder')"
+                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] pl-9 pr-4 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                    />
+                </div>
+
+                <div ref="statusFilterRef" class="relative">
+                    <button
+                        type="button"
+                        @click="showStatusFilter = !showStatusFilter"
+                        class="flex items-center gap-1.5 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                    >
+                        {{ t('testRunShow.statusFilterLabel') }}<span v-if="testStatus.length">&nbsp;({{ testStatus.length }})</span>
+                        <ChevronDown :size="14" />
+                    </button>
+
+                    <div
+                        v-if="showStatusFilter"
+                        class="absolute z-10 mt-1 w-48 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] shadow-lg py-1"
+                    >
+                        <label
+                            v-for="status in STATUS_OPTIONS"
+                            :key="status"
+                            class="flex items-center gap-2 px-3 py-1.5 md-body-medium text-[var(--md-sys-color-on-surface)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer"
+                        >
+                            <input
+                                type="checkbox"
+                                :checked="testStatus.includes(status)"
+                                @change="toggleStatusOption(status)"
+                                class="w-4 h-4 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
+                            />
+                            {{ t(`testSuiteShow.status_${status}`) }}
+                        </label>
+                        <button
+                            v-if="testStatus.length"
+                            type="button"
+                            @click="clearStatusFilter"
+                            class="w-full text-left px-3 py-1.5 mt-1 border-t border-[var(--md-sys-color-outline-variant)] md-label-small text-[var(--md-sys-color-primary)] hover:underline"
+                        >
+                            {{ t('testRunShow.statusFilterClear') }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active test filter chip (from filter[test_id]) -->
+                <button
+                    v-if="filteredTest"
+                    type="button"
+                    @click="clearTestFilter"
+                    :title="t('testRunShow.clearFilter')"
+                    class="inline-flex items-center gap-1.5 bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1 md-label-small hover:opacity-80 transition-opacity max-w-xs"
+                >
+                    <span class="truncate">{{ t('testRunShow.filteredByTest', { name: filteredTest.name }) }}</span>
+                    <X :size="13" class="flex-shrink-0" />
+                </button>
+            </div>
+
             <div v-if="!results.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                <Activity :size="32" class="mx-auto mb-3 opacity-40" />
                 {{ t('testRunShow.noResultsYet') }}
             </div>
 
@@ -321,22 +476,21 @@ const failedPct = computed(() => {
                         @keydown.space.prevent="toggleResult(result.id)"
                     >
                         <div class="flex items-center gap-3 flex-wrap min-w-0">
-                            <svg
-                                class="w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] flex-shrink-0 transition-transform"
+                            <ChevronRight
+                                :size="16"
+                                class="text-[var(--md-sys-color-on-surface-variant)] flex-shrink-0 transition-transform"
                                 :class="{ 'rotate-90': isExpanded(result) }"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
+                            />
                             <Link
                                 v-if="run.suite && (result.test_id ?? result.test?.id)"
-                                :href="`/sorify/suites/${run.suite.id}/tests/${result.test_id ?? result.test.id}`"
-                                class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
+                                :href="`/sorify/suites/${run.suite.id}/tests/${result.test_id ?? result.test?.id}`"
+                                :title="result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id })"
+                                class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate min-w-0 max-w-[28rem] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
                                 @click.stop
                             >
                                 {{ result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id }) }}
                             </Link>
-                            <span v-else class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate">
+                            <span v-else class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate min-w-0 max-w-[28rem]">
                                 {{ result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id }) }}
                             </span>
                             <Chip :status="result.status" />
@@ -369,13 +523,11 @@ const failedPct = computed(() => {
                                 class="flex items-center gap-2 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider mb-2 hover:text-[var(--md-sys-color-on-surface)] transition-colors"
                                 @click="toggleStdout(result.id)"
                             >
-                                <svg
-                                    class="w-3.5 h-3.5 transition-transform"
+                                <ChevronRight
+                                    :size="14"
+                                    class="transition-transform"
                                     :class="{ 'rotate-90': isStdoutExpanded(result) }"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
+                                />
                                 {{ t('testRunShow.stdoutLogs') }}
                                 <span v-if="result.status === 'running'" class="flex items-center gap-1 text-[var(--md-sys-color-primary)] normal-case tracking-normal">
                                     <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>

@@ -72,6 +72,8 @@ class TestSuiteController extends Controller
         unset($data['proxy_rules']);
         $variables = $data['variables'] ?? null;
         unset($data['variables']);
+        $cookies = $data['cookies'] ?? null;
+        unset($data['cookies']);
 
         $suite = TestSuite::create([
             ...$data,
@@ -84,6 +86,10 @@ class TestSuiteController extends Controller
 
         if ($variables) {
             $this->syncVariables($suite, $variables);
+        }
+
+        if ($cookies) {
+            $this->syncCookies($suite, $cookies);
         }
 
         $suite->members()->attach($request->user()->id, [
@@ -106,13 +112,13 @@ class TestSuiteController extends Controller
     {
         $this->authorize('view', $suite);
 
-        $suite->load('createdBy:id,name,email,avatar', 'schedule', 'members:id,name,email,avatar', 'variables');
+        $suite->load('createdBy:id,name,email,avatar', 'schedule', 'members:id,name,email,avatar', 'variables', 'cookies');
 
         $privileges = $suite->privilegesFor($request->user());
 
         $search = $request->string('search')->toString();
-        $perPage = (int) $request->input('per_page', 50);
-        $perPage = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 50;
+        $perPage = (int) $request->input('per_page', 100);
+        $perPage = in_array($perPage, [10, 30, 50, 100, 200, 300]) ? $perPage : 100;
 
         $testsQuery = $suite->tests()
             ->with(['testResults' => fn ($query) => $query->latest()->limit(5)->with('screenshots')]);
@@ -166,7 +172,7 @@ class TestSuiteController extends Controller
     {
         $this->authorize('view', $suite);
 
-        $suite->load('createdBy:id,name,email,avatar', 'schedule', 'members:id,name,email,avatar', 'proxyRules', 'variables');
+        $suite->load('createdBy:id,name,email,avatar', 'schedule', 'members:id,name,email,avatar', 'proxyRules', 'variables', 'cookies');
 
         $privileges = $suite->privilegesFor($request->user());
         $canManageUsers = $privileges['edit'];
@@ -293,6 +299,9 @@ class TestSuiteController extends Controller
         $hasVariables = array_key_exists('variables', $data);
         $variables = $data['variables'] ?? null;
         unset($data['variables']);
+        $hasCookies = array_key_exists('cookies', $data);
+        $cookies = $data['cookies'] ?? null;
+        unset($data['cookies']);
 
         $suite->update($data);
 
@@ -305,6 +314,10 @@ class TestSuiteController extends Controller
 
         if ($hasVariables) {
             $this->syncVariables($suite, $variables);
+        }
+
+        if ($hasCookies) {
+            $this->syncCookies($suite, $cookies);
         }
 
         if ($suite->wasChanged('history_retention')) {
@@ -383,5 +396,62 @@ class TestSuiteController extends Controller
         if ($rows) {
             $suite->variables()->createMany(array_values($rows));
         }
+    }
+
+    /**
+     * Replace a suite's cookies with the given set. Duplicate cookies
+     * (same name + domain + path) collapse to the last value.
+     *
+     * @param  array<int, array{name: string, value?: string|null, domain?: string|null, path?: string|null, url?: string|null, expires?: int|null, http_only?: bool|null, secure?: bool|null, same_site?: string|null}>  $cookies
+     */
+    private function syncCookies(TestSuite $suite, ?array $cookies): void
+    {
+        $suite->cookies()->delete();
+
+        if (! $cookies) {
+            return;
+        }
+
+        $rows = [];
+        foreach ($cookies as $cookie) {
+            $name = $cookie['name'] ?? null;
+            if ($name === null || $name === '') {
+                continue;
+            }
+            $domain = $this->presentString($cookie['domain'] ?? null);
+            $path = $this->presentString($cookie['path'] ?? null);
+            $url = $this->presentString($cookie['url'] ?? null);
+            // Playwright requires either url or domain; validation enforces this
+            // for the web/API path, but be defensive for MCP callers too.
+            if ($domain === null && $url === null) {
+                continue;
+            }
+            $key = $name.'|'.$domain.'|'.$path;
+            $rows[$key] = [
+                'name' => $name,
+                'value' => $this->presentString($cookie['value'] ?? null),
+                'domain' => $domain,
+                'path' => $path,
+                'url' => $url,
+                'expires' => isset($cookie['expires']) ? (int) $cookie['expires'] : null,
+                'http_only' => (bool) ($cookie['http_only'] ?? false),
+                'secure' => (bool) ($cookie['secure'] ?? false),
+                'same_site' => $this->presentString($cookie['same_site'] ?? null),
+            ];
+        }
+
+        if ($rows) {
+            $suite->cookies()->createMany(array_values($rows));
+        }
+    }
+
+    private function presentString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        $value = is_string($value) ? trim($value) : (string) $value;
+
+        return $value === '' ? null : $value;
     }
 }

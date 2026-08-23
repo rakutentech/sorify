@@ -57,6 +57,7 @@ class PlaywrightRunnerService
         $outputDir = $this->tmpDir."/output-{$testRun->id}-{$test->id}";
         $proxyRulesPath = null;
         $variablesPath = null;
+        $cookiesPath = null;
 
         @mkdir($outputDir, 0755, true);
 
@@ -106,6 +107,24 @@ class PlaywrightRunnerService
                 ));
                 $command[] = '--variables';
                 $command[] = $variablesPath;
+            }
+
+            $cookies = $testRun->testSuite->cookies;
+            if ($cookies->isNotEmpty()) {
+                $cookiesPath = $this->tmpDir."/cookies-{$testRun->id}-{$test->id}.json";
+                file_put_contents($cookiesPath, $cookies->map(fn ($c) => [
+                    'name' => $c->name,
+                    'value' => $c->value ?? '',
+                    'domain' => $c->domain,
+                    'path' => $c->path,
+                    'url' => $c->url,
+                    'expires' => $c->expires,
+                    'httpOnly' => (bool) $c->http_only,
+                    'secure' => (bool) $c->secure,
+                    'sameSite' => $c->same_site,
+                ])->values()->toJson(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                $command[] = '--cookies';
+                $command[] = $cookiesPath;
             }
 
             $browser = $testRun->testSuite->browser ?? 'chromium';
@@ -222,6 +241,9 @@ class PlaywrightRunnerService
             }
             if ($variablesPath) {
                 @unlink($variablesPath);
+            }
+            if ($cookiesPath) {
+                @unlink($cookiesPath);
             }
             $this->screenshotService->cleanTmpDir($outputDir);
             if (! $result->completed_at) {

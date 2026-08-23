@@ -20,7 +20,7 @@ class TestSuiteDuplicationService
      */
     public function duplicate(TestSuite $source, User $user, ?string $name = null): TestSuite
     {
-        $source->loadMissing('proxyRules', 'variables');
+        $source->loadMissing('proxyRules', 'variables', 'cookies');
 
         $clone = DB::transaction(function () use ($source, $user, $name) {
             $clone = TestSuite::create([
@@ -54,6 +54,20 @@ class TestSuiteDuplicationService
                 $clone->variables()->create([
                     'key' => $variable->key,
                     'value' => $variable->value,
+                ]);
+            }
+
+            foreach ($source->cookies as $cookie) {
+                $clone->cookies()->create([
+                    'name' => $cookie->name,
+                    'value' => $cookie->value,
+                    'domain' => $cookie->domain,
+                    'path' => $cookie->path,
+                    'url' => $cookie->url,
+                    'expires' => $cookie->expires,
+                    'http_only' => $cookie->http_only,
+                    'secure' => $cookie->secure,
+                    'same_site' => $cookie->same_site,
                 ]);
             }
 

@@ -142,6 +142,7 @@ function startProxyDispatcher (proxyRules, defaultProxy) {
  * @param {boolean}     takeScreenshot  Whether page.screenshot() calls actually capture a PNG
  * @param {Array<{domain: string, proxy: string}>} proxyRules  Per-host proxy overrides; `domain` is a regex tested against the hostname
  * @param {Record<string, *>}  variables  Suite-level key/value pairs exposed to the test code as a `variables` object
+ * @param {Array<{name: string, value: string, domain?: string, url?: string, path?: string, expires?: number, httpOnly?: boolean, secure?: boolean, sameSite?: 'Strict'|'Lax'|'None'}>}  cookies  Suite-level cookies added to the browser context before any page is created
  * @returns {Promise<{
  *   status: 'passed'|'failed'|'error',
  *   duration_ms: number,
@@ -160,7 +161,8 @@ async function runWithHarness (
     headless = true,
     takeScreenshot = true,
     proxyRules = [],
-    variables = {}
+    variables = {},
+    cookies = []
 ) {
     // Ensure output directory exists before anything else
     fs.mkdirSync(outputDir, { recursive: true })
@@ -214,6 +216,22 @@ async function runWithHarness (
         browser = await playwright[browserType].launch(launchOpts)
         const contextOpts = proxyServer ? { proxy: { server: proxyServer } } : {}
         const context = await browser.newContext(contextOpts)
+
+        // Inject suite-level cookies before any page is created, so tests
+        // start already authenticated. Playwright requires each cookie to
+        // carry either `url` or `domain`; a missing/empty `expires` means a
+        // session cookie and is normalized to -1 (Playwright's sentinel).
+        if (Array.isArray(cookies) && cookies.length > 0) {
+            const normalized = cookies.map((c) => {
+                const out = { ...c }
+                if (out.expires === null || out.expires === undefined || out.expires === '') {
+                    out.expires = -1
+                }
+                return out
+            })
+            await context.addCookies(normalized)
+        }
+
         const page = await context.newPage()
 
         // Apply default timeout to the page

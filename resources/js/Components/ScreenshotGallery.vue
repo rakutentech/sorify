@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { Modal } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
+import { X, ChevronLeft, ChevronRight } from '@lucide/vue';
 
 const props = defineProps({
     screenshots: {
@@ -73,9 +74,7 @@ function onKeydown(e) {
                     class="absolute top-4 right-4 text-white/70 hover:text-white bg-white/10 rounded-[var(--md-sys-shape-corner-full)] p-2 transition-colors"
                     @click="close"
                 >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
+                    <X :size="20" />
                 </button>
 
                 <!-- Prev button -->
@@ -84,9 +83,7 @@ function onKeydown(e) {
                     class="absolute left-4 text-white/70 hover:text-white bg-white/10 rounded-[var(--md-sys-shape-corner-full)] p-3 transition-colors"
                     @click="prev"
                 >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
+                    <ChevronLeft :size="20" />
                 </button>
 
                 <!-- Image -->
@@ -113,9 +110,7 @@ function onKeydown(e) {
                     class="absolute right-4 text-white/70 hover:text-white bg-white/10 rounded-[var(--md-sys-shape-corner-full)] p-3 transition-colors"
                     @click="next"
                 >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
+                    <ChevronRight :size="20" />
                 </button>
         </Modal>
     </div>

@@ -110,3 +110,81 @@ func TestStopWithoutActiveSession(t *testing.T) {
 		t.Fatalf("expected nil stop result, got %+v", stop)
 	}
 }
+
+func TestRecordCookies(t *testing.T) {
+	withTempRecordingsDir(t)
+	store := &RecordingStore{}
+
+	label := "cookie-session"
+	_, err := store.Start(&label)
+	if err != nil {
+		t.Fatalf("Start: %v", err)
+	}
+
+	// Record a "start" cookie snapshot (pre-auth baseline).
+	cookiesStart := []map[string]any{
+		{"name": "sid", "value": "pre", "domain": "example.com", "path": "/"},
+	}
+	recorded, count, err := store.RecordCookies("start", cookiesStart)
+	if err != nil {
+		t.Fatalf("RecordCookies(start): %v", err)
+	}
+	if !recorded || count != 1 {
+		t.Fatalf("expected recorded=true count=1, got recorded=%v count=%d", recorded, count)
+	}
+
+	// Record an event in between.
+	_, _, _ = store.RecordEvent(map[string]any{"kind": "click", "selector": "#login"})
+
+	// Record a "stop" cookie snapshot (final authenticated state).
+	cookiesStop := []map[string]any{
+		{"name": "sid", "value": "post", "domain": "example.com", "path": "/"},
+		{"name": "token", "value": "abc", "domain": "example.com", "path": "/"},
+	}
+	recorded, count, err = store.RecordCookies("stop", cookiesStop)
+	if err != nil {
+		t.Fatalf("RecordCookies(stop): %v", err)
+	}
+	if !recorded || count != 3 {
+		t.Fatalf("expected recorded=true count=3, got recorded=%v count=%d", recorded, count)
+	}
+
+	stop, err := store.Stop(nil)
+	if err != nil {
+		t.Fatalf("Stop: %v", err)
+	}
+	if stop == nil || stop.EventCount != 3 {
+		t.Fatalf("unexpected stop result: %+v", stop)
+	}
+
+	// List should report 2 cookie snapshots.
+	recordings, err := store.List()
+	if err != nil {
+		t.Fatalf("List: %v", err)
+	}
+	if len(recordings) != 1 {
+		t.Fatalf("expected 1 recording, got %d", len(recordings))
+	}
+	got := recordings[0]
+	if got.CookieSnapshots != 2 {
+		t.Fatalf("expected 2 cookie snapshots, got %d", got.CookieSnapshots)
+	}
+	if got.EventCount != 3 {
+		t.Fatalf("expected 3 total events, got %d", got.EventCount)
+	}
+}
+
+func TestRecordCookiesWithoutActiveSession(t *testing.T) {
+	withTempRecordingsDir(t)
+	store := &RecordingStore{}
+
+	recorded, count, err := store.RecordCookies("start", []map[string]any{
+		{"name": "sid", "value": "x", "domain": "example.com"},
+	})
+	if err != nil {
+		t.Fatalf("RecordCookies: %v", err)
+	}
+	if recorded || count != 0 {
+		t.Fatalf("expected recorded=false count=0, got recorded=%v count=%d", recorded, count)
+	}
+}
