@@ -1,0 +1,40 @@
+resources/js/Pages/Admin/Users/Index.vue
+  s_cef766012f7ba7::t_b521b5d0c8c017 6
+  s_cef766012f7ba7::t_5452afc91203c4 112-113
+  s_cef766012f7ba7::t_9e39ce86c49103 8
+resources/js/Components/ui/index.js
+  s_cef766012f7ba7::t_a9e7a1dbc81cc4 20
+resources/js/Components/ui/SettingBadge.vue
+  s_cef766012f7ba7::t_eee8bd23efa105 5,13-15
+resources/js/Components/ui/Tooltip.vue
+  s_cef766012f7ba7::t_30d1db7cac467f 1-20
+resources/js/Pages/TestSuites/Index.vue
+  s_cef766012f7ba7::t_1c46ae0f1c3793 191-194
+  s_dc9df8810f8554::t_5427888d11f602 222-255
+  s_dc9df8810f8554::t_302e1fcc88dc4b 172
+  s_dc9df8810f8554::t_4113f655788a11 256
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "dcf2b570ac10f1ed43f497677683b7acb0218679",
+  "prompts": {},
+  "sessions": {
+    "s_cef766012f7ba7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd6900c69ffeBuAbeFErdTCXei",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_dc9df8810f8554": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd2de4524fferAXwqzCX3gqzdo",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
