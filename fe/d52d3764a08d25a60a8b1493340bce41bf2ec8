@@ -1,0 +1,19 @@
+resources/js/Layouts/AppLayout.vue
+  s_a5617f7387d552::t_3d1b1cfd0376b2 145-151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "fed52d3764a08d25a60a8b1493340bce41bf2ec8",
+  "prompts": {},
+  "sessions": {
+    "s_a5617f7387d552": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd293de02ffe1sKV8Vwfgb4Iwo",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
