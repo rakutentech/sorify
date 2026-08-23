@@ -23,6 +23,26 @@ class StoreTestSuiteRequest extends FormRequest
             'variables' => 'nullable|array',
             'variables.*.key' => ['required_with:variables', 'string', 'max:255', 'regex:/^[A-Za-z_][A-Za-z0-9_]*$/'],
             'variables.*.value' => 'nullable|string',
+            'cookies' => 'nullable|array',
+            'cookies.*.name' => ['required_with:cookies', 'string', 'max:255'],
+            'cookies.*.value' => 'nullable|string',
+            'cookies.*.domain' => 'nullable|string|max:255',
+            'cookies.*.path' => 'nullable|string|max:255',
+            'cookies.*.url' => 'nullable|string|max:500|url',
+            'cookies.*.expires' => 'nullable|integer',
+            'cookies.*.http_only' => 'nullable|boolean',
+            'cookies.*.secure' => 'nullable|boolean',
+            'cookies.*.same_site' => 'nullable|string|in:Strict,Lax,None',
+            'cookies.*' => [function (string $attribute, mixed $value, \Closure $fail) {
+                if (! is_array($value)) {
+                    return;
+                }
+                $hasUrl = ! empty($value['url']);
+                $hasDomain = ! empty($value['domain']);
+                if (! $hasUrl && ! $hasDomain) {
+                    $fail('The :attribute must set either a domain or a url (Playwright requires one of them).');
+                }
+            }],
             'browser' => 'nullable|string|in:chromium,firefox,webkit',
             'headless' => 'nullable|boolean',
             'history_retention' => 'nullable|integer|in:3,5,10',

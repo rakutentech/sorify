@@ -35,6 +35,8 @@ const sizeClasses = {
         class="inline-flex items-center justify-center rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-[background-color,box-shadow,filter] duration-150 disabled:opacity-40 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--md-sys-color-primary)] focus-visible:ring-offset-2"
         :class="[variantClasses[variant], sizeClasses[size]]"
     >
+        <slot name="leading" />
         <slot />
+        <slot name="trailing" />
     </component>
 </template>

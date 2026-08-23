@@ -4,6 +4,11 @@ let ws = null;
 let reconnectTimer = null;
 let status = { connected: false, active_session_id: null, event_count: 0 };
 
+// Track unique top-frame hostnames visited during an active recording session.
+// Used to snapshot cookies for all relevant domains when recording stops.
+const visitedDomains = new Set();
+let isRecording = false;
+
 function wsUrl() {
   return `ws://127.0.0.1:${DEFAULT_PORT}`;
 }
@@ -77,6 +82,104 @@ function sendEvent(event) {
   }
   ws.send(JSON.stringify({ type: "event", event }));
   console.debug("[sorify-recorder] forwarded event to bridge:", event.type, event.selector);
+}
+
+// --- Cookie capture -------------------------------------------------------
+//
+// Snapshots cookies for the active tab's domain at recording start (the
+// pre-auth baseline) and for all visited domains at recording stop (the
+// final authenticated state). Cookie snapshots are sent as separate WS
+// frames with type "cookies" and a "phase" of "start" or "stop", written
+// to the JSONL by the recorder bridge as {type:"cookies",...} rows.
+
+function extractHostname(url) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeCookie(c) {
+  // Map chrome.cookies API field names to Playwright's addCookies() shape.
+  const out = {
+    name: c.name,
+    value: c.value,
+    domain: c.domain,
+    path: c.path || "/",
+  };
+  if (c.expires && c.expires > 0) out.expires = c.expires;
+  if (c.httpOnly) out.httpOnly = true;
+  if (c.secure) out.secure = true;
+  if (c.sameSite && c.sameSite !== "unspecified") out.sameSite = c.sameSite;
+  return out;
+}
+
+async function getCookiesForDomain(domain) {
+  return new Promise((resolve) => {
+    // chrome.cookies.getAll treats domain as a suffix match, so a bare
+    // "example.com" also returns cookies set on ".example.com" and
+    // sub.example.com — which is exactly what we want.
+    chrome.cookies.getAll({ domain }, (cookies) => {
+      if (chrome.runtime.lastError) {
+        console.debug("[sorify-recorder] cookie getAll error for", domain, chrome.runtime.lastError.message);
+        resolve([]);
+        return;
+      }
+      resolve((cookies || []).map(normalizeCookie));
+    });
+  });
+}
+
+async function captureAndSendCookies(phase) {
+  let domains = [];
+  if (phase === "start") {
+    // Snapshot cookies for the active tab's current domain only.
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab && tab.url) {
+        const host = extractHostname(tab.url);
+        if (host) domains = [host];
+      }
+    } catch {
+      // tabs.query can fail if the window is not available; skip silently.
+    }
+  } else {
+    // Snapshot cookies for all top-frame domains visited during the session.
+    domains = [...visitedDomains];
+  }
+
+  if (!domains.length) {
+    console.debug("[sorify-recorder] no domains to snapshot cookies for (phase:", phase + ")");
+    return;
+  }
+
+  const cookieMap = new Map();
+  for (const domain of domains) {
+    const cookies = await getCookiesForDomain(domain);
+    for (const c of cookies) {
+      // Dedupe by name+domain+path across overlapping domain queries.
+      const key = `${c.name}|${c.domain}|${c.path}`;
+      cookieMap.set(key, c);
+    }
+  }
+
+  const cookies = [...cookieMap.values()];
+  if (!cookies.length) {
+    console.debug("[sorify-recorder] no cookies found for phase:", phase);
+    return;
+  }
+
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({
+      type: "cookies",
+      phase,
+      cookies,
+      timestamp: Date.now(),
+      domain_count: domains.length,
+    }));
+    console.debug(`[sorify-recorder] sent ${cookies.length} cookie(s) for ${domains.length} domain(s) (phase: ${phase})`);
+  }
 }
 
 // --- Per-tab correlation state -------------------------------------------
@@ -174,6 +277,13 @@ function handleNavigation(details, navType) {
   if (lastSeen && timestamp - lastSeen < NAV_DEDUPE_WINDOW_MS) return;
   lastNavigationSeen.set(dedupeKey, timestamp);
 
+  // Track top-frame hostnames visited during an active recording, for the
+  // end-of-session cookie snapshot.
+  if (isRecording && details.frameId === 0 && details.url) {
+    const host = extractHostname(details.url);
+    if (host) visitedDomains.add(host);
+  }
+
   const navEvent = {
     type: "navigation",
     url: details.url,
@@ -242,13 +352,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
     case "start_recording":
       if (ws && ws.readyState === WebSocket.OPEN) {
+        visitedDomains.clear();
+        isRecording = true;
         ws.send(JSON.stringify({ type: "start_recording", label: message.label }));
+        // Snapshot cookies for the active tab's domain after the session is
+        // started by the bridge (so the JSONL session_start row is written
+        // first). Fire-and-forget — the WS frame for cookies arrives next.
+        captureAndSendCookies("start").catch(() => {});
       }
       sendResponse({ ok: true });
       break;
     case "stop_recording":
       if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "stop_recording" }));
+        // Snapshot cookies for all visited domains before stopping, so the
+        // final authenticated state is captured in the JSONL before the
+        // session_end row is written.
+        captureAndSendCookies("stop")
+          .catch(() => {})
+          .finally(() => {
+            isRecording = false;
+            ws.send(JSON.stringify({ type: "stop_recording" }));
+          });
+      } else {
+        isRecording = false;
       }
       sendResponse({ ok: true });
       break;

@@ -4,7 +4,8 @@ import { router, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, IconButton, SuiteName, AvatarGroup, SettingBadge, Pagination } from '@/Components/ui';
-import { formatDate } from '@/utils/date';
+import { formatDate, formatRelativeTime } from '@/utils/date';
+import { Star, Search, StarOff, FolderKanban, Users, FlaskConical, Activity, Gauge, Clock } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -58,16 +59,17 @@ function formatPassRate(rate) {
 
         <!-- Header -->
         <div class="mb-6">
-            <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ t('bookmarks.title') }}</h1>
+            <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
+                <Star :size="26" :style="{ color: 'var(--md-ext-color-warning)' }" />
+                {{ t('bookmarks.title') }}
+            </h1>
             <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('bookmarks.subtitle') }}</p>
         </div>
 
         <!-- Search -->
         <div class="mb-4">
             <div class="relative max-w-sm">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-                </svg>
+                <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" />
                 <input
                     v-model="search"
                     type="text"
@@ -80,6 +82,7 @@ function formatPassRate(rate) {
         <!-- Bookmarked suites table -->
         <Card padding="p-0" class="flex flex-col flex-1 min-h-0">
             <div v-if="!suites.data.length" class="px-5 py-12 text-center">
+                <StarOff :size="32" class="mx-auto mb-3 opacity-40" />
                 <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                     {{ search ? t('bookmarks.noMatchSearch') : t('bookmarks.noneYet') }}
                 </p>
@@ -92,12 +95,12 @@ function formatPassRate(rate) {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('bookmarks.colName') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('bookmarks.colUsers') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('bookmarks.colTests') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('bookmarks.colRuns') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('bookmarks.colPassRate') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('bookmarks.colLastRun') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FolderKanban :size="13" />{{ t('bookmarks.colName') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Users :size="13" />{{ t('bookmarks.colUsers') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FlaskConical :size="13" />{{ t('bookmarks.colTests') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Activity :size="13" />{{ t('bookmarks.colRuns') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Gauge :size="13" />{{ t('bookmarks.colPassRate') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Clock :size="13" />{{ t('bookmarks.colLastRun') }}</span></th>
                             <th class="text-right px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('bookmarks.colActions') }}</th>
                         </tr>
                     </thead>
@@ -117,10 +120,10 @@ function formatPassRate(rate) {
                                     </Link>
                                     <p v-if="suite.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate max-w-xs">{{ suite.description }}</p>
                                     <div class="flex flex-wrap gap-1.5 mt-1.5">
-                                        <SettingBadge :label="t('testSuites.badgeTeams')" :active="!!suite.has_teams_webhook" />
-                                        <SettingBadge :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" />
-                                        <SettingBadge :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules_count || suite.playwright_proxy)" />
-                                        <SettingBadge :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" />
+                                        <SettingBadge :label="t('testSuites.badgeTeams')" :active="!!suite.has_teams_webhook" success-active />
+                                        <SettingBadge :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" success-active />
+                                        <SettingBadge :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules_count || suite.playwright_proxy)" success-active />
+                                        <SettingBadge :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" success-active />
                                     </div>
                                 </div>
                             </td>
@@ -141,13 +144,21 @@ function formatPassRate(rate) {
                                     {{ formatPassRate(suite.pass_rate) }}
                                 </span>
                             </td>
-                            <td class="px-5 py-4 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(suite.last_run_at) }}</td>
+                            <td class="px-5 py-4 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                                <span v-if="suite.last_run_at" class="group relative inline-flex items-center">
+                                    {{ formatRelativeTime(suite.last_run_at) }}
+                                    <div class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap">
+                                        <div class="px-2.5 py-1.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-inverse-surface)] text-[var(--md-sys-color-inverse-on-surface)] md-label-small shadow-elevation-1">
+                                            {{ formatDate(suite.last_run_at) }}
+                                        </div>
+                                    </div>
+                                </span>
+                                <span v-else>—</span>
+                            </td>
                             <td class="px-5 py-4">
                                 <div class="flex justify-end">
                                     <IconButton variant="standard" :label="t('testSuites.bookmarkRemove')" @click="removeBookmark(suite)">
-                                        <svg class="w-4 h-4 text-[var(--md-sys-color-primary)]" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.539-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.958z"/>
-                                        </svg>
+                                        <Star :size="16" class="fill-current" :style="{ color: 'var(--md-ext-color-warning)' }" />
                                     </IconButton>
                                 </div>
                             </td>

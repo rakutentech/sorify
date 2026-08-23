@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
+import { Table, ChevronDown } from '@lucide/vue';
 
 const props = defineProps({
     code: {
@@ -136,9 +137,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutsidePicker
                         class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] hover:bg-[var(--md-sys-color-surface-container-highest)]"
                         :title="showVariablePicker ? '' : 'Insert variable'"
                     >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h2m2 0h2M7 16h2m2 0h2M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/>
-                        </svg>
+                        <Table :size="16" />
                         <span>{ } Insert</span>
                     </button>
                     <div
@@ -210,13 +209,11 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutsidePicker
                 @click="expanded = !expanded"
                 class="w-full flex items-center justify-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] border-t border-[var(--md-sys-color-outline-variant)] py-2 transition-colors"
             >
-                <svg
-                    class="w-3.5 h-3.5 transition-transform"
+                <ChevronDown
+                    :size="16"
+                    class="transition-transform"
                     :class="{ 'rotate-180': expanded }"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
+                />
                 {{ expanded ? 'Show less' : `Show all ${lineCount} lines` }}
             </button>
         </template>

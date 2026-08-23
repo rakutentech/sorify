@@ -5,16 +5,17 @@ import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import CopyButton from '@/Components/CopyButton.vue';
-import { Card, Chip, Button, SuiteName, Avatar, RunPill, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
+import { Card, Chip, Button, Breadcrumb, SuiteName, Avatar, RunPill, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+import { ArrowLeft, Search, Play, LoaderCircle, Code, FlaskConical, Gauge, Activity, ChevronRight, FileText, User } from '@lucide/vue';
 
 const { t } = useI18n();
 
 const props = defineProps({
     suite: { type: Object, required: true },
     tests: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
-    filters: { type: Object, default: () => ({ search: '', per_page: 50 }) },
+    filters: { type: Object, default: () => ({ search: '', per_page: 100 }) },
     users: { type: Array, default: () => [] },
     can: { type: Object, default: () => ({ edit: false, run: false }) },
 });
@@ -25,7 +26,7 @@ function debounce(fn, delay) {
 }
 
 const testSearch = ref(props.filters.search ?? '');
-const testPerPage = ref(props.filters.per_page ?? 50);
+const testPerPage = ref(props.filters.per_page ?? 100);
 
 function reloadTests(overrides = {}) {
     router.get(
@@ -109,31 +110,33 @@ const totalLines = computed(() =>
         <Head :title="`${t('testSuiteReview.pageTitle', { name: suite.name })}`" />
 
         <!-- Breadcrumb + header -->
-        <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-3">
-            <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">{{ t('testSuites.title') }}</Link>
-            <span>/</span>
-            <Link :href="`/sorify/suites/${suite.id}`" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors"><SuiteName :name="suite.name" /></Link>
-            <span>/</span>
-            <span class="text-[var(--md-sys-color-on-surface)]">{{ t('testSuiteReview.breadcrumb') }}</span>
-        </div>
+        <Breadcrumb class="mb-3" :crumbs="[
+            { label: t('testSuites.title'), href: '/sorify/suites' },
+            { label: suite.name, href: `/sorify/suites/${suite.id}`, suite: true },
+            { label: t('testSuiteReview.breadcrumb') },
+        ]">
+            <template #crumb="{ crumb }">
+                <SuiteName v-if="crumb.suite" :name="crumb.label" />
+                <template v-else>{{ crumb.label }}</template>
+            </template>
+        </Breadcrumb>
 
         <div class="flex items-start justify-between gap-4 mb-6 flex-wrap">
             <div class="min-w-0 flex-1">
                 <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">{{ t('testSuiteReview.badge') }}</span>
-                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2 flex-wrap">
+                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5 flex-wrap">
+                    <FileText :size="26" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
                     <SuiteName :name="suite.name" />
                     <span class="md-title-medium text-[var(--md-sys-color-on-surface-variant)] font-normal">· {{ t('testSuiteReview.heading') }}</span>
                 </h1>
-                <div v-if="suite.description" class="mt-1.5 opacity-80">
+                <div v-if="suite.description" class="mt-1.5">
                     <MarkdownRenderer :content="suite.description" density="compact" collapsible :collapsed-lines="10" />
                 </div>
                 <p v-else class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1.5">{{ t('testSuiteReview.subtitle') }}</p>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0">
                 <Button variant="text" size="sm" :href="`/sorify/suites/${suite.id}`">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
+                    <ArrowLeft :size="16" />
                     {{ t('testSuiteReview.backToSuite') }}
                 </Button>
             </div>
@@ -142,15 +145,24 @@ const totalLines = computed(() =>
         <!-- Summary strip -->
         <div class="grid grid-cols-3 gap-3 mb-6">
             <Card padding="px-4 py-3">
-                <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteReview.statTests') }}</p>
+                <div class="flex items-center justify-between">
+                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteReview.statTests') }}</p>
+                    <FlaskConical :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
+                </div>
                 <p class="md-title-large text-[var(--md-sys-color-on-surface)] mt-0.5">{{ totalTests }}</p>
             </Card>
             <Card padding="px-4 py-3">
-                <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteReview.statWithCode') }}</p>
+                <div class="flex items-center justify-between">
+                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteReview.statWithCode') }}</p>
+                    <Gauge :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
+                </div>
                 <p class="md-title-large text-[var(--md-sys-color-on-surface)] mt-0.5">{{ testsWithCode }}</p>
             </Card>
             <Card padding="px-4 py-3">
-                <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteReview.statLines') }}</p>
+                <div class="flex items-center justify-between">
+                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteReview.statLines') }}</p>
+                    <Activity :size="18" :style="{ color: 'var(--md-ext-color-success)' }" />
+                </div>
                 <p class="md-title-large text-[var(--md-sys-color-on-surface)] mt-0.5">{{ totalLines.toLocaleString() }}</p>
             </Card>
         </div>
@@ -183,9 +195,7 @@ const totalLines = computed(() =>
         <!-- Toolbar -->
         <div class="flex items-center gap-3 flex-wrap mb-4">
             <div class="relative max-w-sm flex-1 min-w-[12rem]">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-                </svg>
+                <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
                 <input
                     v-model="testSearch"
                     @input="onSearchInput"
@@ -207,12 +217,15 @@ const totalLines = computed(() =>
                     <option :value="30">{{ t('testSuites.perPage30') }}</option>
                     <option :value="50">{{ t('testSuites.perPage50') }}</option>
                     <option :value="100">{{ t('testSuites.perPage100') }}</option>
+                    <option :value="200">{{ t('testSuites.perPage200') }}</option>
+                    <option :value="300">{{ t('testSuites.perPage300') }}</option>
                 </select>
             </div>
         </div>
 
         <!-- Empty state -->
         <div v-if="!tests.data.length" class="px-5 py-12 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+            <FlaskConical :size="32" class="mx-auto mb-3 opacity-40" />
             <template v-if="testSearch">{{ t('testSuiteReview.noMatchSearch') }}</template>
             <template v-else>{{ t('testSuiteReview.noneYet') }}</template>
         </div>
@@ -224,7 +237,7 @@ const totalLines = computed(() =>
                 :key="test.id"
                 variant="outlined"
                 padding="p-0"
-                :class="['overflow-hidden', test.status === 'disabled' ? 'opacity-70' : '']"
+                :class="['overflow-visible', test.status === 'disabled' ? 'opacity-70' : '']"
             >
                 <!-- Card header: chip + index + name + status + actions -->
                 <div class="flex items-center justify-between gap-3 px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-low)] flex-wrap">
@@ -267,14 +280,10 @@ const totalLines = computed(() =>
                             :disabled="runningIds.has(test.id) || test.status === 'disabled' || !test.playwright_code"
                             :title="!test.playwright_code ? t('testSuiteReview.noCodeTitle') : t('testSuiteReview.runThisTest')"
                         >
-                            <svg v-if="runningIds.has(test.id)" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                            </svg>
-                            <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                            <template #leading>
+                                <LoaderCircle v-if="runningIds.has(test.id)" :size="14" class="animate-spin" />
+                                <Play v-else :size="14" />
+                            </template>
                             {{ runningIds.has(test.id) ? t('testSuiteReview.starting') : t('testSuiteReview.run') }}
                         </Button>
                     </div>
@@ -305,9 +314,7 @@ const totalLines = computed(() =>
                                     v-else
                                     class="w-5 h-5 rounded-full ring-2 ring-[var(--md-sys-color-surface-container-low)] bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)] flex items-center justify-center flex-shrink-0"
                                 >
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                    </svg>
+                                    <User :size="12" />
                                 </div>
                                 <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ test.uploaded_by ? uploader(test.uploaded_by).name : '—' }}</span>
                             </div>
@@ -332,7 +339,7 @@ const totalLines = computed(() =>
                                     :key="run.run_id"
                                     class="flex items-center gap-2 flex-wrap"
                                 >
-                                    <RunPill :run="run" @open-lightbox="lightbox.open" />
+                                    <RunPill :run="run" :test-id="test.id" @open-lightbox="lightbox.open" />
                                 </li>
                             </ul>
                         </div>
@@ -348,9 +355,7 @@ const totalLines = computed(() =>
                     <div class="lg:col-span-3 p-3 min-w-0">
                         <div class="flex items-center justify-between mb-2 px-1">
                             <div class="flex items-center gap-2">
-                                <svg class="w-3.5 h-3.5 text-[var(--md-sys-color-on-surface-variant)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-                                </svg>
+                                <Code :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
                                 <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteReview.playwrightCode') }}</span>
                             </div>
                             <CopyButton v-if="test.playwright_code" :value="test.playwright_code" :label="t('testSuiteReview.copyCode')" />

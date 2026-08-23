@@ -208,3 +208,18 @@
 }
 /* Disable transition on SVG and decorative elements */
 svg, svg *, img { transition: none; }
+
+/* ── Pointer cursor for interactive elements ───────────────────────────────── */
+/* Browsers default <button> to cursor: default (an arrow), not the hand.
+   Force the pointer on every button, link, and role=button so the affordance
+   matches user expectation across the app. */
+button:not(:disabled),
+a[href],
+[role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+    cursor: not-allowed;
+}

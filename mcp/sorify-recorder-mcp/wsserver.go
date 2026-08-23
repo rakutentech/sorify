@@ -88,9 +88,11 @@ func (w *WSServer) handleConnection(rw http.ResponseWriter, r *http.Request) {
 		}
 
 		var msg struct {
-			Type  string          `json:"type"`
-			Label *string         `json:"label"`
-			Event json.RawMessage `json:"event"`
+			Type    string          `json:"type"`
+			Label   *string         `json:"label"`
+			Event   json.RawMessage `json:"event"`
+			Phase   string          `json:"phase"`
+			Cookies json.RawMessage `json:"cookies"`
 		}
 		if err := json.Unmarshal(raw, &msg); err != nil {
 			continue
@@ -114,6 +116,13 @@ func (w *WSServer) handleConnection(rw http.ResponseWriter, r *http.Request) {
 			if err := json.Unmarshal(msg.Event, &event); err == nil {
 				if _, _, err := w.store.RecordEvent(event); err != nil {
 					log.Printf("[sorify-recorder-mcp] recordEvent failed: %v", err)
+				}
+			}
+		case "cookies":
+			var cookies []map[string]any
+			if err := json.Unmarshal(msg.Cookies, &cookies); err == nil {
+				if _, _, err := w.store.RecordCookies(msg.Phase, cookies); err != nil {
+					log.Printf("[sorify-recorder-mcp] recordCookies failed: %v", err)
 				}
 			}
 		}

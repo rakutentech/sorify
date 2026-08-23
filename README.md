@@ -23,6 +23,8 @@
 
 ✴︎ **Notifications:** Get notified when suites finish or fail.
 
+✴︎ **Cookie Manager**: Sorify supports per-suite cookie injection from UI, MCP and chrome extension.
+
 ✴︎ **User Management:** Roles, permissions, and per-user IAM.
 
 ✴︎ **MCP Server:** Low token consumption over MCP layer, control all aspects of tests cases, code.
@@ -56,7 +58,7 @@ codex plugin marketplace add https://github.com/rakutentech/sorify.git
 ```
 
 <p align="center">
-  <img src="https://i.imgur.com/8KCPq9A.png" width="650" alt="Sorify workflow"/>
+  <img src="https://i.imgur.com/4iupLOR.png" width="650" alt="Sorify workflow"/>
 </p>
 
 ### SKILL 1 - Sorify MCP
@@ -276,3 +278,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v1.4** - Manage users from MCP.
 - **v1.5** - i18n support for English and Japanese for now.
 - **v1.6** - i18n support for Malay, Simplified Chinese. Extension captures file uploads, iframes, tabs, network. oAuth login, with Avatar. Duplicate a test suite (background copy of tests) and duplicate a test case, available on the dashboard and via MCP (`duplicate_suite`, `duplicate_test`).
+- **v1.7** - Cookies support, variables support.
