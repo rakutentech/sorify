@@ -1,0 +1,478 @@
+resources/js/locales/en.json
+  s_f35143a55a4586::t_c068afaa2758d7 436
+  s_829377f8c65137::t_716b48e13f9c6f 429-431
+  s_f35143a55a4586::t_5b5d6e4e2ae319 447
+  s_829377f8c65137::t_34306e4116e831 469-474
+  s_3426d399ae1918::t_1a7ab2c9e396c8 239-259
+  s_829377f8c65137::t_ca006e48d5293c 89-90
+app/Mcp/Tools/Suites/GetSuiteTool.php
+  s_3426d399ae1918::t_2c9467e6a46f89 40
+app/Mcp/Tools/Suites/DuplicateSuiteTool.php
+  s_3426d399ae1918::t_062695e8576d55 47
+resources/js/Pages/Auth/ResetPassword.vue
+  s_5111deca9b2cab::t_d0453dd7183fca 50,63-65,74-76,84-86
+  s_5111deca9b2cab::t_a80cd799547c37 7
+  s_5111deca9b2cab::t_9c9edd14b559fb 41-42
+resources/js/locales/zh-CN.json
+  s_3426d399ae1918::t_914607a9f30fb4 239-259
+  s_f35143a55a4586::t_352d3245b3846c 447
+  s_829377f8c65137::t_3902b95eff2905 89-90
+  s_829377f8c65137::t_e8163e33610dc5 429-431
+  s_f35143a55a4586::t_c4bf02ccd8001b 436
+  s_829377f8c65137::t_da89a7f5b52170 469-474
+resources/js/Pages/TestSuites/Index.vue
+  s_829377f8c65137::t_0be3b3eed2d24f 224
+  s_22f4e7ec879c73::t_5b35004170149a 348-351,353-356
+  s_dc9df8810f8554::t_5427888d11f602 231-237,243-250,253-254
+  s_22f4e7ec879c73::t_616d36697ee4aa 125-128,132,140,153-157,164,166,175-180
+  s_22f4e7ec879c73::t_47efe91a7c050c 200-203
+  s_dc9df8810f8554::t_4113f655788a11 255
+  s_22f4e7ec879c73::t_c07c24fd1ffe6c 8-11
+  s_22f4e7ec879c73::t_efe777408ccd7e 238-242,251-252
+plugins/sorify/commands/recording.md
+  s_3426d399ae1918::t_adafb838314925 171-179
+  s_3426d399ae1918::t_fb8153f3e8291d 12
+  s_3426d399ae1918::t_e87ab697aae4a3 150-163
+resources/playwright/runner.cjs
+  s_3426d399ae1918::t_07670c92d0d20b 102,116
+  s_3426d399ae1918::t_afb6b65f298117 53-54
+  s_3426d399ae1918::t_19144b07687b5b 8-9,19-22
+  s_3426d399ae1918::t_8f593811bbd5c7 23
+resources/js/Pages/Auth/Register.vue
+  s_5111deca9b2cab::t_82e040e4d4968b 45,58-60,69-71,80-82,91-93
+  s_5111deca9b2cab::t_9835964c664ae4 36-37
+  s_5111deca9b2cab::t_160b287c1f5045 7
+resources/js/Components/ui/RanBy.vue
+  s_22f4e7ec879c73::t_9c75b0e887c40b 4,18-25,27-28,40-41,43
+resources/js/Pages/Bookmarks/Index.vue
+  s_d1a5ea201c029c::t_bea304175dcb7b 72
+  s_d1a5ea201c029c::t_e01d7ed5cab358 98-103
+  s_d1a5ea201c029c::t_b74cc679dffa4a 62-65
+  s_829377f8c65137::t_e4d87f4f820e39 7
+  s_829377f8c65137::t_d9ad962c75af0e 147-157
+  s_d1a5ea201c029c::t_e49555353b462f 8
+  s_a5617f7387d552::t_0187af8ea338e9 123-126
+  s_d1a5ea201c029c::t_e54e4e172e7a87 161
+  s_d1a5ea201c029c::t_b5a9d92414e9b6 85
+resources/js/Pages/Dashboard/Index.vue
+  s_22f4e7ec879c73::t_e02209f4f9164b 7-10
+  s_22f4e7ec879c73::t_78f787e93acd46 66-69,76-79,83-86,90-93,97-108,126-133,148-151,153-156,167-172
+resources/js/Components/ui/Tooltip.vue
+  s_cef766012f7ba7::t_30d1db7cac467f 1-20
+mcp/sorify-recorder-mcp/wsserver.go
+  s_3426d399ae1918::t_dd4e012026328f 91-95,121-125
+  s_3426d399ae1918::t_952a4533cbd634 126-127
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_3426d399ae1918::t_b7c700d903553f 26-45
+resources/js/locales/ms.json
+  s_829377f8c65137::t_ddd8667d9c252a 429-431
+  s_f35143a55a4586::t_7c50a469c5bddb 447
+  s_829377f8c65137::t_226513f1a5bd71 469-474
+  s_829377f8c65137::t_18d999231bacc3 89-90
+  s_f35143a55a4586::t_22e7471675f411 436
+  s_3426d399ae1918::t_4d4742d12862fb 239-259
+resources/js/Components/ui/Chip.vue
+  s_22f4e7ec879c73::t_f07951064e4a5c 3,44,49,52-58
+resources/js/Pages/Auth/Login.vue
+  s_5111deca9b2cab::t_2c6df8f877de26 7
+  s_5111deca9b2cab::t_5d318d75d92d5c 34-35
+  s_5111deca9b2cab::t_ee7974b49bbe59 43,56-58,68-70
+resources/js/Components/ui/SettingBadge.vue
+  s_f35143a55a4586::t_df9b8fceadf958 23,26-28
+  s_22f4e7ec879c73::t_3ae370feb2ad42 2-5,9-17,30-37
+  s_cef766012f7ba7::t_eee8bd23efa105 8,25
+resources/js/Pages/Profile/Show.vue
+  s_5111deca9b2cab::t_1e5667c31f2259 71,75,85
+  s_5111deca9b2cab::t_e3da2f4d199f4d 7
+  s_5111deca9b2cab::t_334189b695f52b 134
+  s_5111deca9b2cab::t_127e83a3d0af87 101,112-114
+  s_5111deca9b2cab::t_2c28847be28c76 143,158-160,168-170,178-180,184
+app/Models/TestSuiteCookie.php
+  s_3426d399ae1918::t_26a2fce0a29cba 1-33
+plugins/sorify/commands/generate.md
+  s_3426d399ae1918::t_96d651b1401bfb 85-92
+resources/js/Pages/Auth/ForgotPassword.vue
+  s_5111deca9b2cab::t_241f81d003fe22 43,64-66
+  s_5111deca9b2cab::t_00e294149bc7a2 34-35
+  s_5111deca9b2cab::t_c57ee79cb0bd10 8
+app/Services/PlaywrightRunnerService.php
+  s_3426d399ae1918::t_060157e0f02236 112-129
+  s_3426d399ae1918::t_90ce6f657f8fac 60
+  s_3426d399ae1918::t_206577e3122cfe 245-247
+mcp/sorify-recorder-mcp/store.go
+  s_3426d399ae1918::t_ecb61b06688671 109-132
+  s_3426d399ae1918::t_1f2636fdae03b4 180-187
+  s_3426d399ae1918::t_dbf22bedd29889 239,243,254-255
+app/Mcp/Servers/SorifyServer.php
+  s_3426d399ae1918::t_67e758e71dac40 27
+  s_3426d399ae1918::t_3e1930ef7639d8 53
+resources/js/Pages/Runs/Index.vue
+  s_d1a5ea201c029c::t_8cc1f9a5f8efff 91-98
+  s_d1a5ea201c029c::t_5c10d9c0c79a98 61-64
+  s_829377f8c65137::t_6e5d0f7613c614 75,77-78
+  s_d1a5ea201c029c::t_7504b6a08f0dc0 144
+  s_829377f8c65137::t_50692d979cdb74 69-74,76,79-81
+  s_829377f8c65137::t_b76e02974d6c66 186
+  s_d1a5ea201c029c::t_6aba46bed308b1 83
+  s_829377f8c65137::t_4e2ec48c1d97d3 9,22,26,29-40,42
+package-lock.json
+  s_22f4e7ec879c73::t_152df3f98b282e 10,228-236
+resources/js/Components/ui/index.js
+  s_cef766012f7ba7::t_a9e7a1dbc81cc4 21
+  s_829377f8c65137::t_13217de51dc8ac 4
+resources/js/Components/ui/RunPill.vue
+  s_829377f8c65137::t_603779063c91a8 24
+  s_829377f8c65137::t_fea0b11a368b65 8
+resources/js/Components/ui/Card.vue
+  s_f35143a55a4586::t_519ab94cfea000 3,17
+mcp/sorify-recorder-mcp/store_test.go
+  s_3426d399ae1918::t_2773a775205bd5 119
+  s_3426d399ae1918::t_2a1a21342803a8 113-118,120-190
+resources/js/Pages/TestRuns/Show.vue
+  s_d1a5ea201c029c::t_72748ad5d85cc5 472-474,476
+  s_829377f8c65137::t_9bcf3cc36c1c0a 479-481,486
+  s_f35143a55a4586::t_f42850b0cfb9c3 285-295
+  s_829377f8c65137::t_14d3a8ef6f4f13 270-279
+  s_829377f8c65137::t_6272d91e40337f 10,18-19
+  s_d1a5ea201c029c::t_1c79df917498d9 297-302
+  s_d1a5ea201c029c::t_fcc1bb46c2ff89 456
+  s_f35143a55a4586::t_8a768063b7c4b0 282
+  s_f35143a55a4586::t_a73848dc5b29f4 339
+  s_829377f8c65137::t_d11cc7a72b18a0 383
+  s_829377f8c65137::t_0435d81823d891 69-75,77-137
+  s_d1a5ea201c029c::t_3c7681923d2ac4 322-325
+  s_d1a5ea201c029c::t_24bbfbb80eb433 519-521,523
+  s_829377f8c65137::t_58e791ea92423e 392-447,449,452-454
+  s_829377f8c65137::t_33343994c2fff4 448,450-451
+  s_f35143a55a4586::t_444837b84e1f3a 29-36
+  s_829377f8c65137::t_1f5647be691aae 7
+resources/js/Components/ui/ScreenshotLightbox.vue
+  s_ae83418d72000e::t_db7bfbcb29d769 30
+  s_ae83418d72000e::t_9db2cc5cdb5192 38
+  s_ae83418d72000e::t_d442cb07ad81f9 58
+  s_ae83418d72000e::t_04ff02747a556c 4
+extension/manifest.json
+  s_3426d399ae1918::t_5382078217cfbc 6
+package.json
+  s_22f4e7ec879c73::t_e236617d7b517b 19
+resources/js/Pages/TestSuites/Review.vue
+  s_c00ce7cf54c372::t_a207e2ca99d253 317
+  s_c00ce7cf54c372::t_af043617ce1545 358
+  s_829377f8c65137::t_a044bd2f5a520b 220-221
+  s_c00ce7cf54c372::t_0fe87156fd28c9 11
+  s_829377f8c65137::t_39e52f9ff77a3c 8
+  s_829377f8c65137::t_6bcf2020c18c29 29
+  s_829377f8c65137::t_263c98ab8c4e2a 18
+  s_f35143a55a4586::t_cb563f7e7ed6b3 132
+  s_829377f8c65137::t_66470623bb9d71 342
+  s_c00ce7cf54c372::t_efcc5574b4d09e 148-151,155-158,162-165
+  s_c00ce7cf54c372::t_ff59baaf87d8a9 283-286
+  s_c00ce7cf54c372::t_1caf4479fdd076 139
+  s_c00ce7cf54c372::t_669995edc25ada 127-128
+  s_829377f8c65137::t_ebddc75a8479dd 240
+  s_c00ce7cf54c372::t_22c98ae99fac2c 228
+  s_829377f8c65137::t_c9ee41d778c080 113-122
+  s_c00ce7cf54c372::t_42595a0d354c0b 198
+resources/js/utils/iconMaps.js
+  s_22f4e7ec879c73::t_3ed210dec228c0 1-70
+app/Models/TestSuite.php
+  s_3426d399ae1918::t_de82e5a73358f3 102-106
+resources/css/app.css
+  s_829377f8c65137::t_cbd0e14f11cd20 211-225
+README.md
+  h_f44dfe84a46cdf 26-27,61,281
+extension/background.js
+  s_3426d399ae1918::t_87915dea8a3eb4 355-356,358-361,367-377
+  s_3426d399ae1918::t_f6d4c02ad3c7de 280-286
+  s_3426d399ae1918::t_ce112bb2eba675 7-11
+  s_3426d399ae1918::t_2c2031d151b04e 87-184
+resources/js/Components/ScreenshotGallery.vue
+  s_ae83418d72000e::t_7b5e27215b2a21 5
+  s_ae83418d72000e::t_fb3ea8baa7cf58 77
+  s_ae83418d72000e::t_ac6e78c62b27db 86
+  s_ae83418d72000e::t_c17cb937c1d76e 113
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_3426d399ae1918::t_5acd70645e0c1e 85-87,102-105,110,142-184
+  s_3426d399ae1918::t_f1c3798a67f8f5 185
+  s_3426d399ae1918::t_c1b13d4935f30d 50-62
+app/Http/Controllers/TestRunController.php
+  s_829377f8c65137::t_9be8fb30b07675 151-157
+  s_829377f8c65137::t_2b4ad1975f0802 35-42
+  s_829377f8c65137::t_9037618d5bfbea 105-113,116-123
+  s_829377f8c65137::t_ef4cbefc16789a 6
+  s_829377f8c65137::t_939dfe53d14681 76-77
+resources/js/Components/TestCodeEditor.vue
+  s_ae83418d72000e::t_cb92a71153c89d 140
+  s_ae83418d72000e::t_9e6af6cdc579ab 212-214,216
+  s_ae83418d72000e::t_ed683f222f5d02 6
+resources/js/Pages/Tests/Show.vue
+  s_d1a5ea201c029c::t_be429adb51f4b1 207-210
+  s_d1a5ea201c029c::t_907bbd0889b99f 502,510,524
+  s_d1a5ea201c029c::t_4f0e80d3b92b67 414-417,425
+  s_d1a5ea201c029c::t_e10c98f461f96f 336-339,346
+  s_d1a5ea201c029c::t_3aaf83cb14a6a3 369-371,373
+  s_d1a5ea201c029c::t_a148e84cc47ac6 265,271
+  s_d1a5ea201c029c::t_5ac4b7c624afd2 12
+  s_d1a5ea201c029c::t_56cf2544483669 236-239,243-245,254-257
+  s_d1a5ea201c029c::t_97181dd0e40465 278-281
+  s_f35143a55a4586::t_47f09e08141c1b 199-205
+  s_d1a5ea201c029c::t_b9516bda9be1bc 547-549,551
+  s_f35143a55a4586::t_3469dd38a2b05e 213
+  s_829377f8c65137::t_c2d3178826eb84 188-197
+  s_829377f8c65137::t_16697850cd0824 9
+resources/playwright/harness.cjs
+  s_3426d399ae1918::t_d3061c508c843d 145,164-165
+  s_3426d399ae1918::t_5a351e3283cc3d 219-234
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_3426d399ae1918::t_e8dcd0c2c8dc31 26-45
+sorify.excalidraw
+  h_f44dfe84a46cdf 10-12,28-29,32,56-57,63-66,69,161,172-173,185,295-296,299,320,326-327,334,345-346,358,365-366,382-383,386,402-405,419-420,423,432-433,436-437,449-452,464,466-467,475,482-485,499-500,503,507-508,514,519-520,527,536-537,545,552-553,569-570,573,589-592,608-609,611-612,621-622,628-634,637,643-646,660-661,664,667,669,673,675,680-681,697-698,706,759-760,778-779,791,798-799,815-816,818-819,835,837-838,852-853,855-856,859-861,865,867,872-875,880,889-890,892-893,902-903,906-907,912-914,918,930-931,945-946,954,957-1063,1093-1106
+database/migrations/2026_08_23_000001_create_test_suite_cookies_table.php
+  s_3426d399ae1918::t_81cd01f5a9effe 1-35
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_3426d399ae1918::t_1b46818b23258d 96,107,133-169
+  s_3426d399ae1918::t_ee08fe5a480317 81-82,94-95
+  s_3426d399ae1918::t_7a9b3c220be8aa 49-61
+  s_3426d399ae1918::t_0e9bd761742290 97
+  s_3426d399ae1918::t_d4ec446ea14206 170
+resources/js/Components/ui/Button.vue
+  s_22f4e7ec879c73::t_1e3dbd87cad944 38,40
+resources/js/locales/ja.json
+  s_f35143a55a4586::t_a73b83953198c9 436
+  s_829377f8c65137::t_4601dcd3507738 429-431
+  s_3426d399ae1918::t_8e41c919291c38 239-259
+  s_829377f8c65137::t_a48a0ee3f7ed63 89-90
+  s_829377f8c65137::t_d020010bb742b4 469-474
+  s_f35143a55a4586::t_4afebf0a226962 447
+app/Http/Controllers/TestSuiteController.php
+  s_3426d399ae1918::t_6a2604616ad2d0 115
+  s_3426d399ae1918::t_7757999935e16e 302-304,319-320
+  s_3426d399ae1918::t_cd2188878f5f1d 175
+  s_3426d399ae1918::t_e645a2bb4fcf93 75-76,91-92
+  s_3426d399ae1918::t_bf6fcb9a9534c5 93,321,400-456
+  s_829377f8c65137::t_7b76419e46cc00 120-121
+  s_3426d399ae1918::t_74b558cbf9a30f 322
+  s_3426d399ae1918::t_ee6d2e5e0f954b 94
+tests/Feature/SuiteCookiesTest.php
+  s_3426d399ae1918::t_e3369132d988eb 1-457
+resources/js/Components/ui/TextField.vue
+  s_22f4e7ec879c73::t_595515fb7fa90a 2,4,19-20,28-67
+resources/js/Layouts/AppLayout.vue
+  s_22f4e7ec879c73::t_b9a55ad6a06f79 154-156,158,168,170,176,178,194-195
+  s_22f4e7ec879c73::t_1f7a8e8f5b9d1c 208,214-219
+  s_a5617f7387d552::t_3d1b1cfd0376b2 157
+  s_22f4e7ec879c73::t_dd5e0ffa09fcac 243,245,252,256
+  s_22f4e7ec879c73::t_6908f6c7525e2d 7-11,21-24,27,30-31
+  s_22f4e7ec879c73::t_8ee170d236270a 227,229
+  s_22f4e7ec879c73::t_f2b7412441f301 91-96,106,108,122,124,131,135
+extension/README.md
+  s_3426d399ae1918::t_d8f3deac5cd8d9 12-31
+resources/js/Components/ui/Alert.vue
+  s_22f4e7ec879c73::t_c33ceefaa8edda 2-5,8-19,32-33
+resources/js/Components/ui/Modal.vue
+  s_ae83418d72000e::t_003a61bcfc2399 3
+  s_ae83418d72000e::t_0213334cc5a448 52
+app/Mcp/Tools/Suites/UploadSuiteCookiesTool.php
+  s_3426d399ae1918::t_1a6fa647c161ca 69,71-91
+  s_3426d399ae1918::t_c7cae09b4de5ce 1-68,70,92-156
+resources/js/Pages/TestSuites/Show.vue
+  s_85afd2c1defe3f::t_100b5c72058351 1419-1420
+  s_85afd2c1defe3f::t_9ebd63af26e082 1849
+  s_85afd2c1defe3f::t_c80783b0e51ea5 1438
+  s_85afd2c1defe3f::t_11eff54500ab2d 1546
+  s_85afd2c1defe3f::t_70a3609a7e868b 1061
+  s_3426d399ae1918::t_d6846784f4f903 1277-1308,1310-1351
+  s_f35143a55a4586::t_37444703a2072e 1831
+  s_85afd2c1defe3f::t_95ae55031e10d3 931
+  s_85afd2c1defe3f::t_5f457a841dd8e1 895-896
+  s_85afd2c1defe3f::t_c1e945c3da949a 1711
+  s_85afd2c1defe3f::t_847392e7a445df 1632
+  s_85afd2c1defe3f::t_19cd2eec370aaf 1019
+  s_3426d399ae1918::t_20c53742fbfb81 395-516
+  s_85afd2c1defe3f::t_e9fa8c5dcee6c4 1833
+  s_f35143a55a4586::t_7c685413693dea 1010-1018,1020-1022,1027-1029,1031-1034
+  s_85afd2c1defe3f::t_56dae0579da51b 1176
+  s_85afd2c1defe3f::t_65fe4d08db1a8d 909-913
+  s_85afd2c1defe3f::t_05afe4412f05e5 1309
+  s_829377f8c65137::t_d6ad617d42fccd 8
+  s_85afd2c1defe3f::t_0ae4ddd542fd87 1100
+  s_f35143a55a4586::t_40f8ea6061c760 1816,1818
+  s_85afd2c1defe3f::t_24d38ff0e736bc 1753-1754
+  s_85afd2c1defe3f::t_b5b93596752924 1599
+  s_85afd2c1defe3f::t_b503866feb0021 1893
+  s_85afd2c1defe3f::t_570b3fbfeaf834 1820
+  s_85afd2c1defe3f::t_901490e1b2815e 1023-1026
+  s_85afd2c1defe3f::t_d97a2de53ff6d8 975-978
+  s_85afd2c1defe3f::t_788310bce2b9ff 1867
+  s_3426d399ae1918::t_e47ea794994be1 2140-2142,2144-2152,2154-2158
+  s_85afd2c1defe3f::t_816c4de439234e 1091-1096
+  s_85afd2c1defe3f::t_a7a5cfe12fa790 1071
+  s_85afd2c1defe3f::t_6ea7ffc35ebc41 1425-1430
+  s_f35143a55a4586::t_bc16f55505217a 888-894
+  s_85afd2c1defe3f::t_c6437e8c914e24 968-971
+  s_85afd2c1defe3f::t_1a7ab3087f7eff 1104
+  s_85afd2c1defe3f::t_ea1fe2c8bf86c9 1030
+  s_3426d399ae1918::t_1f425c25601420 260-270,281,290-300
+  s_85afd2c1defe3f::t_6c7824cb7f7dbd 942
+  s_85afd2c1defe3f::t_ca66bac7358f7e 1587-1588
+  s_f35143a55a4586::t_e9f6cac6361f2b 1656,1662,1673,1676-1677,1679,1687-1688,1694,1699,1716-1718,1720-1733,1735-1736,1741-1742,1749,1759
+  s_829377f8c65137::t_6d2a807f222319 1719,1734
+  s_85afd2c1defe3f::t_4945965a0cc767 1235
+  s_85afd2c1defe3f::t_9eea8927e7ba71 1958
+  s_85afd2c1defe3f::t_6aabd390cc7d7a 1272
+  s_85afd2c1defe3f::t_da001177f7a314 1882
+  s_85afd2c1defe3f::t_cb51a4c6c4aa22 952
+  s_85afd2c1defe3f::t_dd86d65a7a812e 1434
+  s_85afd2c1defe3f::t_5dacc4fc81f455 1066
+  s_f35143a55a4586::t_ec194883971249 899
+  s_85afd2c1defe3f::t_81a4ccb2b1487e 926-927
+  s_85afd2c1defe3f::t_6395b50c6ef4f7 986-989
+  s_3426d399ae1918::t_04cbc21339f1d1 2143,2153
+  s_85afd2c1defe3f::t_36df0d6fc3e308 1085-1086
+  s_85afd2c1defe3f::t_4ffb5e64a5e4ba 961-964
+  s_85afd2c1defe3f::t_88fbc5d090782f 1049
+  s_85afd2c1defe3f::t_52e34b2ceda391 11-16
+  s_829377f8c65137::t_1f68013a1103cf 879-887
+  s_85afd2c1defe3f::t_9383a967924da5 916
+  s_f35143a55a4586::t_e0056fbb6ec583 1713
+resources/js/Components/CopyButton.vue
+  s_ae83418d72000e::t_1a02a8030d08bf 3
+  s_ae83418d72000e::t_9e1c19fbe7d488 26-27
+plugins/sorify/commands/gateway.md
+  s_3426d399ae1918::t_6654a4760b3099 109-110
+  s_3426d399ae1918::t_cf5737fbd374b3 135-144
+  s_3426d399ae1918::t_e6ec957199364d 108
+  s_3426d399ae1918::t_680ca7f6ebadbd 111
+  s_3426d399ae1918::t_6fa2de713dae0b 87
+app/Http/Controllers/TestController.php
+  s_3426d399ae1918::t_6d3ec1b555478e 37
+resources/js/Pages/Admin/Users/Index.vue
+  s_cef766012f7ba7::t_b521b5d0c8c017 6
+  s_5111deca9b2cab::t_beaacaeb501cfa 9
+  s_5111deca9b2cab::t_f62b6671892b05 88-92
+  s_cef766012f7ba7::t_5452afc91203c4 113-114
+  s_5111deca9b2cab::t_14c147a18436be 118,121,126,129,135-138
+  s_cef766012f7ba7::t_9e39ce86c49103 8
+  s_5111deca9b2cab::t_8934e497907239 148-153
+  s_5111deca9b2cab::t_aaa912d60def02 79-80
+mcp/sorify-recorder-mcp/mcpserver.go
+  s_3426d399ae1918::t_81fb9a2b37f923 89-90
+  s_3426d399ae1918::t_2acee2abe6026b 55
+  s_3426d399ae1918::t_01b2ef4c1b6f1b 40-42
+resources/js/Components/ui/Breadcrumb.vue
+  s_829377f8c65137::t_38afa931b4de21 1-9,13-15,17-21,26-30,34,36-38
+  s_829377f8c65137::t_6cdfd4e1d15f77 16,22-25,31-33,35
+  s_829377f8c65137::t_c1a6a9b9d727f6 10-12
+app/Services/TestSuiteDuplicationService.php
+  s_3426d399ae1918::t_52e4d861209d94 60-73
+  s_3426d399ae1918::t_9516aac9e4935f 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "34f575e436466a9cd77fde5c6c34207b4d864ccf",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_22f4e7ec879c73": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd22379a9ffeLfsi01YYSiTD60",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_3426d399ae1918": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd2d093dbffenUa1KdU2t23t2U",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_5111deca9b2cab": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20c8476fferNsitIUJEZWlNO",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_829377f8c65137": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd1fb1672ffeId211rprUY2hnD",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_85afd2c1defe3f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20d1be2ffepar2ZVXOXtSxba",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_a5617f7387d552": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd293de02ffe1sKV8Vwfgb4Iwo",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_ae83418d72000e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20c58b9ffeJQkfv8W71oYOW4",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_c00ce7cf54c372": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20cfa85ffeb1zjRYZO6p6b6Z",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_cef766012f7ba7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd6900c69ffeBuAbeFErdTCXei",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_d1a5ea201c029c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20cbd1affeyfJIrpUmE8LmkR",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_dc9df8810f8554": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd2de4524fferAXwqzCX3gqzdo",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_f35143a55a4586": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd2909155ffeDnT13YbvTwReXn",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
