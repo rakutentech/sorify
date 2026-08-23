@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Card, TextField, Button, LanguageSwitcher } from '@/Components/ui';
 import sorifyLogo from '@/../images/sorify-icon.svg';
+import { Sun, Moon, Mail, Lock, User, UserPlus } from '@lucide/vue';
 
 const { t } = useI18n();
 const { theme, toggleTheme } = useTheme();
@@ -32,20 +33,8 @@ function submit() {
                 :label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
                 @click="toggleTheme"
             >
-            <svg v-if="theme === 'dark'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <circle cx="12" cy="12" r="5"/>
-                <line x1="12" y1="1" x2="12" y2="3"/>
-                <line x1="12" y1="21" x2="12" y2="23"/>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                <line x1="1" y1="12" x2="3" y2="12"/>
-                <line x1="21" y1="12" x2="23" y2="12"/>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </svg>
-            <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
+            <Sun v-if="theme === 'dark'" :size="16" :style="{ color: 'var(--md-ext-color-warning)' }" />
+            <Moon v-else :size="16" :style="{ color: 'var(--md-sys-color-primary)' }" />
         </IconButton>
         </div>
 
@@ -53,7 +42,7 @@ function submit() {
             <!-- Brand -->
             <div class="text-center mb-8">
                 <img :src="sorifyLogo" alt="Sorify" class="h-20 mx-auto rounded-lg px-2 py-1" />
-                <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('auth.createAccountSubtitle') }}</p>
+                <p class="mt-2 md-body-medium text-[var(--md-sys-color-on-surface-variant)] flex items-center justify-center gap-2"><UserPlus :size="16" :style="{ color: 'var(--md-sys-color-primary)' }" />{{ t('auth.createAccountSubtitle') }}</p>
             </div>
 
             <!-- Card -->
@@ -66,7 +55,9 @@ function submit() {
                         autocomplete="name"
                         required
                         :error="form.errors.name"
-                    />
+                    >
+                        <template #leading><User :size="16" /></template>
+                    </TextField>
 
                     <TextField
                         v-model="form.email"
@@ -75,7 +66,9 @@ function submit() {
                         autocomplete="email"
                         required
                         :error="form.errors.email"
-                    />
+                    >
+                        <template #leading><Mail :size="16" /></template>
+                    </TextField>
 
                     <TextField
                         v-model="form.password"
@@ -84,7 +77,9 @@ function submit() {
                         autocomplete="new-password"
                         required
                         :error="form.errors.password"
-                    />
+                    >
+                        <template #leading><Lock :size="16" /></template>
+                    </TextField>
 
                     <TextField
                         v-model="form.password_confirmation"
@@ -93,7 +88,9 @@ function submit() {
                         autocomplete="new-password"
                         required
                         :error="form.errors.password_confirmation"
-                    />
+                    >
+                        <template #leading><Lock :size="16" /></template>
+                    </TextField>
 
                     <!-- Submit -->
                     <Button type="submit" variant="filled" :disabled="form.processing" class="w-full">

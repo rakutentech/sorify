@@ -3,9 +3,10 @@ import { ref, computed, watch } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Button, TextField, Modal } from '@/Components/ui';
+import { Card, Button, TextField, Modal, Tooltip } from '@/Components/ui';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
-import { formatDate } from '@/utils/date';
+import { formatDate, formatRelativeTime } from '@/utils/date';
+import { ShieldCheck, UserPlus, Users, Mail, KeyRound, Trash2, Calendar, User, Clock } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -75,8 +76,8 @@ watch(
 
         <div class="space-y-5">
             <div class="flex items-center justify-between">
-                <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">{{ t('adminUsers.heading') }}</h1>
-                <Button variant="filled" @click="openAddModal">{{ t('adminUsers.addUser') }}</Button>
+                <h1 class="md-title-large text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5"><ShieldCheck :size="26" :style="{ color: 'var(--md-sys-color-error)' }" />{{ t('adminUsers.heading') }}</h1>
+                <Button variant="filled" @click="openAddModal"><template #leading><UserPlus :size="16" /></template>{{ t('adminUsers.addUser') }}</Button>
             </div>
 
             <!-- Users Table -->
@@ -84,11 +85,11 @@ watch(
                 <table class="w-full">
                     <thead>
                         <tr class="border-b border-[var(--md-sys-color-outline-variant)] text-left bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colName') }}</th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colEmail') }}</th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colRole') }}</th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colJoined') }}</th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colLastActive') }}</th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><User :size="13" />{{ t('adminUsers.colName') }}</span></th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Mail :size="13" />{{ t('adminUsers.colEmail') }}</span></th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><ShieldCheck :size="13" />{{ t('adminUsers.colRole') }}</span></th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Calendar :size="13" />{{ t('adminUsers.colJoined') }}</span></th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Clock :size="13" />{{ t('adminUsers.colLastActive') }}</span></th>
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colActions') }}</th>
                         </tr>
                     </thead>
@@ -109,27 +110,32 @@ watch(
                                     <option value="viewer">{{ t('adminUsers.roleViewer') }}</option>
                                 </select>
                             </td>
-                            <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(user.created_at) }}</td>
-                            <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ user.last_login_at ? formatDate(user.last_login_at) : t('adminUsers.never') }}</td>
+                            <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]"><Tooltip :text="formatDate(user.created_at)">{{ formatRelativeTime(user.created_at) }}</Tooltip></td>
+                            <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]"><Tooltip :text="user.last_login_at ? formatDate(user.last_login_at) : ''">{{ user.last_login_at ? formatRelativeTime(user.last_login_at) : t('adminUsers.never') }}</Tooltip></td>
                             <td class="px-4 py-3 space-x-3">
                                 <button
                                     @click="resetPassword(user)"
-                                    class="md-label-small text-[var(--md-sys-color-primary)] hover:underline transition-colors"
+                                    class="md-label-small text-[var(--md-sys-color-primary)] hover:underline transition-colors inline-flex items-center gap-1"
                                     :title="t('adminUsers.resetPasswordTitle')"
                                 >
+                                    <KeyRound :size="13" />
                                     {{ t('adminUsers.resetPasswordAction') }}
                                 </button>
                                 <button
                                     @click="deleteUser(user)"
-                                    class="md-label-small text-[var(--md-sys-color-error)] hover:underline transition-colors"
+                                    class="md-label-small text-[var(--md-sys-color-error)] hover:underline transition-colors inline-flex items-center gap-1"
                                     :title="t('adminUsers.deleteTitle')"
                                 >
+                                    <Trash2 :size="13" :style="{ color: 'var(--md-sys-color-error)' }" />
                                     {{ t('adminUsers.deleteAction') }}
                                 </button>
                             </td>
                         </tr>
                         <tr v-if="!users.length">
-                            <td colspan="6" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('adminUsers.noUsersFound') }}</td>
+                            <td colspan="6" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                                <Users :size="32" class="mx-auto mb-3 opacity-40" />
+                                {{ t('adminUsers.noUsersFound') }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -139,8 +145,12 @@ watch(
         <!-- Add User Modal -->
         <Modal :show="showAddModal" :title="t('adminUsers.addUserModalTitle')" max-width="max-w-md" @close="showAddModal = false">
                     <form @submit.prevent="submitAdd" class="px-6 py-5 space-y-4">
-                        <TextField v-model="addForm.name" :label="t('adminUsers.name')" required :error="addForm.errors.name" />
-                        <TextField v-model="addForm.email" :label="t('adminUsers.email')" type="email" required :error="addForm.errors.email" />
+                        <TextField v-model="addForm.name" :label="t('adminUsers.name')" required :error="addForm.errors.name">
+                            <template #leading><User :size="16" /></template>
+                        </TextField>
+                        <TextField v-model="addForm.email" :label="t('adminUsers.email')" type="email" required :error="addForm.errors.email">
+                            <template #leading><Mail :size="16" /></template>
+                        </TextField>
                         <TextField
                             v-model="addForm.password"
                             :label="t('adminUsers.password')"

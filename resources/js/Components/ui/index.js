@@ -1,6 +1,7 @@
 export { default as Button } from './Button.vue';
 export { default as Card } from './Card.vue';
 export { default as Chip } from './Chip.vue';
+export { default as Breadcrumb } from './Breadcrumb.vue';
 export { default as TextField } from './TextField.vue';
 export { default as Autocomplete } from './Autocomplete.vue';
 export { default as IconButton } from './IconButton.vue';
@@ -17,3 +18,4 @@ export { default as ScreenshotLightbox } from './ScreenshotLightbox.vue';
 export { default as LanguageSwitcher } from './LanguageSwitcher.vue';
 export { default as Pagination } from './Pagination.vue';
 export { default as MarkdownRenderer } from './MarkdownRenderer.vue';
+export { default as Tooltip } from './Tooltip.vue';

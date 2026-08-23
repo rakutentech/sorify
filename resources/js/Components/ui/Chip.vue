@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { STATUS_ICON } from '@/utils/iconMaps.js';
 
 const props = defineProps({
     status: {
@@ -40,15 +41,21 @@ const TONE_CLASSES = {
 };
 
 const tone = computed(() => TONE_BY_STATUS[props.status] ?? 'neutral');
-const pulse = computed(() => props.status === 'running');
+const statusIcon = computed(() => STATUS_ICON[props.status] ?? null);
 </script>
 
 <template>
     <span
-        class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small flex-shrink-0"
+        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small capitalize flex-shrink-0"
         :class="[TONE_CLASSES[tone], fixed ? 'min-w-[6.5rem] justify-center' : '']"
     >
-        <span class="w-1.5 h-1.5 rounded-full bg-current" :class="pulse ? 'animate-pulse' : 'opacity-70'" />
+        <component
+            :is="statusIcon.icon"
+            v-if="statusIcon"
+            :size="13"
+            class="flex-shrink-0"
+            :class="statusIcon.spin && 'animate-spin'"
+        />
         {{ label ?? status }}
     </span>
 </template>

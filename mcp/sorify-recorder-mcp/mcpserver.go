@@ -37,7 +37,9 @@ func registerMCPTools(server *mcp.Server, store *RecordingStore, ws *WSServer) {
 		Name:  "start_recording",
 		Title: "Start recording",
 		Description: "Start a new recording session. Tells the connected Chrome extension to begin capturing " +
-			"clicks/inputs/navigation. Returns the session id and the JSONL file path it will be written to.",
+			"clicks/inputs/navigation. A cookie snapshot for the active tab's domain is captured at start " +
+			"(the pre-auth baseline) and written to the JSONL as a cookies row. Returns the session id and " +
+			"the JSONL file path it will be written to.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, args startRecordingArgs) (*mcp.CallToolResult, any, error) {
 		result, err := store.Start(args.Label)
 		if err != nil {
@@ -50,7 +52,7 @@ func registerMCPTools(server *mcp.Server, store *RecordingStore, ws *WSServer) {
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "stop_recording",
 		Title:       "Stop recording",
-		Description: "Stop the active (or given) recording session and finalize its JSONL file.",
+		Description: "Stop the active (or given) recording session and finalize its JSONL file. The final cookie snapshot (for all domains visited during the session) is captured automatically and included as a cookies row in the JSONL.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, args stopRecordingArgs) (*mcp.CallToolResult, any, error) {
 		result, err := store.Stop(args.SessionID)
 		if err != nil {
@@ -84,8 +86,8 @@ func registerMCPTools(server *mcp.Server, store *RecordingStore, ws *WSServer) {
 	mcp.AddTool(server, &mcp.Tool{
 		Name:  "list_recordings",
 		Title: "List recordings",
-		Description: "List saved recording sessions (id, label, file path, event count, timestamps) without their " +
-			"contents. Read the file directly to get the recorded events.",
+		Description: "List saved recording sessions (id, label, file path, event count, cookie snapshot count, " +
+			"timestamps) without their contents. Read the file directly to get the recorded events and cookie snapshots.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, _ noArgs) (*mcp.CallToolResult, any, error) {
 		recordings, err := store.List()
 		if err != nil {

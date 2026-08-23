@@ -5,9 +5,15 @@ import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import CopyButton from '@/Components/CopyButton.vue';
-import { Card, Chip, Button, IconButton, TextField, Autocomplete, Modal, SuiteName, Avatar, AvatarGroup, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
+import { Card, Chip, Button, IconButton, TextField, Autocomplete, Modal, Breadcrumb, SuiteName, Avatar, AvatarGroup, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+import {
+    FolderKanban, Star, Pencil, Copy, LoaderCircle, Trash2, Play,
+    Plus, FileText, Search, ChevronRight, Info, Check, ChevronDown,
+    FlaskConical, Activity, Gauge, CircleAlert, Users, Webhook,
+    User, Settings, SlidersHorizontal, ArrowUp, ArrowDown,
+} from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -251,6 +257,17 @@ const localSuiteSettings = reactive({
     playwright_proxy: props.suite.playwright_proxy ?? '',
     proxy_rules: (props.suite.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy })),
     variables: (props.suite.variables ?? []).map(v => ({ key: v.key, value: v.value ?? '' })),
+    cookies: (props.suite.cookies ?? []).map(c => ({
+        name: c.name ?? '',
+        value: c.value ?? '',
+        domain: c.domain ?? '',
+        path: c.path ?? '/',
+        url: c.url ?? '',
+        expires: c.expires ?? '',
+        http_only: c.http_only ?? false,
+        secure: c.secure ?? false,
+        same_site: c.same_site ?? '',
+    })),
     teams_webhook_url: props.suite.teams_webhook_url ?? '',
     teams_webhook_proxy: props.suite.teams_webhook_proxy ?? '',
     teams_notify_on_success: props.suite.teams_notify_on_success ?? false,
@@ -261,6 +278,7 @@ watch(() => ({
     playwright_proxy: props.suite.playwright_proxy,
     proxy_rules: props.suite.proxy_rules,
     variables: props.suite.variables,
+    cookies: props.suite.cookies,
     teams_webhook_url: props.suite.teams_webhook_url,
     teams_webhook_proxy: props.suite.teams_webhook_proxy,
     teams_notify_on_success: props.suite.teams_notify_on_success,
@@ -269,6 +287,17 @@ watch(() => ({
     localSuiteSettings.playwright_proxy = s.playwright_proxy ?? '';
     localSuiteSettings.proxy_rules = (s.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy }));
     localSuiteSettings.variables = (s.variables ?? []).map(v => ({ key: v.key, value: v.value ?? '' }));
+    localSuiteSettings.cookies = (s.cookies ?? []).map(c => ({
+        name: c.name ?? '',
+        value: c.value ?? '',
+        domain: c.domain ?? '',
+        path: c.path ?? '/',
+        url: c.url ?? '',
+        expires: c.expires ?? '',
+        http_only: c.http_only ?? false,
+        secure: c.secure ?? false,
+        same_site: c.same_site ?? '',
+    }));
     localSuiteSettings.teams_webhook_url = s.teams_webhook_url ?? '';
     localSuiteSettings.teams_webhook_proxy = s.teams_webhook_proxy ?? '';
     localSuiteSettings.teams_notify_on_success = s.teams_notify_on_success ?? false;
@@ -361,6 +390,128 @@ function addVariable() {
 function removeVariable(index) {
     localSuiteSettings.variables.splice(index, 1);
     saveVariables();
+}
+
+function saveCookies() {
+    const cookies = localSuiteSettings.cookies
+        .filter(c => c.name.trim() && (c.domain.trim() || c.url.trim()))
+        .map(c => {
+            const out = {
+                name: c.name.trim(),
+                value: c.value,
+                domain: c.domain.trim() || null,
+                path: c.path.trim() || null,
+                url: c.url.trim() || null,
+                http_only: !!c.http_only,
+                secure: !!c.secure,
+            };
+            if (c.expires !== '' && c.expires !== null && c.expires !== undefined) {
+                out.expires = parseInt(c.expires, 10);
+                if (isNaN(out.expires)) delete out.expires;
+            }
+            if (c.same_site) out.same_site = c.same_site;
+            return out;
+        });
+    savingSuiteSetting.value = true;
+    const oldCookies = (props.suite.cookies ?? []).map(c => ({
+        name: c.name ?? '', value: c.value ?? '', domain: c.domain ?? '', path: c.path ?? '/',
+        url: c.url ?? '', expires: c.expires ?? '', http_only: c.http_only ?? false,
+        secure: c.secure ?? false, same_site: c.same_site ?? '',
+    }));
+    router.put(
+        `/sorify/suites/${props.suite.id}`,
+        { cookies },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onError: () => { localSuiteSettings.cookies = oldCookies; },
+            onFinish: () => {
+                savingSuiteSetting.value = false;
+                savedSuiteField.value = 'cookies';
+                clearTimeout(savedSuiteTimer);
+                savedSuiteTimer = setTimeout(() => { savedSuiteField.value = null; }, 1500);
+            },
+        },
+    );
+}
+
+function addCookie() {
+    localSuiteSettings.cookies.push({
+        name: '', value: '', domain: '', path: '/', url: '', expires: '',
+        http_only: false, secure: false, same_site: '',
+    });
+}
+
+function removeCookie(index) {
+    localSuiteSettings.cookies.splice(index, 1);
+    saveCookies();
+}
+
+// Paste-JSON modal for bulk cookie import
+const showCookiePasteModal = ref(false);
+const cookiePasteText = ref('');
+const cookiePasteError = ref(false);
+
+function openCookiePasteModal() {
+    cookiePasteText.value = '';
+    cookiePasteError.value = false;
+    showCookiePasteModal.value = true;
+}
+
+function applyCookiePaste() {
+    let parsed;
+    try {
+        parsed = JSON.parse(cookiePasteText.value);
+    } catch {
+        cookiePasteError.value = true;
+        return;
+    }
+
+    // Accept either a bare cookie array or a Playwright storageState object.
+    let incoming = [];
+    if (Array.isArray(parsed)) {
+        incoming = parsed;
+    } else if (parsed && Array.isArray(parsed.cookies)) {
+        incoming = parsed.cookies;
+    } else {
+        cookiePasteError.value = true;
+        return;
+    }
+
+    const normalized = incoming
+        .filter(c => c && c.name && (c.domain || c.url))
+        .map(c => ({
+            name: String(c.name),
+            value: c.value != null ? String(c.value) : '',
+            domain: c.domain ?? '',
+            path: c.path ?? '/',
+            url: c.url ?? '',
+            expires: c.expires ?? '',
+            http_only: !!c.httpOnly || !!c.http_only,
+            secure: !!c.secure,
+            same_site: c.sameSite ?? c.same_site ?? '',
+        }));
+
+    if (!normalized.length) {
+        cookiePasteError.value = true;
+        return;
+    }
+
+    // Merge: replace existing cookies with same name+domain+path, add new ones.
+    const existing = localSuiteSettings.cookies.map(c => ({ ...c }));
+    for (const inc of normalized) {
+        const idx = existing.findIndex(c =>
+            c.name === inc.name && (c.domain || '') === (inc.domain || '') && (c.path || '') === (inc.path || ''),
+        );
+        if (idx >= 0) {
+            existing[idx] = inc;
+        } else {
+            existing.push(inc);
+        }
+    }
+    localSuiteSettings.cookies = existing;
+    showCookiePasteModal.value = false;
+    saveCookies();
 }
 
 // Inline run settings (Browser, Mode, Timeout, Screenshots, Retries, Keep History)
@@ -725,23 +876,28 @@ function toggleRunsExpanded(testId) {
         <!-- Suite header -->
         <div class="flex items-start justify-between mb-6">
             <div>
-                <div class="flex items-center gap-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1">
-                    <Link href="/sorify/suites" class="hover:text-[var(--md-sys-color-on-surface)] transition-colors">{{ t('testSuites.title') }}</Link>
-                    <span>/</span>
-                    <span class="text-[var(--md-sys-color-on-surface)]"><SuiteName :name="suite.name" /></span>
-                </div>
-                <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] mb-1.5">{{ t('testSuiteShow.badge') }}</span>
-                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">
+                <Breadcrumb class="mb-1" :crumbs="[
+                    { label: t('testSuites.title'), href: '/sorify/suites' },
+                    { label: suite.name, suite: true },
+                ]">
+                    <template #crumb="{ crumb }">
+                        <SuiteName v-if="crumb.suite" :name="crumb.label" />
+                        <template v-else>{{ crumb.label }}</template>
+                    </template>
+                </Breadcrumb>
+                <span class="inline-flex items-center gap-3 mb-1.5">
+                    <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ t('testSuiteShow.badge') }}</span>
+                    <span v-if="suite.created_by" class="flex items-center gap-1.5">
+                        <Avatar :name="suite.created_by.name" :email="suite.created_by.email" :avatar-url="suite.created_by.avatar_url" />
+                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.createdBy', { name: suite.created_by.name }) }}</span>
+                    </span>
+                </span>
+                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
+                    <FolderKanban :size="26" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
                     <SuiteName :name="suite.name" />
                 </h1>
-                <div v-if="suite.description" class="mt-1 opacity-80">
+                <div v-if="suite.description" class="mt-1">
                     <MarkdownRenderer :content="suite.description" density="compact" collapsible :collapsed-lines="10" />
-                </div>
-                <div v-if="suite.created_by" class="flex items-center gap-2 mt-1.5">
-                    <Avatar :name="suite.created_by.name" :email="suite.created_by.email" :avatar-url="suite.created_by.avatar_url" />
-                    <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                        {{ t('testSuiteShow.createdBy', { name: suite.created_by.name }) }}
-                    </p>
                 </div>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0 ml-4">
@@ -750,21 +906,14 @@ function toggleRunsExpanded(testId) {
                     :label="isBookmarked ? t('testSuiteShow.bookmarkRemove') : t('testSuiteShow.bookmarkAdd')"
                     @click="toggleBookmark"
                 >
-                    <svg
-                        class="w-5 h-5"
-                        :class="isBookmarked ? 'text-[var(--md-sys-color-primary)]' : 'text-[var(--md-sys-color-on-surface-variant)]'"
-                        :fill="isBookmarked ? 'currentColor' : 'none'"
-                        stroke="currentColor"
-                        viewBox="0 0 20 20"
-                        stroke-width="1.5"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.539-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.958z"/>
-                    </svg>
+                    <Star
+                        :size="20"
+                        :class="isBookmarked ? 'fill-current' : ''"
+                        :style="{ color: isBookmarked ? 'var(--md-ext-color-warning)' : 'var(--md-sys-color-on-surface-variant)' }"
+                    />
                 </IconButton>
                 <Button v-if="can.edit" variant="tonal" @click="openEditModal">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
+                    <Pencil :size="16" />
                     {{ t('testSuiteShow.edit') }}
                 </Button>
                 <Button
@@ -774,56 +923,15 @@ function toggleRunsExpanded(testId) {
                     @click="openDuplicateSuiteModal"
                     :title="t('testSuiteShow.duplicateSuite')"
                 >
-                    <svg v-if="suiteJustDuplicated" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                    </svg>
-                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
-                    </svg>
+                    <LoaderCircle v-if="suiteJustDuplicated" :size="16" class="animate-spin" />
+                    <Copy v-else :size="16" />
                     {{ suiteJustDuplicated ? t('testSuiteShow.duplicating') : t('testSuiteShow.duplicateSuiteShort') }}
                 </Button>
                 <Button v-if="can.delete" variant="tonal" @click="deleteSuite" class="!text-[var(--md-sys-color-error)]">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
+                    <Trash2 :size="16" />
                     {{ t('testSuiteShow.delete') }}
                 </Button>
             </div>
-        </div>
-
-        <!-- Test actions row -->
-        <div class="flex items-center gap-2 mb-6">
-            <Button
-                variant="tonal"
-                size="sm"
-                :href="`/sorify/suites/${suite.id}/review`"
-                :disabled="hasSelection"
-                :title="t('testSuiteShow.reviewAllTestsTitle')"
-            >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6M9 11h3"/>
-                </svg>
-                {{ t('testSuiteShow.reviewAllTests') }}
-            </Button>
-            <Button v-if="can.run" variant="tonal" size="sm" @click="runAll" :disabled="running || hasSelection">
-                <svg v-if="running" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>
-                <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                {{ running ? t('testSuiteShow.starting') : t('testSuiteShow.runAllTests') }}
-            </Button>
-            <Button v-if="can.edit" variant="filled" size="sm" @click="openTestModal" :disabled="hasSelection">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                {{ t('testSuiteShow.newTest') }}
-            </Button>
         </div>
 
         <!-- Suite duplication banner (pending / failed) -->
@@ -831,10 +939,7 @@ function toggleRunsExpanded(testId) {
             v-if="suiteBeingDuplicated"
             class="mb-6 flex items-start gap-3 bg-[var(--md-sys-color-primary-container)] rounded-[var(--md-sys-shape-corner-medium)] px-5 py-4"
         >
-            <svg class="w-4 h-4 text-[var(--md-sys-color-on-primary-container)] mt-0.5 flex-shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
+            <LoaderCircle :size="16" class="mt-0.5 flex-shrink-0 animate-spin" :style="{ color: 'var(--md-sys-color-on-primary-container)' }" />
             <div class="flex-1 min-w-0">
                 <p class="md-body-medium font-medium text-[var(--md-sys-color-on-primary-container)]">{{ t('testSuiteShow.duplicationInProgressTitle') }}</p>
                 <p class="md-body-small text-[var(--md-sys-color-on-primary-container)] mt-0.5">{{ t('testSuiteShow.duplicationInProgressBody') }}</p>
@@ -844,9 +949,7 @@ function toggleRunsExpanded(testId) {
             v-else-if="suiteDuplicationFailed"
             class="mb-6 flex items-start gap-3 bg-[var(--md-sys-color-error-container)] rounded-[var(--md-sys-shape-corner-medium)] px-5 py-4"
         >
-            <svg class="w-4 h-4 text-[var(--md-sys-color-on-error-container)] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+            <CircleAlert :size="16" class="mt-0.5 flex-shrink-0" :style="{ color: 'var(--md-sys-color-on-error-container)' }" />
             <div class="flex-1 min-w-0">
                 <p class="md-body-medium font-medium text-[var(--md-sys-color-on-error-container)]">{{ t('testSuiteShow.duplicationFailed') }}</p>
             </div>
@@ -855,15 +958,24 @@ function toggleRunsExpanded(testId) {
         <!-- Stats row -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             <Card padding="px-4 py-3">
-                <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statTests') }}</p>
+                <div class="flex items-center justify-between">
+                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statTests') }}</p>
+                    <FlaskConical :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
+                </div>
                 <p class="md-title-large text-[var(--md-sys-color-on-surface)] mt-1">{{ stats.test_count ?? tests.total ?? tests.data.length }}</p>
             </Card>
             <Card padding="px-4 py-3">
-                <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statRuns') }}</p>
+                <div class="flex items-center justify-between">
+                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statRuns') }}</p>
+                    <Activity :size="18" :style="{ color: 'var(--md-ext-color-success)' }" />
+                </div>
                 <p class="md-title-large text-[var(--md-sys-color-on-surface)] mt-1">{{ stats.run_count ?? recentRuns.length }}</p>
             </Card>
             <Card padding="px-4 py-3">
-                <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statPassRate') }}</p>
+                <div class="flex items-center justify-between">
+                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statPassRate') }}</p>
+                    <Gauge :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
+                </div>
                 <p class="md-title-large mt-1"
                     :class="stats.pass_rate >= 90 ? 'text-[var(--md-ext-color-success)]' : stats.pass_rate >= 70 ? 'text-[var(--md-ext-color-warning)]' : stats.pass_rate != null ? 'text-[var(--md-sys-color-error)]' : 'text-[var(--md-sys-color-on-surface-variant)]'"
                 >
@@ -871,7 +983,10 @@ function toggleRunsExpanded(testId) {
                 </p>
             </Card>
             <Card padding="px-4 py-3">
-                <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.statStatusBreakdown') }}</p>
+                <div class="flex items-center justify-between mb-1.5">
+                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statStatusBreakdown') }}</p>
+                    <CircleAlert :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
+                </div>
                 <div class="flex flex-wrap gap-1">
                     <button
                         v-for="status in STATUS_OPTIONS"
@@ -892,6 +1007,31 @@ function toggleRunsExpanded(testId) {
             </Card>
         </div>
 
+        <!-- Test actions row -->
+        <div class="flex items-center justify-end gap-2 mb-4">
+            <Button
+                variant="tonal"
+                size="sm"
+                :href="`/sorify/suites/${suite.id}/review`"
+                :disabled="hasSelection"
+                :title="t('testSuiteShow.reviewAllTestsTitle')"
+            >
+                <template #leading><FileText :size="14" /></template>
+                {{ t('testSuiteShow.reviewAllTests') }}
+            </Button>
+            <Button v-if="can.run" variant="tonal" size="sm" @click="runAll" :disabled="running || hasSelection">
+                <template #leading>
+                    <LoaderCircle v-if="running" :size="14" class="animate-spin" />
+                    <Play v-else :size="14" />
+                </template>
+                {{ running ? t('testSuiteShow.starting') : t('testSuiteShow.runAllTests') }}
+            </Button>
+            <Button v-if="can.edit" variant="filled" size="sm" @click="openTestModal" :disabled="hasSelection">
+                <template #leading><Plus :size="14" /></template>
+                {{ t('testSuiteShow.newTest') }}
+            </Button>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Tests list -->
             <div class="lg:col-span-2">
@@ -906,7 +1046,7 @@ function toggleRunsExpanded(testId) {
                                 @change="toggleSelectAll"
                                 class="w-4 h-4 flex-shrink-0 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
                             />
-                            <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex-shrink-0">{{ t('testSuiteShow.testsHeading') }}</h2>
+                            <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex-shrink-0 flex items-center gap-2"><FlaskConical :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />{{ t('testSuiteShow.testsHeading') }}</h2>
                             <div v-if="hasSelection" class="flex items-center gap-1.5 flex-wrap">
                                 <button v-if="can.edit" @click="bulkSetStatus('active')" :disabled="bulkStatusProcessing"
                                     class="md-label-small px-2.5 py-1 rounded-[var(--md-sys-shape-corner-full)] text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)] transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
@@ -918,25 +1058,17 @@ function toggleRunsExpanded(testId) {
                                 </button>
                                 <button v-if="can.edit" @click="bulkDuplicate" :disabled="bulkDuplicating"
                                     class="flex items-center gap-1 md-label-small px-2.5 py-1 rounded-[var(--md-sys-shape-corner-full)] text-[var(--md-sys-color-on-secondary-container)] bg-[var(--md-sys-color-secondary-container)] transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
-                                    <svg v-if="bulkDuplicating" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                    </svg>
+                                    <LoaderCircle v-if="bulkDuplicating" :size="12" class="animate-spin" />
                                     {{ bulkDuplicating ? t('testSuiteShow.duplicating') : t('testSuiteShow.duplicateCount', { count: selectedIds.size }) }}
                                 </button>
                                 <button v-if="can.delete" @click="bulkDelete"
                                     class="flex items-center gap-1 md-label-small px-2.5 py-1 rounded-[var(--md-sys-shape-corner-full)] text-[var(--md-sys-color-on-error-container)] bg-[var(--md-sys-color-error-container)] transition-opacity hover:opacity-90">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
+                                    <Trash2 :size="12" />
                                     {{ t('testSuiteShow.deleteCount', { count: selectedIds.size }) }}
                                 </button>
                                 <button v-if="can.run" @click="bulkRun" :disabled="bulkRunning"
                                     class="flex items-center gap-1 md-label-small px-2.5 py-1 rounded-[var(--md-sys-shape-corner-full)] text-[var(--md-sys-color-on-primary)] bg-[var(--md-sys-color-primary)] transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
-                                    <svg v-if="bulkRunning" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                    </svg>
+                                    <LoaderCircle v-if="bulkRunning" :size="12" class="animate-spin" />
                                     {{ bulkRunning ? t('testSuiteShow.starting') : t('testSuiteShow.run', { count: selectedIds.size }) }}
                                 </button>
                             </div>
@@ -950,35 +1082,26 @@ function toggleRunsExpanded(testId) {
                             @click="showSuiteSettings = !showSuiteSettings"
                             class="w-full flex items-center gap-2 px-5 py-2.5 text-left hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
                         >
-                            <svg
-                                class="w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] transition-transform"
-                                :class="{ 'rotate-90': showSuiteSettings }"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
+                            <ChevronRight :size="16" class="text-[var(--md-sys-color-on-surface-variant)] transition-transform" :class="{ 'rotate-90': showSuiteSettings }" />
+                            <Settings :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
                             <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.suiteSettings') }}</span>
 
                             <!-- Compact summary when collapsed -->
                             <span v-if="!showSuiteSettings" class="flex items-center gap-1.5 ml-1 flex-wrap">
-                                <SettingBadge :label="t('testSuites.badgeTeams')" :active="!!suite.teams_webhook_url" />
-                                <SettingBadge :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" />
-                                <SettingBadge :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules?.length || suite.playwright_proxy)" />
-                                <SettingBadge :label="t('testSuites.badgeVariables')" :active="!!suite.variables?.length" />
-                                <SettingBadge :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" />
+                                <SettingBadge :label="t('testSuites.badgeTeams')" :active="!!suite.teams_webhook_url" success-active kind="teams" />
+                                <SettingBadge :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" success-active kind="screenshots" />
+                                <SettingBadge :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules?.length || suite.playwright_proxy)" success-active kind="proxy" />
+                                <SettingBadge :label="t('testSuites.badgeVariables')" :active="!!suite.variables?.length" success-active kind="variables" />
+                                <SettingBadge :label="t('testSuiteShow.cookiesCount', { count: suite.cookies?.length ?? 0 })" :active="!!suite.cookies?.length" success-active kind="cookies" />
+                                <SettingBadge :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" success-active kind="schedule" />
                             </span>
 
                             <span v-if="savingSuiteSetting" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                </svg>
+                                <LoaderCircle :size="12" class="animate-spin" />
                                 {{ t('testSuiteShow.saving') }}
                             </span>
                             <span v-else-if="savedSuiteField" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-ext-color-success)]">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                </svg>
+                                <Check :size="12" />
                                 {{ t('testSuiteShow.saved') }}
                             </span>
                         </button>
@@ -1050,9 +1173,7 @@ function toggleRunsExpanded(testId) {
                                                     :aria-expanded="showProxyRulesInfo"
                                                     class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors"
                                                 >
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                    </svg>
+                                                    <Info :size="14" />
                                                 </button>
                                                 <div
                                                     class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap"
@@ -1111,9 +1232,7 @@ function toggleRunsExpanded(testId) {
                                             class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
                                         />
                                         <button v-if="can.edit" type="button" @click="removeProxyRule(index)" :disabled="savingSuiteSetting" class="p-1.5 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors disabled:opacity-60">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
+                                            <Trash2 :size="14" />
                                         </button>
                                     </div>
                                 </div>
@@ -1150,10 +1269,83 @@ function toggleRunsExpanded(testId) {
                                         class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
                                     />
                                     <button v-if="can.edit" type="button" @click="removeVariable(index)" :disabled="savingSuiteSetting" class="p-1.5 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors disabled:opacity-60">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
+                                        <Trash2 :size="14" />
                                     </button>
+                                </div>
+                            </div>
+
+                            <!-- Cookies -->
+                            <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
+                                <div class="flex items-center justify-between mt-3 mb-1">
+                                    <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.cookiesSection') }}</p>
+                                    <div class="flex items-center gap-3">
+                                        <button v-if="can.edit" type="button" @click="openCookiePasteModal" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.pasteCookieJson') }}</button>
+                                        <button v-if="can.edit" type="button" @click="addCookie" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addCookie') }}</button>
+                                    </div>
+                                </div>
+                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2 opacity-80">{{ t('testSuiteShow.cookiesHint') }}</p>
+                                <div v-if="!localSuiteSettings.cookies.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] py-1.5 opacity-70">
+                                    {{ t('testSuiteShow.noCookiesConfigured') }}
+                                </div>
+                                <div v-for="(cookie, index) in localSuiteSettings.cookies" :key="index" class="mb-2 p-2 border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)]">
+                                    <div class="flex items-start gap-2">
+                                        <input
+                                            v-model="cookie.name"
+                                            @change="saveCookies"
+                                            :disabled="!can.edit || savingSuiteSetting"
+                                            type="text"
+                                            :placeholder="t('testSuiteShow.cookieName')"
+                                            class="w-1/4 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                        />
+                                        <input
+                                            v-model="cookie.value"
+                                            @change="saveCookies"
+                                            :disabled="!can.edit || savingSuiteSetting"
+                                            type="text"
+                                            :placeholder="t('testSuiteShow.cookieValue')"
+                                            class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                        />
+                                        <button v-if="can.edit" type="button" @click="removeCookie(index)" :disabled="savingSuiteSetting" class="p-1 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors disabled:opacity-60">
+                                            <Trash2 :size="14" />
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                                        <input
+                                            v-model="cookie.domain"
+                                            @change="saveCookies"
+                                            :disabled="!can.edit || savingSuiteSetting"
+                                            type="text"
+                                            :placeholder="t('testSuiteShow.cookieDomain')"
+                                            class="w-32 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                        />
+                                        <input
+                                            v-model="cookie.path"
+                                            @change="saveCookies"
+                                            :disabled="!can.edit || savingSuiteSetting"
+                                            type="text"
+                                            :placeholder="t('testSuiteShow.cookiePath')"
+                                            class="w-20 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                        />
+                                        <select
+                                            v-model="cookie.same_site"
+                                            @change="saveCookies"
+                                            :disabled="!can.edit || savingSuiteSetting"
+                                            class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-1.5 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                        >
+                                            <option value="">SameSite —</option>
+                                            <option value="Strict">Strict</option>
+                                            <option value="Lax">Lax</option>
+                                            <option value="None">None</option>
+                                        </select>
+                                        <label class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)] cursor-pointer">
+                                            <input type="checkbox" v-model="cookie.http_only" @change="saveCookies" :disabled="!can.edit || savingSuiteSetting" class="w-3.5 h-3.5 accent-[var(--md-sys-color-primary)] disabled:opacity-60" />
+                                            {{ t('testSuiteShow.cookieHttpOnly') }}
+                                        </label>
+                                        <label class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)] cursor-pointer">
+                                            <input type="checkbox" v-model="cookie.secure" @change="saveCookies" :disabled="!can.edit || savingSuiteSetting" class="w-3.5 h-3.5 accent-[var(--md-sys-color-primary)] disabled:opacity-60" />
+                                            {{ t('testSuiteShow.cookieSecure') }}
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1224,36 +1416,26 @@ function toggleRunsExpanded(testId) {
                             @click="showRunSettings = !showRunSettings"
                             class="w-full flex items-center gap-2 px-5 py-2.5 text-left hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
                         >
-                            <svg
-                                class="w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] transition-transform"
-                                :class="{ 'rotate-90': showRunSettings }"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
+                            <ChevronRight :size="16" class="text-[var(--md-sys-color-on-surface-variant)] transition-transform" :class="{ 'rotate-90': showRunSettings }" />
+                            <SlidersHorizontal :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
                             <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.runSettings') }}</span>
 
                             <!-- Compact summary when collapsed -->
                             <span v-if="!showRunSettings" class="flex items-center gap-1.5 ml-1 flex-wrap">
-                                <SettingBadge :label="localSettings.browser" :active="true" />
-                                <SettingBadge :label="localSettings.headless ? t('testSuiteShow.headless') : t('testSuiteShow.headedVisible')" :active="localSettings.headless" />
-                                <SettingBadge :label="t('testSuiteShow.timeoutShort', { value: localSettings.timeout_ms >= 60000 ? `${Math.round(localSettings.timeout_ms / 60000)}m` : `${localSettings.timeout_ms / 1000}s` })" :active="true" />
-                                <SettingBadge :label="t('testSuiteShow.screenshots')" :active="localSettings.take_screenshot" />
-                                <SettingBadge :label="t('testSuiteShow.retriesShort', { value: localSettings.max_retries === 0 ? t('testSuites.noRetries') : `${localSettings.max_retries}×` })" :active="!!localSettings.max_retries" />
-                                <SettingBadge :label="t('testSuiteShow.keepRunsShort', { count: localSettings.history_retention })" :active="true" />
+                                <SettingBadge :label="localSettings.browser" :active="true" kind="browser" />
+                                <SettingBadge :label="localSettings.headless ? t('testSuiteShow.headless') : t('testSuiteShow.headedVisible')" :active="localSettings.headless" kind="headless" />
+                                <SettingBadge :label="t('testSuiteShow.timeoutShort', { value: localSettings.timeout_ms >= 60000 ? `${Math.round(localSettings.timeout_ms / 60000)}m` : `${localSettings.timeout_ms / 1000}s` })" :active="true" kind="timeout" />
+                                <SettingBadge :label="t('testSuiteShow.screenshots')" :active="localSettings.take_screenshot" kind="screenshots" />
+                                <SettingBadge :label="t('testSuiteShow.retriesShort', { value: localSettings.max_retries === 0 ? t('testSuites.noRetries') : `${localSettings.max_retries}×` })" :active="!!localSettings.max_retries" kind="retries" />
+                                <SettingBadge :label="t('testSuiteShow.keepRunsShort', { count: localSettings.history_retention })" :active="true" kind="keepRuns" />
                             </span>
 
                             <span v-if="savingSetting" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                </svg>
+                                <LoaderCircle :size="12" class="animate-spin" />
                                 {{ t('testSuiteShow.saving') }}
                             </span>
                             <span v-else-if="savedField" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-ext-color-success)]">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                </svg>
+                                <Check :size="12" />
                                 {{ t('testSuiteShow.saved') }}
                             </span>
                         </button>
@@ -1361,9 +1543,7 @@ function toggleRunsExpanded(testId) {
 
                     <div class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] flex items-center gap-3 flex-wrap">
                         <div class="relative max-w-xs flex-1 min-w-[10rem]">
-                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-                            </svg>
+                            <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" />
                             <input
                                 v-model="testSearch"
                                 type="text"
@@ -1404,12 +1584,8 @@ function toggleRunsExpanded(testId) {
                                 class="flex items-center justify-center bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-r-[var(--md-sys-shape-corner-small)] px-2.5 text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                                 :title="testSortDir === 'asc' ? t('testSuiteShow.sortAscending') : t('testSuiteShow.sortDescending')"
                             >
-                                <svg v-if="testSortDir === 'asc'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V5M5 12l7-7 7 7"/>
-                                </svg>
-                                <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14M19 12l-7 7-7-7"/>
-                                </svg>
+                                <ArrowUp v-if="testSortDir === 'asc'" :size="16" />
+                                <ArrowDown v-else :size="16" />
                             </button>
                         </div>
 
@@ -1420,9 +1596,7 @@ function toggleRunsExpanded(testId) {
                                 class="flex items-center gap-1.5 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
                             >
                                 {{ t('testSuiteShow.statusFilterLabel') }}<span v-if="testStatus.length">&nbsp;({{ testStatus.length }})</span>
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
+                                <ChevronDown :size="14" />
                             </button>
 
                             <div
@@ -1455,6 +1629,7 @@ function toggleRunsExpanded(testId) {
                     </div>
 
                     <div v-if="!tests.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                        <FlaskConical :size="32" class="mx-auto mb-3 opacity-40" />
                         <template v-if="testSearch || testStatus.length">
                             {{ t('testSuiteShow.noMatchSearch') }}
                         </template>
@@ -1478,13 +1653,13 @@ function toggleRunsExpanded(testId) {
                             v-for="test in tests.data"
                             :key="test.id"
                             :class="[
-                                'group/test relative pl-5 pr-4 py-4 transition-colors flex items-start gap-3 border-b border-[var(--md-sys-color-outline-variant)] last:border-b-0 hover:bg-[var(--md-sys-color-surface-container-low)]',
+                                'group/test relative pl-5 pr-4 py-2.5 transition-colors flex items-start gap-2.5 border-b border-[var(--md-sys-color-outline-variant)] last:border-b-0 hover:bg-[var(--md-sys-color-surface-container-low)]',
                                 test.status === 'disabled' ? 'opacity-60' : '',
                             ]"
                         >
                             <!-- Left status accent bar (color-coded by latest run status) -->
                             <span
-                                class="absolute left-0 top-3 bottom-3 w-1 rounded-full transition-colors"
+                                class="absolute left-0 top-2 bottom-2 w-1 rounded-full transition-colors"
                                 :class="statusAccentClass(test.current_status ?? (test.status === 'disabled' ? 'disabled' : null))"
                                 :aria-hidden="true"
                             />
@@ -1495,13 +1670,13 @@ function toggleRunsExpanded(testId) {
                                 type="checkbox"
                                 :checked="selectedIds.has(test.id)"
                                 @change="toggleSelect(test.id)"
-                                class="mt-1 w-4 h-4 flex-shrink-0 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
+                                class="mt-0.5 w-4 h-4 flex-shrink-0 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
                             />
 
-                            <!-- Test info: 3-line layout (title / description / meta) -->
-                            <div class="min-w-0 flex-1 space-y-1">
+                            <!-- Test info: compact 3-line layout (title / description / runs) -->
+                            <div class="min-w-0 flex-1 space-y-0.5">
                                 <!-- Title line: chip first (fixed-width), then name, then disabled badge -->
-                                <div class="flex items-center gap-2 flex-wrap">
+                                <div class="flex items-center gap-2 min-w-0">
                                     <Chip
                                         :status="test.current_status || 'never_ran'"
                                         :fixed="true"
@@ -1509,18 +1684,19 @@ function toggleRunsExpanded(testId) {
                                     />
                                     <Link
                                         :href="`/sorify/suites/${suite.id}/tests/${test.id}`"
-                                        class="md-title-small font-medium text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
+                                        :title="test.name"
+                                        class="md-title-small font-medium text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors truncate min-w-0"
                                     >
                                         {{ test.name }}
                                     </Link>
                                     <span
                                         v-if="test.status === 'disabled'"
-                                        class="md-label-small px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] text-[var(--md-ext-color-on-warning-container)] bg-[var(--md-ext-color-warning-container)]"
+                                        class="md-label-small px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] text-[var(--md-ext-color-on-warning-container)] bg-[var(--md-ext-color-warning-container)] flex-shrink-0"
                                     >{{ t('testSuiteShow.disabled') }}</span>
                                 </div>
 
                                 <!-- Description line with uploader avatar on the left -->
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 min-w-0">
                                     <Avatar
                                         v-if="test.uploaded_by"
                                         size="sm"
@@ -1532,63 +1708,55 @@ function toggleRunsExpanded(testId) {
                                         v-else
                                         class="w-5 h-5 rounded-full ring-2 ring-[var(--md-sys-color-surface-container-low)] bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)] flex items-center justify-center flex-shrink-0"
                                     >
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                        </svg>
+                                        <User :size="12" />
                                     </div>
-                                    <p v-if="test.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] truncate flex-1 min-w-0">{{ test.description }}</p>
+                                    <p v-if="test.description" class="md-body-small text-[var(--md-sys-color-on-surface)] truncate flex-1 min-w-0">{{ test.description }}</p>
                                 </div>
 
-                                <!-- Meta line: latest runs · screenshots · expand (uploader moved to the right column) -->
-                                <div v-if="test.recent_runs?.length" class="flex flex-col gap-1 pt-0.5">
-                                    <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.latestRuns') }}</span>
-                                    <div class="flex flex-col gap-1">
-                                        <RunPill :run="test.recent_runs[0]" @open-lightbox="lightbox.open" />
-                                        <div v-if="expandedRuns.has(test.id)" class="flex flex-col gap-1">
-                                            <RunPill
-                                                v-for="run in test.recent_runs.slice(1)"
-                                                :key="run.run_id"
-                                                :run="run"
-                                                @open-lightbox="lightbox.open"
-                                            />
-                                        </div>
+                                <!-- Latest runs: RunPill + inline "more runs" toggle (label removed for compactness) -->
+                                <div v-if="test.recent_runs?.length" class="flex flex-col gap-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <RunPill :run="test.recent_runs[0]" :test-id="test.id" @open-lightbox="lightbox.open" />
+                                        <button
+                                            v-if="test.recent_runs?.length > 1"
+                                            type="button"
+                                            class="md-label-small text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] hover:underline whitespace-nowrap"
+                                            @click="toggleRunsExpanded(test.id)"
+                                        >
+                                            {{ expandedRuns.has(test.id) ? t('testSuiteShow.hide') : t('testSuiteShow.moreRuns', { count: test.recent_runs.length - 1 }) }}
+                                        </button>
+                                    </div>
+                                    <div v-if="expandedRuns.has(test.id)" class="flex flex-col gap-1">
+                                        <RunPill
+                                            v-for="run in test.recent_runs.slice(1)"
+                                            :key="run.run_id"
+                                            :run="run"
+                                            :test-id="test.id"
+                                            @open-lightbox="lightbox.open"
+                                        />
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Right column: run action + more runs (top-aligned) -->
-                            <div class="flex flex-col items-end gap-2 flex-shrink-0 self-start">
+                            <!-- Right column: run action + timestamps (top-aligned) -->
+                            <div class="flex flex-col items-end gap-1.5 flex-shrink-0 self-start">
                                 <!-- Per-row Run button: always visible -->
                                 <button
                                     v-if="can.run"
                                     @click="runTest(test.id)"
                                     :disabled="runningIds.has(test.id) || test.status === 'disabled'"
                                     :class="[
-                                        'flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-primary)] bg-[var(--md-sys-color-primary)] px-3 py-1.5 rounded-[var(--md-sys-shape-corner-small)] transition-all hover:brightness-90 active:brightness-95 disabled:opacity-40 disabled:cursor-not-allowed',
+                                        'flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-primary)] bg-[var(--md-sys-color-primary)] px-2.5 py-1 rounded-[var(--md-sys-shape-corner-small)] transition-all hover:brightness-90 active:brightness-95 disabled:opacity-40 disabled:cursor-not-allowed',
                                     ]"
                                     :title="t('testSuiteShow.runThisTest')"
                                 >
-                                    <svg v-if="runningIds.has(test.id)" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                    </svg>
-                                    <svg v-else class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
+                                    <LoaderCircle v-if="runningIds.has(test.id)" :size="12" class="animate-spin" />
+                                    <Play v-else :size="12" />
                                     {{ runningIds.has(test.id) ? '...' : t('testSuiteShow.runShort') }}
-                                </button>
-                                <button
-                                    v-if="test.recent_runs?.length > 1"
-                                    type="button"
-                                    class="md-label-small text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] hover:underline"
-                                    @click="toggleRunsExpanded(test.id)"
-                                >
-                                    {{ expandedRuns.has(test.id) ? t('testSuiteShow.hide') : t('testSuiteShow.moreRuns', { count: test.recent_runs.length - 1 }) }}
                                 </button>
 
                                 <!-- Created / Updated timestamps (subtle, hover for absolute date) -->
-                                <div v-if="test.updated_at || test.created_at" class="flex items-center gap-2 mt-1">
+                                <div v-if="test.updated_at || test.created_at" class="flex items-center gap-1.5">
                                     <span v-if="test.updated_at" class="relative group/tip">
                                         <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-60 cursor-default whitespace-nowrap">{{ t('testSuiteShow.updatedAgo', { time: formatRelativeTime(test.updated_at) }) }}</span>
                                         <span class="pointer-events-none absolute bottom-full right-0 mb-1.5 px-2 py-1 rounded-[var(--md-sys-shape-corner-extra-small)] bg-gray-900 text-white md-label-small whitespace-nowrap opacity-0 group-hover/tip:opacity-100 transition-opacity duration-150 z-10">{{ formatDate(test.updated_at) }}</span>
@@ -1645,11 +1813,11 @@ function toggleRunsExpanded(testId) {
                 </Card>
             </div>
 
-            <div>
+            <div class="space-y-6">
                 <!-- Users -->
-                <Card padding="p-0" class="mt-6">
+                <Card padding="p-0">
                     <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
-                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testSuiteShow.usersHeading') }}</h2>
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2"><Users :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />{{ t('testSuiteShow.usersHeading') }}</h2>
                         <Button v-if="can.manageUsers" variant="tonal" size="sm" @click="openManageUsersModal">
                             {{ t('testSuiteShow.manageUsers') }}
                         </Button>
@@ -1660,9 +1828,9 @@ function toggleRunsExpanded(testId) {
                 </Card>
 
                 <!-- CI Webhook -->
-                <Card padding="p-0" class="mt-6">
+                <Card padding="p-0">
                     <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
-                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testSuiteShow.ciWebhookHeading') }}</h2>
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2"><Webhook :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />{{ t('testSuiteShow.ciWebhookHeading') }}</h2>
                         <Button v-if="can.edit" variant="tonal" size="sm" @click="regenerateWebhook" class="!text-[var(--md-sys-color-error)]">
                             {{ t('testSuiteShow.regenerate') }}
                         </Button>
@@ -1678,13 +1846,7 @@ function toggleRunsExpanded(testId) {
                                 @click="showCurlExample = !showCurlExample"
                                 class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
                             >
-                                <svg
-                                    class="w-3.5 h-3.5 transition-transform"
-                                    :class="{ 'rotate-90': showCurlExample }"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
+                                <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showCurlExample }" />
                                 {{ showCurlExample ? t('testSuiteShow.hideCurlExample') : t('testSuiteShow.showCurlExample') }}
                             </button>
                             <div v-if="showCurlExample" class="mt-2">
@@ -1702,13 +1864,7 @@ function toggleRunsExpanded(testId) {
                                     @click="showTriggerResponseSample = !showTriggerResponseSample"
                                     class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
                                 >
-                                    <svg
-                                        class="w-3.5 h-3.5 transition-transform"
-                                        :class="{ 'rotate-90': showTriggerResponseSample }"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    >
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
+                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showTriggerResponseSample }" />
                                     {{ showTriggerResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
                                 </button>
                                 <pre v-if="showTriggerResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ triggerResponseSample }}</pre>
@@ -1723,13 +1879,7 @@ function toggleRunsExpanded(testId) {
                                 @click="showStatusResponseSample = !showStatusResponseSample"
                                 class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
                             >
-                                <svg
-                                    class="w-3.5 h-3.5 transition-transform"
-                                    :class="{ 'rotate-90': showStatusResponseSample }"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
+                                <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showStatusResponseSample }" />
                                 {{ showStatusResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
                             </button>
                             <pre v-if="showStatusResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ statusResponseSample }}</pre>
@@ -1740,7 +1890,7 @@ function toggleRunsExpanded(testId) {
                 <!-- Recent runs -->
                 <Card padding="p-0" class="mt-6">
                     <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
-                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('testSuiteShow.recentRunsHeading') }}</h2>
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2"><Activity :size="18" :style="{ color: 'var(--md-ext-color-success)' }" />{{ t('testSuiteShow.recentRunsHeading') }}</h2>
                     </div>
 
                     <div v-if="!recentRuns.length" class="px-5 py-6 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
@@ -1805,9 +1955,7 @@ function toggleRunsExpanded(testId) {
                                             v-else
                                             class="w-5 h-5 rounded-full ring-2 ring-[var(--md-sys-color-surface-container-low)] bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)] flex items-center justify-center flex-shrink-0"
                                         >
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                            </svg>
+                                            <User :size="12" />
                                         </div>
                                         <Link
                                             v-if="run.total_tests != null"
@@ -1989,5 +2137,24 @@ function toggleRunsExpanded(testId) {
             @close="lightbox.close"
             @update:index="lightbox.setIndex"
         />
+
+        <!-- Paste Cookie JSON Modal -->
+        <Modal :show="showCookiePasteModal" :title="t('testSuiteShow.pasteCookieJsonTitle')" max-width="max-w-lg" @close="showCookiePasteModal = false">
+            <div class="px-6 py-5 space-y-4">
+                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.pasteCookieJsonHint') }}</p>
+                <textarea
+                    v-model="cookiePasteText"
+                    :placeholder="t('testSuiteShow.pasteCookieJsonPlaceholder')"
+                    rows="10"
+                    class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                    spellcheck="false"
+                ></textarea>
+                <p v-if="cookiePasteError" class="md-label-small text-[var(--md-sys-color-error)]">{{ t('testSuiteShow.pasteCookieJsonError') }}</p>
+                <div class="flex justify-end gap-3 pt-2">
+                    <Button variant="text" size="sm" @click="showCookiePasteModal = false">{{ t('testSuiteShow.pasteCookieJsonCancel') }}</Button>
+                    <Button variant="filled" size="sm" @click="applyCookiePaste">{{ t('testSuiteShow.pasteCookieJsonApply') }}</Button>
+                </div>
+            </div>
+        </Modal>
     </AppLayout>
 </template>

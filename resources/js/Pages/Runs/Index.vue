@@ -6,6 +6,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Chip, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import { formatDate, formatRelativeTime } from '@/utils/date';
+import { Activity, User, FolderKanban, FlaskConical, Timer, Camera, Calendar, CircleDot, X } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -18,14 +19,27 @@ const props = defineProps({
         type: Object,
         default: () => ({ per_page: 30 }),
     },
+    filteredTest: { type: Object, default: null },
 });
 
 const perPage = ref(props.filters.per_page ?? 30);
+const testId = ref(props.filters.test_id ?? null);
 const lightbox = useScreenshotLightbox();
 
-watch(perPage, () => {
+function reloadRuns(overrides = {}) {
+    const params = { per_page: perPage.value, page: 1, ...overrides };
+    if (testId.value) {
+        params.test_id = testId.value;
+    }
+    router.get('/sorify/runs', params, { preserveState: true, replace: true });
+}
+
+watch(perPage, () => reloadRuns({ page: 1 }));
+
+function clearTestFilter() {
+    testId.value = null;
     router.get('/sorify/runs', { per_page: perPage.value, page: 1 }, { preserveState: true, replace: true });
-});
+}
 
 function runStatusLabel(status) {
     return status === 'failed' ? t('runs.statusHasFailures') : status;
@@ -44,12 +58,29 @@ function formatDuration(ms) {
         <Head :title="t('runs.title')" />
 
         <div class="mb-6">
-            <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ t('runs.title') }}</h1>
+            <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
+                <Activity :size="26" :style="{ color: 'var(--md-ext-color-success)' }" />
+                {{ t('runs.title') }}
+            </h1>
             <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('runs.subtitle') }}</p>
         </div>
 
         <Card padding="p-0">
+            <!-- Active test filter chip -->
+            <div v-if="filteredTest" class="px-5 py-2.5 border-b border-[var(--md-sys-color-outline-variant)] flex items-center">
+                <button
+                    type="button"
+                    @click="clearTestFilter"
+                    :title="t('runs.clearFilter')"
+                    class="inline-flex items-center gap-1.5 bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1 md-label-small hover:opacity-80 transition-opacity max-w-xs"
+                >
+                    <span class="truncate">{{ t('runs.filteredByTest', { name: filteredTest.name }) }}</span>
+                    <X :size="13" class="flex-shrink-0" />
+                </button>
+            </div>
+
             <div v-if="!runs.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                <Activity :size="32" class="mx-auto mb-3 opacity-40" />
                 {{ t('runs.noneYet') }}
             </div>
 
@@ -57,14 +88,14 @@ function formatDuration(ms) {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colSuite') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colStatus') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colPassed') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colDuration') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colScreenshots') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colCreatedBy') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colRanBy') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('runs.colRunDate') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FolderKanban :size="13" />{{ t('runs.colSuite') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><CircleDot :size="13" />{{ t('runs.colStatus') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FlaskConical :size="13" />{{ t('runs.colPassed') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Timer :size="13" />{{ t('runs.colDuration') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Camera :size="13" />{{ t('runs.colScreenshots') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><User :size="13" />{{ t('runs.colCreatedBy') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Activity :size="13" />{{ t('runs.colRanBy') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Calendar :size="13" />{{ t('runs.colRunDate') }}</span></th>
                             <th class="px-5 py-3"></th>
                         </tr>
                     </thead>
@@ -110,9 +141,7 @@ function formatDuration(ms) {
                                     v-else
                                     class="group relative w-7 h-7 rounded-full ring-2 ring-[var(--md-sys-color-surface-container-low)] bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)] flex items-center justify-center flex-shrink-0"
                                 >
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                    </svg>
+                                    <User :size="12" />
                                 </div>
                             </td>
                             <td class="px-5 py-3"><RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" /></td>
@@ -154,7 +183,7 @@ function formatDuration(ms) {
                             v-for="link in runs.links"
                             :key="link.label"
                             :disabled="!link.url || link.active"
-                            @click="link.url && router.get(link.url, { per_page: perPage }, { preserveState: true, replace: true })"
+                            @click="link.url && router.get(link.url, { per_page: perPage, test_id: testId }, { preserveState: true, replace: true })"
                             class="px-2.5 py-1 rounded-[var(--md-sys-shape-corner-small)] md-label-small transition-colors"
                             :class="[
                                 link.active

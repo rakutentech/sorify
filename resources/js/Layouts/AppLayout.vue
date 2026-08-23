@@ -4,6 +4,11 @@ import { usePage, Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Alert, LanguageSwitcher, Avatar } from '@/Components/ui';
+import {
+    LayoutDashboard, Activity, FolderKanban, Star, BookOpen,
+    ShieldCheck, ScrollText, ExternalLink, ChevronDown, Sun, Moon,
+    UserCircle, LogOut, CircleCheck, Info,
+} from '@lucide/vue';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
 const { t } = useI18n();
@@ -13,17 +18,17 @@ const { theme, toggleTheme } = useTheme();
 const user = computed(() => page.props.auth?.user ?? null);
 
 const navLinks = computed(() => [
-    { label: t('nav.dashboard'), href: '/sorify/' },
-    { label: t('nav.runs'), href: '/sorify/runs' },
-    { label: t('nav.testSuites'), href: '/sorify/suites' },
-    { label: t('nav.bookmarks'), href: '/sorify/bookmarks' },
+    { label: t('nav.dashboard'), href: '/sorify/', icon: LayoutDashboard, accent: 'var(--md-sys-color-primary)' },
+    { label: t('nav.runs'), href: '/sorify/runs', icon: Activity, accent: 'var(--md-ext-color-success)' },
+    { label: t('nav.testSuites'), href: '/sorify/suites', icon: FolderKanban, accent: 'var(--md-sys-color-tertiary)' },
+    { label: t('nav.bookmarks'), href: '/sorify/bookmarks', icon: Star, accent: 'var(--md-ext-color-warning)' },
 ]);
 
-const docsLink = computed(() => ({ label: t('nav.docs'), href: 'https://github.com/rakutentech/sorify', external: true, newTab: true }));
+const docsLink = computed(() => ({ label: t('nav.docs'), href: 'https://github.com/rakutentech/sorify', external: true, newTab: true, icon: BookOpen, accent: 'var(--md-sys-color-on-surface-variant)' }));
 
 const adminLinks = computed(() => user.value?.is_admin ? [
-    { label: t('nav.admin'), href: '/sorify/admin/users' },
-    { label: t('nav.logs'), href: '/sorify/log-viewer', external: true, newTab: true },
+    { label: t('nav.admin'), href: '/sorify/admin/users', icon: ShieldCheck, accent: 'var(--md-sys-color-error)' },
+    { label: t('nav.logs'), href: '/sorify/log-viewer', external: true, newTab: true, icon: ScrollText, accent: 'var(--md-sys-color-on-surface-variant)' },
 ] : []);
 
 function isActive(href) {
@@ -83,9 +88,12 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                                     link.href === '/sorify/suites' ? 'font-bold' : ''
                                 ]"
                             >
-                                <svg v-if="link.href === '/sorify/suites'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
-                                </svg>
+                                <component
+                                    :is="link.icon"
+                                    :size="16"
+                                    class="flex-shrink-0"
+                                    :style="!isActive(link.href) ? { color: link.accent } : null"
+                                />
                                 {{ link.label }}
                             </Link>
 
@@ -95,10 +103,9 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                                 rel="noopener noreferrer"
                                 class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] flex items-center gap-1.5"
                             >
+                                <component :is="docsLink.icon" :size="16" class="flex-shrink-0" :style="{ color: docsLink.accent }" />
                                 {{ docsLink.label }}
-                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6v6M20 4 10 14" />
-                                </svg>
+                                <ExternalLink :size="14" class="flex-shrink-0 opacity-60" />
                             </a>
 
                             <!-- Admin-only links, visually grouped -->
@@ -112,18 +119,20 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                                         :href="link.href"
                                         :target="link.newTab ? '_blank' : undefined"
                                         :rel="link.newTab ? 'noopener noreferrer' : undefined"
-                                        class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20"
+                                        class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20 flex items-center gap-1.5"
                                     >
+                                        <component :is="link.icon" :size="16" class="flex-shrink-0" :style="{ color: link.accent }" />
                                         {{ link.label }}
                                     </a>
                                     <Link
                                         v-else
                                         :href="link.href"
                                         :class="[
-                                            'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20',
+                                            'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20 flex items-center gap-1.5',
                                             isActive(link.href) && 'bg-[var(--md-sys-color-tertiary)]/30'
                                         ]"
                                     >
+                                        <component :is="link.icon" :size="16" class="flex-shrink-0" :style="{ color: link.accent }" />
                                         {{ link.label }}
                                     </Link>
                                 </template>
@@ -142,6 +151,11 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                             >
                                 <Avatar :name="user.name" :email="user.email" :avatar-url="user.avatar_url" size="sm" />
                                 {{ user.name }}
+                                <ChevronDown
+                                    :size="16"
+                                    class="flex-shrink-0 transition-transform"
+                                    :class="userMenuOpen && 'rotate-180'"
+                                />
                             </button>
 
                             <div
@@ -151,15 +165,17 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                                 <Link
                                     href="/sorify/profile"
                                     @click="closeUserMenu"
-                                    class="block px-4 py-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                                    class="flex items-center gap-2.5 px-4 py-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
                                 >
+                                    <UserCircle :size="16" class="flex-shrink-0" :style="{ color: 'var(--md-sys-color-primary)' }" />
                                     {{ t('nav.profile') }}
                                 </Link>
                                 <button
                                     type="button"
                                     @click="logout"
-                                    class="block w-full text-left px-4 py-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                                    class="flex items-center gap-2.5 w-full px-4 py-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
                                 >
+                                    <LogOut :size="16" class="flex-shrink-0" :style="{ color: 'var(--md-sys-color-error)' }" />
                                     {{ t('nav.logout') }}
                                 </button>
                             </div>
@@ -175,22 +191,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                             :label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
                             @click="toggleTheme"
                         >
-                            <!-- Sun icon (shown in dark mode) -->
-                            <svg v-if="theme === 'dark'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <circle cx="12" cy="12" r="5"/>
-                                <line x1="12" y1="1" x2="12" y2="3"/>
-                                <line x1="12" y1="21" x2="12" y2="23"/>
-                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                                <line x1="1" y1="12" x2="3" y2="12"/>
-                                <line x1="21" y1="12" x2="23" y2="12"/>
-                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                            </svg>
-                            <!-- Moon icon (shown in light mode) -->
-                            <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                            </svg>
+                            <Sun v-if="theme === 'dark'" :size="16" :style="{ color: 'var(--md-ext-color-warning)' }" />
+                            <Moon v-else :size="16" :style="{ color: 'var(--md-sys-color-primary)' }" />
                         </IconButton>
                     </div>
                 </div>
@@ -203,12 +205,18 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                     :key="link.href"
                     :href="link.href"
                     :class="[
-                        'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors',
+                        'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors flex items-center gap-1.5',
                         isActive(link.href)
                             ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)]'
                             : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]'
                     ]"
                 >
+                    <component
+                        :is="link.icon"
+                        :size="16"
+                        class="flex-shrink-0"
+                        :style="!isActive(link.href) ? { color: link.accent } : null"
+                    />
                     {{ link.label }}
                 </Link>
 
@@ -216,8 +224,9 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                     :href="docsLink.href"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]"
+                    class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] flex items-center gap-1.5"
                 >
+                    <component :is="docsLink.icon" :size="16" class="flex-shrink-0" :style="{ color: docsLink.accent }" />
                     {{ docsLink.label }}
                 </a>
 
@@ -231,18 +240,20 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                             :href="link.href"
                             :target="link.newTab ? '_blank' : undefined"
                             :rel="link.newTab ? 'noopener noreferrer' : undefined"
-                            class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20"
+                            class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20 flex items-center gap-1.5"
                         >
+                            <component :is="link.icon" :size="16" class="flex-shrink-0" :style="{ color: link.accent }" />
                             {{ link.label }}
                         </a>
                         <Link
                             v-else
                             :href="link.href"
                             :class="[
-                                'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20',
+                                'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20 flex items-center gap-1.5',
                                 isActive(link.href) && 'bg-[var(--md-sys-color-tertiary)]/30'
                             ]"
                         >
+                            <component :is="link.icon" :size="16" class="flex-shrink-0" :style="{ color: link.accent }" />
                             {{ link.label }}
                         </Link>
                     </template>
@@ -255,19 +266,9 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
         <!-- Flash Messages -->
         <div v-if="flash.success || flash.error" class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4 space-y-2">
             <Alert v-if="flash.success" tone="success">
-                <template #icon>
-                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                </template>
                 {{ flash.success }}
             </Alert>
             <Alert v-if="flash.error" tone="error">
-                <template #icon>
-                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-9v4a1 1 0 002 0V9a1 1 0 00-2 0zm0-4a1 1 0 112 0 1 1 0 01-2 0z" clip-rule="evenodd"/>
-                    </svg>
-                </template>
                 {{ flash.error }}
             </Alert>
         </div>

@@ -5,6 +5,10 @@ import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Modal, SuiteName, AvatarGroup, SettingBadge, IconButton } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
+import {
+    FolderKanban, Plus, Search, Users, FlaskConical, Activity, Gauge,
+    Clock, Star, Copy, LoaderCircle, FolderOpen, Check, X,
+} from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -118,13 +122,14 @@ function duplicateSuite(suite) {
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)]">{{ t('testSuites.title') }}</h1>
+                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
+                    <FolderKanban :size="26" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
+                    {{ t('testSuites.title') }}
+                </h1>
                 <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('testSuites.subtitle') }}</p>
             </div>
             <Button v-if="can.create" variant="filled" @click="openModal">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
+                <template #leading><Plus :size="16" /></template>
                 {{ t('testSuites.newSuite') }}
             </Button>
         </div>
@@ -132,9 +137,7 @@ function duplicateSuite(suite) {
         <!-- Search -->
         <div class="mb-4">
             <div class="relative max-w-sm">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-                </svg>
+                <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" />
                 <input
                     v-model="search"
                     type="text"
@@ -147,14 +150,20 @@ function duplicateSuite(suite) {
         <!-- Suites table -->
         <Card padding="p-0" class="flex flex-col flex-1 min-h-0">
             <div v-if="!suites.data.length" class="px-5 py-12 text-center">
+                <component
+                    :is="search ? Search : FolderOpen"
+                    :size="32"
+                    class="mx-auto mb-3 opacity-40"
+                />
                 <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                     {{ search ? t('testSuites.noMatchSearch') : (can.create ? t('testSuites.noneYetCanCreate') : t('testSuites.noneYetNoCreate')) }}
                 </p>
                 <button
                     v-if="!search && can.create"
                     @click="openModal"
-                    class="mt-3 md-label-medium text-[var(--md-sys-color-primary)] hover:underline"
+                    class="mt-3 md-label-medium text-[var(--md-sys-color-primary)] hover:underline inline-flex items-center gap-1"
                 >
+                    <Plus :size="14" />
                     {{ t('testSuites.createFirst') }}
                 </button>
             </div>
@@ -163,13 +172,13 @@ function duplicateSuite(suite) {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FolderKanban :size="13" />{{ t('testSuites.colName') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Users :size="13" />{{ t('testSuites.colUsers') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FlaskConical :size="13" />{{ t('testSuites.colTests') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Activity :size="13" />{{ t('testSuites.colRuns') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Gauge :size="13" />{{ t('testSuites.colPassRate') }}</span></th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Clock :size="13" />{{ t('testSuites.colLastRun') }}</span></th>
                             <th class="w-10 px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colActions') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colName') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colUsers') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colTests') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colRuns') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colPassRate') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colLastRun') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
@@ -178,41 +187,6 @@ function duplicateSuite(suite) {
                             :key="suite.id"
                             class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
                         >
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-1">
-                                    <IconButton
-                                        variant="standard"
-                                        :label="suite.is_bookmarked ? t('testSuites.bookmarkRemove') : t('testSuites.bookmarkAdd')"
-                                        @click="toggleBookmark(suite)"
-                                    >
-                                        <svg
-                                            class="w-4 h-4"
-                                            :class="suite.is_bookmarked ? 'text-[var(--md-sys-color-primary)]' : 'text-[var(--md-sys-color-on-surface-variant)]'"
-                                            :fill="suite.is_bookmarked ? 'currentColor' : 'none'"
-                                            stroke="currentColor"
-                                            viewBox="0 0 20 20"
-                                            stroke-width="1.5"
-                                        >
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.539-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.958z"/>
-                                        </svg>
-                                    </IconButton>
-                                    <IconButton
-                                        v-if="can.create"
-                                        variant="standard"
-                                        :label="t('testSuites.duplicate')"
-                                        :disabled="duplicatingSuiteIds.has(suite.id)"
-                                        @click="duplicateSuite(suite)"
-                                    >
-                                        <svg v-if="duplicatingSuiteIds.has(suite.id)" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                        </svg>
-                                        <svg v-else class="w-4 h-4 text-[var(--md-sys-color-on-surface-variant)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
-                                        </svg>
-                                    </IconButton>
-                                </div>
-                            </td>
                             <td class="px-5 py-4">
                                 <div>
                                     <Link
@@ -223,10 +197,10 @@ function duplicateSuite(suite) {
                                     </Link>
                                     <p v-if="suite.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate max-w-xs">{{ suite.description }}</p>
                                     <div class="flex flex-wrap gap-1.5 mt-1.5">
-                                        <SettingBadge :label="t('testSuites.badgeTeams')" :active="!!suite.has_teams_webhook" />
-                                        <SettingBadge :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" />
-                                        <SettingBadge :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules_count || suite.playwright_proxy)" />
-                                        <SettingBadge :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" />
+                                        <SettingBadge kind="teams" :label="t('testSuites.badgeTeams')" :active="!!suite.has_teams_webhook" success-active />
+                                        <SettingBadge kind="screenshots" :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" success-active />
+                                        <SettingBadge kind="proxy" :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules_count || suite.playwright_proxy)" success-active />
+                                        <SettingBadge kind="schedule" :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" success-active />
                                     </div>
                                 </div>
                             </td>
@@ -247,12 +221,37 @@ function duplicateSuite(suite) {
                                     {{ formatPassRate(suite.pass_rate) }}
                                 </span>
                             </td>
-                            <td class="px-5 py-4 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                            <td class="px-5 py-4 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                                 <span v-if="suite.last_run_at" class="relative group/tip">
                                     <span class="cursor-default">{{ formatRelativeTime(suite.last_run_at) }}</span>
                                     <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 rounded-[var(--md-sys-shape-corner-extra-small)] bg-gray-900 text-white md-label-small whitespace-nowrap opacity-0 group-hover/tip:opacity-100 transition-opacity duration-150 z-50">{{ formatDate(suite.last_run_at) }}</span>
                                 </span>
                                 <span v-else>—</span>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-1">
+                                    <IconButton
+                                        variant="standard"
+                                        :label="suite.is_bookmarked ? t('testSuites.bookmarkRemove') : t('testSuites.bookmarkAdd')"
+                                        @click="toggleBookmark(suite)"
+                                    >
+                                        <Star
+                                            :size="16"
+                                            :class="suite.is_bookmarked ? 'fill-current' : ''"
+                                            :style="{ color: suite.is_bookmarked ? 'var(--md-ext-color-warning)' : 'var(--md-sys-color-on-surface-variant)' }"
+                                        />
+                                    </IconButton>
+                                    <IconButton
+                                        v-if="can.create"
+                                        variant="standard"
+                                        :label="t('testSuites.duplicate')"
+                                        :disabled="duplicatingSuiteIds.has(suite.id)"
+                                        @click="duplicateSuite(suite)"
+                                    >
+                                        <LoaderCircle v-if="duplicatingSuiteIds.has(suite.id)" :size="16" class="animate-spin" />
+                                        <Copy v-else :size="16" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
+                                    </IconButton>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -346,8 +345,15 @@ function duplicateSuite(suite) {
                         <TextField v-model="form.description" :label="t('testSuites.description')" type="textarea" :rows="3" :placeholder="t('testSuites.descriptionPlaceholder')" :error="form.errors.description" />
 
                         <div class="flex justify-end gap-3 pt-2">
-                            <Button type="button" variant="text" @click="closeModal">{{ t('testSuites.cancel') }}</Button>
+                            <Button type="button" variant="text" @click="closeModal">
+                                <template #leading><X :size="16" /></template>
+                                {{ t('testSuites.cancel') }}
+                            </Button>
                             <Button type="submit" variant="filled" :disabled="form.processing">
+                                <template #leading>
+                                    <LoaderCircle v-if="form.processing" :size="16" class="animate-spin" />
+                                    <Check v-else :size="16" />
+                                </template>
                                 {{ form.processing ? t('testSuites.creating') : t('testSuites.createSuite') }}
                             </Button>
                         </div>

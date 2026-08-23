@@ -3,7 +3,7 @@
   "name": "Sorify Recorder",
   "version": "0.1.0",
   "description": "Records clicks, inputs, and navigation so Sorify can generate Playwright tests from a real session.",
-  "permissions": ["activeTab", "scripting", "storage", "alarms", "webNavigation", "tabs"],
+  "permissions": ["activeTab", "scripting", "storage", "alarms", "webNavigation", "tabs", "cookies"],
   "host_permissions": ["<all_urls>"],
   "icons": {
     "16": "icons/icon16.png",

@@ -1,7 +1,22 @@
 <script setup>
-defineProps({
+import { computed, useSlots } from 'vue';
+import { CircleCheck, CircleX, TriangleAlert, Info } from '@lucide/vue';
+
+const props = defineProps({
     tone: { type: String, default: 'info' }, // success | error | warning | info
 });
+
+const slots = useSlots();
+
+const DEFAULT_ICON = {
+    success: CircleCheck,
+    error: CircleX,
+    warning: TriangleAlert,
+    info: Info,
+};
+
+const defaultIcon = computed(() => DEFAULT_ICON[props.tone] ?? Info);
+const hasIconSlot = computed(() => !!slots.icon);
 </script>
 
 <template>
@@ -14,7 +29,8 @@ defineProps({
             'bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)]': tone === 'info',
         }"
     >
-        <slot name="icon" />
+        <component :is="defaultIcon" v-if="!hasIconSlot" :size="18" class="flex-shrink-0" />
+        <slot name="icon" v-else />
         <div class="flex-1"><slot /></div>
     </div>
 </template>

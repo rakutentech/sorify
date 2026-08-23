@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { X } from '@lucide/vue';
 
 defineProps({
     show: { type: Boolean, required: true },
@@ -48,9 +49,7 @@ function handleOverlayClick(event) {
                         <h2 class="md-title-large text-[var(--md-sys-color-on-surface)]">{{ title }}</h2>
                     </slot>
                     <button @click="$emit('close')" class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
+                        <X :size="20" />
                     </button>
                 </div>
                 <div class="flex-1 overflow-y-auto min-h-0">

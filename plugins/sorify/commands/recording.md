@@ -9,7 +9,7 @@ description: >
     /sorify:recording
     /sorify:recording latest
     /sorify:recording 2026-08-14T13-17-45-381Z-e439cv
-allowed-tools: ["Read", "mcp__plugin_sorify_sorify-recorder__list_recordings", "mcp__plugin_sorify_sorify-recorder__recorder_status", "mcp__plugin_sorify_sorify__create_suite", "mcp__plugin_sorify_sorify__bulk_create_tests", "mcp__plugin_sorify_sorify__trigger_run", "mcp__plugin_sorify_sorify__get_run_status"]
+allowed-tools: ["Read", "mcp__plugin_sorify_sorify-recorder__list_recordings", "mcp__plugin_sorify_sorify-recorder__recorder_status", "mcp__plugin_sorify_sorify__create_suite", "mcp__plugin_sorify_sorify__bulk_create_tests", "mcp__plugin_sorify_sorify__trigger_run", "mcp__plugin_sorify_sorify__get_run_status", "mcp__plugin_sorify_sorify__upload_suite_cookies", "mcp__plugin_sorify_sorify__update_suite"]
 ---
 
 # sorify:recording
@@ -147,6 +147,20 @@ produce more accurate Playwright code, not just a blind action replay:
   `title_changed`/`url_changed` into `toHaveTitle()`/`toHaveURL()`. Note
   `url_changed` here is informational only — a `navigation` event is the
   authoritative source for "did a navigation happen," don't double-count.
+- `cookies` rows (`{"type":"cookies","phase":"start|stop","cookies":[...],"timestamp":...}`)
+  — cookie snapshots captured by the Chrome extension at recording start
+  (the active tab's domain, pre-auth baseline) and at recording stop (all
+  visited domains, final authenticated state). Each cookie follows the
+  Playwright `addCookies()` shape (`{name, value, domain, path, expires,
+  httpOnly, secure, sameSite}`). The `phase: "stop"` snapshot is the
+  preferred source for uploading to a suite — it captures the post-login
+  authenticated state. The `phase: "start"` snapshot is the pre-auth
+  baseline (useful if the test needs to start unauthenticated and log in
+  itself). When uploading cookies to a suite via
+  `upload_suite_cookies`, filter to domains relevant to the test flow
+  (e.g. exclude third-party analytics or OAuth provider cookies the user
+  happened to visit) — the extension captures all cookies for all visited
+  domains, not just the target site.
 
 ## Notes
 
@@ -154,6 +168,15 @@ produce more accurate Playwright code, not just a blind action replay:
   `stop_recording`/`clear_recording` — those are for the extension/user to
   control (from the popup) or for the agent to drive interactively in a
   separate conversation, not for this generate-and-upload flow.
+- **Cookie upload**: if the recording contains `cookies` rows (check by
+  reading the JSONL), and the user confirms creating a suite, extract the
+  `phase: "stop"` cookie array and call
+  `mcp__plugin_sorify_sorify__upload_suite_cookies` with the `suite_id` and
+  the cookies array (filtered to domains relevant to the test flow). This
+  makes every test run for the suite start already authenticated, so the
+  generated test code does not need to perform a login flow. Mention to the
+  user how many cookies were uploaded and for which domains. If the user
+  declines the cookie upload, proceed with test creation only.
 - `/sorify:gateway` `/sorify:generate` User may call these two commands next to act on the output.
   Suggest these commands to users after your output.
 

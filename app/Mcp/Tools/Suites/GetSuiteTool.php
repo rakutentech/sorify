@@ -37,7 +37,7 @@ class GetSuiteTool extends Tool
         $suite = TestSuite::findOrFail($data['suite_id']);
         $this->authorizeSuite('view', $suite);
 
-        $suite->load(['proxyRules', 'variables']);
+        $suite->load(['proxyRules', 'variables', 'cookies']);
 
         return Response::structured([
             'suite' => $suite->toArray(),

@@ -44,7 +44,7 @@ class DuplicateSuiteTool extends Tool
         $clone = $this->duplication->duplicate($source, Auth::user(), $data['name'] ?? null);
 
         return Response::structured([
-            'suite' => $clone->fresh('proxyRules')->toArray(),
+            'suite' => $clone->fresh(['proxyRules', 'cookies'])->toArray(),
             'source_suite_id' => $source->id,
             'duplication_status' => $clone->duplication_status,
             'message' => 'Suite created. Tests are being copied in the background — poll `get_suite` on the new suite_id to watch progress. `duplication_status` will move from "pending" to "complete" (or "failed").',

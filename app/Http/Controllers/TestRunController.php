@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\RunRateLimitExceededException;
+use App\Models\Test;
 use App\Models\TestRun;
 use App\Models\TestSuite;
 use App\Services\TestRunService;
@@ -29,6 +30,14 @@ class TestRunController extends Controller
                 $q->where('users.id', $request->user()->id)
                     ->where('test_suite_user.can_view', true);
             });
+        }
+
+        $testId = $request->input('test_id');
+        $filteredTest = null;
+        if ($testId !== null) {
+            $testId = (int) $testId;
+            $query->whereHas('testResults', fn ($q) => $q->where('test_id', $testId));
+            $filteredTest = Test::find($testId, ['id', 'name']);
         }
 
         $perPage = (int) $request->input('per_page', 30);
@@ -64,7 +73,8 @@ class TestRunController extends Controller
 
         return Inertia::render('Runs/Index', [
             'runs' => $paginator,
-            'filters' => ['per_page' => $perPage],
+            'filters' => ['per_page' => $perPage, 'test_id' => $testId],
+            'filteredTest' => $filteredTest ? ['id' => $filteredTest->id, 'name' => $filteredTest->name] : null,
         ]);
     }
 
@@ -92,8 +102,25 @@ class TestRunController extends Controller
         $perPage = (int) request()->input('per_page', 50);
         $perPage = in_array($perPage, [25, 50, 100, 200]) ? $perPage : 50;
 
+        $search = (string) request()->input('search', '');
+        $status = array_values(array_filter((array) request()->input('status', [])));
+        $testId = request()->input('filter.test_id');
+        $filteredTest = null;
+        if ($testId !== null) {
+            $testId = (int) $testId;
+            $filteredTest = Test::find($testId, ['id', 'name']);
+        }
+
         $results = $run->testResults()
             ->with(['test:id,name,test_suite_id', 'screenshots'])
+            ->when($search !== '', function ($q) use ($search) {
+                $q->whereHas('test', function ($t) use ($search) {
+                    $t->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->when(! empty($status), fn ($q) => $q->whereIn('status', $status))
+            ->when($testId !== null, fn ($q) => $q->where('test_id', $testId))
             ->orderBy('id')
             ->paginate($perPage)
             ->withQueryString();
@@ -121,6 +148,13 @@ class TestRunController extends Controller
             'run' => array_merge($run->toArray(), ['suite' => $run->testSuite]),
             'results' => $results,
             'resultTestIds' => $run->testResults()->pluck('test_id')->all(),
+            'filters' => [
+                'search' => $search,
+                'per_page' => $perPage,
+                'status' => $status,
+                'test_id' => $testId,
+            ],
+            'filteredTest' => $filteredTest ? ['id' => $filteredTest->id, 'name' => $filteredTest->name] : null,
         ]);
     }
 
