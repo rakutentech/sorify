@@ -1,0 +1,57 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_f35143a55a4586::t_e0056fbb6ec583 1763
+  s_f35143a55a4586::t_40f8ea6061c760 1871,1873
+  s_f35143a55a4586::t_e9f6cac6361f2b 1704,1710,1721,1724-1725,1727,1735-1736,1742,1747,1766-1768,1770-1785,1790-1791,1798,1814
+  s_f35143a55a4586::t_ec194883971249 888
+  s_f35143a55a4586::t_bc16f55505217a 878-884
+  s_f35143a55a4586::t_7c685413693dea 1006-1039
+  s_f35143a55a4586::t_67c057f5a17eac 1109-1114
+  s_f35143a55a4586::t_37444703a2072e 1886
+resources/js/Components/ui/RunPill.vue
+  s_f35143a55a4586::t_1d495bff143077 23
+resources/js/locales/en.json
+  s_f35143a55a4586::t_5b5d6e4e2ae319 443
+  s_f35143a55a4586::t_c068afaa2758d7 432
+resources/js/locales/ja.json
+  s_f35143a55a4586::t_a73b83953198c9 432
+  s_f35143a55a4586::t_4afebf0a226962 443
+resources/js/Pages/Tests/Show.vue
+  s_f35143a55a4586::t_47f09e08141c1b 195-201
+  s_f35143a55a4586::t_3469dd38a2b05e 206
+resources/js/locales/zh-CN.json
+  s_f35143a55a4586::t_c4bf02ccd8001b 432
+  s_f35143a55a4586::t_352d3245b3846c 443
+resources/js/Components/ui/SettingBadge.vue
+  s_f35143a55a4586::t_df9b8fceadf958 11,14-16
+resources/js/locales/ms.json
+  s_f35143a55a4586::t_22e7471675f411 432
+  s_f35143a55a4586::t_7c50a469c5bddb 443
+resources/js/Components/ui/Chip.vue
+  s_f35143a55a4586::t_d6f5fedc58593b 47
+resources/js/Pages/TestRuns/Show.vue
+  s_f35143a55a4586::t_a73848dc5b29f4 270
+  s_f35143a55a4586::t_f42850b0cfb9c3 216-226
+  s_f35143a55a4586::t_444837b84e1f3a 26-33
+  s_f35143a55a4586::t_dc747eb57090b7 7
+  s_f35143a55a4586::t_8a768063b7c4b0 213
+resources/js/Components/ui/Card.vue
+  s_f35143a55a4586::t_519ab94cfea000 3,17
+resources/js/Pages/TestSuites/Review.vue
+  s_f35143a55a4586::t_cb563f7e7ed6b3 127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "609abed3ec90a7d65bc83b61ad9b3e4b220a0f2f",
+  "prompts": {},
+  "sessions": {
+    "s_f35143a55a4586": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd2909155ffeDnT13YbvTwReXn",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
