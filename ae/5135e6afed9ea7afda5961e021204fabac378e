@@ -1,0 +1,215 @@
+extension/background.js
+  s_3426d399ae1918::t_2c2031d151b04e 87-184
+  s_3426d399ae1918::t_f6d4c02ad3c7de 280-286
+  s_3426d399ae1918::t_ce112bb2eba675 7-11
+  s_3426d399ae1918::t_87915dea8a3eb4 355-356,358-361,367-377
+app/Mcp/Tools/Suites/DuplicateSuiteTool.php
+  s_3426d399ae1918::t_062695e8576d55 47
+mcp/sorify-recorder-mcp/store.go
+  s_3426d399ae1918::t_1f2636fdae03b4 180-187
+  s_3426d399ae1918::t_dbf22bedd29889 239,243,254-255
+  s_3426d399ae1918::t_ecb61b06688671 109-132
+resources/js/Components/ui/RunPill.vue
+  s_f35143a55a4586::t_1d495bff143077 23
+resources/js/Pages/Admin/Users/Index.vue
+  s_cef766012f7ba7::t_5452afc91203c4 112-113
+  s_cef766012f7ba7::t_b521b5d0c8c017 6
+  s_cef766012f7ba7::t_9e39ce86c49103 8
+resources/js/Components/ui/index.js
+  s_cef766012f7ba7::t_a9e7a1dbc81cc4 20
+resources/js/Components/ui/Chip.vue
+  s_f35143a55a4586::t_d6f5fedc58593b 47
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_3426d399ae1918::t_7a9b3c220be8aa 49-61
+  s_3426d399ae1918::t_ee08fe5a480317 81-82,94-95
+  s_3426d399ae1918::t_0e9bd761742290 97
+  s_3426d399ae1918::t_d4ec446ea14206 170
+  s_3426d399ae1918::t_1b46818b23258d 96,107,133-169
+app/Mcp/Tools/Suites/UploadSuiteCookiesTool.php
+  s_3426d399ae1918::t_1a6fa647c161ca 69,71-91
+  s_3426d399ae1918::t_c7cae09b4de5ce 1-68,70,92-156
+resources/js/Pages/TestSuites/Review.vue
+  s_f35143a55a4586::t_cb563f7e7ed6b3 127
+app/Models/TestSuite.php
+  s_3426d399ae1918::t_de82e5a73358f3 102-106
+resources/playwright/runner.cjs
+  s_3426d399ae1918::t_07670c92d0d20b 102,116
+  s_3426d399ae1918::t_8f593811bbd5c7 23
+  s_3426d399ae1918::t_afb6b65f298117 53-54
+  s_3426d399ae1918::t_19144b07687b5b 8-9,19-22
+resources/js/Components/ui/Tooltip.vue
+  s_cef766012f7ba7::t_30d1db7cac467f 1-20
+app/Services/PlaywrightRunnerService.php
+  s_3426d399ae1918::t_90ce6f657f8fac 60
+  s_3426d399ae1918::t_060157e0f02236 112-129
+  s_3426d399ae1918::t_206577e3122cfe 245-247
+app/Services/TestSuiteDuplicationService.php
+  s_3426d399ae1918::t_52e4d861209d94 60-73
+  s_3426d399ae1918::t_9516aac9e4935f 23
+extension/manifest.json
+  s_3426d399ae1918::t_5382078217cfbc 6
+resources/js/Pages/Tests/Show.vue
+  s_f35143a55a4586::t_47f09e08141c1b 195-201
+  s_f35143a55a4586::t_3469dd38a2b05e 206
+resources/js/locales/en.json
+  s_3426d399ae1918::t_1a7ab2c9e396c8 237-257
+  s_f35143a55a4586::t_5b5d6e4e2ae319 443
+  s_f35143a55a4586::t_c068afaa2758d7 432
+tests/Feature/SuiteCookiesTest.php
+  s_3426d399ae1918::t_e3369132d988eb 1-457
+resources/js/locales/zh-CN.json
+  s_f35143a55a4586::t_352d3245b3846c 443
+  s_f35143a55a4586::t_c4bf02ccd8001b 432
+  s_3426d399ae1918::t_914607a9f30fb4 237-257
+mcp/sorify-recorder-mcp/store_test.go
+  s_3426d399ae1918::t_2773a775205bd5 119
+  s_3426d399ae1918::t_2a1a21342803a8 113-118,120-190
+plugins/sorify/commands/recording.md
+  s_3426d399ae1918::t_fb8153f3e8291d 12
+  s_3426d399ae1918::t_e87ab697aae4a3 150-163
+  s_3426d399ae1918::t_adafb838314925 171-179
+database/migrations/2026_08_23_000001_create_test_suite_cookies_table.php
+  s_3426d399ae1918::t_81cd01f5a9effe 1-35
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_3426d399ae1918::t_b7c700d903553f 26-45
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_3426d399ae1918::t_5acd70645e0c1e 85-87,102-105,110,142-184
+  s_3426d399ae1918::t_c1b13d4935f30d 50-62
+  s_3426d399ae1918::t_f1c3798a67f8f5 185
+resources/js/Pages/TestSuites/Show.vue
+  s_f35143a55a4586::t_40f8ea6061c760 1871,1873
+  s_3426d399ae1918::t_20c53742fbfb81 389-510
+  s_3426d399ae1918::t_e47ea794994be1 2215-2217,2219-2227,2229-2233
+  s_3426d399ae1918::t_d6846784f4f903 1306-1382
+  s_3426d399ae1918::t_1f425c25601420 254-264,275,284-294
+  s_f35143a55a4586::t_e0056fbb6ec583 1763
+  s_3426d399ae1918::t_04cbc21339f1d1 2218,2228
+  s_f35143a55a4586::t_e9f6cac6361f2b 1704,1710,1721,1724-1725,1727,1735-1736,1742,1747,1766-1768,1770-1785,1790-1791,1798,1814
+  s_f35143a55a4586::t_bc16f55505217a 878-884
+  s_f35143a55a4586::t_7c685413693dea 1006-1039
+  s_f35143a55a4586::t_67c057f5a17eac 1109-1114
+  s_f35143a55a4586::t_37444703a2072e 1886
+  s_f35143a55a4586::t_ec194883971249 888
+app/Http/Controllers/TestSuiteController.php
+  s_3426d399ae1918::t_cd2188878f5f1d 175
+  s_3426d399ae1918::t_bf6fcb9a9534c5 93,321,400-456
+  s_3426d399ae1918::t_7757999935e16e 302-304,319-320
+  s_3426d399ae1918::t_ee6d2e5e0f954b 94
+  s_3426d399ae1918::t_74b558cbf9a30f 322
+  s_3426d399ae1918::t_6a2604616ad2d0 115
+  s_3426d399ae1918::t_e645a2bb4fcf93 75-76,91-92
+resources/js/Pages/TestSuites/Index.vue
+  s_dc9df8810f8554::t_4113f655788a11 256
+  s_dc9df8810f8554::t_5427888d11f602 222-255
+  s_dc9df8810f8554::t_302e1fcc88dc4b 172
+  s_cef766012f7ba7::t_1c46ae0f1c3793 191-194
+app/Models/TestSuiteCookie.php
+  s_3426d399ae1918::t_26a2fce0a29cba 1-33
+plugins/sorify/commands/gateway.md
+  s_3426d399ae1918::t_6654a4760b3099 109-110
+  s_3426d399ae1918::t_680ca7f6ebadbd 111
+  s_3426d399ae1918::t_6fa2de713dae0b 87
+  s_3426d399ae1918::t_cf5737fbd374b3 135-144
+  s_3426d399ae1918::t_e6ec957199364d 108
+resources/js/Pages/Bookmarks/Index.vue
+  s_a5617f7387d552::t_0187af8ea338e9 120-123
+resources/playwright/harness.cjs
+  s_3426d399ae1918::t_d3061c508c843d 145,164-165
+  s_3426d399ae1918::t_5a351e3283cc3d 219-234
+resources/js/Layouts/AppLayout.vue
+  s_a5617f7387d552::t_3d1b1cfd0376b2 145-151
+resources/js/Components/ui/SettingBadge.vue
+  s_f35143a55a4586::t_df9b8fceadf958 11,14-16
+  s_cef766012f7ba7::t_eee8bd23efa105 5,13
+app/Mcp/Tools/Suites/GetSuiteTool.php
+  s_3426d399ae1918::t_2c9467e6a46f89 40
+resources/js/Pages/TestRuns/Show.vue
+  s_f35143a55a4586::t_444837b84e1f3a 26-33
+  s_f35143a55a4586::t_8a768063b7c4b0 213
+  s_f35143a55a4586::t_a73848dc5b29f4 270
+  s_f35143a55a4586::t_f42850b0cfb9c3 216-226
+  s_f35143a55a4586::t_dc747eb57090b7 7
+extension/README.md
+  s_3426d399ae1918::t_d8f3deac5cd8d9 12-31
+resources/js/locales/ms.json
+  s_f35143a55a4586::t_22e7471675f411 432
+  s_3426d399ae1918::t_4d4742d12862fb 237-257
+  s_f35143a55a4586::t_7c50a469c5bddb 443
+app/Http/Controllers/TestController.php
+  s_3426d399ae1918::t_6d3ec1b555478e 37
+resources/js/Components/ui/Card.vue
+  s_f35143a55a4586::t_519ab94cfea000 3,17
+resources/js/locales/ja.json
+  s_f35143a55a4586::t_a73b83953198c9 432
+  s_3426d399ae1918::t_8e41c919291c38 237-257
+  s_f35143a55a4586::t_4afebf0a226962 443
+README.md
+  h_f44dfe84a46cdf 26-27
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_3426d399ae1918::t_e8dcd0c2c8dc31 26-45
+plugins/sorify/commands/generate.md
+  s_3426d399ae1918::t_96d651b1401bfb 85-92
+app/Mcp/Servers/SorifyServer.php
+  s_3426d399ae1918::t_67e758e71dac40 27
+  s_3426d399ae1918::t_3e1930ef7639d8 53
+mcp/sorify-recorder-mcp/wsserver.go
+  s_3426d399ae1918::t_dd4e012026328f 91-95,121-125
+  s_3426d399ae1918::t_952a4533cbd634 126-127
+mcp/sorify-recorder-mcp/mcpserver.go
+  s_3426d399ae1918::t_2acee2abe6026b 55
+  s_3426d399ae1918::t_01b2ef4c1b6f1b 40-42
+  s_3426d399ae1918::t_81fb9a2b37f923 89-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "ae5135e6afed9ea7afda5961e021204fabac378e",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_3426d399ae1918": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd2d093dbffenUa1KdU2t23t2U",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_a5617f7387d552": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd293de02ffe1sKV8Vwfgb4Iwo",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_cef766012f7ba7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd6900c69ffeBuAbeFErdTCXei",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_dc9df8810f8554": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd2de4524fferAXwqzCX3gqzdo",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_f35143a55a4586": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd2909155ffeDnT13YbvTwReXn",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
