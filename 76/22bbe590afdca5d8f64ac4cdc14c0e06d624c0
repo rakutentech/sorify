@@ -1,0 +1,225 @@
+resources/js/Pages/Auth/ResetPassword.vue
+  s_5111deca9b2cab::t_d0453dd7183fca 50,63-65,74-76,84-86
+  s_5111deca9b2cab::t_a80cd799547c37 7
+  s_5111deca9b2cab::t_9c9edd14b559fb 41-42
+resources/js/Pages/TestSuites/Review.vue
+  s_c00ce7cf54c372::t_a207e2ca99d253 312
+  s_c00ce7cf54c372::t_af043617ce1545 353
+  s_c00ce7cf54c372::t_efcc5574b4d09e 145-148,152-155,159-162
+  s_c00ce7cf54c372::t_669995edc25ada 124-125
+  s_c00ce7cf54c372::t_22c98ae99fac2c 223
+  s_c00ce7cf54c372::t_1caf4479fdd076 136
+  s_c00ce7cf54c372::t_0fe87156fd28c9 11
+  s_c00ce7cf54c372::t_ff59baaf87d8a9 278-281
+  s_c00ce7cf54c372::t_42595a0d354c0b 195
+resources/js/Components/ui/Chip.vue
+  s_22f4e7ec879c73::t_f07951064e4a5c 3,44,49,52-58
+resources/js/Pages/Bookmarks/Index.vue
+  s_d1a5ea201c029c::t_e01d7ed5cab358 98-103
+  s_d1a5ea201c029c::t_b5a9d92414e9b6 85
+  s_d1a5ea201c029c::t_b74cc679dffa4a 62-65
+  s_d1a5ea201c029c::t_bea304175dcb7b 72
+  s_d1a5ea201c029c::t_e54e4e172e7a87 151
+  s_d1a5ea201c029c::t_e49555353b462f 8
+resources/js/Pages/Auth/Login.vue
+  s_5111deca9b2cab::t_2c6df8f877de26 7
+  s_5111deca9b2cab::t_ee7974b49bbe59 43,56-58,68-70
+  s_5111deca9b2cab::t_5d318d75d92d5c 34-35
+resources/js/Components/ui/TextField.vue
+  s_22f4e7ec879c73::t_595515fb7fa90a 2,4,19-20,28-67
+resources/js/Components/ui/RanBy.vue
+  s_22f4e7ec879c73::t_9c75b0e887c40b 4,18-25,27-28,40-41,43
+resources/js/Pages/Runs/Index.vue
+  s_d1a5ea201c029c::t_6aba46bed308b1 57
+  s_d1a5ea201c029c::t_189fc96e4e6306 9
+  s_d1a5ea201c029c::t_5c10d9c0c79a98 48-51
+  s_d1a5ea201c029c::t_8cc1f9a5f8efff 65-72
+  s_d1a5ea201c029c::t_7504b6a08f0dc0 118
+package.json
+  s_22f4e7ec879c73::t_e236617d7b517b 19
+resources/js/Components/ScreenshotGallery.vue
+  s_ae83418d72000e::t_fb3ea8baa7cf58 77
+  s_ae83418d72000e::t_ac6e78c62b27db 86
+  s_ae83418d72000e::t_7b5e27215b2a21 5
+  s_ae83418d72000e::t_c17cb937c1d76e 113
+resources/js/Pages/Dashboard/Index.vue
+  s_22f4e7ec879c73::t_78f787e93acd46 66-69,76-79,83-86,90-93,97-108,126-133,148-151,153-156,167-172
+  s_22f4e7ec879c73::t_e02209f4f9164b 7-10
+resources/js/Components/TestCodeEditor.vue
+  s_ae83418d72000e::t_cb92a71153c89d 140
+  s_ae83418d72000e::t_ed683f222f5d02 6
+  s_ae83418d72000e::t_9e6af6cdc579ab 212-214,216
+resources/js/Pages/Tests/Show.vue
+  s_d1a5ea201c029c::t_56cf2544483669 233-236,240-242,251-254
+  s_d1a5ea201c029c::t_907bbd0889b99f 499,507,521
+  s_d1a5ea201c029c::t_3aaf83cb14a6a3 366-368,370
+  s_d1a5ea201c029c::t_4f0e80d3b92b67 411-414,422
+  s_d1a5ea201c029c::t_be429adb51f4b1 204-207
+  s_d1a5ea201c029c::t_e10c98f461f96f 333-336,343
+  s_d1a5ea201c029c::t_a148e84cc47ac6 262,268
+  s_d1a5ea201c029c::t_5ac4b7c624afd2 12
+  s_d1a5ea201c029c::t_97181dd0e40465 275-278
+  s_d1a5ea201c029c::t_b9516bda9be1bc 544-546,548
+resources/js/Pages/TestSuites/Index.vue
+  s_22f4e7ec879c73::t_c07c24fd1ffe6c 8-11
+  s_22f4e7ec879c73::t_efe777408ccd7e 238-242,251-252
+  s_22f4e7ec879c73::t_5b35004170149a 348-351,353-356
+  s_22f4e7ec879c73::t_616d36697ee4aa 125-128,132,140,153-157,164,166,175-180
+  s_22f4e7ec879c73::t_47efe91a7c050c 200-203
+resources/js/Components/ui/ScreenshotLightbox.vue
+  s_ae83418d72000e::t_db7bfbcb29d769 30
+  s_ae83418d72000e::t_d442cb07ad81f9 58
+  s_ae83418d72000e::t_04ff02747a556c 4
+  s_ae83418d72000e::t_9db2cc5cdb5192 38
+resources/js/Pages/Admin/Users/Index.vue
+  s_5111deca9b2cab::t_14c147a18436be 118,121,126,129,135-138
+  s_5111deca9b2cab::t_beaacaeb501cfa 9
+  s_5111deca9b2cab::t_f62b6671892b05 88-92
+  s_5111deca9b2cab::t_8934e497907239 148-153
+  s_5111deca9b2cab::t_aaa912d60def02 79-80
+resources/js/utils/iconMaps.js
+  s_22f4e7ec879c73::t_3ed210dec228c0 1-70
+resources/js/Pages/Profile/Show.vue
+  s_5111deca9b2cab::t_1e5667c31f2259 71,75,85
+  s_5111deca9b2cab::t_334189b695f52b 134
+  s_5111deca9b2cab::t_2c28847be28c76 143,158-160,168-170,178-180,184
+  s_5111deca9b2cab::t_e3da2f4d199f4d 7
+  s_5111deca9b2cab::t_127e83a3d0af87 101,112-114
+resources/js/Components/ui/Button.vue
+  s_22f4e7ec879c73::t_1e3dbd87cad944 38,40
+resources/js/Pages/TestRuns/Show.vue
+  s_d1a5ea201c029c::t_24bbfbb80eb433 387-389,391
+  s_d1a5ea201c029c::t_303eb70a7a2279 10
+  s_d1a5ea201c029c::t_1c79df917498d9 229-234
+  s_d1a5ea201c029c::t_3c7681923d2ac4 254-257
+  s_d1a5ea201c029c::t_fcc1bb46c2ff89 325
+  s_d1a5ea201c029c::t_72748ad5d85cc5 341-343,345
+resources/js/Pages/Auth/ForgotPassword.vue
+  s_5111deca9b2cab::t_00e294149bc7a2 34-35
+  s_5111deca9b2cab::t_c57ee79cb0bd10 8
+  s_5111deca9b2cab::t_241f81d003fe22 43,64-66
+resources/js/Pages/TestSuites/Show.vue
+  s_85afd2c1defe3f::t_0ae4ddd542fd87 1096
+  s_85afd2c1defe3f::t_ca66bac7358f7e 1583-1584
+  s_85afd2c1defe3f::t_cb51a4c6c4aa22 948
+  s_85afd2c1defe3f::t_24d38ff0e736bc 1748-1749
+  s_85afd2c1defe3f::t_901490e1b2815e 1019-1022
+  s_85afd2c1defe3f::t_5f457a841dd8e1 891-892
+  s_85afd2c1defe3f::t_52e34b2ceda391 11-16
+  s_85afd2c1defe3f::t_100b5c72058351 1415-1416
+  s_85afd2c1defe3f::t_95ae55031e10d3 927
+  s_85afd2c1defe3f::t_d97a2de53ff6d8 971-974
+  s_85afd2c1defe3f::t_6ea7ffc35ebc41 1421-1426
+  s_85afd2c1defe3f::t_dd86d65a7a812e 1430
+  s_85afd2c1defe3f::t_56dae0579da51b 1172
+  s_85afd2c1defe3f::t_65fe4d08db1a8d 905-909
+  s_85afd2c1defe3f::t_9383a967924da5 912
+  s_85afd2c1defe3f::t_816c4de439234e 1087-1092
+  s_85afd2c1defe3f::t_5dacc4fc81f455 1062
+  s_85afd2c1defe3f::t_c6437e8c914e24 964-967
+  s_85afd2c1defe3f::t_81a4ccb2b1487e 922-923
+  s_85afd2c1defe3f::t_4ffb5e64a5e4ba 957-960
+  s_85afd2c1defe3f::t_6395b50c6ef4f7 982-985
+  s_85afd2c1defe3f::t_b5b93596752924 1595
+  s_85afd2c1defe3f::t_b503866feb0021 1888
+  s_85afd2c1defe3f::t_4945965a0cc767 1231
+  s_85afd2c1defe3f::t_9ebd63af26e082 1844
+  s_85afd2c1defe3f::t_70a3609a7e868b 1057
+  s_85afd2c1defe3f::t_a7a5cfe12fa790 1067
+  s_85afd2c1defe3f::t_847392e7a445df 1628
+  s_85afd2c1defe3f::t_c1e945c3da949a 1707
+  s_85afd2c1defe3f::t_36df0d6fc3e308 1081-1082
+  s_85afd2c1defe3f::t_9eea8927e7ba71 1953
+  s_85afd2c1defe3f::t_570b3fbfeaf834 1815
+  s_85afd2c1defe3f::t_05afe4412f05e5 1305
+  s_85afd2c1defe3f::t_1a7ab3087f7eff 1100
+  s_85afd2c1defe3f::t_e9fa8c5dcee6c4 1828
+  s_85afd2c1defe3f::t_6c7824cb7f7dbd 938
+  s_85afd2c1defe3f::t_6aabd390cc7d7a 1268
+  s_85afd2c1defe3f::t_19cd2eec370aaf 1015
+  s_85afd2c1defe3f::t_ea1fe2c8bf86c9 1026
+  s_85afd2c1defe3f::t_c80783b0e51ea5 1434
+  s_85afd2c1defe3f::t_11eff54500ab2d 1542
+  s_85afd2c1defe3f::t_788310bce2b9ff 1862
+  s_85afd2c1defe3f::t_88fbc5d090782f 1045
+  s_85afd2c1defe3f::t_da001177f7a314 1877
+resources/js/Components/ui/Modal.vue
+  s_ae83418d72000e::t_003a61bcfc2399 3
+  s_ae83418d72000e::t_0213334cc5a448 52
+resources/js/Components/CopyButton.vue
+  s_ae83418d72000e::t_9e1c19fbe7d488 26-27
+  s_ae83418d72000e::t_1a02a8030d08bf 3
+resources/js/Components/ui/Alert.vue
+  s_22f4e7ec879c73::t_c33ceefaa8edda 2-5,8-19,32-33
+resources/js/Pages/Auth/Register.vue
+  s_5111deca9b2cab::t_9835964c664ae4 36-37
+  s_5111deca9b2cab::t_160b287c1f5045 7
+  s_5111deca9b2cab::t_82e040e4d4968b 45,58-60,69-71,80-82,91-93
+resources/js/Layouts/AppLayout.vue
+  s_22f4e7ec879c73::t_b9a55ad6a06f79 154-156,158,168,170,176,178,194-195
+  s_22f4e7ec879c73::t_6908f6c7525e2d 7-11,21-24,27,30-31
+  s_22f4e7ec879c73::t_1f7a8e8f5b9d1c 208,214-219
+  s_22f4e7ec879c73::t_8ee170d236270a 227,229
+  s_22f4e7ec879c73::t_dd5e0ffa09fcac 243,245,252,256
+  s_22f4e7ec879c73::t_f2b7412441f301 91-96,106,108,122,124,131,135
+resources/js/Components/ui/SettingBadge.vue
+  s_22f4e7ec879c73::t_3ae370feb2ad42 2-5,9-17,30-37
+package-lock.json
+  s_22f4e7ec879c73::t_152df3f98b282e 10,228-236
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "7622bbe590afdca5d8f64ac4cdc14c0e06d624c0",
+  "prompts": {},
+  "sessions": {
+    "s_22f4e7ec879c73": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd22379a9ffeLfsi01YYSiTD60",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_5111deca9b2cab": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20c8476fferNsitIUJEZWlNO",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_85afd2c1defe3f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20d1be2ffepar2ZVXOXtSxba",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_ae83418d72000e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20c58b9ffeJQkfv8W71oYOW4",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_c00ce7cf54c372": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20cfa85ffeb1zjRYZO6p6b6Z",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_d1a5ea201c029c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd20cbd1affeyfJIrpUmE8LmkR",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
