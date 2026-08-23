@@ -1,0 +1,86 @@
+resources/js/locales/ms.json
+  s_829377f8c65137::t_18d999231bacc3 89-90
+  s_829377f8c65137::t_ddd8667d9c252a 429-431
+  s_829377f8c65137::t_226513f1a5bd71 469-474
+resources/js/Components/ui/Breadcrumb.vue
+  s_829377f8c65137::t_c1a6a9b9d727f6 10-12
+  s_829377f8c65137::t_38afa931b4de21 1-9,13-15,17-21,26-30,34,36-38
+  s_829377f8c65137::t_6cdfd4e1d15f77 16,22-25,31-33,35
+resources/js/Pages/TestSuites/Index.vue
+  s_829377f8c65137::t_0be3b3eed2d24f 224
+resources/js/Pages/Bookmarks/Index.vue
+  s_829377f8c65137::t_e4d87f4f820e39 7
+  s_829377f8c65137::t_d9ad962c75af0e 147-157
+resources/js/Pages/TestSuites/Show.vue
+  s_829377f8c65137::t_d6ad617d42fccd 8
+  s_829377f8c65137::t_6d2a807f222319 1719,1734
+  s_829377f8c65137::t_1f68013a1103cf 879-887
+resources/js/Pages/TestRuns/Show.vue
+  s_829377f8c65137::t_58e791ea92423e 392-447,449,452-454
+  s_829377f8c65137::t_1f5647be691aae 7
+  s_829377f8c65137::t_9bcf3cc36c1c0a 479-481,486
+  s_829377f8c65137::t_33343994c2fff4 448,450-451
+  s_829377f8c65137::t_14d3a8ef6f4f13 270-279
+  s_829377f8c65137::t_0435d81823d891 69-75,77-137
+  s_829377f8c65137::t_6272d91e40337f 10,18-19
+  s_829377f8c65137::t_d11cc7a72b18a0 383
+app/Http/Controllers/TestSuiteController.php
+  s_829377f8c65137::t_7b76419e46cc00 120-121
+resources/js/Components/ui/RunPill.vue
+  s_829377f8c65137::t_fea0b11a368b65 8
+  s_829377f8c65137::t_603779063c91a8 24
+resources/js/Pages/TestSuites/Review.vue
+  s_829377f8c65137::t_66470623bb9d71 342
+  s_829377f8c65137::t_39e52f9ff77a3c 8
+  s_829377f8c65137::t_263c98ab8c4e2a 18
+  s_829377f8c65137::t_6bcf2020c18c29 29
+  s_829377f8c65137::t_c9ee41d778c080 113-122
+  s_829377f8c65137::t_a044bd2f5a520b 220-221
+  s_829377f8c65137::t_ebddc75a8479dd 240
+resources/js/Pages/Runs/Index.vue
+  s_829377f8c65137::t_6e5d0f7613c614 75,77-78
+  s_829377f8c65137::t_50692d979cdb74 69-74,76,79-81
+  s_829377f8c65137::t_4e2ec48c1d97d3 9,22,26,29-40,42
+  s_829377f8c65137::t_b76e02974d6c66 186
+resources/js/locales/ja.json
+  s_829377f8c65137::t_4601dcd3507738 429-431
+  s_829377f8c65137::t_d020010bb742b4 469-474
+  s_829377f8c65137::t_a48a0ee3f7ed63 89-90
+resources/js/Pages/Tests/Show.vue
+  s_829377f8c65137::t_c2d3178826eb84 188-197
+  s_829377f8c65137::t_16697850cd0824 9
+resources/js/locales/zh-CN.json
+  s_829377f8c65137::t_3902b95eff2905 89-90
+  s_829377f8c65137::t_e8163e33610dc5 429-431
+  s_829377f8c65137::t_da89a7f5b52170 469-474
+resources/css/app.css
+  s_829377f8c65137::t_cbd0e14f11cd20 211-225
+resources/js/locales/en.json
+  s_829377f8c65137::t_716b48e13f9c6f 429-431
+  s_829377f8c65137::t_34306e4116e831 469-474
+  s_829377f8c65137::t_ca006e48d5293c 89-90
+app/Http/Controllers/TestRunController.php
+  s_829377f8c65137::t_2b4ad1975f0802 35-42
+  s_829377f8c65137::t_939dfe53d14681 76-77
+  s_829377f8c65137::t_9be8fb30b07675 151-157
+  s_829377f8c65137::t_9037618d5bfbea 105-113,116-123
+  s_829377f8c65137::t_ef4cbefc16789a 6
+resources/js/Components/ui/index.js
+  s_829377f8c65137::t_13217de51dc8ac 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "1925c6559d82cde1a87017bc64b9468c296885b2",
+  "prompts": {},
+  "sessions": {
+    "s_829377f8c65137": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fd1fb1672ffeId211rprUY2hnD",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
