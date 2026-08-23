@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { computed } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Avatar } from '@/Components/ui';
+import { UserCircle, Upload, KeyRound, Lock, User, Check } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -67,11 +68,11 @@ function removeAvatar() {
         <Head :title="t('profile.title')" />
 
         <div class="max-w-4xl mx-auto space-y-6">
-            <h1 class="md-title-large text-[var(--md-sys-color-on-surface)]">{{ t('profile.title') }}</h1>
+            <h1 class="md-title-large text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5"><UserCircle :size="26" :style="{ color: 'var(--md-sys-color-primary)' }" />{{ t('profile.title') }}</h1>
 
             <!-- Avatar -->
             <Card padding="p-6">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4">{{ t('profile.avatar') }}</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4 flex items-center gap-2"><UserCircle :size="20" :style="{ color: 'var(--md-sys-color-primary)' }" />{{ t('profile.avatar') }}</h2>
                 <div class="flex items-center gap-5">
                     <Avatar
                         :name="user.name"
@@ -81,9 +82,7 @@ function removeAvatar() {
                     />
                     <div class="flex items-center gap-3">
                         <label class="inline-flex items-center justify-center gap-2 h-10 px-6 text-sm rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-[background-color,box-shadow,filter] duration-150 bg-transparent text-[var(--md-sys-color-primary)] border border-[var(--md-sys-color-outline)] hover:bg-[color-mix(in_srgb,var(--md-sys-color-primary)_8%,transparent)] cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5V18a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-1.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                            </svg>
+                            <Upload :size="16" />
                             <span>{{ t('profile.uploadAvatar') }}</span>
                             <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden" @change="onAvatarChange" :disabled="avatarForm.processing" />
                         </label>
@@ -99,7 +98,7 @@ function removeAvatar() {
 
             <!-- Account -->
             <Card padding="p-6">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4">{{ t('profile.account') }}</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-4 flex items-center gap-2"><User :size="20" :style="{ color: 'var(--md-sys-color-primary)' }" />{{ t('profile.account') }}</h2>
 
                 <form @submit.prevent="submitName" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -110,7 +109,9 @@ function removeAvatar() {
                             autocomplete="name"
                             required
                             :error="nameForm.errors.name"
-                        />
+                        >
+                            <template #leading><User :size="16" /></template>
+                        </TextField>
                         <div>
                             <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5">
                                 {{ t('profile.email') }}
@@ -130,6 +131,7 @@ function removeAvatar() {
                     </div>
 
                     <Button type="submit" variant="filled" :disabled="nameForm.processing">
+                        <template #leading><Check :size="16" /></template>
                         <span v-if="nameForm.processing">{{ t('profile.updating') }}</span>
                         <span v-else>{{ t('profile.updateName') }}</span>
                     </Button>
@@ -138,7 +140,7 @@ function removeAvatar() {
 
             <!-- Change / Set Password -->
             <Card padding="p-6">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-1">{{ hasPassword ? t('profile.changePassword') : t('profile.setPassword') }}</h2>
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] mb-1 flex items-center gap-2"><KeyRound :size="20" :style="{ color: 'var(--md-sys-color-primary)' }" />{{ hasPassword ? t('profile.changePassword') : t('profile.setPassword') }}</h2>
                 <p v-if="!hasPassword" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-4">
                     {{ t('profile.setPasswordHint') }}
                 </p>
@@ -153,7 +155,9 @@ function removeAvatar() {
                             autocomplete="current-password"
                             required
                             :error="passwordForm.errors.current_password"
-                        />
+                        >
+                            <template #leading><Lock :size="16" /></template>
+                        </TextField>
                         <TextField
                             v-model="passwordForm.password"
                             :label="t('profile.newPassword')"
@@ -161,7 +165,9 @@ function removeAvatar() {
                             autocomplete="new-password"
                             required
                             :error="passwordForm.errors.password"
-                        />
+                        >
+                            <template #leading><Lock :size="16" /></template>
+                        </TextField>
                         <TextField
                             v-model="passwordForm.password_confirmation"
                             :label="t('profile.confirmNewPassword')"
@@ -169,10 +175,13 @@ function removeAvatar() {
                             autocomplete="new-password"
                             required
                             :error="passwordForm.errors.password_confirmation"
-                        />
+                        >
+                            <template #leading><Lock :size="16" /></template>
+                        </TextField>
                     </div>
 
                     <Button type="submit" variant="filled" :disabled="passwordForm.processing">
+                        <template #leading><KeyRound :size="16" /></template>
                         <span v-if="passwordForm.processing">{{ t('profile.updating') }}</span>
                         <span v-else>{{ t('profile.updatePassword') }}</span>
                     </Button>

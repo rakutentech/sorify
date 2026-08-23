@@ -47,6 +47,19 @@ class UpdateSuiteTool extends Tool
                     'value' => $schema->string()->description('Variable value. May contain secrets (tokens, passwords); values are only visible to suite members.'),
                 ]))
                 ->description('Key/value pairs injected into every test run as a `variables` object in the Playwright code scope. Reference them in test code as variables.KEY. Passing this replaces the suite\'s full variable set; omit to leave existing variables untouched.'),
+            'cookies' => $schema->array()
+                ->items($schema->object([
+                    'name' => $schema->string()->required()->description('Cookie name.'),
+                    'value' => $schema->string()->description('Cookie value.'),
+                    'domain' => $schema->string()->description('Cookie domain (e.g. "example.com"). Either domain or url is required.'),
+                    'path' => $schema->string()->description('Cookie path. Defaults to "/".'),
+                    'url' => $schema->string()->description('Cookie URL. Either domain or url is required.'),
+                    'expires' => $schema->integer()->description('Unix epoch seconds. Omit or set to -1 for a session cookie.'),
+                    'http_only' => $schema->boolean()->description('Whether the cookie is HttpOnly.'),
+                    'secure' => $schema->boolean()->description('Whether the cookie is Secure.'),
+                    'same_site' => $schema->string()->enum(['Strict', 'Lax', 'None'])->description('SameSite attribute.'),
+                ]))
+                ->description('Cookies added to the Playwright browser context before any page is created, so tests start already authenticated. Each cookie must set either domain or url. Passing this replaces the suite\'s full cookie set; omit to leave existing cookies untouched. Values are only visible to suite members.'),
             'history_retention' => $schema->integer()->enum([3, 5, 10])->description('Number of past runs to keep per test (3, 5, or 10). Older results and screenshots are pruned automatically. Defaults to 5.'),
             'timeout_ms' => $schema->integer()->enum([10000, 30000, 60000, 120000, 300000, 600000])->description('Per-action timeout in milliseconds (10000, 30000, 60000, 120000, 300000, or 600000). Defaults to 30000.'),
             'take_screenshot' => $schema->boolean()->description('Whether to capture screenshots during test runs. Disable for faster runs. Defaults to true.'),
@@ -69,6 +82,9 @@ class UpdateSuiteTool extends Tool
         $hasVariables = array_key_exists('variables', $data);
         $variables = $data['variables'] ?? null;
         unset($data['variables']);
+        $hasCookies = array_key_exists('cookies', $data);
+        $cookies = $data['cookies'] ?? null;
+        unset($data['cookies']);
 
         $suite->update($data);
 
@@ -83,11 +99,15 @@ class UpdateSuiteTool extends Tool
             $this->syncVariables($suite, $variables);
         }
 
+        if ($hasCookies) {
+            $this->syncCookies($suite, $cookies);
+        }
+
         if ($suite->wasChanged('history_retention')) {
             PruneSuiteHistoryJob::dispatch($suite);
         }
 
-        return Response::structured(['suite' => $suite->load(['proxyRules', 'variables'])->toArray()]);
+        return Response::structured(['suite' => $suite->load(['proxyRules', 'variables', 'cookies'])->toArray()]);
     }
 
     /**
@@ -117,6 +137,50 @@ class UpdateSuiteTool extends Tool
 
         if ($rows) {
             $suite->variables()->createMany(array_values($rows));
+        }
+    }
+
+    /**
+     * Replace a suite's cookies with the given set (last write wins per name+domain+path).
+     *
+     * @param  array<int, array{name: string, value?: string|null, domain?: string|null, path?: string|null, url?: string|null, expires?: int|null, http_only?: bool|null, secure?: bool|null, same_site?: string|null}>|null  $cookies
+     */
+    private function syncCookies(TestSuite $suite, ?array $cookies): void
+    {
+        $suite->cookies()->delete();
+
+        if (! $cookies) {
+            return;
+        }
+
+        $rows = [];
+        foreach ($cookies as $cookie) {
+            $name = $cookie['name'] ?? null;
+            if ($name === null || $name === '') {
+                continue;
+            }
+            $domain = isset($cookie['domain']) && $cookie['domain'] !== '' ? $cookie['domain'] : null;
+            $path = isset($cookie['path']) && $cookie['path'] !== '' ? $cookie['path'] : null;
+            $url = isset($cookie['url']) && $cookie['url'] !== '' ? $cookie['url'] : null;
+            if ($domain === null && $url === null) {
+                continue;
+            }
+            $key = $name.'|'.$domain.'|'.$path;
+            $rows[$key] = [
+                'name' => $name,
+                'value' => $cookie['value'] ?? null,
+                'domain' => $domain,
+                'path' => $path,
+                'url' => $url,
+                'expires' => isset($cookie['expires']) ? (int) $cookie['expires'] : null,
+                'http_only' => (bool) ($cookie['http_only'] ?? false),
+                'secure' => (bool) ($cookie['secure'] ?? false),
+                'same_site' => isset($cookie['same_site']) && $cookie['same_site'] !== '' ? $cookie['same_site'] : null,
+            ];
+        }
+
+        if ($rows) {
+            $suite->cookies()->createMany(array_values($rows));
         }
     }
 }

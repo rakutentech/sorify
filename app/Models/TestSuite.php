@@ -99,6 +99,11 @@ class TestSuite extends Model
         return $this->hasMany(TestSuiteVariable::class);
     }
 
+    public function cookies(): HasMany
+    {
+        return $this->hasMany(TestSuiteCookie::class);
+    }
+
     public function testRuns(): HasMany
     {
         return $this->hasMany(TestRun::class);

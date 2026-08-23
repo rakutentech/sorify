@@ -34,7 +34,7 @@ class TestController extends Controller
     {
         $this->authorize('view', $suite);
 
-        $suite->load('variables');
+        $suite->load('variables', 'cookies');
 
         $codeVersions = $test->codeVersions()
             ->with('createdBy:id,name')

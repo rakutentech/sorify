@@ -82,6 +82,14 @@ UPLOADED_BY=$(grep "^SORIFY_USERNAME" ~/.sorify | cut -d= -f2)
 
 ## Step 4: Clear browser session
 
+This clears localStorage, sessionStorage, and cookies in the exploration
+browser so the agent sees the page as a first-time visitor. Note: if the
+suite has cookies configured (via the dashboard or `upload_suite_cookies`),
+they are injected by Sorify at test **run** time — not during this
+exploration step — so the generated test code does not need to perform a
+login flow itself. The exploration browser state and the suite's stored
+cookies are independent.
+
 **Run directly in the parent — do not delegate.**
 
 ```javascript
