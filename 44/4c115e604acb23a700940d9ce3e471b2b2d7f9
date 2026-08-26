@@ -1,0 +1,73 @@
+app/Mcp/Servers/SorifyServer.php
+  s_7f6a445c27a971::t_fa3c689179b52c 9
+  s_7f6a445c27a971::t_56403b293b4217 81
+app/Services/TestRunService.php
+  s_7f6a445c27a971::t_d43915c45379eb 7,13,20,28-36,97-129
+  s_7f6a445c27a971::t_50d93919088006 130
+resources/js/locales/ja.json
+  s_7f6a445c27a971::t_58a7662a87634b 196
+app/Mcp/Tools/Suites/ListSuitesTool.php
+  s_7f6a445c27a971::t_3e558f2e9a635d 8,29-30,40-41,49-51
+resources/js/Pages/TestSuites/Show.vue
+  s_7f6a445c27a971::t_9b384314223ddf 136
+app/Mcp/Tools/Suites/ListBookmarkedSuitesTool.php
+  s_7f6a445c27a971::t_9efeb0e57bb9cb 8,30-31,41-42,52-54
+app/Mcp/Tools/Runs/ListRunsTool.php
+  s_7f6a445c27a971::t_03ce87d8e1442e 1-114
+tests/Unit/Mcp/Tools/SuitesToolsTest.php
+  s_7f6a445c27a971::t_117c00e599725f 162-209
+  s_7f6a445c27a971::t_a7111038bd723b 12
+tests/Feature/WebhookConcurrencyTest.php
+  s_7f6a445c27a971::t_d64fdfd60cde86 1-266
+resources/js/locales/zh-CN.json
+  s_7f6a445c27a971::t_86687450d94d5b 196
+app/Exceptions/WebhookRunInProgressException.php
+  s_7f6a445c27a971::t_25a5a3f6abda1c 1-13
+tests/Unit/Mcp/Tools/RunsToolsTest.php
+  s_7f6a445c27a971::t_cd887dd033fc23 101-191
+  s_7f6a445c27a971::t_49c53c7f60d20c 10,12
+resources/js/locales/en.json
+  s_7f6a445c27a971::t_fde1824381469f 196
+resources/js/locales/ms.json
+  s_7f6a445c27a971::t_a263071e094f41 196
+app/Models/TestRun.php
+  s_7f6a445c27a971::t_f29b72fc6c66eb 34-38
+  s_7f6a445c27a971::t_0a4afdcf3e9ed7 8
+app/Support/RunSort.php
+  s_7f6a445c27a971::t_34b5f15c8a4fbd 10-14
+  s_7f6a445c27a971::t_4095fd0b5d220f 9
+tests/Unit/Mcp/Tools/BookmarkToolsTest.php
+  s_7f6a445c27a971::t_d528a4d6ed35fd 74-113
+  s_7f6a445c27a971::t_1aec9b9aae11c5 9
+app/Support/SuiteSort.php
+  s_7f6a445c27a971::t_11fddc0b2aa11f 11-15
+  s_7f6a445c27a971::t_7095546e1280bb 10
+app/Http/Controllers/WebhookController.php
+  s_7f6a445c27a971::t_3f6557f375ba15 6,19,23-30,53-99
+  s_7f6a445c27a971::t_e90d9253f420c6 100
+plugins/sorify/commands/gateway.md
+  s_7f6a445c27a971::t_79d5e40024b72f 106
+  s_7f6a445c27a971::t_6bd95555d943a9 177,184-194
+  s_7f6a445c27a971::t_16cbda68f7bc38 14
+  s_7f6a445c27a971::t_93500aba10519a 107
+  s_7f6a445c27a971::t_a3b6f9a6da3155 227-230
+  s_7f6a445c27a971::t_53908f1b96760e 37
+  s_7f6a445c27a971::t_98e44f5b789316 87
+  s_7f6a445c27a971::t_b3207fd769b1a7 195
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "444c115e604acb23a700940d9ce3e471b2b2d7f9",
+  "prompts": {},
+  "sessions": {
+    "s_7f6a445c27a971": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fc2ab0bacffe0w47Vj5a0wzYu9",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
