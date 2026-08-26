@@ -1,0 +1,28 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_69edee6b95b370::t_3e50b06283d85d 133,143
+plugins/sorify/commands/gateway.md
+  s_69edee6b95b370::t_1154fcd53e3cb2 187-188,190-191
+app/Http/Controllers/WebhookController.php
+  s_69edee6b95b370::t_9e7a084696dbf0 62-63
+  s_69edee6b95b370::t_20286c8abbe607 29,39
+tests/Feature/WebhookConcurrencyTest.php
+  s_69edee6b95b370::t_91df86c7684c57 67,73-75
+  s_69edee6b95b370::t_ca30e0541d1c1f 44
+  s_69edee6b95b370::t_c013e22f38be19 76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "f51cc853edf1fe1f30dc1d91e12b290451690b2a",
+  "prompts": {},
+  "sessions": {
+    "s_69edee6b95b370": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fc24cc6e8ffeq3Jh23eJ4zhuRm",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
