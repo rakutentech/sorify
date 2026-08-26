@@ -1,0 +1,29 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_90acc56f81082b::t_415e50f8bc3e8b 200
+  s_90acc56f81082b::t_ec9c5e4d36806b 177,184
+  s_90acc56f81082b::t_a050edc866373a 1174,1176
+  s_90acc56f81082b::t_fe1fa72b2add46 13
+app/Http/Controllers/TestSuiteScheduleController.php
+  s_90acc56f81082b::t_0723c0ea36a890 27
+app/Http/Controllers/AuthController.php
+  s_90acc56f81082b::t_14940c77fe2ff7 48-51
+  s_90acc56f81082b::t_c5a47c41fe0a1d 218
+resources/js/Layouts/AppLayout.vue
+  s_90acc56f81082b::t_51e069e70660ff 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "5c50f78c8c5087b1e4cdc3d407449193e19ff882",
+  "prompts": {},
+  "sessions": {
+    "s_90acc56f81082b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fc4626d04ffeUPuHkjT1z70dmQ",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
