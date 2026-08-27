@@ -279,3 +279,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v1.5** - i18n support for English and Japanese for now.
 - **v1.6** - i18n support for Malay, Simplified Chinese. Extension captures file uploads, iframes, tabs, network. oAuth login, with Avatar. Duplicate a test suite (background copy of tests) and duplicate a test case, available on the dashboard and via MCP (`duplicate_suite`, `duplicate_test`).
 - **v1.7** - Cookies support, variables support.
+- **v1.8** - MCP supports runs. Auto redirect after login page. Support for one time CI webhook and who ran the CI.

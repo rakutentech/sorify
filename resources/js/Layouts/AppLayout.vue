@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Alert, LanguageSwitcher, Avatar } from '@/Components/ui';
 import {
-    LayoutDashboard, Activity, FolderKanban, Star, BookOpen,
+    Activity, FolderKanban, Star, BookOpen,
     ShieldCheck, ScrollText, ExternalLink, ChevronDown, Sun, Moon,
     UserCircle, LogOut, CircleCheck, Info,
 } from '@lucide/vue';
@@ -18,7 +18,6 @@ const { theme, toggleTheme } = useTheme();
 const user = computed(() => page.props.auth?.user ?? null);
 
 const navLinks = computed(() => [
-    { label: t('nav.dashboard'), href: '/sorify/', icon: LayoutDashboard, accent: 'var(--md-sys-color-primary)' },
     { label: t('nav.runs'), href: '/sorify/runs', icon: Activity, accent: 'var(--md-ext-color-success)' },
     { label: t('nav.testSuites'), href: '/sorify/suites', icon: FolderKanban, accent: 'var(--md-sys-color-tertiary)' },
     { label: t('nav.bookmarks'), href: '/sorify/bookmarks', icon: Star, accent: 'var(--md-ext-color-warning)' },

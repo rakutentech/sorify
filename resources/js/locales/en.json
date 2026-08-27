@@ -2,7 +2,7 @@
     "nav": {
         "dashboard": "Dashboard",
         "runs": "Runs",
-        "testSuites": "Test Suites",
+        "testSuites": "Suites",
         "bookmarks": "Bookmarks",
         "docs": "Docs",
         "admin": "Admin",
@@ -193,7 +193,7 @@
         "noWebhookConfigured": "No webhook configured.",
         "hideCurlExample": "Hide curl example",
         "showCurlExample": "Show curl example",
-        "testIdsHint": "Pass test_ids in the JSON body to run only specific tests; omit it to run every active test in the suite.",
+        "testIdsHint": "Pass test_ids as a query parameter (e.g. ?test_ids=1,2,3) to run only specific tests; omit it to run every active test in the suite.",
         "hideSampleResponse": "Hide sample response",
         "showSampleResponse": "Show sample response",
         "pollRunStatus": "Poll run status",
@@ -599,6 +599,8 @@
     },
     "common": {
         "showMore": "Show more",
-        "showLess": "Show less"
+        "showLess": "Show less",
+        "sortAscending": "Sort ascending",
+        "sortDescending": "Sort descending"
     }
 }

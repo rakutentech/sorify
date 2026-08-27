@@ -2,7 +2,7 @@
     "nav": {
         "dashboard": "ダッシュボード",
         "runs": "実行履歴",
-        "testSuites": "テストスイート",
+        "testSuites": "スイート",
         "bookmarks": "ブックマーク",
         "docs": "ドキュメント",
         "admin": "管理者",
@@ -193,7 +193,7 @@
         "noWebhookConfigured": "Webhookは設定されていません。",
         "hideCurlExample": "curlの例を隠す",
         "showCurlExample": "curlの例を表示",
-        "testIdsHint": "特定のテストのみ実行する場合はJSONボディにtest_idsを指定してください。省略するとスイート内の有効なテストがすべて実行されます。",
+        "testIdsHint": "特定のテストのみ実行する場合はクエリパラメータで test_ids を指定してください（例: ?test_ids=1,2,3）。省略するとスイート内の有効なテストがすべて実行されます。",
         "hideSampleResponse": "サンプルレスポンスを隠す",
         "showSampleResponse": "サンプルレスポンスを表示",
         "pollRunStatus": "実行ステータスを取得",
@@ -599,6 +599,8 @@
     },
     "common": {
         "showMore": "もっと見る",
-        "showLess": "折りたたむ"
+        "showLess": "折りたたむ",
+        "sortAscending": "昇順で並べ替え",
+        "sortDescending": "降順で並べ替え"
     }
 }

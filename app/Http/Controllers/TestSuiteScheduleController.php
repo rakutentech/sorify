@@ -24,7 +24,7 @@ class TestSuiteScheduleController extends Controller
         $schedule = $suite->schedule()->updateOrCreate([], [
             'cron_expression' => $data['cron_expression'],
             'timezone' => $timezone,
-            'is_enabled' => $data['is_enabled'] ?? true,
+            'is_enabled' => $data['is_enabled'] ?? false,
             'created_by' => $request->user()?->id,
         ]);
 
