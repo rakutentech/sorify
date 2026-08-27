@@ -9,6 +9,7 @@ use App\Mcp\Tools\Suites\GetSuiteTool;
 use App\Mcp\Tools\Suites\ListSuitesTool;
 use App\Mcp\Tools\Suites\UpdateSuiteTool;
 use App\Jobs\PruneSuiteHistoryJob;
+use App\Models\TestRun;
 use App\Models\TestSuite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -157,5 +158,53 @@ class SuitesToolsTest extends TestCase
             ->assertOk();
 
         $this->assertDatabaseMissing('test_suites', ['id' => $suite->id]);
+    }
+
+    public function test_list_suites_sorts_by_name_ascending(): void
+    {
+        $user = User::factory()->admin()->create();
+        $gamma = TestSuite::create(['name' => 'Gamma', 'base_url' => 'https://g.example.com']);
+        $alpha = TestSuite::create(['name' => 'Alpha', 'base_url' => 'https://a.example.com']);
+        $beta = TestSuite::create(['name' => 'Beta', 'base_url' => 'https://b.example.com']);
+
+        SorifyServer::actingAs($user)
+            ->tool(ListSuitesTool::class, ['sort' => 'name', 'sort_dir' => 'asc'])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('data.0.id', $alpha->id)
+                ->where('data.1.id', $beta->id)
+                ->where('data.2.id', $gamma->id)
+                ->etc());
+    }
+
+    public function test_list_suites_sorts_by_runs_count(): void
+    {
+        $user = User::factory()->admin()->create();
+        $fewRuns = TestSuite::create(['name' => 'Few Runs', 'base_url' => 'https://a.example.com']);
+        $manyRuns = TestSuite::create(['name' => 'Many Runs', 'base_url' => 'https://b.example.com']);
+
+        // Give "Many Runs" 3 completed runs and "Few Runs" 1.
+        TestRun::create(['test_suite_id' => $manyRuns->id, 'status' => 'completed']);
+        TestRun::create(['test_suite_id' => $manyRuns->id, 'status' => 'completed']);
+        TestRun::create(['test_suite_id' => $manyRuns->id, 'status' => 'completed']);
+        TestRun::create(['test_suite_id' => $fewRuns->id, 'status' => 'completed']);
+
+        // desc: many first
+        SorifyServer::actingAs($user)
+            ->tool(ListSuitesTool::class, ['sort' => 'runs', 'sort_dir' => 'desc'])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('data.0.id', $manyRuns->id)
+                ->where('data.1.id', $fewRuns->id)
+                ->etc());
+
+        // asc: few first
+        SorifyServer::actingAs($user)
+            ->tool(ListSuitesTool::class, ['sort' => 'runs', 'sort_dir' => 'asc'])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('data.0.id', $fewRuns->id)
+                ->where('data.1.id', $manyRuns->id)
+                ->etc());
     }
 }

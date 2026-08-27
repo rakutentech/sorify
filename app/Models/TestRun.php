@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class TestRun extends Model
 {
@@ -28,6 +29,11 @@ class TestRun extends Model
     public function testResults(): HasMany
     {
         return $this->hasMany(TestResult::class);
+    }
+
+    public function screenshots(): HasManyThrough
+    {
+        return $this->hasManyThrough(Screenshot::class, TestResult::class);
     }
 
     public function getPassRateAttribute(): float

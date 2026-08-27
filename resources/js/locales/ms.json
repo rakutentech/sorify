@@ -2,7 +2,7 @@
     "nav": {
         "dashboard": "Papan Pemuka",
         "runs": "Pelaksanaan",
-        "testSuites": "Set Ujian",
+        "testSuites": "Set",
         "bookmarks": "Tanda Buku",
         "docs": "Dokumentasi",
         "admin": "Pentadbir",
@@ -193,7 +193,7 @@
         "noWebhookConfigured": "Tiada webhook dikonfigurasi.",
         "hideCurlExample": "Sembunyi contoh curl",
         "showCurlExample": "Tunjuk contoh curl",
-        "testIdsHint": "Luluskan test_ids dalam badan JSON untuk menjalankan ujian tertentu sahaja; abaikan untuk menjalankan setiap ujian aktif dalam set.",
+        "testIdsHint": "Luluskan test_ids sebagai parameter pertanyaan (cth. ?test_ids=1,2,3) untuk menjalankan ujian tertentu sahaja; abaikan untuk menjalankan setiap ujian aktif dalam set.",
         "hideSampleResponse": "Sembunyi respons sampel",
         "showSampleResponse": "Tunjuk respons sampel",
         "pollRunStatus": "Undi status pelaksanaan",
@@ -599,6 +599,8 @@
     },
     "common": {
         "showMore": "Tunjuk lagi",
-        "showLess": "Tunjuk kurang"
+        "showLess": "Tunjuk kurang",
+        "sortAscending": "Isih menaik",
+        "sortDescending": "Isih menurun"
     }
 }

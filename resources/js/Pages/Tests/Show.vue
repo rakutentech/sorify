@@ -455,7 +455,7 @@ function onHistoryKeydown(e) {
                                 <ScreenshotThumbs :screenshots="item.screenshots ?? []" @open="lightbox.open" />
                             </td>
                             <td class="px-5 py-3" @click.stop>
-                                <RanBy :triggered-by="item.triggered_by" :triggered-by-user="item.triggered_by_user" />
+                                <RanBy :triggered-by="item.triggered_by" :triggered-by-user="item.triggered_by_user" :ci-ip="item.ci_ip" :ci-user-agent="item.ci_user_agent" />
                             </td>
                             <td class="px-5 py-3 text-right">
                                 <Link

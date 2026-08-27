@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Button, TextField, Modal, SuiteName, AvatarGroup, SettingBadge, IconButton } from '@/Components/ui';
+import { Card, Button, TextField, Modal, SuiteName, AvatarGroup, SettingBadge, IconButton, SortableTh } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import {
     FolderKanban, Plus, Search, Users, FlaskConical, Activity, Gauge,
@@ -34,11 +34,13 @@ const props = defineProps({
 
 const search  = ref(props.filters.search ?? '');
 const perPage = ref(props.filters.per_page ?? 30);
+const sort    = ref(props.filters.sort ?? 'created');
+const sortDir = ref(props.filters.sort_dir === 'asc' ? 'asc' : 'desc');
 
 function reload(overrides = {}) {
     router.get(
         '/sorify/suites',
-        { search: search.value, per_page: perPage.value, ...overrides },
+        { search: search.value, per_page: perPage.value, sort: sort.value, sort_dir: sortDir.value, ...overrides },
         { preserveState: true, replace: true },
     );
 }
@@ -47,6 +49,12 @@ const debouncedSearch = debounce(() => reload({ page: 1 }), 350);
 
 watch(search, () => debouncedSearch());
 watch(perPage, () => reload({ page: 1 }));
+
+function setSort(field, dir) {
+    sort.value = field;
+    sortDir.value = dir;
+    reload({ page: 1 });
+}
 
 // ── Modal ──────────────────────────────────────────────────────────────────
 const showModal = ref(false);
@@ -172,12 +180,12 @@ function duplicateSuite(suite) {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FolderKanban :size="13" />{{ t('testSuites.colName') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Users :size="13" />{{ t('testSuites.colUsers') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FlaskConical :size="13" />{{ t('testSuites.colTests') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Activity :size="13" />{{ t('testSuites.colRuns') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Gauge :size="13" />{{ t('testSuites.colPassRate') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Clock :size="13" />{{ t('testSuites.colLastRun') }}</span></th>
+                            <SortableTh field="name" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><FolderKanban :size="13" />{{ t('testSuites.colName') }}</SortableTh>
+                            <SortableTh field="users" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Users :size="13" />{{ t('testSuites.colUsers') }}</SortableTh>
+                            <SortableTh field="tests" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><FlaskConical :size="13" />{{ t('testSuites.colTests') }}</SortableTh>
+                            <SortableTh field="runs" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Activity :size="13" />{{ t('testSuites.colRuns') }}</SortableTh>
+                            <SortableTh field="pass_rate" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Gauge :size="13" />{{ t('testSuites.colPassRate') }}</SortableTh>
+                            <SortableTh field="last_run" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Clock :size="13" />{{ t('testSuites.colLastRun') }}</SortableTh>
                             <th class="w-10 px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuites.colActions') }}</th>
                         </tr>
                     </thead>
@@ -200,6 +208,8 @@ function duplicateSuite(suite) {
                                         <SettingBadge kind="teams" :label="t('testSuites.badgeTeams')" :active="!!suite.has_teams_webhook" success-active />
                                         <SettingBadge kind="screenshots" :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" success-active />
                                         <SettingBadge kind="proxy" :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules_count || suite.playwright_proxy)" success-active />
+                                        <SettingBadge kind="variables" :label="t('testSuites.badgeVariables')" :active="!!(suite.variables_count > 0)" success-active />
+                                        <SettingBadge kind="cookies" :label="t('testSuiteShow.cookiesCount', { count: suite.cookies_count ?? 0 })" :active="!!(suite.cookies_count > 0)" success-active />
                                         <SettingBadge kind="schedule" :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" success-active />
                                     </div>
                                 </div>
@@ -273,7 +283,7 @@ function duplicateSuite(suite) {
                             v-for="link in suites.links"
                             :key="link.label"
                             :disabled="!link.url || link.active"
-                            @click="link.url && router.get(link.url, { search, per_page: perPage }, { preserveState: true, replace: true })"
+                            @click="link.url && router.get(link.url, { search, per_page: perPage, sort, sort_dir: sortDir }, { preserveState: true, replace: true })"
                             class="px-2.5 py-1 rounded-[var(--md-sys-shape-corner-small)] md-label-small transition-colors"
                             :class="[
                                 link.active

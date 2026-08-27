@@ -10,7 +10,7 @@ import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import {
     FolderKanban, Star, Pencil, Copy, LoaderCircle, Trash2, Play,
-    Plus, FileText, Search, ChevronRight, Info, Check, ChevronDown,
+    Plus, FileText, Search, ChevronRight, CircleHelp, Check, ChevronDown,
     FlaskConical, Activity, Gauge, CircleAlert, Users, Webhook,
     User, Settings, SlidersHorizontal, ArrowUp, ArrowDown,
 } from '@lucide/vue';
@@ -130,15 +130,17 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutsideStatus
 
 // CI webhook
 const statusUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/trigger$/, '/runs/{run}/status') : null);
+const runUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/sorify\/.*$/, '/sorify/runs/{run}') : null);
 
 const showCurlExample = ref(false);
 const curlCommand = computed(() => props.webhookUrl
-    ? `curl -X POST "${props.webhookUrl}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"test_ids": [1, 2, 3]}'`
+    ? `curl -X POST "${props.webhookUrl}?test_ids=1,2,3"`
     : '');
 
 const showTriggerResponseSample = ref(false);
 const triggerResponseSample = computed(() => JSON.stringify({
     run_id: 42,
+    run_url: runUrlTemplate.value?.replace('{run}', '42') ?? null,
     status: 'running',
     status_url: statusUrlTemplate.value?.replace('{run}', '42') ?? null,
 }, null, 2));
@@ -174,14 +176,14 @@ function regenerateWebhook() {
 const scheduleForm = useForm({
     cron_expression: props.suite.schedule?.cron_expression ?? '',
     timezone: props.suite.schedule?.timezone ?? 'UTC',
-    is_enabled: props.suite.schedule?.is_enabled ?? true,
+    is_enabled: props.suite.schedule?.is_enabled ?? false,
 });
 const scheduleError = ref(null);
 
 watch(() => props.suite.schedule, (s) => {
     scheduleForm.cron_expression = s?.cron_expression ?? '';
     scheduleForm.timezone = s?.timezone ?? 'UTC';
-    scheduleForm.is_enabled = s?.is_enabled ?? true;
+    scheduleForm.is_enabled = s?.is_enabled ?? false;
 });
 
 function saveSchedule() {
@@ -197,7 +199,7 @@ function saveSchedule() {
 
     const oldCron = props.suite.schedule?.cron_expression ?? '';
     const oldTz = props.suite.schedule?.timezone ?? 'UTC';
-    const oldEnabled = props.suite.schedule?.is_enabled ?? true;
+    const oldEnabled = props.suite.schedule?.is_enabled ?? false;
 
     router.put(
         `/sorify/suites/${props.suite.id}/schedule`,
@@ -1089,7 +1091,6 @@ function toggleRunsExpanded(testId) {
                             <!-- Compact summary when collapsed -->
                             <span v-if="!showSuiteSettings" class="flex items-center gap-1.5 ml-1 flex-wrap">
                                 <SettingBadge :label="t('testSuites.badgeTeams')" :active="!!suite.teams_webhook_url" success-active kind="teams" />
-                                <SettingBadge :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" success-active kind="screenshots" />
                                 <SettingBadge :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules?.length || suite.playwright_proxy)" success-active kind="proxy" />
                                 <SettingBadge :label="t('testSuites.badgeVariables')" :active="!!suite.variables?.length" success-active kind="variables" />
                                 <SettingBadge :label="t('testSuiteShow.cookiesCount', { count: suite.cookies?.length ?? 0 })" :active="!!suite.cookies?.length" success-active kind="cookies" />
@@ -1171,9 +1172,9 @@ function toggleRunsExpanded(testId) {
                                                     @click="showProxyRulesInfo = !showProxyRulesInfo"
                                                     :aria-label="t('testSuiteShow.proxyRulesInfoTooltip')"
                                                     :aria-expanded="showProxyRulesInfo"
-                                                    class="text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors"
+                                                    class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] transition-colors"
                                                 >
-                                                    <Info :size="14" />
+                                                    <CircleHelp :size="11" stroke-width="2.5" />
                                                 </button>
                                                 <div
                                                     class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap"
