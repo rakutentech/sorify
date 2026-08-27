@@ -1,0 +1,213 @@
+app/Http/Controllers/TestSuiteScheduleController.php
+  s_90acc56f81082b::t_0723c0ea36a890 27
+docker-compose.yml
+  s_69b0c1e103a478::t_2df715165adab7 58-59
+  s_69b0c1e103a478::t_348d9d3b93a75b 57
+resources/js/Components/ui/index.js
+  s_3d90b27a69d9a5::t_5a8eecd04fbbce 22
+tests/Unit/Mcp/Tools/RunsToolsTest.php
+  s_7f6a445c27a971::t_cd887dd033fc23 101-191
+  s_7f6a445c27a971::t_49c53c7f60d20c 10,12
+app/Mcp/Servers/SorifyServer.php
+  s_7f6a445c27a971::t_fa3c689179b52c 9
+  s_7f6a445c27a971::t_56403b293b4217 81
+tests/Feature/TestSuiteIndexSortingTest.php
+  s_3d90b27a69d9a5::t_4c07162378c322 1-195
+app/Models/TestRun.php
+  s_7f6a445c27a971::t_0a4afdcf3e9ed7 8
+  s_7f6a445c27a971::t_f29b72fc6c66eb 34-38
+app/Services/TestRunService.php
+  s_7f6a445c27a971::t_50d93919088006 140
+  s_69edee6b95b370::t_2c69141afa7ba8 108,110,126,130,135-136
+  s_7f6a445c27a971::t_d43915c45379eb 7,13,20,28-34,36,105-107,109,111-125,127-129,131-134,137-139
+  s_69edee6b95b370::t_75beac83f576d9 46-47,68-75,79,81
+  s_69edee6b95b370::t_b74afe26637105 22,35
+resources/js/Components/ui/RanBy.vue
+  s_69edee6b95b370::t_857f6a6fc20e25 9-10,14,31,49-53
+app/Mcp/Tools/Suites/ListSuitesTool.php
+  s_7f6a445c27a971::t_3e558f2e9a635d 8,29-30,40-41,49-51
+resources/js/Pages/TestSuites/Show.vue
+  s_69edee6b95b370::t_3e50b06283d85d 133,143
+  s_90acc56f81082b::t_ec9c5e4d36806b 179,186
+  s_7f6a445c27a971::t_9b384314223ddf 137
+  s_90acc56f81082b::t_415e50f8bc3e8b 202
+  s_90acc56f81082b::t_a050edc866373a 1175,1177
+  s_90acc56f81082b::t_fe1fa72b2add46 13
+resources/js/Layouts/AppLayout.vue
+  s_90acc56f81082b::t_51e069e70660ff 8
+resources/js/Pages/Runs/Index.vue
+  s_3d90b27a69d9a5::t_945108da223b78 100-107
+  s_3d90b27a69d9a5::t_445df67a6ed2c0 6
+  s_3d90b27a69d9a5::t_067094a64473dd 195
+  s_3d90b27a69d9a5::t_bc665a89c8fd71 27-28,32-34,36,42-47,50
+  s_69edee6b95b370::t_ce0448c3c38426 156
+config/sorify.php
+  s_68f086f7d19c51::t_fef737156e0a35 15
+app/Mcp/Tools/Suites/ListBookmarkedSuitesTool.php
+  s_7f6a445c27a971::t_9efeb0e57bb9cb 8,30-31,41-42,52-54
+app/Mcp/Tools/Runs/ListRunsTool.php
+  s_7f6a445c27a971::t_03ce87d8e1442e 1-114
+resources/js/Pages/TestSuites/Index.vue
+  s_3d90b27a69d9a5::t_65ed5da6439f64 37-38,43,53-57
+  s_3d90b27a69d9a5::t_868540e245081d 58
+  s_69edee6b95b370::t_81a214d7d38716 211-212
+  s_3d90b27a69d9a5::t_001e0340129a88 286
+  s_3d90b27a69d9a5::t_fa0c8d33eabfb6 183-188
+  s_3d90b27a69d9a5::t_0d967586bf6af4 6
+resources/js/locales/ms.json
+  s_7f6a445c27a971::t_a263071e094f41 196
+  s_3d90b27a69d9a5::t_e9730617b7d625 602-604
+  s_69edee6b95b370::t_28364b52e1a713 5
+app/Http/Controllers/TestRunController.php
+  s_69edee6b95b370::t_073bfb8786b82d 71-72
+  s_3d90b27a69d9a5::t_669b164760ad40 10
+  s_3d90b27a69d9a5::t_6f7829693a6e9a 84-89
+  s_3d90b27a69d9a5::t_eb1d4dda96801f 21-23,30-32
+app/Http/Controllers/SuiteBookmarkController.php
+  s_3d90b27a69d9a5::t_55bf306ac7b24a 7
+  s_3d90b27a69d9a5::t_9366143654656b 24-26,29-31,59-64
+tests/Feature/RunsIndexSortingTest.php
+  s_3d90b27a69d9a5::t_109988d9cbe3fc 57
+  s_3d90b27a69d9a5::t_2c19c00b304759 19
+  s_3d90b27a69d9a5::t_f2ce88115bc4a4 28
+  s_3d90b27a69d9a5::t_5d032c819a8287 6,40
+  s_3d90b27a69d9a5::t_313e0f9eba2fc7 89-90,98-99,108-109,120-121,130-132,141-142,158-159,171-172,183-184,193-194,202,218
+  s_3d90b27a69d9a5::t_1ecd8d1bd941b3 1-5,7-18,20-27,29-39,41-56,58-88,91-97,100-107,110-119,122-129,133-140,143-157,160-170,173-182,185-192,195-201,203-217,219-228
+app/Http/Controllers/WebhookController.php
+  s_69edee6b95b370::t_20286c8abbe607 29,39
+  s_69edee6b95b370::t_9e7a084696dbf0 62-63
+  s_7f6a445c27a971::t_e90d9253f420c6 102
+  s_69edee6b95b370::t_e3b410213b16bd 22
+  s_7f6a445c27a971::t_3f6557f375ba15 6,19,23-28,30-31,55-61,64-101
+resources/js/locales/zh-CN.json
+  s_69edee6b95b370::t_62f626adc6569c 5
+  s_3d90b27a69d9a5::t_b421b2533923bd 602-604
+  s_7f6a445c27a971::t_86687450d94d5b 196
+tests/Unit/Mcp/Tools/BookmarkToolsTest.php
+  s_7f6a445c27a971::t_d528a4d6ed35fd 74-113
+  s_7f6a445c27a971::t_1aec9b9aae11c5 9
+resources/js/Pages/Tests/Show.vue
+  s_69edee6b95b370::t_a6be4bd015319f 458
+resources/js/Pages/TestRuns/Show.vue
+  s_69edee6b95b370::t_5db3dc4ad02b65 292
+  s_69edee6b95b370::t_e0fdde98cfb612 30
+tests/Unit/Mcp/Tools/SuitesToolsTest.php
+  s_7f6a445c27a971::t_117c00e599725f 162-209
+  s_7f6a445c27a971::t_a7111038bd723b 12
+database/migrations/2026_08_26_000001_add_ci_caller_info_to_test_runs_table.php
+  s_69edee6b95b370::t_96b475a7d5c1c5 1-25
+resources/js/locales/en.json
+  s_69edee6b95b370::t_c96f61475ce060 5
+  s_3d90b27a69d9a5::t_78819549c7a63c 602-604
+  s_7f6a445c27a971::t_fde1824381469f 196
+app/Services/TeamsNotificationService.php
+  s_68f086f7d19c51::t_8b4c81a9ffe2b5 245
+  s_68f086f7d19c51::t_eb6721fb83d295 189,201,203-205,209-212,215-221,223,225-234,244,246-247
+resources/js/locales/ja.json
+  s_3d90b27a69d9a5::t_fcc0c6c93c2d01 602-604
+  s_7f6a445c27a971::t_58a7662a87634b 196
+  s_69edee6b95b370::t_04ed7d6093a5be 5
+app/Exceptions/WebhookRunInProgressException.php
+  s_7f6a445c27a971::t_25a5a3f6abda1c 1-13
+app/Support/RunSort.php
+  s_7f6a445c27a971::t_4095fd0b5d220f 9
+  s_7f6a445c27a971::t_34b5f15c8a4fbd 10-14
+  s_3d90b27a69d9a5::t_05342fa3b04f0c 1-8,15-66
+app/Support/SuiteSort.php
+  s_3d90b27a69d9a5::t_ec7982f9864402 1-5,7-9,16-21,23-65
+  s_3d90b27a69d9a5::t_bc3d40cb7fab66 6,22
+  s_7f6a445c27a971::t_11fddc0b2aa11f 11-15
+  s_7f6a445c27a971::t_7095546e1280bb 10
+resources/js/Components/ui/SortableTh.vue
+  s_3d90b27a69d9a5::t_165ed7cddebe2b 1-67
+app/Http/Controllers/TestSuiteController.php
+  s_69edee6b95b370::t_fafac29f7520a0 34
+  s_3d90b27a69d9a5::t_200adc61fe9441 13
+  s_3d90b27a69d9a5::t_111869c24ce636 31-33,35-37,66-71
+app/Http/Controllers/AuthController.php
+  s_90acc56f81082b::t_14940c77fe2ff7 48-51
+  s_90acc56f81082b::t_c5a47c41fe0a1d 218
+app/Http/Controllers/TestController.php
+  s_69edee6b95b370::t_7412298e5b8bb7 72-73
+  s_69edee6b95b370::t_74261ef4d2ed83 55
+tests/Feature/WebhookConcurrencyTest.php
+  s_7f6a445c27a971::t_d64fdfd60cde86 1-43,45-66,68-72,77-269
+  s_69edee6b95b370::t_91df86c7684c57 67,73-75
+  s_69edee6b95b370::t_ca30e0541d1c1f 44
+  s_69edee6b95b370::t_c013e22f38be19 76
+tests/Unit/TeamsNotificationScreenshotsTest.php
+  s_68f086f7d19c51::t_a6f5170fa54230 138-142,154
+  s_68f086f7d19c51::t_dc07e19e98dcae 143
+  s_68f086f7d19c51::t_9f3e41f9a78ae9 51-71,83-89,93,95-100,115-137,144,146,150-153
+resources/js/Pages/Bookmarks/Index.vue
+  s_3d90b27a69d9a5::t_a200269d517e5c 51
+  s_3d90b27a69d9a5::t_1c9efdb63b86af 6
+  s_3d90b27a69d9a5::t_d7f6e393e94456 106-111
+  s_3d90b27a69d9a5::t_3ae50a1f941082 30-31,36,46-50
+plugins/sorify/commands/gateway.md
+  s_7f6a445c27a971::t_6bd95555d943a9 177,184-186,189,192-197
+  s_7f6a445c27a971::t_98e44f5b789316 87
+  s_69edee6b95b370::t_1154fcd53e3cb2 187-188,190-191
+  s_7f6a445c27a971::t_93500aba10519a 107
+  s_7f6a445c27a971::t_79d5e40024b72f 106
+  s_7f6a445c27a971::t_53908f1b96760e 37
+  s_7f6a445c27a971::t_a3b6f9a6da3155 230-233
+  s_7f6a445c27a971::t_b3207fd769b1a7 198
+  s_7f6a445c27a971::t_16cbda68f7bc38 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "dd81768c8e283da2d920f5752dc9f6fbff016e01",
+  "prompts": {},
+  "sessions": {
+    "s_3d90b27a69d9a5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fc2e9fb2fffefNmOzbvG8DQlxT",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_68f086f7d19c51": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fbd3b57acffe05s6aIuavbmXPJ",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_69b0c1e103a478": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fbd589a0fffeKW0XbVKSC0ulj1",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_69edee6b95b370": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fc24cc6e8ffeq3Jh23eJ4zhuRm",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_7f6a445c27a971": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fc2ab0bacffe0w47Vj5a0wzYu9",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_90acc56f81082b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fc4626d04ffeUPuHkjT1z70dmQ",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
