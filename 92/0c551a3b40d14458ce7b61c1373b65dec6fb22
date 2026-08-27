@@ -1,0 +1,39 @@
+resources/js/Components/ui/RanBy.vue
+  s_69edee6b95b370::t_857f6a6fc20e25 9-10,14,31,49-53
+resources/js/Pages/TestRuns/Show.vue
+  s_69edee6b95b370::t_5db3dc4ad02b65 292
+  s_69edee6b95b370::t_e0fdde98cfb612 30
+app/Http/Controllers/TestController.php
+  s_69edee6b95b370::t_74261ef4d2ed83 55
+  s_69edee6b95b370::t_7412298e5b8bb7 72-73
+app/Http/Controllers/TestRunController.php
+  s_69edee6b95b370::t_073bfb8786b82d 71-72
+database/migrations/2026_08_26_000001_add_ci_caller_info_to_test_runs_table.php
+  s_69edee6b95b370::t_96b475a7d5c1c5 1-25
+app/Services/TestRunService.php
+  s_69edee6b95b370::t_b74afe26637105 22,35
+  s_69edee6b95b370::t_75beac83f576d9 46-47,71,73
+  s_69edee6b95b370::t_2c69141afa7ba8 100,102,118,122,127-128
+resources/js/Pages/Runs/Index.vue
+  s_69edee6b95b370::t_ce0448c3c38426 156
+app/Http/Controllers/WebhookController.php
+  s_69edee6b95b370::t_e3b410213b16bd 22
+resources/js/Pages/Tests/Show.vue
+  s_69edee6b95b370::t_a6be4bd015319f 458
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "920c551a3b40d14458ce7b61c1373b65dec6fb22",
+  "prompts": {},
+  "sessions": {
+    "s_69edee6b95b370": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fc24cc6e8ffeq3Jh23eJ4zhuRm",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
