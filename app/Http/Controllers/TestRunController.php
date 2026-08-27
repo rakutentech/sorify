@@ -7,6 +7,7 @@ use App\Models\Test;
 use App\Models\TestRun;
 use App\Models\TestSuite;
 use App\Services\TestRunService;
+use App\Support\RunSort;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,13 +18,18 @@ class TestRunController extends Controller
 
     public function index(Request $request): Response
     {
+        $sort = $request->string('sort')->toString();
+        $sortDir = $request->string('sort_dir')->toString();
+
         $query = TestRun::with([
             'testSuite:id,name,created_by',
             'testSuite.createdBy:id,name',
             'testSuite.members:id,name,email,avatar',
             'triggeredByUser:id,name,email,avatar',
             'testResults.screenshots',
-        ])->latest();
+        ]);
+
+        RunSort::apply($query, $sort, $sortDir);
 
         if (! $request->user()->is_admin) {
             $query->whereHas('testSuite.members', function ($q) use ($request) {
@@ -62,6 +68,8 @@ class TestRunController extends Controller
             'created_by_user' => $run->testSuite->createdBy,
             'triggered_by' => $run->triggered_by,
             'triggered_by_user' => $run->triggeredByUser,
+            'ci_ip' => $run->ci_ip,
+            'ci_user_agent' => $run->ci_user_agent,
             'screenshots' => $run->testResults->flatMap(fn ($r) => $r->screenshots)->map(fn ($s) => [
                 'id' => $s->id,
                 'filename' => $s->filename,
@@ -73,7 +81,12 @@ class TestRunController extends Controller
 
         return Inertia::render('Runs/Index', [
             'runs' => $paginator,
-            'filters' => ['per_page' => $perPage, 'test_id' => $testId],
+            'filters' => [
+                'per_page' => $perPage,
+                'test_id' => $testId,
+                'sort' => $sort,
+                'sort_dir' => strtolower($sortDir) === 'asc' ? 'asc' : 'desc',
+            ],
             'filteredTest' => $filteredTest ? ['id' => $filteredTest->id, 'name' => $filteredTest->name] : null,
         ]);
     }

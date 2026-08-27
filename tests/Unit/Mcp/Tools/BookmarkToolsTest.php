@@ -6,6 +6,7 @@ use App\Mcp\Servers\SorifyServer;
 use App\Mcp\Tools\Suites\BookmarkSuiteTool;
 use App\Mcp\Tools\Suites\ListBookmarkedSuitesTool;
 use App\Mcp\Tools\Suites\UnbookmarkSuiteTool;
+use App\Models\TestRun;
 use App\Models\TestSuite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -68,6 +69,46 @@ class BookmarkToolsTest extends TestCase
             ->assertStructuredContent(fn ($json) => $json
                 ->where('meta.total', 1)
                 ->where('data.0.id', $mine->id)
+                ->etc());
+    }
+
+    public function test_list_bookmarked_suites_sorts_by_name_descending(): void
+    {
+        $user = User::factory()->admin()->create();
+        $alpha = TestSuite::create(['name' => 'Alpha', 'base_url' => 'https://a.example.com']);
+        $beta = TestSuite::create(['name' => 'Beta', 'base_url' => 'https://b.example.com']);
+        $gamma = TestSuite::create(['name' => 'Gamma', 'base_url' => 'https://g.example.com']);
+
+        $user->bookmarkedSuites()->attach([$alpha->id, $beta->id, $gamma->id]);
+
+        SorifyServer::actingAs($user)
+            ->tool(ListBookmarkedSuitesTool::class, ['sort' => 'name', 'sort_dir' => 'desc'])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('data.0.id', $gamma->id)
+                ->where('data.1.id', $beta->id)
+                ->where('data.2.id', $alpha->id)
+                ->etc());
+    }
+
+    public function test_list_bookmarked_suites_sorts_by_runs_count(): void
+    {
+        $user = User::factory()->admin()->create();
+        $fewRuns = TestSuite::create(['name' => 'Few Runs', 'base_url' => 'https://a.example.com']);
+        $manyRuns = TestSuite::create(['name' => 'Many Runs', 'base_url' => 'https://b.example.com']);
+
+        TestRun::create(['test_suite_id' => $manyRuns->id, 'status' => 'completed']);
+        TestRun::create(['test_suite_id' => $manyRuns->id, 'status' => 'completed']);
+        TestRun::create(['test_suite_id' => $fewRuns->id, 'status' => 'completed']);
+
+        $user->bookmarkedSuites()->attach([$fewRuns->id, $manyRuns->id]);
+
+        SorifyServer::actingAs($user)
+            ->tool(ListBookmarkedSuitesTool::class, ['sort' => 'runs', 'sort_dir' => 'desc'])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('data.0.id', $manyRuns->id)
+                ->where('data.1.id', $fewRuns->id)
                 ->etc());
     }
 }

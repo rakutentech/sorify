@@ -10,6 +10,7 @@ use App\Models\TestSuite;
 use App\Models\User;
 use App\Services\ReportingService;
 use App\Services\TestSuiteDuplicationService;
+use App\Support\SuiteSort;
 use App\Support\TestSort;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -27,9 +28,13 @@ class TestSuiteController extends Controller
         $perPage = (int) request()->input('per_page', 30);
         $perPage = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 30;
 
-        $query = TestSuite::withCount(['tests', 'testRuns', 'proxyRules'])
-            ->with(['schedule', 'members:id,name,email,avatar', 'bookmarkedBy' => fn ($q) => $q->where('users.id', $request->user()->id)])
-            ->latest();
+        $sort = $request->string('sort')->toString();
+        $sortDir = $request->string('sort_dir')->toString();
+
+        $query = TestSuite::withCount(['tests', 'testRuns', 'proxyRules', 'variables', 'cookies'])
+            ->with(['schedule', 'members:id,name,email,avatar', 'bookmarkedBy' => fn ($q) => $q->where('users.id', $request->user()->id)]);
+
+        SuiteSort::apply($query, $sort, $sortDir);
 
         if (! $request->user()->is_admin) {
             $query->whereHas('members', function ($q) use ($request) {
@@ -58,7 +63,12 @@ class TestSuiteController extends Controller
 
         return Inertia::render('TestSuites/Index', [
             'suites' => $paginator,
-            'filters' => ['search' => $search, 'per_page' => $perPage],
+            'filters' => [
+                'search' => $search,
+                'per_page' => $perPage,
+                'sort' => $sort,
+                'sort_dir' => strtolower($sortDir) === 'asc' ? 'asc' : 'desc',
+            ],
             'can' => ['create' => $request->user()->can('create', TestSuite::class)],
         ]);
     }

@@ -11,7 +11,7 @@ description: >
     /sorify:gateway what MCP tools are available for tests?
     /sorify:gateway list my test suites
     /sorify:gateway show suite 3
-allowed-tools: ["Bash", "Read", "mcp__plugin_sorify_sorify__list_suites", "mcp__plugin_sorify_sorify__get_suite", "mcp__plugin_sorify_sorify__list_suite_members", "mcp__plugin_sorify_sorify__list_tests", "mcp__plugin_sorify_sorify__get_test", "mcp__plugin_sorify_sorify__get_run", "mcp__plugin_sorify_sorify__get_run_status", "mcp__plugin_sorify_sorify__list_screenshots"]
+allowed-tools: ["Bash", "Read", "mcp__plugin_sorify_sorify__list_suites", "mcp__plugin_sorify_sorify__list_bookmarked_suites", "mcp__plugin_sorify_sorify__get_suite", "mcp__plugin_sorify_sorify__list_suite_members", "mcp__plugin_sorify_sorify__list_tests", "mcp__plugin_sorify_sorify__get_test", "mcp__plugin_sorify_sorify__list_runs", "mcp__plugin_sorify_sorify__get_run", "mcp__plugin_sorify_sorify__get_run_status", "mcp__plugin_sorify_sorify__list_screenshots"]
 ---
 
 # sorify:gateway
@@ -34,7 +34,7 @@ mentions a specific tool name, or "what tools", "what can I do with X"
   → Tool Reference (Step 3), scoped to the matching section if one is named
 
 asks for live data: "list suites", "show suite {id}", "what tests are in
-suite {id}", "status of run {id}", "screenshots for result {id}"
+suite {id}", "list runs", "status of run {id}", "screenshots for result {id}"
   → Live Lookup (Step 4)
 ```
 
@@ -84,7 +84,7 @@ MCP Server
 ──────────────────────────────────────────────
 Name:    Sorify (registered in this plugin's .mcp.json as "sorify")
 Purpose: Manage Sorify test suites, tests, runs, and screenshots
-Tools:   31 total across 4 resource groups — run `/sorify:gateway tools` for
+Tools:   34 total across 4 resource groups — run `/sorify:gateway tools` for
          the full reference, or `/sorify:gateway {topic}` for one group
          (suites / tests / runs / screenshots)
 
@@ -103,7 +103,8 @@ section; if asked "what tools exist" generally, print all five.
 
 | Tool | Params | Description |
 |---|---|---|
-| `list_suites` | `search?`, `per_page?` (10/50/100), `page?` | List suites with pass-rate stats; optional name/description search |
+| `list_suites` | `search?`, `sort?` (name/users/tests/runs/pass_rate/last_run/created), `sort_dir?` (asc/desc), `per_page?` (10/50/100), `page?` | List suites with pass-rate stats; optional name/description search and sort |
+| `list_bookmarked_suites` | `search?`, `sort?` (name/users/tests/runs/pass_rate/last_run/created), `sort_dir?` (asc/desc), `per_page?` (10/50/100), `page?` | List suites the current user has bookmarked; optional name/description search and sort |
 | `get_suite` | `suite_id` | One suite with stats, its tests, and 10 most recent runs. Includes `created_by` (user id, set automatically at creation time) |
 | `create_suite` | `name`, `description?`, `base_url?`, `browser?` (chromium/firefox/webkit), `headless?`, `playwright_proxy?`, `proxy_rules?` (array of `{domain, proxy}`), `variables?` (array of `{key, value}` — see **Suite variables** below), `cookies?` (array of `{name, value, domain|url, path?, expires?, http_only?, secure?, same_site?}` — see **Suite cookies** below), `history_retention?` (3/5/10), `timeout_ms?` (10000/30000/60000/120000), `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Create a suite. `created_by` is set automatically to the authenticated MCP user — not a caller-supplied param. `proxy_rules` entries are checked in order against each request's hostname (see **Proxy rule `domain` patterns** below); the first match wins, falling back to `playwright_proxy`. `variables` are injected into every test run as a `variables` object in the Playwright code scope. `cookies` are added to the browser context before any page is created, so tests start already authenticated |
 | `update_suite` | `suite_id`, `name`, `description?`, `base_url?`, `browser?`, `headless?`, `playwright_proxy?`, `proxy_rules?` (array of `{domain, proxy}`), `variables?` (array of `{key, value}`), `cookies?` (array of `{name, value, domain|url, …}` — see **Suite cookies** below), `history_retention?`, `timeout_ms?`, `take_screenshot?`, `teams_webhook_url?`, `teams_webhook_proxy?`, `teams_notify_on_success?`, `teams_notify_on_failure?` | Update a suite, including MS Teams run-completion notification settings. Changing `history_retention` prunes older runs/screenshots automatically. Passing `proxy_rules` replaces the suite's full rule set; omit it to leave existing rules untouched. Passing `variables` replaces the suite's full variable set; omit it to leave existing variables untouched. Passing `cookies` replaces the suite's full cookie set; omit it to leave existing cookies untouched |
@@ -173,11 +174,27 @@ Hard rule: a suite variable `value` must never be set to anything read from
 
 | Tool | Params | Description |
 |---|---|---|
+| `list_runs` | `suite_id?`, `test_id?`, `triggered_by?` (manual/mcp/ci/schedule), `sort?` (suite/status/passed/duration/screenshots/created_by/ran_by/run_date), `sort_dir?` (asc/desc), `per_page?` (10/30/50/100), `page?` | List runs across all visible suites; optional filters by suite, test, or trigger source. Each run includes a `screenshot_count` integer. Non-admins see only runs from suites they're a member of with `can_view` |
 | `trigger_run` | `suite_id`, `test_ids?` | Queue a run; omit `test_ids` to run all active tests. `triggered_by_user_id` is set automatically to the authenticated MCP user |
 | `get_run_status` | `run_id` | Lightweight poll: status, passed/failed/error counts, duration — prefer this while polling |
 | `get_run` | `run_id` | Full run with every test result, error messages/stacks, stdout, screenshots. Includes `triggered_by_user_id` |
 | `cancel_run` | `run_id` | Cancel a pending or running run |
 | `delete_run` | `run_id` | Delete a run and its results |
+
+**CI webhook concurrency** — the CI webhook (`POST /sorify/webhooks/{token}/trigger`,
+authenticated by the suite's webhook token) enforces one-at-a-time concurrency
+per suite: while a webhook-triggered run is `pending` or `running`, further
+webhook requests return `409 Conflict` with the in-progress run's `run_id`,
+`run_url` (the dashboard URL of the run, `sorify/runs/{id}`), and
+`status_url` so CI can poll the existing run instead of starting a new one.
+Both the `202 Accepted` (success) and `409 Conflict` responses include
+`run_url` pointing at `sorify/runs/{id}`.
+The `trigger_run` MCP tool and the dashboard Run button do **not** enforce this
+— they can queue multiple concurrent runs. Scheduled runs also bypass it.
+
+**CI webhook `test_ids`** — pass test ids as a comma-separated query parameter
+(`?test_ids=1,2,3`); the JSON body is no longer read. Omit the parameter to
+run every active test in the suite.
 
 **Screenshots** — `App\Mcp\Tools\Screenshots\*`
 
@@ -209,6 +226,10 @@ tool directly and present the result — do not just describe the tool.
 
 "show test {test_id} in suite {suite_id}"
   → mcp__plugin_sorify_sorify__get_test({ suite_id, test_id })
+
+"list runs" / "recent runs" / "latest runs"
+  → mcp__plugin_sorify_sorify__list_runs({})
+  Present as a table: id, suite, status, passed/total, duration, triggered_by
 
 "status of run {id}" / "did run {id} pass"
   → mcp__plugin_sorify_sorify__get_run_status({ run_id: {id} })

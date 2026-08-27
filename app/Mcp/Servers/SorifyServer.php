@@ -6,6 +6,7 @@ use App\Mcp\Tools\Runs\CancelRunTool;
 use App\Mcp\Tools\Runs\DeleteRunTool;
 use App\Mcp\Tools\Runs\GetRunStatusTool;
 use App\Mcp\Tools\Runs\GetRunTool;
+use App\Mcp\Tools\Runs\ListRunsTool;
 use App\Mcp\Tools\Runs\TriggerRunTool;
 use App\Mcp\Tools\Screenshots\GetScreenshotTool;
 use App\Mcp\Tools\Screenshots\ListScreenshotsTool;
@@ -77,6 +78,7 @@ class SorifyServer extends Server
         BulkDeleteTestsTool::class,
 
         TriggerRunTool::class,
+        ListRunsTool::class,
         GetRunTool::class,
         GetRunStatusTool::class,
         CancelRunTool::class,

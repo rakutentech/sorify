@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TestSuite;
 use App\Services\ReportingService;
+use App\Support\SuiteSort;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,10 +21,14 @@ class SuiteBookmarkController extends Controller
         $perPage = (int) $request->input('per_page', 30);
         $perPage = in_array($perPage, [10, 30, 50, 100]) ? $perPage : 30;
 
+        $sort = $request->string('sort')->toString();
+        $sortDir = $request->string('sort_dir')->toString();
+
         $query = $user->bookmarkedSuites()
             ->withCount(['tests', 'testRuns', 'proxyRules'])
-            ->with(['schedule', 'members:id,name,email,avatar'])
-            ->orderByDesc('suite_bookmarks.created_at');
+            ->with(['schedule', 'members:id,name,email,avatar']);
+
+        SuiteSort::apply($query, $sort, $sortDir);
 
         if (! $user->is_admin) {
             $query->whereHas('members', function ($q) use ($user) {
@@ -51,7 +56,12 @@ class SuiteBookmarkController extends Controller
 
         return Inertia::render('Bookmarks/Index', [
             'suites' => $paginator,
-            'filters' => ['search' => $search, 'per_page' => $perPage],
+            'filters' => [
+                'search' => $search,
+                'per_page' => $perPage,
+                'sort' => $sort,
+                'sort_dir' => strtolower($sortDir) === 'asc' ? 'asc' : 'desc',
+            ],
         ]);
     }
 

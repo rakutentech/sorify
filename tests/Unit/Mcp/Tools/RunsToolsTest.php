@@ -7,7 +7,9 @@ use App\Mcp\Tools\Runs\DeleteRunTool;
 use App\Mcp\Tools\Runs\GetRunStatusTool;
 use App\Mcp\Tools\Runs\GetRunTool;
 use App\Jobs\RunSingleTestJob;
+use App\Mcp\Tools\Runs\ListRunsTool;
 use App\Mcp\Tools\Runs\TriggerRunTool;
+use App\Models\TestRun;
 use App\Models\TestSuite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,5 +97,96 @@ class RunsToolsTest extends TestCase
             ->assertOk();
 
         $this->assertDatabaseMissing('test_runs', ['id' => $run->id]);
+    }
+
+    public function test_list_runs_returns_runs_with_screenshot_count(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+        $run = $suite->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp', 'passed_count' => 2, 'total_tests' => 2]);
+
+        SorifyServer::actingAs($user)
+            ->tool(ListRunsTool::class, [])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('meta.total', 1)
+                ->where('data.0.id', $run->id)
+                ->where('data.0.suite_name', 'Suite')
+                ->where('data.0.status', 'completed')
+                ->where('data.0.screenshot_count', 0)
+                ->where('data.0.triggered_by', 'mcp')
+                ->etc());
+    }
+
+    public function test_list_runs_filters_by_suite_id(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suiteA = TestSuite::create(['name' => 'Suite A', 'base_url' => 'https://a.example.com']);
+        $suiteB = TestSuite::create(['name' => 'Suite B', 'base_url' => 'https://b.example.com']);
+        $runA = $suiteA->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp']);
+        $runB = $suiteB->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp']);
+
+        SorifyServer::actingAs($user)
+            ->tool(ListRunsTool::class, ['suite_id' => $suiteA->id])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('meta.total', 1)
+                ->where('data.0.id', $runA->id)
+                ->etc());
+    }
+
+    public function test_list_runs_filters_by_triggered_by(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+        $ciRun = $suite->testRuns()->create(['status' => 'completed', 'triggered_by' => 'ci']);
+        $mcpRun = $suite->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp']);
+
+        SorifyServer::actingAs($user)
+            ->tool(ListRunsTool::class, ['triggered_by' => 'ci'])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('meta.total', 1)
+                ->where('data.0.id', $ciRun->id)
+                ->etc());
+    }
+
+    public function test_list_runs_sorts_by_status_ascending(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+        // 'completed' < 'failed' < 'running' alphabetically
+        $failedRun = $suite->testRuns()->create(['status' => 'failed', 'triggered_by' => 'mcp']);
+        $completedRun = $suite->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp']);
+        $runningRun = $suite->testRuns()->create(['status' => 'running', 'triggered_by' => 'mcp']);
+
+        SorifyServer::actingAs($user)
+            ->tool(ListRunsTool::class, ['sort' => 'status', 'sort_dir' => 'asc'])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('data.0.id', $completedRun->id)
+                ->where('data.1.id', $failedRun->id)
+                ->where('data.2.id', $runningRun->id)
+                ->etc());
+    }
+
+    public function test_list_runs_non_admin_only_sees_visible_suite_runs(): void
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+        $visibleSuite = $this->suite();
+        $hiddenSuite = TestSuite::create(['name' => 'Hidden', 'base_url' => 'https://h.example.com']);
+
+        // Grant the user view access to the visible suite only.
+        $visibleSuite->members()->attach($user->id, ['can_view' => true]);
+
+        $visibleSuite->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp']);
+        $hiddenSuite->testRuns()->create(['status' => 'completed', 'triggered_by' => 'mcp']);
+
+        SorifyServer::actingAs($user)
+            ->tool(ListRunsTool::class, [])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('meta.total', 1)
+                ->etc());
     }
 }
