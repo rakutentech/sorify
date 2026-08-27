@@ -45,7 +45,10 @@ class AuthController extends Controller
 
         $user->forceFill($attributes)->save();
 
-        return redirect('/sorify/');
+        // Send the user back to the page they originally requested before being
+        // bounced to login (stored by the auth middleware via redirect()->guest()).
+        // Falls back to the dashboard when no intended URL was stored.
+        return redirect()->intended('/sorify/');
     }
 
     public function showRegister(): Response|RedirectResponse
@@ -212,6 +215,6 @@ class AuthController extends Controller
         Auth::login($user, true);
         $request->session()->regenerate();
 
-        return redirect('/sorify/');
+        return redirect()->intended('/sorify/');
     }
 }

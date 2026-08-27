@@ -12,5 +12,5 @@ return [
         'decay_seconds' => env('SORIFY_RUN_TRIGGER_DECAY_SECONDS', 60),
     ],
 
-    'teams_max_screenshots' => env('SORIFY_TEAMS_MAX_SCREENSHOTS', 3),
+    'teams_max_screenshots' => env('SORIFY_TEAMS_MAX_SCREENSHOTS', 5),
 ];

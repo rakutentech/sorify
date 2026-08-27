@@ -2,7 +2,7 @@
     "nav": {
         "dashboard": "仪表板",
         "runs": "运行记录",
-        "testSuites": "测试套件",
+        "testSuites": "套件",
         "bookmarks": "收藏",
         "docs": "文档",
         "admin": "管理员",
@@ -193,7 +193,7 @@
         "noWebhookConfigured": "未配置 webhook。",
         "hideCurlExample": "隐藏 curl 示例",
         "showCurlExample": "显示 curl 示例",
-        "testIdsHint": "在 JSON 请求体中传入 test_ids 以仅运行指定测试；省略则运行套件中所有已激活的测试。",
+        "testIdsHint": "通过查询参数传入 test_ids（例如 ?test_ids=1,2,3）以仅运行指定测试；省略则运行套件中所有已激活的测试。",
         "hideSampleResponse": "隐藏示例响应",
         "showSampleResponse": "显示示例响应",
         "pollRunStatus": "轮询运行状态",
@@ -599,6 +599,8 @@
     },
     "common": {
         "showMore": "展开更多",
-        "showLess": "收起"
+        "showLess": "收起",
+        "sortAscending": "升序排序",
+        "sortDescending": "降序排序"
     }
 }

@@ -186,7 +186,7 @@ class TeamsNotificationService
 
     private function buildScreenshotsSection(TestRun $run): array
     {
-        $maxScreenshots = (int) config('sorify.teams_max_screenshots', 3);
+        $maxScreenshots = (int) config('sorify.teams_max_screenshots', 5);
 
         if ($maxScreenshots <= 0) {
             return [];
@@ -198,27 +198,40 @@ class TeamsNotificationService
             ->sortBy(fn (TestResult $result) => in_array($result->status, ['failed', 'error'], true) ? 0 : 1);
 
         $screenshots = $results
-            ->flatMap(fn (TestResult $result) => $result->screenshots->map(fn (Screenshot $screenshot) => [$screenshot, $result]))
-            ->take($maxScreenshots);
+            ->flatMap(fn (TestResult $result) => $result->screenshots->map(fn (Screenshot $screenshot) => [$screenshot, $result]));
 
-        if ($screenshots->isEmpty()) {
+        $total = $screenshots->count();
+
+        if ($total === 0) {
             return [];
         }
 
+        $shown = $screenshots->take($maxScreenshots);
+        $remaining = $total - $shown->count();
+        $runUrl = $this->absoluteUrl(route('runs.show', $run, absolute: false));
+
         // Screenshots can't be embedded inline: Sorify runs behind a VPN-only
         // host, and Teams fetches card images server-side from Microsoft's
-        // own infrastructure, which can never reach it. Link out instead, the
-        // same way the "View Run"/"View Suite" actions already do — opened in
-        // the recipient's own browser, which is on the VPN.
-        $actions = $screenshots->map(function (array $pair) {
+        // own infrastructure, which can never reach it. Link out instead —
+        // opened in the recipient's own browser, which is on the VPN — using
+        // markdown links inside a TextBlock so the section stays compact even
+        // when there are many screenshots. Anything past the cap collapses
+        // into a single "+N more" link back to the run page, which shows
+        // every screenshot.
+        $lines = $shown->map(function (array $pair) {
             [$screenshot, $result] = $pair;
+            $label = $result->test->name ?? $screenshot->filename;
 
-            return [
-                'type' => 'Action.OpenUrl',
-                'title' => $result->test->name ?? $screenshot->filename,
-                'url' => $this->absoluteUrl(route('screenshots.show', $screenshot, absolute: false)),
-            ];
-        })->values()->all();
+            return sprintf(
+                '[%s](%s)',
+                str_replace(['[', ']'], ['\\[', '\\]'], $label),
+                $this->absoluteUrl(route('screenshots.show', $screenshot, absolute: false)),
+            );
+        });
+
+        if ($remaining > 0) {
+            $lines->push(sprintf('[+%d more](%s)', $remaining, $runUrl));
+        }
 
         return [
             [
@@ -228,8 +241,10 @@ class TeamsNotificationService
                 'spacing' => 'medium',
             ],
             [
-                'type' => 'ActionSet',
-                'actions' => $actions,
+                'type' => 'TextBlock',
+                'text' => $lines->implode(', '),
+                'wrap' => true,
+                'isSubtle' => true,
             ],
         ];
     }

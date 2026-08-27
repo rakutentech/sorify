@@ -54,7 +54,9 @@ services:
     restart: unless-stopped
     deploy:
       replicas: 3
-    command: ["php", "artisan", "queue:work", "--queue=sorify,default", "--tries=3", "--timeout=600", "--sleep=3"]
+    command: ["php", "artisan", "queue:work", "--queue=sorify,default", "--tries=1", "--timeout=600", "--sleep=3"]
+    environment:
+      - DB_QUEUE_RETRY_AFTER=660
 
   scheduler:
     <<: *app-image

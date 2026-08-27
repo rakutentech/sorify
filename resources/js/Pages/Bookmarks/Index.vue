@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, IconButton, SuiteName, AvatarGroup, SettingBadge, Pagination } from '@/Components/ui';
+import { Card, IconButton, SuiteName, AvatarGroup, SettingBadge, Pagination, SortableTh } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { Star, Search, StarOff, FolderKanban, Users, FlaskConical, Activity, Gauge, Clock } from '@lucide/vue';
 
@@ -27,11 +27,13 @@ const props = defineProps({
 
 const search  = ref(props.filters.search ?? '');
 const perPage = ref(props.filters.per_page ?? 30);
+const sort    = ref(props.filters.sort ?? 'created');
+const sortDir = ref(props.filters.sort_dir === 'asc' ? 'asc' : 'desc');
 
 function reload(overrides = {}) {
     router.get(
         '/sorify/bookmarks',
-        { search: search.value, per_page: perPage.value, ...overrides },
+        { search: search.value, per_page: perPage.value, sort: sort.value, sort_dir: sortDir.value, ...overrides },
         { preserveState: true, replace: true },
     );
 }
@@ -40,6 +42,12 @@ const debouncedSearch = debounce(() => reload({ page: 1 }), 350);
 
 watch(search, () => debouncedSearch());
 watch(perPage, () => reload({ page: 1 }));
+
+function setSort(field, dir) {
+    sort.value = field;
+    sortDir.value = dir;
+    reload({ page: 1 });
+}
 
 function removeBookmark(suite) {
     router.delete(`/sorify/suites/${suite.id}/bookmark`, { preserveState: true, preserveScroll: true });
@@ -95,12 +103,12 @@ function formatPassRate(rate) {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FolderKanban :size="13" />{{ t('bookmarks.colName') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Users :size="13" />{{ t('bookmarks.colUsers') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FlaskConical :size="13" />{{ t('bookmarks.colTests') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Activity :size="13" />{{ t('bookmarks.colRuns') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Gauge :size="13" />{{ t('bookmarks.colPassRate') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Clock :size="13" />{{ t('bookmarks.colLastRun') }}</span></th>
+                            <SortableTh field="name" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><FolderKanban :size="13" />{{ t('bookmarks.colName') }}</SortableTh>
+                            <SortableTh field="users" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Users :size="13" />{{ t('bookmarks.colUsers') }}</SortableTh>
+                            <SortableTh field="tests" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><FlaskConical :size="13" />{{ t('bookmarks.colTests') }}</SortableTh>
+                            <SortableTh field="runs" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Activity :size="13" />{{ t('bookmarks.colRuns') }}</SortableTh>
+                            <SortableTh field="pass_rate" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Gauge :size="13" />{{ t('bookmarks.colPassRate') }}</SortableTh>
+                            <SortableTh field="last_run" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Clock :size="13" />{{ t('bookmarks.colLastRun') }}</SortableTh>
                             <th class="text-right px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('bookmarks.colActions') }}</th>
                         </tr>
                     </thead>

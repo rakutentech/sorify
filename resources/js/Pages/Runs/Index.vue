@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Chip, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox } from '@/Components/ui';
+import { Card, Chip, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, SortableTh } from '@/Components/ui';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { Activity, User, FolderKanban, FlaskConical, Timer, Camera, Calendar, CircleDot, X } from '@lucide/vue';
@@ -24,21 +24,30 @@ const props = defineProps({
 
 const perPage = ref(props.filters.per_page ?? 30);
 const testId = ref(props.filters.test_id ?? null);
+const sort = ref(props.filters.sort ?? 'run_date');
+const sortDir = ref(props.filters.sort_dir === 'asc' ? 'asc' : 'desc');
 const lightbox = useScreenshotLightbox();
 
 function reloadRuns(overrides = {}) {
-    const params = { per_page: perPage.value, page: 1, ...overrides };
-    if (testId.value) {
-        params.test_id = testId.value;
+    const params = { per_page: perPage.value, sort: sort.value, sort_dir: sortDir.value, page: 1, ...overrides };
+    if (testId.value || overrides.test_id !== undefined) {
+        params.test_id = overrides.test_id !== undefined ? overrides.test_id : testId.value;
     }
+    if (params.test_id === null || params.test_id === undefined) delete params.test_id;
     router.get('/sorify/runs', params, { preserveState: true, replace: true });
 }
 
 watch(perPage, () => reloadRuns({ page: 1 }));
 
+function setSort(field, dir) {
+    sort.value = field;
+    sortDir.value = dir;
+    reloadRuns({ page: 1 });
+}
+
 function clearTestFilter() {
     testId.value = null;
-    router.get('/sorify/runs', { per_page: perPage.value, page: 1 }, { preserveState: true, replace: true });
+    router.get('/sorify/runs', { per_page: perPage.value, sort: sort.value, sort_dir: sortDir.value, page: 1 }, { preserveState: true, replace: true });
 }
 
 function runStatusLabel(status) {
@@ -88,14 +97,14 @@ function formatDuration(ms) {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FolderKanban :size="13" />{{ t('runs.colSuite') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><CircleDot :size="13" />{{ t('runs.colStatus') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><FlaskConical :size="13" />{{ t('runs.colPassed') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Timer :size="13" />{{ t('runs.colDuration') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Camera :size="13" />{{ t('runs.colScreenshots') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><User :size="13" />{{ t('runs.colCreatedBy') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Activity :size="13" />{{ t('runs.colRanBy') }}</span></th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Calendar :size="13" />{{ t('runs.colRunDate') }}</span></th>
+                            <SortableTh field="suite" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><FolderKanban :size="13" />{{ t('runs.colSuite') }}</SortableTh>
+                            <SortableTh field="status" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><CircleDot :size="13" />{{ t('runs.colStatus') }}</SortableTh>
+                            <SortableTh field="passed" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><FlaskConical :size="13" />{{ t('runs.colPassed') }}</SortableTh>
+                            <SortableTh field="duration" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Timer :size="13" />{{ t('runs.colDuration') }}</SortableTh>
+                            <SortableTh field="screenshots" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Camera :size="13" />{{ t('runs.colScreenshots') }}</SortableTh>
+                            <SortableTh field="created_by" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><User :size="13" />{{ t('runs.colCreatedBy') }}</SortableTh>
+                            <SortableTh field="ran_by" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Activity :size="13" />{{ t('runs.colRanBy') }}</SortableTh>
+                            <SortableTh field="run_date" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Calendar :size="13" />{{ t('runs.colRunDate') }}</SortableTh>
                             <th class="px-5 py-3"></th>
                         </tr>
                     </thead>
@@ -144,7 +153,7 @@ function formatDuration(ms) {
                                     <User :size="12" />
                                 </div>
                             </td>
-                            <td class="px-5 py-3"><RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" /></td>
+                            <td class="px-5 py-3"><RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" :ci-ip="run.ci_ip" :ci-user-agent="run.ci_user_agent" /></td>
                             <td class="px-5 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                                 <span class="group relative inline-flex items-center">
                                     {{ formatRelativeTime(run.created_at) }}
@@ -183,7 +192,7 @@ function formatDuration(ms) {
                             v-for="link in runs.links"
                             :key="link.label"
                             :disabled="!link.url || link.active"
-                            @click="link.url && router.get(link.url, { per_page: perPage, test_id: testId }, { preserveState: true, replace: true })"
+                            @click="link.url && router.get(link.url, { per_page: perPage, test_id: testId, sort, sort_dir: sortDir }, { preserveState: true, replace: true })"
                             class="px-2.5 py-1 rounded-[var(--md-sys-shape-corner-small)] md-label-small transition-colors"
                             :class="[
                                 link.active

@@ -27,7 +27,7 @@ const isActive = computed(() =>
 );
 
 const SOURCE_LABELS = {
-    ci: 'CI (GitHub Actions)',
+    ci: 'CI Webhook',
     schedule: 'Scheduled',
     mcp: 'MCP',
     manual: 'Manual',
@@ -289,7 +289,7 @@ const failedPct = computed(() => {
                             <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.triggeredBy', { name: run.triggered_by_user.name }) }}</span>
                         </span>
                         <span v-else class="flex items-center gap-1.5">
-                            <RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" />
+                            <RanBy :triggered-by="run.triggered_by" :triggered-by-user="run.triggered_by_user" :ci-ip="run.ci_ip" :ci-user-agent="run.ci_user_agent" />
                             <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ sourceLabel }}</span>
                         </span>
                     </span>

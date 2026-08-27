@@ -48,7 +48,27 @@ class TeamsNotificationScreenshotsTest extends TestCase
         return $run;
     }
 
-    public function test_it_includes_screenshots_from_passing_runs_too(): void
+    /**
+     * The TextBlock that immediately follows the "Screenshots" heading
+     * TextBlock — i.e. the one carrying the markdown links.
+     */
+    private function screenshotsTextBlock(array $body): ?array
+    {
+        $foundHeading = false;
+        foreach ($body as $element) {
+            $type = $element['type'] ?? '';
+            if ($foundHeading && $type === 'TextBlock') {
+                return $element;
+            }
+            if ($type === 'TextBlock' && ($element['text'] ?? '') === 'Screenshots') {
+                $foundHeading = true;
+            }
+        }
+
+        return null;
+    }
+
+    public function test_it_renders_screenshots_as_markdown_links_not_action_buttons(): void
     {
         Storage::fake('screenshots');
         Http::fake();
@@ -59,17 +79,25 @@ class TeamsNotificationScreenshotsTest extends TestCase
 
         Http::assertSent(function ($request) {
             $body = $request['attachments'][0]['content']['body'];
-            $actionSet = collect($body)->firstWhere('type', 'ActionSet');
 
-            if (! $actionSet) {
+            // No ActionSet anywhere — screenshots are now links, not buttons.
+            if (collect($body)->contains(fn ($el) => ($el['type'] ?? '') === 'ActionSet')) {
                 return false;
             }
 
-            $urls = collect($actionSet['actions'])->pluck('url');
+            $textBlock = $this->screenshotsTextBlock($body);
+            if (! $textBlock) {
+                return false;
+            }
 
-            return $urls->count() === 2
-                && $urls->contains(fn ($url) => str_contains($url, 'screenshots'))
-                && collect($actionSet['actions'])->every(fn ($action) => $action['type'] === 'Action.OpenUrl');
+            $text = $textBlock['text'];
+
+            // Both screenshots are present as markdown links pointing at the
+            // screenshots route. No "+N more" line because nothing was capped.
+            return str_contains($text, '[Passing](')
+                && str_contains($text, '[Failing](')
+                && str_contains($text, '/screenshots/')
+                && ! str_contains($text, 'more]');
         });
     }
 
@@ -84,14 +112,46 @@ class TeamsNotificationScreenshotsTest extends TestCase
 
         Http::assertSent(function ($request) {
             $body = $request['attachments'][0]['content']['body'];
-            $actionSet = collect($body)->firstWhere('type', 'ActionSet');
+            $textBlock = $this->screenshotsTextBlock($body);
 
-            if (! $actionSet) {
+            if (! $textBlock) {
                 return false;
             }
 
-            return count($actionSet['actions']) === 1
-                && $actionSet['actions'][0]['title'] === 'Failing';
+            $text = $textBlock['text'];
+
+            // Only one screenshot shown, and it's the failed one (sorted first).
+            return str_contains($text, '[Failing](')
+                && ! str_contains($text, '[Passing](');
+        });
+    }
+
+    public function test_it_adds_more_link_to_run_when_screenshots_are_capped(): void
+    {
+        Storage::fake('screenshots');
+        Http::fake();
+
+        $run = $this->makeRunWithScreenshots(maxScreenshots: 1);
+
+        app(TeamsNotificationService::class)->notifyRunCompleted($run);
+
+        // Compare on the route path (scheme/host can differ between
+        // route() and the service's absoluteUrl() helper in tests).
+        $runPath = route('runs.show', $run, absolute: false);
+
+        Http::assertSent(function ($request) use ($runPath) {
+            $body = $request['attachments'][0]['content']['body'];
+            $textBlock = $this->screenshotsTextBlock($body);
+
+            if (! $textBlock) {
+                return false;
+            }
+
+            $text = $textBlock['text'];
+
+            // "+1 more" link pointing back at the run page.
+            return str_contains($text, '[+1 more](')
+                && str_contains($text, $runPath);
         });
     }
 }
