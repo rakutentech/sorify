@@ -1,0 +1,37 @@
+config/sorify.php
+  s_68f086f7d19c51::t_fef737156e0a35 15
+docker-compose.yml
+  s_69b0c1e103a478::t_348d9d3b93a75b 57
+  s_69b0c1e103a478::t_2df715165adab7 58-59
+app/Services/TeamsNotificationService.php
+  s_68f086f7d19c51::t_8b4c81a9ffe2b5 245
+  s_68f086f7d19c51::t_eb6721fb83d295 189,201,203-205,209-212,215-221,223,225-234,244,246-247
+tests/Unit/TeamsNotificationScreenshotsTest.php
+  s_68f086f7d19c51::t_a6f5170fa54230 138-142,154
+  s_68f086f7d19c51::t_9f3e41f9a78ae9 51-71,83-89,93,95-100,115-137,144,146,150-153
+  s_68f086f7d19c51::t_dc07e19e98dcae 143
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4ebe7c34a2192091d14fc793b3c8227c694d5a68",
+  "prompts": {},
+  "sessions": {
+    "s_68f086f7d19c51": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fbd3b57acffe05s6aIuavbmXPJ",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_69b0c1e103a478": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fbd589a0fffeKW0XbVKSC0ulj1",
+        "model": "GLM-5.2-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
