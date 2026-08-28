@@ -1,0 +1,29 @@
+app/Http/Controllers/TestSuiteController.php
+  s_4cbb391d13710b::t_b0ec9a1cc65390 351
+resources/js/Pages/TestSuites/Show.vue
+  s_4cbb391d13710b::t_2f8d7c02d59c6e 135,1556-1634
+resources/js/locales/en.json
+  s_4cbb391d13710b::t_6f79fd53410143 80
+resources/js/locales/ja.json
+  s_4cbb391d13710b::t_b32df2f3bfe6b8 118-119
+resources/js/locales/ms.json
+  s_4cbb391d13710b::t_e402cd7a124648 118-119
+resources/js/locales/zh-CN.json
+  s_4cbb391d13710b::t_11fd3a7399a14d 118-119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "30049bfb531852d90f33b043df6e15fd94bf3207",
+  "prompts": {},
+  "sessions": {
+    "s_4cbb391d13710b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b96d86c7-49fe-44aa-8d6c-30c215759cc2",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
