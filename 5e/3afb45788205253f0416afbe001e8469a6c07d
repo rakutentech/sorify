@@ -1,0 +1,25 @@
+app/Http/Controllers/Admin/UserController.php
+  s_03f1fbea2c81a6::t_5736c1b5e72cab 35
+app/Http/Controllers/AuthController.php
+  s_03f1fbea2c81a6::t_9dc16c331aa1c3 11,67,201
+app/Http/Controllers/ProfileController.php
+  s_03f1fbea2c81a6::t_127565c8f6e727 22,36
+app/Models/User.php
+  s_03f1fbea2c81a6::t_17de25f7c3bca1 59-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5e3afb45788205253f0416afbe001e8469a6c07d",
+  "prompts": {},
+  "sessions": {
+    "s_03f1fbea2c81a6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "32acd412-ccae-4290-8ab7-5097a08c996c",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
