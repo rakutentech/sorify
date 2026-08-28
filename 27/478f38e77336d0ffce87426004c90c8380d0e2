@@ -1,0 +1,16 @@
+config/log-viewer.php
+  h_f44dfe84a46cdf 182-187
+sorify.svg
+  h_f44dfe84a46cdf 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "27478f38e77336d0ffce87426004c90c8380d0e2",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
