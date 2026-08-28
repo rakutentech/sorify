@@ -1,0 +1,19 @@
+resources/js/Pages/TestSuites/Show.vue
+  s_4cbb391d13710b::t_3ec8f874cfa326 14-15,896-907,1067,1076,1083
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b2ac3e3c3d379cfde6920df3e66278be75f4ac0d",
+  "prompts": {},
+  "sessions": {
+    "s_4cbb391d13710b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b96d86c7-49fe-44aa-8d6c-30c215759cc2",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
