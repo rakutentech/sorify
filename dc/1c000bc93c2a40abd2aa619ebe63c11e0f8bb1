@@ -1,0 +1,18 @@
+app/Providers/AppServiceProvider.php
+  h_f44dfe84a46cdf 34-37
+resources/js/Pages/Dashboard/Index.vue
+  h_f44dfe84a46cdf 8
+tests/Feature/RunFinalizationTest.php
+  h_f44dfe84a46cdf 78-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "dc1c000bc93c2a40abd2aa619ebe63c11e0f8bb1",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
