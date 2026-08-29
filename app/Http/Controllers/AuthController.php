@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Socialite\Facades\Socialite;
@@ -63,7 +64,7 @@ class AuthController extends Controller
     public function register(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:64'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:8', 'confirmed'],
         ]);
@@ -197,7 +198,7 @@ class AuthController extends Controller
             }
         } else {
             $user = User::create([
-                'name' => $githubUser->getName() ?? $githubUser->getNickname() ?? $email,
+                'name' => Str::limit($githubUser->getName() ?? $githubUser->getNickname() ?? $email, 64, ''),
                 'avatar' => filled($githubAvatar) ? $githubAvatar : null,
                 'email' => $email,
                 'password' => null,
