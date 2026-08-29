@@ -1,0 +1,86 @@
+tests/Unit/TeamsNotificationScreenshotsTest.php
+  h_f44dfe84a46cdf 33,158-213
+resources/js/locales/en.json
+  s_4cbb391d13710b::t_6f79fd53410143 80
+  s_4cbb391d13710b::t_63bcab61f37eb1 134-135
+extension/background.js
+  h_f44dfe84a46cdf 204-208,245-253,292-299,379,397,402
+extension/content_script.js
+  h_f44dfe84a46cdf 192-207,209,296,301-302,312-327,414-416,420-422,487-489,495-500,505-544
+app/Http/Controllers/ProfileController.php
+  s_03f1fbea2c81a6::t_127565c8f6e727 22,36
+resources/js/Components/ui/LanguageSwitcher.vue
+  h_f44dfe84a46cdf 2-3,7-32,36-74
+config/log-viewer.php
+  h_f44dfe84a46cdf 182-187
+resources/js/Pages/Profile/Show.vue
+  h_f44dfe84a46cdf 4,15-27,83-136,139-176,179-229,231-232
+resources/js/locales/zh-CN.json
+  s_4cbb391d13710b::t_f265b5bbe7b6a8 134-135
+  s_4cbb391d13710b::t_11fd3a7399a14d 118-119
+README.md
+  h_f44dfe84a46cdf 36-56,66,87-94,121,123-124,126,129,135,138,140-144,147-151,294
+app/Http/Controllers/TestSuiteController.php
+  s_4cbb391d13710b::t_b0ec9a1cc65390 351
+app/Http/Controllers/AuthController.php
+  s_03f1fbea2c81a6::t_9dc16c331aa1c3 11,67,201
+app/Services/TeamsNotificationService.php
+  h_f44dfe84a46cdf 98-102,105,110-117,162-181
+tests/Feature/RunFinalizationTest.php
+  h_f44dfe84a46cdf 1-88
+sorify.excalidraw
+  h_f44dfe84a46cdf 7,9-12,14-16,18,22-24,27,29-32,35-40,42-43,45,50-52,54-55,58-60,63-68,70-73,78-80,83,86-88,91-96,98-99,101,106-108,111,114-116,119-124,126-129,134-136,138-139,141-144,147,149-152,154-157,159,162-178,180-202,205,208-210,212-220,223-228,230,232,235,238-240,243,252-253,260-265,268,270-273,275,277,283-285,288,297-306,311-317,319-328,330-331,333-336,339-344,346-348,350-351,354-356,359,362-397,400-405,407,409,411-412,415-417,420,429-430,437-442,445-450,452-455,457,460-462,464-972,975-1003,1005-1018,1021,1023-1025,1028,1030,1033,1036-1038,1041,1044,1048-1056,1059,1061-1064,1066-1102,1104,1107-1125,1127-1161,1163-1185,1189-1190,1193,1195-1198,1201,1203-1206,1208-1211,1213,1216-1218,1221,1224,1226,1228-1274,1277,1279-1282,1284-1286,1292-1294,1297,1306-1315,1320-1326,1328-1329,1331-1486,1489,1491-1493,1496,1505,1507-1509,1512,1515,1518-1521,1526-1531,1533-1534,1538,1542,1544-1546,1548-1549,1552-1558,1561-1566,1568-1569,1573,1577,1579-1581,1583-1584,1587-1593,1596-1601,1603-1604,1606,1608,1612-1616,1618-1619,1621-1628,1631-1636,1638-1639,1641,1643,1647,1649-1651,1653-1654,1657-1663,1666-1671,1673-1674,1676,1678,1682,1684-1686,1688-1689,1692-1698,1701-1706,1708-1709,1711,1713,1717,1719-1721,1723-1724,1727-1731,1733,1736-1741,1743,1746,1748,1752,1754-1756,1758-1759,1761-1768,1771,1773-1776,1787,1789-1791,1794,1798,1806-1811,1813-1814,1818,1822,1824-1826,1828-1829,1832-1838,1841,1843-1846,1849,1853,1857,1859-1861,1864,1868,1874-1911,1918,1928-1970,1972-1989
+app/Services/TestRunService.php
+  h_f44dfe84a46cdf 71-75,81-95,97
+resources/js/locales/ja.json
+  s_4cbb391d13710b::t_abeaf5d54c2535 134-135
+  s_4cbb391d13710b::t_b32df2f3bfe6b8 118-119
+app/Models/User.php
+  s_03f1fbea2c81a6::t_17de25f7c3bca1 59-69
+resources/js/Pages/TestSuites/Show.vue
+  s_4cbb391d13710b::t_3ec8f874cfa326 14-15,897-908,1035,1044,1051
+  s_4cbb391d13710b::t_2f8d7c02d59c6e 135,1523-1596
+  s_4cbb391d13710b::t_b9ba014ed8e7a1 1033-1034,1036-1043,1045-1050,1052-1055
+  s_4cbb391d13710b::t_18137381ed1504 977-978,987-1007,1872-1884
+  h_f44dfe84a46cdf 1870
+extension/main_world_capture.js
+  h_f44dfe84a46cdf 10-18,20,24-33
+sorify.svg
+  h_f44dfe84a46cdf 1-2
+resources/js/locales/ms.json
+  s_4cbb391d13710b::t_e402cd7a124648 118-119
+  s_4cbb391d13710b::t_1d03c14d41f7dd 134-135
+app/Providers/AppServiceProvider.php
+  h_f44dfe84a46cdf 34-37
+app/Http/Controllers/Admin/UserController.php
+  s_03f1fbea2c81a6::t_5736c1b5e72cab 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1bac035f1449d9ccdc0a787bba863167739f9a68",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_03f1fbea2c81a6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "32acd412-ccae-4290-8ab7-5097a08c996c",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_4cbb391d13710b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b96d86c7-49fe-44aa-8d6c-30c215759cc2",
+        "model": "unknown"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
