@@ -1,0 +1,22 @@
+README.md
+  h_f44dfe84a46cdf 87-94,121,123-124,126,129,135,138,140-144,147-151
+app/Services/TeamsNotificationService.php
+  h_f44dfe84a46cdf 98-102,105,110-117,162-181
+app/Services/TestRunService.php
+  h_f44dfe84a46cdf 71-75,81-95,97
+tests/Feature/RunFinalizationTest.php
+  h_f44dfe84a46cdf 1-78
+tests/Unit/TeamsNotificationScreenshotsTest.php
+  h_f44dfe84a46cdf 33,158-213
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "7edbefe66a61a246476664162fa8fefafc23e850",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
