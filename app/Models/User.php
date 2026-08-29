@@ -57,6 +57,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Display name, truncated for compact UI surfaces. Names longer than 32
+     * characters are shown as 31 characters plus an ellipsis.
+     */
+    protected function name(): Attribute
+    {
+        return Attribute::get(fn (?string $name) => Str::length($name) > 32
+            ? Str::limit($name, 31, '…')
+            : $name);
+    }
+
+    /**
      * True when the user has a password set (false for OAuth-only users).
      */
     protected function hasPassword(): Attribute

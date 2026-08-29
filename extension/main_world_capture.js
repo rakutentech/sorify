@@ -7,9 +7,29 @@
   if (window.__sorifyMainWorldInjected) return;
   window.__sorifyMainWorldInjected = true;
 
+  // Whether a recording is actually in progress. Relayed from the content
+  // script (which can read chrome.storage) via postMessage. When false, the
+  // patched fetch/XHR/console.error stay inert — no postMessage, no payload
+  // building — so the page pays no recording overhead outside a session.
+  let isRecording = false;
+
+  // Announce readiness so the content script pushes us the current flag.
+  window.postMessage({ source: "sorify-recorder-main", payload: { ready: true } }, "*");
+
   function post(event_type, fields) {
+    if (!isRecording) return;
     window.postMessage({ source: "sorify-recorder-main", payload: { event_type, fields } }, "*");
   }
+
+  // Receive the recording flag (and changes) from the content script.
+  window.addEventListener("message", (e) => {
+    if (e.source !== window) return;
+    const data = e.data;
+    if (!data || data.source !== "sorify-recorder-content" || !data.payload) return;
+    if (typeof data.payload.recording === "boolean") {
+      isRecording = data.payload.recording;
+    }
+  });
 
   function safeStringify(value) {
     try {

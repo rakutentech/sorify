@@ -2,12 +2,9 @@
 
 namespace App\Providers;
 
-use App\Events\TestRunCompleted;
-use App\Listeners\NotifyTeamsOnRunCompleted;
 use App\Models\User;
 use App\Services\Auth\GithubEnterpriseProvider;
 use Illuminate\Foundation\DevCommands;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
@@ -34,7 +31,10 @@ class AppServiceProvider extends ServiceProvider
             return Socialite::buildProvider(GithubEnterpriseProvider::class, $config);
         });
 
-        Event::listen(TestRunCompleted::class, NotifyTeamsOnRunCompleted::class);
+        // TestRunCompleted → NotifyTeamsOnRunCompleted is wired up by Laravel's
+        // event auto-discovery (the listener's handle() type-hints the event).
+        // Do NOT register it manually here too — that double-registers and the
+        // notification fires twice per run.
 
         Gate::define('viewLogViewer', fn (User $user) => $user->is_admin);
 

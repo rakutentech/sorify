@@ -189,7 +189,24 @@
 
   const IS_TOP_FRAME = window === window.top;
 
+  // Whether a recording is actually in progress. All capture is gated on this
+  // so the extension is inert (no describe()/getComputedStyle/querySelectorAll,
+  // no sendMessage, no MutationObserver work) on every page/frame when the user
+  // isn't recording — the previous always-on instrumentation is what froze
+  // Chrome during long browsing sessions.
+  let isRecording = false;
+
+  function syncMainWorld() {
+    // Tell the MAIN-world capture script whether to emit events. It can't read
+    // chrome.* APIs, so we relay the recording flag via postMessage.
+    window.postMessage(
+      { source: "sorify-recorder-content", payload: { recording: isRecording } },
+      "*",
+    );
+  }
+
   function send(type, el, extra) {
+    if (!isRecording) return;
     chrome.runtime
       .sendMessage({
         action: "capture_event",
@@ -276,12 +293,13 @@
   }
 
   function triggerAssertionWindow(type, el) {
+    if (!isRecording) return;
     const d = describe(el);
     scheduleAssertionHint({ selector: d.selector, tag_name: d.tag_name, text: d.text, event_type: type });
   }
 
-  new MutationObserver((mutations) => {
-    if (!pendingAssertion) return;
+  const assertionObserver = new MutationObserver((mutations) => {
+    if (!isRecording || !pendingAssertion) return;
     for (const mutation of mutations) {
       if (mutation.type === "childList") {
         mutation.addedNodes.forEach(maybeTrackAppeared);
@@ -290,12 +308,23 @@
         maybeTrackAppeared(mutation.target);
       }
     }
-  }).observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ["style", "class", "hidden"],
   });
+  // Observer is only active while recording — see startObserving()/stopObserving().
+  function startObserving() {
+    if (!document.body) return;
+    assertionObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style", "class", "hidden"],
+    });
+  }
+  function stopObserving() {
+    assertionObserver.disconnect();
+    // Clear any in-flight assertion window so it doesn't fire after stopping.
+    if (assertionTimer) clearTimeout(assertionTimer);
+    pendingAssertion = null;
+  }
 
   // --- Core action listeners ------------------------------------------------
 
@@ -382,11 +411,15 @@
   const _pushState = history.pushState;
   const _replaceState = history.replaceState;
   history.pushState = function (...args) {
-    chrome.runtime.sendMessage({ action: "history_api_call", method: "pushState" }).catch(() => {});
+    if (isRecording) {
+      chrome.runtime.sendMessage({ action: "history_api_call", method: "pushState" }).catch(() => {});
+    }
     return _pushState.apply(this, args);
   };
   history.replaceState = function (...args) {
-    chrome.runtime.sendMessage({ action: "history_api_call", method: "replaceState" }).catch(() => {});
+    if (isRecording) {
+      chrome.runtime.sendMessage({ action: "history_api_call", method: "replaceState" }).catch(() => {});
+    }
     return _replaceState.apply(this, args);
   };
 
@@ -451,14 +484,62 @@
   //
   // main_world_capture.js runs in the page's own JS context (chrome.* APIs
   // are unavailable there), so it hands events to us via postMessage and we
-  // relay them through the normal send() pipeline.
+  // relay them through the normal send() pipeline. We also push the recording
+  // flag down to it so its monkey-patched fetch/XHR/console.error stay inert
+  // (no postMessage, no payload building) when not recording.
 
   window.addEventListener("message", (e) => {
     if (e.source !== window) return;
     const data = e.data;
     if (!data || data.source !== "sorify-recorder-main" || !data.payload) return;
+    // A "ready" ping from the MAIN script means it just loaded and needs the
+    // current recording flag. Acknowledge so it can suppress its own events.
+    if (data.payload.ready) {
+      syncMainWorld();
+      return;
+    }
     const { event_type, fields } = data.payload;
     if (!event_type) return;
     send(event_type, null, fields || {});
   });
+
+  // --- Recording-state sync -------------------------------------------------
+  //
+  // The recording flag lives in chrome.storage.session (written by
+  // background.js on start/stop_recording) so every content-script instance
+  // across all tabs/frames can read it without round-tripping a message per
+  // event. We read it on load and subscribe to changes, toggling capture on
+  // and off — including the MutationObserver, which would otherwise run on
+  // every DOM mutation in every frame forever.
+
+  function applyRecordingState(recording) {
+    const changed = recording !== isRecording;
+    isRecording = !!recording;
+    if (!changed) return;
+    if (isRecording) {
+      startObserving();
+      syncMainWorld();
+      console.debug("[sorify-recorder] capture enabled on", location.href);
+    } else {
+      stopObserving();
+      syncMainWorld();
+      console.debug("[sorify-recorder] capture disabled on", location.href);
+    }
+  }
+
+  try {
+    chrome.storage.session.get(["sorify_recording"], (res) => {
+      applyRecordingState(res && res.sorify_recording);
+      // Tell the MAIN-world script the initial state now that we know it.
+      syncMainWorld();
+    });
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === "session" && changes.sorify_recording) {
+        applyRecordingState(changes.sorify_recording.newValue);
+      }
+    });
+  } catch {
+    // storage.session is always available under MV3; guard just in case the
+    // content script context is torn down mid-read.
+  }
 })();

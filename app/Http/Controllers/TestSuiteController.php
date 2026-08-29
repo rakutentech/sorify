@@ -348,7 +348,7 @@ class TestSuiteController extends Controller
 
     public function regenerateWebhook(TestSuite $suite)
     {
-        $this->authorize('edit', $suite);
+        $this->authorize('delete', $suite);
 
         $suite->regenerateWebhookToken();
 

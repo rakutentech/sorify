@@ -30,6 +30,7 @@ class TeamsNotificationScreenshotsTest extends TestCase
         $run = $suite->testRuns()->create([
             'status' => 'completed',
             'triggered_by' => 'manual',
+            'total_tests' => 2,
             'passed_count' => 1,
             'failed_count' => 1,
         ]);
@@ -152,6 +153,62 @@ class TeamsNotificationScreenshotsTest extends TestCase
             // "+1 more" link pointing back at the run page.
             return str_contains($text, '[+1 more](')
                 && str_contains($text, $runPath);
+        });
+    }
+
+    public function test_summary_uses_pass_fraction_format(): void
+    {
+        Storage::fake('screenshots');
+        Http::fake();
+
+        $run = $this->makeRunWithScreenshots(maxScreenshots: 5);
+
+        app(TeamsNotificationService::class)->notifyRunCompleted($run);
+
+        Http::assertSent(function ($request) {
+            $body = $request['attachments'][0]['content']['body'];
+            $text = collect($body)->pluck('text')->implode("\n");
+
+            return str_contains($text, '1/2 passed')
+                && str_contains($text, '1 failed')
+                && str_contains($text, '0 errors')
+                && ! str_contains($text, 'Passed:');
+        });
+    }
+
+    public function test_summary_includes_triggered_by_user_name(): void
+    {
+        Storage::fake('screenshots');
+        Http::fake();
+
+        $run = $this->makeRunWithScreenshots(maxScreenshots: 5);
+        $run->triggeredByUser()->associate(\App\Models\User::factory()->create(['name' => 'Alice']))->save();
+
+        app(TeamsNotificationService::class)->notifyRunCompleted($run);
+
+        Http::assertSent(function ($request) {
+            $body = $request['attachments'][0]['content']['body'];
+            $text = collect($body)->pluck('text')->implode("\n");
+
+            return str_contains($text, 'Triggered by: Alice');
+        });
+    }
+
+    public function test_summary_falls_back_to_source_label_for_ci_runs(): void
+    {
+        Storage::fake('screenshots');
+        Http::fake();
+
+        $run = $this->makeRunWithScreenshots(maxScreenshots: 5);
+        $run->update(['triggered_by' => 'ci', 'triggered_by_user_id' => null]);
+
+        app(TeamsNotificationService::class)->notifyRunCompleted($run);
+
+        Http::assertSent(function ($request) {
+            $body = $request['attachments'][0]['content']['body'];
+            $text = collect($body)->pluck('text')->implode("\n");
+
+            return str_contains($text, 'Triggered by: CI Webhook');
         });
     }
 }

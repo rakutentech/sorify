@@ -19,7 +19,7 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Show', [
             'user' => [
                 'id' => $user->id,
-                'name' => $user->name,
+                'name' => $user->getRawOriginal('name'),
                 'email' => $user->email,
                 'avatar_url' => $user->avatar_url,
                 'is_admin' => $user->is_admin,
@@ -33,7 +33,7 @@ class ProfileController extends Controller
     public function updateName(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:64'],
         ]);
 
         $user = auth()->user();

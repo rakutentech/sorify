@@ -11,8 +11,8 @@ import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import {
     FolderKanban, Star, Pencil, Copy, LoaderCircle, Trash2, Play,
     Plus, FileText, Search, ChevronRight, CircleHelp, Check, ChevronDown,
-    FlaskConical, Activity, Gauge, CircleAlert, Users, Webhook,
-    User, Settings, SlidersHorizontal, ArrowUp, ArrowDown,
+    FlaskConical, Activity, Gauge, CircleAlert, Webhook,
+    User, UserCog, Settings, SlidersHorizontal, ArrowUp, ArrowDown,
 } from '@lucide/vue';
 
 const { t } = useI18n();
@@ -132,6 +132,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutsideStatus
 const statusUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/trigger$/, '/runs/{run}/status') : null);
 const runUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/sorify\/.*$/, '/sorify/runs/{run}') : null);
 
+const showWebhook = ref(false);
 const showCurlExample = ref(false);
 const curlCommand = computed(() => props.webhookUrl
     ? `curl -X POST "${props.webhookUrl}?test_ids=1,2,3"`
@@ -893,6 +894,18 @@ function toggleRunsExpanded(testId) {
                         <Avatar :name="suite.created_by.name" :email="suite.created_by.email" :avatar-url="suite.created_by.avatar_url" />
                         <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.createdBy', { name: suite.created_by.name }) }}</span>
                     </span>
+                    <span class="flex items-center gap-1.5">
+                        <AvatarGroup :users="suite.members ?? []" :suite-id="suite.id" :max="20" />
+                        <Button
+                            v-if="can.manageUsers"
+                            variant="tonal"
+                            size="sm"
+                            @click="openManageUsersModal"
+                        >
+                            <template #leading><UserCog :size="14" /></template>
+                            {{ t('testSuiteShow.manageUsers') }}
+                        </Button>
+                    </span>
                 </span>
                 <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
                     <FolderKanban :size="26" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
@@ -957,89 +970,12 @@ function toggleRunsExpanded(testId) {
             </div>
         </div>
 
-        <!-- Stats row -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            <Card padding="px-4 py-3">
-                <div class="flex items-center justify-between">
-                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statTests') }}</p>
-                    <FlaskConical :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
-                </div>
-                <p class="md-title-large text-[var(--md-sys-color-on-surface)] mt-1">{{ stats.test_count ?? tests.total ?? tests.data.length }}</p>
-            </Card>
-            <Card padding="px-4 py-3">
-                <div class="flex items-center justify-between">
-                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statRuns') }}</p>
-                    <Activity :size="18" :style="{ color: 'var(--md-ext-color-success)' }" />
-                </div>
-                <p class="md-title-large text-[var(--md-sys-color-on-surface)] mt-1">{{ stats.run_count ?? recentRuns.length }}</p>
-            </Card>
-            <Card padding="px-4 py-3">
-                <div class="flex items-center justify-between">
-                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statPassRate') }}</p>
-                    <Gauge :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
-                </div>
-                <p class="md-title-large mt-1"
-                    :class="stats.pass_rate >= 90 ? 'text-[var(--md-ext-color-success)]' : stats.pass_rate >= 70 ? 'text-[var(--md-ext-color-warning)]' : stats.pass_rate != null ? 'text-[var(--md-sys-color-error)]' : 'text-[var(--md-sys-color-on-surface-variant)]'"
-                >
-                    {{ stats.pass_rate != null ? `${Math.round(stats.pass_rate)}%` : '—' }}
-                </p>
-            </Card>
-            <Card padding="px-4 py-3">
-                <div class="flex items-center justify-between mb-1.5">
-                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statStatusBreakdown') }}</p>
-                    <CircleAlert :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
-                </div>
-                <div class="flex flex-wrap gap-1">
-                    <button
-                        v-for="status in STATUS_OPTIONS"
-                        :key="status"
-                        v-show="(stats.status_counts?.[status] ?? 0) > 0"
-                        type="button"
-                        @click="filterByStatus(status)"
-                        :class="[
-                            'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small font-medium transition-opacity hover:opacity-80 cursor-pointer',
-                            STATUS_BADGE_CLASSES[status],
-                            testStatus.includes(status) ? 'ring-2 ring-[var(--md-sys-color-primary)] ring-offset-1 ring-offset-[var(--md-sys-color-surface)]' : '',
-                        ]"
-                    >
-                        {{ stats.status_counts?.[status] ?? 0 }} {{ t(`testSuiteShow.status_${status}`) }}
-                    </button>
-                    <span v-if="!hasStatusCounts" class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">—</span>
-                </div>
-            </Card>
-        </div>
-
-        <!-- Test actions row -->
-        <div class="flex items-center justify-end gap-2 mb-4">
-            <Button
-                variant="tonal"
-                size="sm"
-                :href="`/sorify/suites/${suite.id}/review`"
-                :disabled="hasSelection"
-                :title="t('testSuiteShow.reviewAllTestsTitle')"
-            >
-                <template #leading><FileText :size="14" /></template>
-                {{ t('testSuiteShow.reviewAllTests') }}
-            </Button>
-            <Button v-if="can.run" variant="tonal" size="sm" @click="runAll" :disabled="running || hasSelection">
-                <template #leading>
-                    <LoaderCircle v-if="running" :size="14" class="animate-spin" />
-                    <Play v-else :size="14" />
-                </template>
-                {{ running ? t('testSuiteShow.starting') : t('testSuiteShow.runAllTests') }}
-            </Button>
-            <Button v-if="can.edit" variant="filled" size="sm" @click="openTestModal" :disabled="hasSelection">
-                <template #leading><Plus :size="14" /></template>
-                {{ t('testSuiteShow.newTest') }}
-            </Button>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Tests list -->
             <div class="lg:col-span-2">
                 <Card padding="p-0">
-                    <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
-                        <div class="flex items-center gap-2 flex-wrap min-w-0">
+                    <div class="flex items-center justify-between gap-3 px-5 h-[64px] border-b border-[var(--md-sys-color-outline-variant)]">
+                        <div class="flex items-center gap-2 min-w-0 flex-nowrap overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                             <input
                                 v-if="tests.data.length && (can.delete || can.edit || can.run)"
                                 type="checkbox"
@@ -1048,8 +984,27 @@ function toggleRunsExpanded(testId) {
                                 @change="toggleSelectAll"
                                 class="w-4 h-4 flex-shrink-0 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
                             />
-                            <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex-shrink-0 flex items-center gap-2"><FlaskConical :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />{{ t('testSuiteShow.testsHeading') }}</h2>
-                            <div v-if="hasSelection" class="flex items-center gap-1.5 flex-wrap">
+                            <h2 class="md-title-medium leading-none text-[var(--md-sys-color-on-surface)] flex-shrink-0 flex items-baseline gap-2"><FlaskConical :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" class="self-center" /><span>{{ t('testSuiteShow.testsHeading') }}</span>
+                                <span v-if="!hasSelection" class="md-label-medium leading-none text-[var(--md-sys-color-on-surface-variant)] font-normal">{{ t('testSuiteShow.totalCount', { count: stats.test_count ?? tests.total ?? tests.data.length }) }}</span>
+                            </h2>
+                            <!-- Interactive status breakdown chips — click to filter the table -->
+                            <div v-if="!hasSelection && hasStatusCounts" class="flex items-center gap-1 flex-nowrap flex-shrink-0">
+                                <button
+                                    v-for="status in STATUS_OPTIONS"
+                                    :key="status"
+                                    v-show="(stats.status_counts?.[status] ?? 0) > 0"
+                                    type="button"
+                                    @click="filterByStatus(status)"
+                                    :class="[
+                                        'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small font-medium transition-opacity cursor-pointer',
+                                        STATUS_BADGE_CLASSES[status],
+                                        testStatus.includes(status) ? 'opacity-100' : 'opacity-60 hover:opacity-100',
+                                    ]"
+                                >
+                                    {{ stats.status_counts?.[status] ?? 0 }} {{ t(`testSuiteShow.status_${status}`) }}
+                                </button>
+                            </div>
+                            <div v-if="hasSelection" class="flex items-center gap-1.5 flex-nowrap flex-shrink-0">
                                 <button v-if="can.edit" @click="bulkSetStatus('active')" :disabled="bulkStatusProcessing"
                                     class="md-label-small px-2.5 py-1 rounded-[var(--md-sys-shape-corner-full)] text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)] transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
                                     {{ t('testSuiteShow.activate', { count: selectedIds.size }) }}
@@ -1074,6 +1029,29 @@ function toggleRunsExpanded(testId) {
                                     {{ bulkRunning ? t('testSuiteShow.starting') : t('testSuiteShow.run', { count: selectedIds.size }) }}
                                 </button>
                             </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <Button
+                                v-if="!hasSelection"
+                                variant="tonal"
+                                size="sm"
+                                :href="`/sorify/suites/${suite.id}/review`"
+                                :title="t('testSuiteShow.reviewAllTestsTitle')"
+                            >
+                                <template #leading><FileText :size="14" /></template>
+                                {{ t('testSuiteShow.reviewAllTests') }}
+                            </Button>
+                            <Button v-if="can.run && !hasSelection" variant="filled" size="sm" @click="runAll" :disabled="running">
+                                <template #leading>
+                                    <LoaderCircle v-if="running" :size="14" class="animate-spin" />
+                                    <Play v-else :size="14" />
+                                </template>
+                                {{ running ? t('testSuiteShow.starting') : t('testSuiteShow.runAllTests') }}
+                            </Button>
+                            <Button v-if="can.edit && !hasSelection" variant="filled" size="sm" @click="openTestModal">
+                                <template #leading><Plus :size="14" /></template>
+                                {{ t('testSuiteShow.newTest') }}
+                            </Button>
                         </div>
                     </div>
 
@@ -1542,6 +1520,80 @@ function toggleRunsExpanded(testId) {
                         </div>
                     </div>
 
+                    <!-- CI Webhook (collapsible, mirrors the Suite Settings / Run Settings pattern) -->
+                    <div class="border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
+                        <button
+                            type="button"
+                            @click="showWebhook = !showWebhook"
+                            class="w-full flex items-center gap-2 px-5 py-2.5 text-left hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
+                        >
+                            <ChevronRight :size="16" class="text-[var(--md-sys-color-on-surface-variant)] transition-transform" :class="{ 'rotate-90': showWebhook }" />
+                            <Webhook :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
+                            <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.ciWebhookHeading') }}</span>
+
+                            <Button
+                                v-if="can.delete && showWebhook"
+                                variant="tonal"
+                                size="sm"
+                                @click.stop="regenerateWebhook"
+                                class="!text-[var(--md-sys-color-error)] ml-auto"
+                            >
+                                {{ t('testSuiteShow.regenerate') }}
+                            </Button>
+                        </button>
+
+                        <div v-if="showWebhook" class="px-5 pb-4 pt-2">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.triggerARun') }}</p>
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.webhookInstructions') }}</p>
+                            <CopyableSecret v-if="webhookUrl" :value="webhookUrl" />
+                            <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.noWebhookConfigured') }}</p>
+
+                            <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                                <button
+                                    @click="showCurlExample = !showCurlExample"
+                                    class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                                >
+                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showCurlExample }" />
+                                    {{ showCurlExample ? t('testSuiteShow.hideCurlExample') : t('testSuiteShow.showCurlExample') }}
+                                </button>
+                                <div v-if="showCurlExample" class="mt-2">
+                                    <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
+                                        {{ t('testSuiteShow.testIdsHint') }}
+                                    </p>
+                                    <div class="relative">
+                                        <pre class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 pr-4 overflow-x-auto whitespace-pre">{{ curlCommand }}</pre>
+                                        <div class="absolute top-2 right-2">
+                                            <CopyButton :value="curlCommand" />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        @click="showTriggerResponseSample = !showTriggerResponseSample"
+                                        class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
+                                    >
+                                        <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showTriggerResponseSample }" />
+                                        {{ showTriggerResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
+                                    </button>
+                                    <pre v-if="showTriggerResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ triggerResponseSample }}</pre>
+                                </div>
+                            </div>
+
+                            <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                                <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.pollRunStatus') }}</p>
+                                <CopyableSecret :value="statusUrlTemplate" />
+
+                                <button
+                                    @click="showStatusResponseSample = !showStatusResponseSample"
+                                    class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
+                                >
+                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showStatusResponseSample }" />
+                                    {{ showStatusResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
+                                </button>
+                                <pre v-if="showStatusResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ statusResponseSample }}</pre>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] flex items-center gap-3 flex-wrap">
                         <div class="relative max-w-xs flex-1 min-w-[10rem]">
                             <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" />
@@ -1815,83 +1867,23 @@ function toggleRunsExpanded(testId) {
             </div>
 
             <div class="space-y-6">
-                <!-- Users -->
+                <!-- Recent runs -->
                 <Card padding="p-0">
-                    <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
-                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2"><Users :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />{{ t('testSuiteShow.usersHeading') }}</h2>
-                        <Button v-if="can.manageUsers" variant="tonal" size="sm" @click="openManageUsersModal">
-                            {{ t('testSuiteShow.manageUsers') }}
-                        </Button>
-                    </div>
-                    <div class="px-5 py-4">
-                        <AvatarGroup :users="suite.members ?? []" :suite-id="suite.id" :max="20" />
-                    </div>
-                </Card>
-
-                <!-- CI Webhook -->
-                <Card padding="p-0">
-                    <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)] flex items-center justify-between">
-                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2"><Webhook :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />{{ t('testSuiteShow.ciWebhookHeading') }}</h2>
-                        <Button v-if="can.edit" variant="tonal" size="sm" @click="regenerateWebhook" class="!text-[var(--md-sys-color-error)]">
-                            {{ t('testSuiteShow.regenerate') }}
-                        </Button>
-                    </div>
-                    <div class="px-5 py-4">
-                        <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.triggerARun') }}</p>
-                        <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.webhookInstructions') }}</p>
-                        <CopyableSecret v-if="webhookUrl" :value="webhookUrl" />
-                        <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.noWebhookConfigured') }}</p>
-
-                        <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <button
-                                @click="showCurlExample = !showCurlExample"
-                                class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
-                            >
-                                <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showCurlExample }" />
-                                {{ showCurlExample ? t('testSuiteShow.hideCurlExample') : t('testSuiteShow.showCurlExample') }}
-                            </button>
-                            <div v-if="showCurlExample" class="mt-2">
-                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
-                                    {{ t('testSuiteShow.testIdsHint') }}
-                                </p>
-                                <div class="relative">
-                                    <pre class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 pr-4 overflow-x-auto whitespace-pre">{{ curlCommand }}</pre>
-                                    <div class="absolute top-2 right-2">
-                                        <CopyButton :value="curlCommand" />
-                                    </div>
-                                </div>
-
-                                <button
-                                    @click="showTriggerResponseSample = !showTriggerResponseSample"
-                                    class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
-                                >
-                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showTriggerResponseSample }" />
-                                    {{ showTriggerResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
-                                </button>
-                                <pre v-if="showTriggerResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ triggerResponseSample }}</pre>
+                    <div class="px-5 py-4 min-h-[60px] flex items-center border-b border-[var(--md-sys-color-outline-variant)]">
+                        <div class="flex items-center justify-between gap-3 flex-wrap w-full">
+                            <h2 class="md-title-medium leading-none text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
+                                <Activity :size="18" :style="{ color: 'var(--md-ext-color-success)' }" /><span>{{ t('testSuiteShow.recentRunsHeading') }}</span>
+                                <span class="md-label-medium leading-none self-center text-[var(--md-sys-color-on-surface-variant)] font-normal">{{ t('testSuiteShow.totalRuns', { count: stats.run_count ?? recentRuns.length }) }}</span>
+                            </h2>
+                            <div v-if="stats.pass_rate != null" class="flex items-center gap-1.5" :title="t('testSuiteShow.statPassRate')">
+                                <Gauge :size="16" :style="{ color: 'var(--md-sys-color-primary)' }" />
+                                <span
+                                    class="md-label-medium font-medium"
+                                    :class="stats.pass_rate >= 90 ? 'text-[var(--md-ext-color-success)]' : stats.pass_rate >= 70 ? 'text-[var(--md-ext-color-warning)]' : 'text-[var(--md-sys-color-error)]'"
+                                >{{ Math.round(stats.pass_rate) }}%</span>
+                                <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.statPassRate') }}</span>
                             </div>
                         </div>
-
-                        <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.pollRunStatus') }}</p>
-                            <CopyableSecret :value="statusUrlTemplate" />
-
-                            <button
-                                @click="showStatusResponseSample = !showStatusResponseSample"
-                                class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
-                            >
-                                <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showStatusResponseSample }" />
-                                {{ showStatusResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
-                            </button>
-                            <pre v-if="showStatusResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ statusResponseSample }}</pre>
-                        </div>
-                    </div>
-                </Card>
-
-                <!-- Recent runs -->
-                <Card padding="p-0" class="mt-6">
-                    <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
-                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2"><Activity :size="18" :style="{ color: 'var(--md-ext-color-success)' }" />{{ t('testSuiteShow.recentRunsHeading') }}</h2>
                     </div>
 
                     <div v-if="!recentRuns.length" class="px-5 py-6 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
