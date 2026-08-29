@@ -1,0 +1,16 @@
+resources/js/Components/ui/LanguageSwitcher.vue
+  h_f44dfe84a46cdf 2-3,7-32,36-74
+resources/js/Pages/Profile/Show.vue
+  h_f44dfe84a46cdf 4,15-27,83-136,139-176,179-229,231-232
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "3ee51d9a7d8afe1ea21696c4bd76d320fcb62b73",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
