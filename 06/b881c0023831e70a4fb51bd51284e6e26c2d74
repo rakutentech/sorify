@@ -1,0 +1,14 @@
+resources/js/Pages/Dashboard/Index.vue
+  h_f44dfe84a46cdf 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "06b881c0023831e70a4fb51bd51284e6e26c2d74",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
