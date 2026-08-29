@@ -201,6 +201,11 @@ const recentNetworkCalls = new Map(); // tabId -> Map(method|url -> timestamps[]
 const NAV_DEDUPE_WINDOW_MS = 500;
 const NETWORK_DEDUPE_WINDOW_MS = 2000;
 const NETWORK_DEDUPE_MAX = 3;
+// Hard caps so these Maps can't grow without bound over a long-lived service
+// worker (kept awake by the keepalive alarm). lastNavigationSeen keys on
+// tabId|frameId|url|navType, so every distinct navigated URL would otherwise
+// accumulate an entry for the life of the worker.
+const NAV_SEEN_MAX = 500;
 
 function recordInteraction(tabId, event) {
   if (tabId == null) return;
@@ -237,6 +242,15 @@ function shouldRateLimitNetwork(tabId, event) {
   const key = `${event.method}|${event.request_url}`;
   const now = event.timestamp || Date.now();
   const tabMap = recentNetworkCalls.get(tabId) || new Map();
+
+  // Prune stale timestamp arrays for any keys older than the window so entries
+  // for old URLs don't linger for the life of the tab.
+  for (const [k, ts] of tabMap) {
+    const fresh = ts.filter((t) => now - t <= NETWORK_DEDUPE_WINDOW_MS);
+    if (fresh.length) tabMap.set(k, fresh);
+    else tabMap.delete(k);
+  }
+
   const timestamps = (tabMap.get(key) || []).filter((t) => now - t <= NETWORK_DEDUPE_WINDOW_MS);
   timestamps.push(now);
   tabMap.set(key, timestamps);
@@ -275,6 +289,14 @@ function handleNavigation(details, navType) {
   const dedupeKey = `${details.tabId}|${details.frameId}|${details.url}|${navType}`;
   const lastSeen = lastNavigationSeen.get(dedupeKey);
   if (lastSeen && timestamp - lastSeen < NAV_DEDUPE_WINDOW_MS) return;
+
+  // Prune entries older than the dedupe window and enforce a hard cap so the
+  // Map can't grow without bound across a long browsing session.
+  if (lastNavigationSeen.size > NAV_SEEN_MAX) {
+    for (const [key, ts] of lastNavigationSeen) {
+      if (timestamp - ts > NAV_DEDUPE_WINDOW_MS) lastNavigationSeen.delete(key);
+    }
+  }
   lastNavigationSeen.set(dedupeKey, timestamp);
 
   // Track top-frame hostnames visited during an active recording, for the
@@ -354,6 +376,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (ws && ws.readyState === WebSocket.OPEN) {
         visitedDomains.clear();
         isRecording = true;
+        chrome.storage.session.set({ sorify_recording: true }).catch(() => {});
         ws.send(JSON.stringify({ type: "start_recording", label: message.label }));
         // Snapshot cookies for the active tab's domain after the session is
         // started by the bridge (so the JSONL session_start row is written
@@ -371,10 +394,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           .catch(() => {})
           .finally(() => {
             isRecording = false;
+            chrome.storage.session.set({ sorify_recording: false }).catch(() => {});
             ws.send(JSON.stringify({ type: "stop_recording" }));
           });
       } else {
         isRecording = false;
+        chrome.storage.session.set({ sorify_recording: false }).catch(() => {});
       }
       sendResponse({ ok: true });
       break;

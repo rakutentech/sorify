@@ -95,11 +95,24 @@ class TeamsNotificationService
             ];
         }
 
+        $total = (int) $run->total_tests;
+        $passed = (int) $run->passed_count;
+        $failed = (int) $run->failed_count;
+        $errors = (int) $run->error_count;
+
         $body[] = [
             'type' => 'TextBlock',
-            'text' => "Passed: {$run->passed_count}  •  Failed: {$run->failed_count}  •  Errors: {$run->error_count}  •  Duration: {$duration}",
+            'text' => "{$passed}/{$total} passed  •  {$failed} failed  •  {$errors} errors  •  {$duration}",
             'wrap' => true,
             'spacing' => 'small',
+        ];
+
+        $body[] = [
+            'type' => 'TextBlock',
+            'text' => "Triggered by: {$this->triggeredBy($run)}",
+            'wrap' => true,
+            'isSubtle' => true,
+            'spacing' => 'none',
         ];
 
         array_push($body, ...$this->buildTestsSection($run));
@@ -144,6 +157,26 @@ class TeamsNotificationService
         $root = "{$scheme}://{$host}".($port ? ":{$port}" : '');
 
         return $root.$path;
+    }
+
+    /**
+     * A human-readable label for who (or what) kicked off the run. Manual
+     * and MCP runs are attributed to the triggering user by name; CI and
+     * scheduled runs have no human user, so they fall back to the source.
+     */
+    private function triggeredBy(TestRun $run): string
+    {
+        return $run->triggeredByUser?->name ?? $this->triggeredByLabel($run->triggered_by);
+    }
+
+    private function triggeredByLabel(string $source): string
+    {
+        return match ($source) {
+            'ci'       => 'CI Webhook',
+            'schedule' => 'Schedule',
+            'mcp'      => 'MCP',
+            default    => 'Manual',
+        };
     }
 
     private function buildTestsSection(TestRun $run): array

@@ -115,7 +115,8 @@
         "bookmarkRemove": "ブックマークを解除",
         "confirmDuplicateSuite": "スイート「{name}」を複製しますか？新しいスイートが作成され、すべてのテストがバックグラウンドでコピーされます。",
         "duplicationPromptLabel": "新しいスイート名（任意）",
-        "duplicationPromptPlaceholder": "マイテストスイート (copy)"
+        "duplicationPromptPlaceholder": "マイテストスイート (copy)",
+        "badgeWebhook": "CI Webhook"
     },
     "testSuiteShow": {
         "badge": "テストスイート",
@@ -130,6 +131,8 @@
         "statPassRate": "成功率",
         "statProxy": "プロキシ",
         "statStatusBreakdown": "ステータス",
+        "totalCount": "合計 {count}",
+        "totalRuns": "合計実行数 {count}",
         "proxyRules": "{count}件のルール",
         "testsHeading": "テスト",
         "run": "実行 ({count})",

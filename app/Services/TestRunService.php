@@ -68,20 +68,33 @@ class TestRunService
         // Guard against double-finalization: the batch finally callback can be
         // invoked from recordFailedJob (when retry_after re-releases a
         // long-running job and another worker fails it) before the original
-        // worker finishes. If the run was already finalized, bail out.
+        // worker finishes. The completed_at null-check alone is not enough —
+        // two workers can both read null before either writes. Claim the run
+        // atomically: the conditional update only affects a row whose
+        // completed_at is still null, so exactly one worker wins and proceeds
+        // to dispatch the completion event (and the Teams notification).
         if ($run->completed_at !== null) {
             return;
         }
 
         $hasFailures = $run->failed_count > 0 || $run->error_count > 0;
+        $status = $run->status === 'cancelled' ? 'cancelled' : ($hasFailures ? 'failed' : 'completed');
 
-        $run->update([
-            'duration_ms' => $run->started_at?->diffInMilliseconds(now()),
-            'completed_at' => now(),
-            'status' => $run->status === 'cancelled' ? 'cancelled' : ($hasFailures ? 'failed' : 'completed'),
-        ]);
+        $updated = $run->whereKey($run->id)
+            ->whereNull('completed_at')
+            ->update([
+                'duration_ms' => $run->started_at?->diffInMilliseconds(now()),
+                'completed_at' => now(),
+                'status' => $status,
+            ]);
 
-        TestRunCompleted::dispatch($run);
+        if ($updated === 0) {
+            // Another worker finalized the run between our refresh and the
+            // atomic claim — nothing left to do.
+            return;
+        }
+
+        TestRunCompleted::dispatch($run->refresh());
     }
 
     /**

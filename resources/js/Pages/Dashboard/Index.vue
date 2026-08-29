@@ -5,22 +5,12 @@ import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, MarkdownRenderer } from '@/Components/ui';
 import {
-    LayoutDashboard, FolderKanban, FlaskConical, Activity, Gauge,
     StickyNote, Pencil, Save, X, Check,
 } from '@lucide/vue';
 
 const { t } = useI18n();
 
 const props = defineProps({
-    stats: {
-        type: Object,
-        default: () => ({
-            total_suites: 0,
-            total_tests: 0,
-            total_runs: 0,
-            pass_rate_30d: null,
-        }),
-    },
     dashboard_note: {
         type: Object,
         default: () => ({ content: '', updated_by: null, updated_at: null }),
@@ -30,11 +20,6 @@ const props = defineProps({
         default: () => ({ edit_dashboard_note: false }),
     },
 });
-
-function formatPassRate(rate) {
-    if (rate === null || rate === undefined) return '—';
-    return `${Math.round(rate)}%`;
-}
 
 const editing = ref(false);
 const form = useForm({ content: props.dashboard_note.content ?? '' });
@@ -60,65 +45,6 @@ function save() {
 <template>
     <AppLayout>
         <Head :title="t('dashboard.title')" />
-
-        <!-- Page header -->
-        <div class="mb-6">
-            <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
-                <LayoutDashboard :size="26" :style="{ color: 'var(--md-sys-color-primary)' }" />
-                {{ t('dashboard.title') }}
-            </h1>
-            <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('dashboard.subtitle') }}</p>
-        </div>
-
-        <!-- Stat cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <Card>
-                <div class="flex items-center justify-between">
-                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('dashboard.testSuites') }}</p>
-                    <FolderKanban :size="20" :style="{ color: 'var(--md-sys-color-primary)' }" />
-                </div>
-                <p class="md-display-small text-[var(--md-sys-color-on-surface)] mt-2">{{ stats.total_suites }}</p>
-            </Card>
-            <Card>
-                <div class="flex items-center justify-between">
-                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('dashboard.tests') }}</p>
-                    <FlaskConical :size="20" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
-                </div>
-                <p class="md-display-small text-[var(--md-sys-color-on-surface)] mt-2">{{ stats.total_tests }}</p>
-            </Card>
-            <Card>
-                <div class="flex items-center justify-between">
-                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('dashboard.totalRuns') }}</p>
-                    <Activity :size="20" :style="{ color: 'var(--md-ext-color-success)' }" />
-                </div>
-                <p class="md-display-small text-[var(--md-sys-color-on-surface)] mt-2">{{ stats.total_runs }}</p>
-            </Card>
-            <Card>
-                <div class="flex items-center justify-between">
-                    <p class="md-label-medium text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('dashboard.passRate30d') }}</p>
-                    <Gauge
-                        :size="20"
-                        :style="{
-                            color: stats.pass_rate_30d >= 90 ? 'var(--md-ext-color-success)'
-                                : stats.pass_rate_30d >= 70 ? 'var(--md-ext-color-warning)'
-                                : stats.pass_rate_30d !== null ? 'var(--md-sys-color-error)'
-                                : 'var(--md-sys-color-on-surface-variant)'
-                        }"
-                    />
-                </div>
-                <p
-                    class="md-display-small mt-2"
-                    :class="{
-                        'text-[var(--md-ext-color-success)]': stats.pass_rate_30d >= 90,
-                        'text-[var(--md-ext-color-warning)]': stats.pass_rate_30d >= 70 && stats.pass_rate_30d < 90,
-                        'text-[var(--md-sys-color-error)]': stats.pass_rate_30d < 70 && stats.pass_rate_30d !== null,
-                        'text-[var(--md-sys-color-on-surface-variant)]': stats.pass_rate_30d === null,
-                    }"
-                >
-                    {{ formatPassRate(stats.pass_rate_30d) }}
-                </p>
-            </Card>
-        </div>
 
         <!-- Dashboard note -->
         <Card padding="p-0">
