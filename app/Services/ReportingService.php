@@ -2,29 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\TestRun;
 use App\Models\TestSuite;
 
 class ReportingService
 {
-    public function dashboardStats(): array
-    {
-        $runs = TestRun::where('status', 'completed')
-            ->where('created_at', '>=', now()->subDays(30));
-
-        $totalPassed = (clone $runs)->sum('passed_count');
-        $totalTests  = (clone $runs)->sum('total_tests');
-
-        return [
-            'total_suites' => TestSuite::count(),
-            'total_tests'  => \App\Models\Test::count(),
-            'total_runs'   => TestRun::count(),
-            'pass_rate_30d' => $totalTests > 0
-                ? round(($totalPassed / $totalTests) * 100, 1)
-                : 0.0,
-        ];
-    }
-
     public function suiteStats(TestSuite $suite): array
     {
         $lastRun = $suite->testRuns()->latest()->first();

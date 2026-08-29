@@ -115,7 +115,8 @@
         "bookmarkRemove": "取消收藏",
         "confirmDuplicateSuite": "复制套件“{name}”？将创建一个新套件，并在后台复制所有测试。",
         "duplicationPromptLabel": "新套件名称（可选）",
-        "duplicationPromptPlaceholder": "我的测试套件 (copy)"
+        "duplicationPromptPlaceholder": "我的测试套件 (copy)",
+        "badgeWebhook": "CI Webhook"
     },
     "testSuiteShow": {
         "badge": "测试套件",
@@ -130,6 +131,8 @@
         "statPassRate": "通过率",
         "statProxy": "代理",
         "statStatusBreakdown": "状态",
+        "totalCount": "总计 {count}",
+        "totalRuns": "总计运行数 {count}",
         "proxyRules": "{count} 条规则",
         "testsHeading": "测试",
         "run": "运行 ({count})",

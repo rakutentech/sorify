@@ -115,7 +115,8 @@
         "bookmarkRemove": "Buang tanda buku",
         "confirmDuplicateSuite": "Duplikasi set \"{name}\"? Set baharu akan dicipta dan semua ujian akan disalin di latar belakang.",
         "duplicationPromptLabel": "Nama set baharu (pilihan)",
-        "duplicationPromptPlaceholder": "Set Ujian Saya (copy)"
+        "duplicationPromptPlaceholder": "Set Ujian Saya (copy)",
+        "badgeWebhook": "CI Webhook"
     },
     "testSuiteShow": {
         "badge": "Set Ujian",
@@ -130,6 +131,8 @@
         "statPassRate": "Kadar Lulus",
         "statProxy": "Proksi",
         "statStatusBreakdown": "Status",
+        "totalCount": "JUMLAH {count}",
+        "totalRuns": "JUMLAH PELAKSANAAN {count}",
         "proxyRules": "{count} peraturan",
         "testsHeading": "Ujian",
         "run": "Jalankan ({count})",

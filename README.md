@@ -33,22 +33,27 @@
 
 ## Feature Matrix
 
-| Feature                                                                                  | MCP | Dashboard | CI Webhook |
-| :--------------------------------------------------------------------------------------- | :-- | :-------- | :--------- |
-| Suites: list / get / create / update / delete  / edit / duplicate                        | ✅  | ✅        | -          |
-| **Tests**: list / get / create / update / update code / delete / bulk-delete / duplicate | ✅  | ✅        | -          |
-| **Tests**: bulk-create                                                                   | ✅  | -         | -          |
-| **Runs**: get / trigger / cancel / delete / logs                                         | ✅  | ✅        | -          |
-| **Runs**: status                                                                         | ✅  | ✅        | ✅         |
-| **Screenshots**: list / get                                                              | ✅  | ✅        | -          |
-| **Recorder**: chrome://extension events                                                  | ✅  | -         | -          |
-| Login / Register / Logout / Password reset                                               | -   | ✅        | -          |
-| Profile: update name / password                                                          | -   | ✅        | -          |
-| Dashboard analytics (stats, recent runs)                                                 | -   | ✅        | -          |
-| Suite webhook token: regenerate                                                          | -   | ✅        | -          |
-| Suite members: list / add / update / remove privileges                                   | ✅  | ✅        | -          |
-| Test code-version: restore                                                               | -   | ✅        | -          |
-| **Admin**: manage users (create, list, role, delete, reset password)                     | -   | ✅        | -          |
+| Feature | MCP | Dashboard | CI Webhook |
+| :--- | :-: | :-: | :-: |
+| Suites: list / get / create / update / delete / duplicate | ✅ | ✅ | - |
+| Suite schedule: update / delete | ✅ | ✅ | - |
+| Suite cookies: upload | ✅ | ✅ | - |
+| Suite bookmarks: list / toggle | ✅ | ✅ | - |
+| Suite members: list / add / update / remove | ✅ | ✅ | - |
+| Tests: list / get / create / update / update code / delete / duplicate | ✅ | ✅ | - |
+| Tests: bulk-create / bulk-delete | ✅ | ✅ | - |
+| Tests: toggle enabled / disabled | ✅ | ✅ | - |
+| Runs: trigger / list / get / cancel / delete | ✅ | ✅ | - |
+| Runs: status | ✅ | ✅ | ✅ |
+| Runs: logs | ✅ | ✅ | - |
+| Screenshots: list / get | ✅ | ✅ | - |
+| Recorder: chrome extension events | ✅ | - | - |
+| Suite webhook token: regenerate | - | ✅ | - |
+| Test code-version: restore | - | ✅ | - |
+| Login / register / logout / password reset | - | ✅ | - |
+| Profile: update name / password | - | ✅ | - |
+| Dashboard analytics (stats, recent runs) | - | ✅ | - |
+| Admin: manage users (create, list, role, delete, reset password) | - | ✅ | - |
 
 ## AI Usage
 
@@ -58,7 +63,7 @@ codex plugin marketplace add https://github.com/rakutentech/sorify.git
 ```
 
 <p align="center">
-  <img src="https://i.imgur.com/4iupLOR.png" width="650" alt="Sorify workflow"/>
+  <img src="./sorify.svg" width="850" alt="Sorify workflow"/>
 </p>
 
 ### SKILL 1 - Sorify MCP
@@ -79,7 +84,14 @@ SORIFY_PASSWORD=changeme
 /sorify:gateway Update the test suite http://localhost:8000/sorify/suites/{id} by adding retry twice
 ```
 
-### SKILL 2 - Inbuilt QA Skills
+**AI Healing**
+
+```sh
+/sorify:gateway why my test is failing <name of test>
+/sorify:gateway why my test is failing <or-link-to-test>
+```
+
+### SKILL 2 - In-Built QA Skills
 
 ```sh
 # Tests from source code (git)
@@ -106,31 +118,37 @@ SORIFY_PASSWORD=changeme
 ...then /sorify:gateway once done - upload, run and invetigate failed tests
 ```
 
-### SKILL 3 - Record, Capture, Generate, upload (Chrome extension)
+## Chrome Recorder - Record, Capture, Generate, upload (Chrome extension)
+
+This is a chrome extension that works in hybrid mode optionally. While browsing it records browser events, and stores into a file.
+The sequence of events then can be picked up by AI to better write the test code, works well when more context about the project, such as source code is complemented.
 
 Generate tests from a real recorded session instead of DOM exploration — chrome-mcp-playwright `sorify-recorder-mcp`
 
 
-**No 1.** Load the extension
-
-
-`chrome://extensions/` → enable **"Developer mode"** → "Load unpacked" → select `extension/` folder
-
-**No 2.** Install the mcp
+**♢  1.** Install the mcp
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/rakutentech/sorify/master/mcp/install-mcp.sh | sh
 ```
 
+**♢  2.** Load the **Chrome** extension
+
+
+`chrome://extensions/` → enable **"Developer mode"** → "Load unpacked" → select `extension/` folder
+
 *we don't have npx, sorry*
 
-**No 3.** Recorder start
+**♢  3.** Start the recorder
 
-Sorify recorder should start automatically, when you launch claude/codex
-
+Sorify recorder should start automatically, when you launch claude/codex.
 You can check using `/mcp` → `plugin:sorify:sorify-recorder`
 
-If not, then you can using `~/.sorify-bin/sorify-recorder-mcp`.
+**If not**, then start the listener at:
+
+```sh
+~/.sorify-bin/sorify-recorder-mcp
+```
 
 **No 4.** Click the extension icon → Connect → Start recording
 
@@ -144,13 +162,6 @@ If not, then you can using `~/.sorify-bin/sorify-recorder-mcp`.
 
 ```sh
 /sorify:recording latest
-```
-
-**AI Healing**
-
-```sh
-/sorify:gateway why my test is failing <name of test>
-/sorify:gateway why my test is failing <or-link-to-test>
 ```
 
 # Quick Start
@@ -202,6 +213,31 @@ http://localhost:8000/sorify
   - `~/.sorify`: your credentials
   - `~/.sorify-bin/`: chrome extension mcp
   - `~/.sorify-recordings/`: chrome extension mcp's events recordings
+
+**Envs info**
+
+```js
+APP_URL=https://<your-host>/sorify
+ASSET_URL=https://<your-host>/sorify
+
+# Sorify App related
+SORIFY_SCREENSHOT_RETENTION_DAYS=30
+DB_QUEUE_RETRY_AFTER=300
+
+# For local, check logs for invite email for new users
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_HOST=<your-mail-host>
+
+# Optional - if oAuth login also needs to be provided
+
+# Leave empty for public github.com.
+# For GitHub Enterprise: https://<your-ghe-host>/settings/developers
+GITHUB_CLIENT_ID=${SORIFY_GITHUB_CLIENT_ID}
+GITHUB_CLIENT_SECRET=${SORIFY_GITHUB_CLIENT_SECRET}
+GITHUB_REDIRECT_URI=${APP_URL}/auth/github/callback
+GITHUB_BASE_URL=https://<your-ghe-host>
+```
 
 ---
 
@@ -280,3 +316,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v1.6** - i18n support for Malay, Simplified Chinese. Extension captures file uploads, iframes, tabs, network. oAuth login, with Avatar. Duplicate a test suite (background copy of tests) and duplicate a test case, available on the dashboard and via MCP (`duplicate_suite`, `duplicate_test`).
 - **v1.7** - Cookies support, variables support.
 - **v1.8** - MCP supports runs. Auto redirect after login page. Support for one time CI webhook and who ran the CI.
+- **v1.9** - Chrome extension memory leak fix.
