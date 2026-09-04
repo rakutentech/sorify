@@ -1,0 +1,170 @@
+tests/Feature/PreRunIntegrationsTest.php
+  s_2f5a04e78f8977::t_fbea2f9af28e38 251-252
+  s_2f5a04e78f8977::t_f8500a30346084 239-250,253-307
+  s_2f5a04e78f8977::t_fd31cf7525ef40 10
+  s_2f5a04e78f8977::t_9025834f0b5bce 215
+app/Mcp/Tools/Runs/TriggerRunTool.php
+  s_2f5a04e78f8977::t_3546d77d324335 24
+app/Services/Integrations/HttpRequestIntegrationService.php
+  s_2f5a04e78f8977::t_0cfe6fda97fc48 86,99-104,110-115
+  s_2f5a04e78f8977::t_a5534052c4266e 1-15,17-29,33-74,76-85,87-98,105-109,116-124,153-192,195-199,201-233
+  s_2f5a04e78f8977::t_ff402ed97553cf 16,30-32,75,125-152,193-194,200
+app/Support/IntegrationPayload.php
+  s_2f5a04e78f8977::t_7de6ea51253029 9-10,37,58-67
+  s_2f5a04e78f8977::t_87bc635afdc6b1 11-13,20-21,35,38-42,74,76,82,86
+  s_2f5a04e78f8977::t_f99dd79b377c2b 43-44
+  s_2f5a04e78f8977::t_5a27f52c1c063b 36
+  s_2f5a04e78f8977::t_cd8dc23d028acd 68-69
+README.md
+  s_2f5a04e78f8977::t_dafd124f8a3d82 41
+  s_2f5a04e78f8977::t_33a5016c6ab9f4 479
+  s_2f5a04e78f8977::t_4f8183868dff8d 384-386
+  s_2f5a04e78f8977::t_685388ceac5023 373-374
+  s_2f5a04e78f8977::t_438f0e2adc3304 366-372,375-383,387-389,392,400-402
+  s_2f5a04e78f8977::t_af15e80e0a73c1 390-391,393-399
+  s_2f5a04e78f8977::t_f61ec8431997c9 323-325,329-331
+  s_2f5a04e78f8977::t_5c7d75416edb07 332
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_2f5a04e78f8977::t_5ed2545be1fe90 87-92
+  s_2f5a04e78f8977::t_1af471203d5b76 73,75-79,83,86,94-95,97
+  s_2f5a04e78f8977::t_e88a4f9400423e 80
+resources/js/utils/iconMaps.js
+  s_2f5a04e78f8977::t_1ef57d9e603a13 52
+  s_2f5a04e78f8977::t_357a02eca457b2 5
+app/Listeners/DispatchPostRunIntegrations.php
+  s_2f5a04e78f8977::t_b3c554a8697ee2 8,16-19,36-37
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_2f5a04e78f8977::t_f49b9cbc51a597 74,76-80,84,87,95-96,98
+  s_2f5a04e78f8977::t_e88a4f9400423e 81
+  s_2f5a04e78f8977::t_9804f974203a8a 88-93
+app/Jobs/RunPreRunIntegrationsJob.php
+  s_2f5a04e78f8977::t_1a1bcf32d3e694 7,17-20,34,48,53-54
+resources/js/Components/ui/SuiteChips.vue
+  s_2f5a04e78f8977::t_f82e5d19dba51d 1-55
+plugins/sorify/commands/gateway.md
+  s_2f5a04e78f8977::t_b306e22a27656e 112
+  s_2f5a04e78f8977::t_cbd63fb36e9ae1 146-161
+  s_2f5a04e78f8977::t_7a999774e7abd8 109-110
+  s_2f5a04e78f8977::t_1595b03ec631e5 194-195
+tests/Unit/HttpRequestIntegrationServiceTest.php
+  s_2f5a04e78f8977::t_255a378a74b086 74-83,86,88-89,105,107,209,216,246,284,311
+  s_2f5a04e78f8977::t_cd9964dc98d8c1 115-175,177-191
+  s_2f5a04e78f8977::t_780f4ea2472e00 1-43,45-69,73,84-85,87,90-99,101-104,106,108-114,192-208,210-215,217-221,223-225,242,253-280,282-283,285-301,303-310,312,314-329
+  s_2f5a04e78f8977::t_31b1a316678d4c 176
+  s_2f5a04e78f8977::t_7369baf77b306e 281
+  s_2f5a04e78f8977::t_067cb4bff2739c 70-72
+  s_2f5a04e78f8977::t_921300055e367f 44,100,222,226-241,243-245,247-252
+  s_2f5a04e78f8977::t_ab5534ae9da5e0 302
+  s_2f5a04e78f8977::t_630c0a06405a12 313
+tests/Feature/SuiteIntegrationsTest.php
+  s_2f5a04e78f8977::t_2fe90fb154fac0 377
+  s_2f5a04e78f8977::t_b292d9e763acac 115-124,126,130-140,142,145-149,155-156,158-160,162-165,168-171,178-206,229-233,239-240,242-245,249-250
+  s_2f5a04e78f8977::t_29001ea0652e66 125,127-129,141,143-144,150-154,157,161,166-167,172-177,228,234-238,241,246-248
+  s_2f5a04e78f8977::t_c76efe96178998 370-376,378-391,404-407,412-415
+  s_2f5a04e78f8977::t_bed2a4abdc0d68 207-227
+tests/Unit/Mcp/Tools/RunsToolsTest.php
+  s_2f5a04e78f8977::t_8a2f01c1d42f49 68
+  s_2f5a04e78f8977::t_2bb31bd8bb8ff5 5
+resources/js/Pages/Bookmarks/Index.vue
+  s_2f5a04e78f8977::t_220566071e6a47 6
+  s_2f5a04e78f8977::t_757f0aa3a1fcd4 131
+resources/js/locales/ja.json
+  s_2f5a04e78f8977::t_01fdba491404f5 314-315,319,325-326,329-330
+  s_2f5a04e78f8977::t_9edb59f24dbd53 316-317
+  s_2f5a04e78f8977::t_c7ca6798b2288d 120-123
+  s_2f5a04e78f8977::t_5daff2823deb27 320-322
+  s_2f5a04e78f8977::t_76a70a5d55ada9 303-306,308
+resources/js/Pages/TestSuites/Show.vue
+  s_2f5a04e78f8977::t_12b8096a7021d8 606-607
+app/Http/Controllers/TestSuiteController.php
+  s_2f5a04e78f8977::t_73f907742077e1 64
+  s_2f5a04e78f8977::t_5c70352e6349de 36-42
+  s_2f5a04e78f8977::t_682cec8cbb0ca2 67-68
+resources/js/Components/ui/index.js
+  s_2f5a04e78f8977::t_8cc9855bef6e55 16
+resources/js/Components/TestSuiteIntegrations.vue
+  s_2f5a04e78f8977::t_2f8ac283ede5cc 474
+  s_2f5a04e78f8977::t_d95fe2ebe78e39 44
+  s_2f5a04e78f8977::t_f45717036fd919 177
+  s_2f5a04e78f8977::t_2947ee50d2f5cf 64-66,69,74-76
+  s_2f5a04e78f8977::t_f871487688cfa6 95-96
+  s_2f5a04e78f8977::t_d36f3230a822f8 122
+  s_2f5a04e78f8977::t_3fb8460bf0d3d0 192
+  s_2f5a04e78f8977::t_0c47c7f7971fd8 36-42
+  s_2f5a04e78f8977::t_2f428e321a9fb7 206
+  s_2f5a04e78f8977::t_f83c077cc52572 207
+  s_2f5a04e78f8977::t_e9c8191c3f5f90 429,487-520
+  s_2f5a04e78f8977::t_adfb2826a8f57d 210,224
+  s_2f5a04e78f8977::t_9dfedc8a92dc95 136-137,140
+  s_2f5a04e78f8977::t_6f52edaf7be2da 365,378,391,408,465
+  s_2f5a04e78f8977::t_bdf132c5272247 118-121
+  s_2f5a04e78f8977::t_c7f92fe377c7d7 430-442,444-446
+  s_2f5a04e78f8977::t_6015a2d5d5ca3b 260-265,267
+  s_2f5a04e78f8977::t_0e91942f64a4bf 4,23,32-35,43,45-55,105,112-117,123-132,135,139,141-142,196-205,208-209,211-223,225-226,270-276,293-294,300,319,321-322,324-333,357-358,395-407,409-421,423-428,450,453-455,484-486
+  s_2f5a04e78f8977::t_123cb7968f4d7e 77
+  s_2f5a04e78f8977::t_61b4a7773aca19 266
+  s_2f5a04e78f8977::t_42d40ebbb0e7fc 268
+resources/js/locales/en.json
+  s_2f5a04e78f8977::t_c4428abd5155aa 316-317
+  s_2f5a04e78f8977::t_c628d56ed05dda 320-322
+  s_2f5a04e78f8977::t_3a7b977476c2d8 314-315,319,325-326,329-330
+  s_2f5a04e78f8977::t_3659a759967267 82-84
+  s_2f5a04e78f8977::t_cb31f86866cc58 303-306,308
+app/Http/Requests/StoreTestSuiteIntegrationRequest.php
+  s_2f5a04e78f8977::t_ced83781f72c2c 59-60,62
+  s_2f5a04e78f8977::t_e029a685f4aeea 53-54
+  s_2f5a04e78f8977::t_15a9c06a1a8106 34,48-49,51-52,55,57
+  s_2f5a04e78f8977::t_0ffd7c3701f462 35-37,58,61,63
+tests/Feature/RunFinalizationTest.php
+  s_2f5a04e78f8977::t_bd6a0c14861cd0 49-66,69-78,80-81,85-87
+  s_2f5a04e78f8977::t_9fcf0f1cce3a14 84
+  s_2f5a04e78f8977::t_d0bb37dbcbedec 6,127,135
+  s_2f5a04e78f8977::t_f5c1a076a1f540 67-68,79,82-83
+  s_2f5a04e78f8977::t_35063cd5c7cc5c 13
+app/Models/TestSuiteIntegration.php
+  s_2f5a04e78f8977::t_55254d91ee8c47 10
+resources/js/Pages/TestSuites/Index.vue
+  s_2f5a04e78f8977::t_d05b3d9f94fb89 208
+  s_2f5a04e78f8977::t_dc5730d892e3d3 6
+app/Mcp/Tools/Runs/GetRunStatusTool.php
+  s_2f5a04e78f8977::t_2dfc2adc8bde19 37-39
+config/sorify.php
+  s_2f5a04e78f8977::t_d0bb37dbcbedec 5-7,11
+  s_2f5a04e78f8977::t_079cef678eae3c 25-28
+app/Http/Controllers/SuiteBookmarkController.php
+  s_2f5a04e78f8977::t_55e089beb16722 56,58-59
+  s_2f5a04e78f8977::t_85b73473e6a284 28-34
+resources/js/locales/zh-CN.json
+  s_2f5a04e78f8977::t_1ac0fee5c5fd91 303-306,308
+  s_2f5a04e78f8977::t_81a3cad43dc5ac 314-315,319,325-326,329-330
+  s_2f5a04e78f8977::t_a2ef2c1f2306c6 316-317
+  s_2f5a04e78f8977::t_0347099233ba38 120-123
+  s_2f5a04e78f8977::t_6f6fbd6f9d4924 320-322
+resources/js/locales/ms.json
+  s_2f5a04e78f8977::t_3fe3e8e5588511 120-123
+  s_2f5a04e78f8977::t_23348ddd2495d8 320-322
+  s_2f5a04e78f8977::t_f4c65a9ae83c92 303-306,308
+  s_2f5a04e78f8977::t_741d495e2b07df 316-317
+  s_2f5a04e78f8977::t_b7d55a16417f7c 314-315,319,325-326,329-330
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "25d722fb5b03b0ac254ad4b6f3f64bd7783c0f86",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_2f5a04e78f8977": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f98a42c3dffeHEcErfLpZH3OF3",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
