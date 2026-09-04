@@ -1,0 +1,24 @@
+.env.prod
+  s_2f5a04e78f8977::t_da7fed7fee7aea 73-75,77,83-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b101c93f2d43ff1b25ee0f47ff00c3e36ed2874a",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_2f5a04e78f8977": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f98a42c3dffeHEcErfLpZH3OF3",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
