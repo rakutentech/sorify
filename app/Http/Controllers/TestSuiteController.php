@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTestSuiteRequest;
 use App\Jobs\PruneSuiteHistoryJob;
+use App\Models\GithubApp;
 use App\Models\Test;
 use App\Models\TestResult;
 use App\Models\TestSuite;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use App\Services\ReportingService;
 use App\Services\TestSuiteDuplicationService;
 use App\Support\SuiteSort;
@@ -32,7 +34,13 @@ class TestSuiteController extends Controller
         $sortDir = $request->string('sort_dir')->toString();
 
         $query = TestSuite::withCount(['tests', 'testRuns', 'proxyRules', 'variables', 'cookies'])
-            ->with(['schedule', 'members:id,name,email,avatar', 'bookmarkedBy' => fn ($q) => $q->where('users.id', $request->user()->id)]);
+            ->with([
+                'schedule',
+                'members:id,name,email,avatar',
+                'bookmarkedBy' => fn ($q) => $q->where('users.id', $request->user()->id),
+                // Only what the chip row needs: which integration types exist.
+                'integrations:id,test_suite_id,type,enabled',
+            ]);
 
         SuiteSort::apply($query, $sort, $sortDir);
 
@@ -54,9 +62,11 @@ class TestSuiteController extends Controller
 
         $paginator->through(function ($s) {
             $data = array_merge($s->toArray(), $this->reporting->suiteStats($s));
-            unset($data['webhook_token'], $data['teams_webhook_url'], $data['bookmarked_by']);
+            unset($data['webhook_token'], $data['teams_webhook_url'], $data['bookmarked_by'], $data['integrations']);
             $data['has_teams_webhook'] = (bool) $s->teams_webhook_url;
             $data['is_bookmarked'] = $s->bookmarkedBy->isNotEmpty();
+            $data['has_github_integration'] = $s->integrations->contains(fn ($i) => $i->type === 'github_action' && $i->enabled);
+            $data['has_http_integration'] = $s->integrations->contains(fn ($i) => $i->type === 'http_request' && $i->enabled);
 
             return $data;
         });
@@ -95,11 +105,11 @@ class TestSuiteController extends Controller
         }
 
         if ($variables) {
-            $this->syncVariables($suite, $variables);
+            ActivityLogger::log('variables_updated', $request->user(), $suite, null, ['count' => $this->syncVariables($suite, $variables)]);
         }
 
         if ($cookies) {
-            $this->syncCookies($suite, $cookies);
+            ActivityLogger::log('cookies_updated', $request->user(), $suite, null, ['count' => $this->syncCookies($suite, $cookies)]);
         }
 
         $suite->members()->attach($request->user()->id, [
@@ -108,6 +118,8 @@ class TestSuiteController extends Controller
             'can_delete' => true,
             'can_run' => true,
         ]);
+
+        ActivityLogger::log('suite_created', $request->user(), $suite, $suite, ['name' => $suite->name]);
 
         return redirect(route('suites.show', $suite, absolute: false));
     }
@@ -182,7 +194,7 @@ class TestSuiteController extends Controller
     {
         $this->authorize('view', $suite);
 
-        $suite->load('createdBy:id,name,email,avatar', 'schedule', 'members:id,name,email,avatar', 'proxyRules', 'variables', 'cookies');
+        $suite->load('createdBy:id,name,email,avatar', 'schedule', 'members:id,name,email,avatar', 'proxyRules', 'variables', 'cookies', 'integrations');
 
         $privileges = $suite->privilegesFor($request->user());
         $canManageUsers = $privileges['edit'];
@@ -285,6 +297,13 @@ class TestSuiteController extends Controller
                     return $data;
                 }),
             'webhookUrl' => $suite->webhookUrl(),
+            'previousWebhooks' => $suite->previousWebhooks(),
+            'webhookLimitReached' => $suite->webhookTokenCount() >= TestSuite::MAX_WEBHOOK_TOKENS,
+            // Apps the GitHub Action integration can dispatch as.
+            'githubApps' => GithubApp::dispatchApps()
+                ->map(fn (GithubApp $app) => ['id' => $app->id, 'name' => $app->name])
+                ->values(),
+            'githubActionsConfigured' => GithubApp::dispatchApps()->isNotEmpty(),
             'members' => $members,
             'candidates' => $candidates,
             'users' => User::orderBy('name')->get(['id', 'name', 'email', 'avatar']),
@@ -315,6 +334,8 @@ class TestSuiteController extends Controller
 
         $suite->update($data);
 
+        ActivityLogger::log('suite_updated', $request->user(), $suite, $suite, ['name' => $suite->name]);
+
         if ($hasProxyRules) {
             $suite->proxyRules()->delete();
             if ($proxyRules) {
@@ -323,11 +344,11 @@ class TestSuiteController extends Controller
         }
 
         if ($hasVariables) {
-            $this->syncVariables($suite, $variables);
+            ActivityLogger::log('variables_updated', $request->user(), $suite, null, ['count' => $this->syncVariables($suite, $variables)]);
         }
 
         if ($hasCookies) {
-            $this->syncCookies($suite, $cookies);
+            ActivityLogger::log('cookies_updated', $request->user(), $suite, null, ['count' => $this->syncCookies($suite, $cookies)]);
         }
 
         if ($suite->wasChanged('history_retention')) {
@@ -346,11 +367,34 @@ class TestSuiteController extends Controller
         return redirect(route('suites.index', absolute: false));
     }
 
-    public function regenerateWebhook(TestSuite $suite)
+    /**
+     * Generate a fresh webhook URL. The old URL is NOT invalidated — it moves
+     * into the suite's "old webhook URLs" list and keeps working until it is
+     * explicitly deleted. Refused while the suite is already at the maximum
+     * number of active webhook URLs (current + old).
+     */
+    public function regenerateWebhook(Request $request, TestSuite $suite)
     {
         $this->authorize('delete', $suite);
 
-        $suite->regenerateWebhookToken();
+        if (! $suite->regenerateWebhookToken()) {
+            return back()->with('flash.error', 'You have reached the limit of '.TestSuite::MAX_WEBHOOK_TOKENS.' webhook URLs. Delete an old webhook URL before generating a new one.');
+        }
+
+        return back();
+    }
+
+    /**
+     * Permanently delete one of the suite's superseded webhook URLs. Any CI
+     * configuration still using it will stop working from that point on.
+     */
+    public function destroyWebhook(Request $request, TestSuite $suite, string $token)
+    {
+        $this->authorize('delete', $suite);
+
+        if (! $suite->removePreviousWebhookToken($token)) {
+            return back()->with('flash.error', 'This webhook URL could not be deleted. It may already be removed or is the current URL.');
+        }
 
         return back();
     }
@@ -372,6 +416,11 @@ class TestSuiteController extends Controller
 
         $clone = $duplication->duplicate($suite, $request->user(), $data['name'] ?? null);
 
+        ActivityLogger::log('suite_duplicated', $request->user(), $clone, $clone, [
+            'name' => $clone->name,
+            'source_suite_name' => $suite->name,
+        ]);
+
         return redirect(route('suites.show', $clone, absolute: false));
     }
 
@@ -381,13 +430,14 @@ class TestSuiteController extends Controller
      * identifiers, but the unique DB index guards against races too).
      *
      * @param  array<int, array{key: string, value?: string|null}>  $variables
+     * @return int Number of variables stored.
      */
-    private function syncVariables(TestSuite $suite, ?array $variables): void
+    private function syncVariables(TestSuite $suite, ?array $variables): int
     {
         $suite->variables()->delete();
 
         if (! $variables) {
-            return;
+            return 0;
         }
 
         $rows = [];
@@ -406,6 +456,8 @@ class TestSuiteController extends Controller
         if ($rows) {
             $suite->variables()->createMany(array_values($rows));
         }
+
+        return count($rows);
     }
 
     /**
@@ -413,13 +465,14 @@ class TestSuiteController extends Controller
      * (same name + domain + path) collapse to the last value.
      *
      * @param  array<int, array{name: string, value?: string|null, domain?: string|null, path?: string|null, url?: string|null, expires?: int|null, http_only?: bool|null, secure?: bool|null, same_site?: string|null}>  $cookies
+     * @return int Number of cookies stored.
      */
-    private function syncCookies(TestSuite $suite, ?array $cookies): void
+    private function syncCookies(TestSuite $suite, ?array $cookies): int
     {
         $suite->cookies()->delete();
 
         if (! $cookies) {
-            return;
+            return 0;
         }
 
         $rows = [];
@@ -453,6 +506,8 @@ class TestSuiteController extends Controller
         if ($rows) {
             $suite->cookies()->createMany(array_values($rows));
         }
+
+        return count($rows);
     }
 
     private function presentString(mixed $value): ?string

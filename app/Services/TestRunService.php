@@ -3,15 +3,19 @@
 namespace App\Services;
 
 use App\Events\TestRunCompleted;
+use App\Events\TestRunStarted;
 use App\Exceptions\RunRateLimitExceededException;
 use App\Exceptions\WebhookRunInProgressException;
+use App\Jobs\RunPreRunIntegrationsJob;
 use App\Jobs\RunSingleTestJob;
 use App\Models\Test;
 use App\Models\TestRun;
 use App\Models\TestSuite;
+use App\Models\User;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class TestRunService
 {
@@ -35,17 +39,57 @@ class TestRunService
             ? $this->createCiRun($suite, $testIds, $triggeredByUserId, $ciIp, $ciUserAgent)
             : $this->createRun($suite, $testIds, $triggeredBy, $triggeredByUserId);
 
+        ActivityLogger::log('run_triggered', $this->resolveActor($triggeredByUserId), $suite, $run, [
+            'triggered_by' => $triggeredBy,
+        ]);
+
+        // Blocking pre-run integrations (e.g. a GitHub Action that must
+        // finish first): the run stays `pending` — with a note explaining
+        // why — while a queued job runs the integrations, then starts the
+        // tests once every one of them succeeds.
+        if ($suite->preRunIntegrations()->exists()) {
+            $run->update(['status_note' => 'Waiting for pre-run integrations…']);
+
+            RunPreRunIntegrationsJob::dispatch($run, $testIds)->onQueue('sorify');
+
+            return $run;
+        }
+
+        return $this->startTests($run, $testIds);
+    }
+
+    /**
+     * Move a pending run to running and dispatch its test batch. Split out of
+     * triggerRun() so the pre-run integration job can call it once the
+     * blocking workflows have completed. The pending → running transition is
+     * claimed atomically so a cancellation racing this call cannot also
+     * start the tests.
+     */
+    public function startTests(TestRun $run, ?array $testIds = null): TestRun
+    {
+        $suite = $run->testSuite;
+
         $query = $suite->activeTests();
         if ($testIds) {
             $query->whereIn('id', $testIds);
         }
         $tests = $query->get();
 
-        $run->update([
-            'total_tests' => $tests->count(),
-            'started_at' => now(),
-            'status' => 'running',
-        ]);
+        $claimed = $run->whereKey($run->id)
+            ->where('status', 'pending')
+            ->update([
+                'total_tests' => $tests->count(),
+                'started_at' => now(),
+                'status' => 'running',
+                'status_note' => null,
+            ]);
+
+        if ($claimed === 0) {
+            // Cancelled (or already started) while we were setting up.
+            return $run->refresh();
+        }
+
+        $run->refresh();
 
         if ($tests->isEmpty()) {
             $this->finalizeRun($run);
@@ -53,12 +97,39 @@ class TestRunService
             return $run;
         }
 
+        TestRunStarted::dispatch($run);
+
         Bus::batch($tests->map(fn (Test $test) => new RunSingleTestJob($run, $test))->all())
             ->onQueue('sorify')
             ->finally(fn () => app(self::class)->finalizeRun($run))
             ->dispatch();
 
         return $run;
+    }
+
+    /**
+     * Abort a still-pending run without running any test — used when a
+     * blocking pre-run integration fails or times out. The completion event
+     * still fires so post-run integrations and Teams notifications run.
+     */
+    public function failRun(TestRun $run, string $note): void
+    {
+        $updated = $run->whereKey($run->id)
+            ->where('status', 'pending')
+            ->whereNull('completed_at')
+            ->update([
+                'status' => 'failed',
+                'status_note' => Str::limit($note, 500),
+                'completed_at' => now(),
+            ]);
+
+        if ($updated > 0) {
+            $run = $run->refresh();
+
+            TestRunCompleted::dispatch($run);
+
+            $this->logRunCompleted($run, 'failed');
+        }
     }
 
     public function finalizeRun(TestRun $run): void
@@ -95,6 +166,26 @@ class TestRunService
         }
 
         TestRunCompleted::dispatch($run->refresh());
+
+        $this->logRunCompleted($run, $status);
+    }
+
+    private function logRunCompleted(TestRun $run, string $status): void
+    {
+        ActivityLogger::log('run_completed', $this->resolveActor($run->triggered_by_user_id), $run->testSuite, $run, [
+            'status'        => $status,
+            'triggered_by'  => $run->triggered_by,
+            'total_tests'   => $run->total_tests,
+            'passed_count'  => $run->passed_count,
+            'failed_count'  => $run->failed_count,
+            'error_count'   => $run->error_count,
+            'duration_ms'   => $run->duration_ms,
+        ]);
+    }
+
+    private function resolveActor(?int $userId): ?User
+    {
+        return $userId !== null ? User::find($userId) : null;
     }
 
     /**
@@ -151,10 +242,14 @@ class TestRunService
         ]);
     }
 
-    public function cancel(TestRun $run): TestRun
+    public function cancel(TestRun $run, ?User $cancelledBy = null): TestRun
     {
         if (in_array($run->status, ['pending', 'running'], true)) {
             $run->update(['status' => 'cancelled', 'completed_at' => now()]);
+
+            ActivityLogger::log('run_cancelled', $cancelledBy, $run->testSuite, $run, [
+                'triggered_by' => $run->triggered_by,
+            ]);
         }
 
         return $run->refresh();

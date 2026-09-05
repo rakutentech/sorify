@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -38,13 +39,15 @@ class UserController extends Controller
             'role' => ['required', Rule::in(['admin', 'member', 'viewer'])],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
             'is_admin' => $data['role'] === 'admin',
             'is_view_only' => $data['role'] === 'viewer',
         ]);
+
+        ActivityLogger::log('user_created', $request->user(), null, $user, ['user_name' => $user->name]);
 
         return back()->with('flash.success', 'User created successfully.');
     }

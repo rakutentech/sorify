@@ -2,6 +2,7 @@
 
 namespace App\Services\Auth;
 
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Two\GithubProvider;
 
 /**
@@ -12,6 +13,12 @@ use Laravel\Socialite\Two\GithubProvider;
  * so we override the authorize / token / user endpoints to honor a custom
  * base URL (e.g. https://ghe.example.com). When no "url" is configured,
  * behavior falls back to public github.com.
+ *
+ * Supports both classic OAuth Apps and GitHub Apps as the client: GitHub
+ * Apps (client IDs starting with "Iv1.") must not receive a `scope`
+ * parameter on the authorize URL — GitHub rejects the whole request
+ * otherwise. Their user permissions (e.g. email access) are configured on
+ * the app itself, not via scopes.
  */
 class GithubEnterpriseProvider extends GithubProvider
 {
@@ -23,6 +30,22 @@ class GithubEnterpriseProvider extends GithubProvider
     protected function getAuthUrl($state)
     {
         return $this->buildAuthUrlFromBase($this->getBaseUrl().'/login/oauth/authorize', $state);
+    }
+
+    /**
+     * GitHub Apps reject authorize requests that carry a `scope` parameter
+     * ("The requested scope is invalid, unknown, or malformed"). Classic
+     * OAuth Apps keep the configured user:email scope.
+     */
+    protected function getCodeFields($state = null)
+    {
+        $fields = parent::getCodeFields($state);
+
+        if ($this->isGithubApp()) {
+            unset($fields['scope']);
+        }
+
+        return $fields;
     }
 
     protected function getTokenUrl()
@@ -40,8 +63,15 @@ class GithubEnterpriseProvider extends GithubProvider
 
         $user = json_decode($response->getBody(), true);
 
-        if (in_array('user:email', $this->scopes, true)) {
-            $user['email'] = $this->getEmailByToken($token);
+        // Fetch the verified primary email whenever it is reachable:
+        // classic OAuth Apps via the user:email scope, GitHub Apps via
+        // their "Email addresses" account permission.
+        if (in_array('user:email', $this->scopes, true) || $this->isGithubApp()) {
+            $email = $this->getEmailByToken($token);
+
+            if ($email) {
+                $user['email'] = $email;
+            }
         }
 
         return $user;
@@ -56,6 +86,13 @@ class GithubEnterpriseProvider extends GithubProvider
                 $emailsUrl, $this->getRequestOptions($token)
             );
         } catch (\Exception $e) {
+            // Most often a 404/403: the GitHub App lacks the "Email
+            // addresses" account permission for this user's token.
+            Log::warning('GitHub email lookup failed', [
+                'error' => $e->getMessage(),
+                'hint' => 'Enable "Email addresses: Read-only" on the GitHub App (Permissions & events → Account permissions) and re-authorize.',
+            ]);
+
             return;
         }
 
@@ -64,5 +101,14 @@ class GithubEnterpriseProvider extends GithubProvider
                 return $email['email'];
             }
         }
+    }
+
+    /**
+     * GitHub App client IDs start with "Iv1." (classic OAuth App IDs start
+     * with "Ov").
+     */
+    private function isGithubApp(): bool
+    {
+        return str_starts_with((string) $this->clientId, 'Iv');
     }
 }

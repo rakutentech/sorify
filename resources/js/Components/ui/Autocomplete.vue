@@ -1,5 +1,6 @@
 <script setup>
 import { useId, ref, computed, watch, nextTick, onUnmounted } from 'vue';
+import Avatar from './Avatar.vue';
 
 const props = defineProps({
     modelValue: { type: [String, Number], default: '' },
@@ -127,7 +128,7 @@ function onFocusout(event) {
                 @input="onInput"
                 @focus="open = true"
                 @keydown="onKeydown"
-                class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border text-[var(--md-sys-color-on-surface)] md-body-medium placeholder:text-[var(--md-sys-color-on-surface-variant)] focus:outline-none focus:ring-2 transition-colors"
+                class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border text-[var(--md-sys-color-on-surface)] md-body-medium placeholder:text-[var(--md-sys-color-on-surface-variant)] placeholder:opacity-60 focus:outline-none focus:ring-2 transition-colors"
                 :class="[
                     error
                         ? 'border-[var(--md-sys-color-error)] focus:ring-[var(--md-sys-color-error)]'
@@ -150,11 +151,19 @@ function onFocusout(event) {
                         type="button"
                         @mousedown.prevent="select(option)"
                         @mouseenter="activeIndex = index"
-                        class="w-full text-left px-3.5 py-2 transition-colors"
+                        class="w-full text-left px-3.5 py-2 flex items-center gap-2.5 transition-colors"
                         :class="index === activeIndex ? 'bg-[var(--md-sys-color-surface-container-highest)]' : 'hover:bg-[var(--md-sys-color-surface-container-highest)]'"
                     >
-                        <p class="md-body-medium text-[var(--md-sys-color-on-surface)]">{{ option.name }}</p>
-                        <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ option.email }}</p>
+                        <Avatar
+                            v-if="'avatar_url' in option"
+                            :name="option.name"
+                            :email="option.email"
+                            :avatar-url="option.avatar_url"
+                        />
+                        <span class="min-w-0 flex-1">
+                            <p class="md-body-medium text-[var(--md-sys-color-on-surface)] truncate">{{ option.name }}</p>
+                            <p v-if="option.email" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] truncate">{{ option.email }}</p>
+                        </span>
                     </button>
                 </div>
             </Teleport>

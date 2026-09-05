@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, IconButton, SuiteName, AvatarGroup, SettingBadge, Pagination, SortableTh } from '@/Components/ui';
+import { Card, IconButton, SuiteName, AvatarGroup, Pagination, SortableTh, SuiteChips } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { Star, Search, StarOff, FolderKanban, Users, FlaskConical, Activity, Gauge, Clock } from '@lucide/vue';
 
@@ -128,10 +128,7 @@ function formatPassRate(rate) {
                                     </Link>
                                     <p v-if="suite.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate max-w-xs">{{ suite.description }}</p>
                                     <div class="flex flex-wrap gap-1.5 mt-1.5">
-                                        <SettingBadge :label="t('testSuites.badgeTeams')" :active="!!suite.has_teams_webhook" success-active />
-                                        <SettingBadge :label="t('testSuites.badgeScreenshots')" :active="!!suite.take_screenshot" success-active />
-                                        <SettingBadge :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules_count || suite.playwright_proxy)" success-active />
-                                        <SettingBadge :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" success-active />
+                                        <SuiteChips :suite="suite" />
                                     </div>
                                 </div>
                             </td>

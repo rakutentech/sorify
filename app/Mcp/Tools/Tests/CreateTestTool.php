@@ -6,7 +6,9 @@ use App\Http\Requests\Api\StoreApiTestRequest;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use App\Services\PlaywrightCodeValidatorService;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -50,6 +52,8 @@ class CreateTestTool extends Tool
             'playwright_code' => $data['playwright_code'],
             'status' => $data['status'] ?? 'active',
         ]);
+
+        ActivityLogger::log('test_created', Auth::user(), $suite, $test, ['name' => $test->name]);
 
         return Response::structured(['test' => $test->toArray()]);
     }

@@ -5,6 +5,8 @@ namespace App\Mcp\Tools\Suites;
 use App\Http\Requests\Api\StoreSuiteRequest;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
+use App\Support\IntegrationPayload;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
@@ -64,8 +66,38 @@ class CreateSuiteTool extends Tool
             'take_screenshot' => $schema->boolean()->description('Whether to capture screenshots during test runs. Disable for faster runs. Defaults to true.'),
             'teams_webhook_url' => $schema->string()->description('MS Teams incoming webhook URL to notify when runs complete.'),
             'teams_webhook_proxy' => $schema->string()->description('HTTP proxy to use when posting to the Teams webhook, if any.'),
+            'teams_notify_on_start' => $schema->boolean()->description('Whether to notify Teams when a run starts.'),
             'teams_notify_on_success' => $schema->boolean()->description('Whether to notify Teams when a run succeeds.'),
             'teams_notify_on_failure' => $schema->boolean()->description('Whether to notify Teams when a run fails.'),
+            'integrations' => $schema->array()
+                ->items($schema->object([
+                    'type' => $schema->string()->enum(['github_action', 'http_request'])->required()->description('Integration type: "github_action" (dispatch a GitHub Actions workflow) or "http_request" (call a URL with GET/POST/PUT/DELETE).'),
+                    'github_app_id' => $schema->integer()->description('github_action only. Which configured GitHub App (public github.com or a GitHub Enterprise instance) to dispatch as — see the Admin > GitHub Apps section. Omit to use the first configured app.'),
+                    'label' => $schema->string()->description('Optional display label for the integration.'),
+                    'repository' => $schema->string()->description('GitHub Action only. Repository in "owner/repo" form; the Sorify GitHub App must be installed on it.'),
+                    'workflow' => $schema->string()->description('GitHub Action only. Workflow file name (e.g. "deploy.yml") or workflow ID, with a workflow_dispatch trigger.'),
+                    'ref' => $schema->string()->description('GitHub Action only. Branch or tag to dispatch on. Defaults to the repository\'s default branch.'),
+                    'proxy' => $schema->string()->description('http_request only. Optional proxy (e.g. http://proxy.example.com:8080) used for the request itself.'),
+                    'url' => $schema->string()->description('HTTP request only. Absolute http(s) URL. GET: inputs are sent as query parameters (overriding same-named URL params); POST/PUT/DELETE: inputs are sent as an application/json body while URL query params are kept.'),
+                    'method' => $schema->string()->enum(['GET', 'POST', 'PUT', 'DELETE'])->description('HTTP request only. Defaults to POST.'),
+                    'body' => $schema->string()->description('HTTP request only. Raw JSON body, sent as-is with POST / PUT. When set, inputs become query parameters.'),
+                    'inputs' => $schema->array()
+                        ->items($schema->object([
+                            'name' => $schema->string()->required()->description('Input name (valid identifier, not starting with "sorify_" — that prefix is reserved for context Sorify injects: sorify_run_id, sorify_suite_id, sorify_run_url, and post-run sorify_run_status/counts).'),
+                            'value' => $schema->string()->description('Input value (string).'),
+                        ]))
+                        ->description('Inputs passed to the workflow dispatch (github_action) or as query params / JSON body (http_request).'),
+                    'headers' => $schema->array()
+                        ->items($schema->object([
+                            'name' => $schema->string()->required()->description('Header name, e.g. Authorization or X-API-Key.'),
+                            'value' => $schema->string()->description('Header value.'),
+                        ]))
+                        ->description('HTTP request only. Extra request headers sent with the call.'),
+                    'enabled' => $schema->boolean()->description('Whether the integration is active. Defaults to true.'),
+                    'trigger_before' => $schema->boolean()->description('Run before each run, blocking: tests only start once it succeeds.'),
+                    'trigger_after' => $schema->boolean()->description('Run after each run completes, with the run result as context (sorify_run_status, counts, etc.).'),
+                ]))
+                ->description('Pre/post run integrations (GitHub Action or HTTP request). Passing this replaces the suite\'s full integration set; omit to leave existing integrations untouched.'),
         ];
     }
 
@@ -80,6 +112,8 @@ class CreateSuiteTool extends Tool
         unset($data['variables']);
         $cookies = $data['cookies'] ?? null;
         unset($data['cookies']);
+        $integrations = $data['integrations'] ?? null;
+        unset($data['integrations']);
 
         $suite = TestSuite::create([...$data, 'created_by' => Auth::id()]);
 
@@ -95,6 +129,10 @@ class CreateSuiteTool extends Tool
             $this->syncCookies($suite, $cookies);
         }
 
+        if ($integrations) {
+            $this->syncIntegrations($suite, $integrations);
+        }
+
         if (Auth::id()) {
             $suite->members()->attach(Auth::id(), [
                 'can_view' => true,
@@ -104,7 +142,29 @@ class CreateSuiteTool extends Tool
             ]);
         }
 
-        return Response::structured(['suite' => $suite->load(['proxyRules', 'variables', 'cookies'])->toArray()]);
+        ActivityLogger::log('suite_created', Auth::user(), $suite, $suite, ['name' => $suite->name]);
+        if ($variables) {
+            ActivityLogger::log('variables_updated', Auth::user(), $suite, null, ['count' => count($variables)]);
+        }
+        if ($cookies) {
+            ActivityLogger::log('cookies_updated', Auth::user(), $suite, null, ['count' => count($cookies)]);
+        }
+
+        return Response::structured(['suite' => $suite->load(['proxyRules', 'variables', 'cookies', 'integrations'])->toArray()]);
+    }
+
+    /**
+     * Replace a suite's integrations with the given set.
+     *
+     * @param  array<int, array<string, mixed>>  $integrations
+     */
+    private function syncIntegrations(TestSuite $suite, array $integrations): void
+    {
+        $suite->integrations()->delete();
+
+        foreach ($integrations as $integration) {
+            $suite->integrations()->create(IntegrationPayload::normalize($integration));
+        }
     }
 
     /**

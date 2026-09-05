@@ -178,27 +178,32 @@
 /* ── MD3 typography scale ──────────────────────────────────────────────────── */
 
 /* Longhand only — the `font` shorthand also resets font-family, which would
-   clobber `font-mono` since these unlayered rules always win over Tailwind's
-   layered utilities regardless of source order. */
-.md-display-large  { font-weight: 400; font-size: 3.5625rem; line-height: 4rem; letter-spacing: -0.015625rem; }
-.md-display-medium { font-weight: 400; font-size: 2.8125rem; line-height: 3.25rem; }
-.md-display-small  { font-weight: 400; font-size: 2.25rem; line-height: 2.75rem; }
+   clobber `font-mono`. The rules live in the `components` layer so Tailwind's
+   utilities (utilities layer always beats components) can still override
+   individual properties — e.g. `md-label-small font-semibold` renders bold,
+   `md-body-small font-mono` keeps the mono family. */
+@layer components {
+    .md-display-large  { font-weight: 400; font-size: 3.5625rem; line-height: 4rem; letter-spacing: -0.015625rem; }
+    .md-display-medium { font-weight: 400; font-size: 2.8125rem; line-height: 3.25rem; }
 
-.md-headline-large  { font-weight: 400; font-size: 2rem; line-height: 2.5rem; }
-.md-headline-medium { font-weight: 400; font-size: 1.75rem; line-height: 2.25rem; }
-.md-headline-small  { font-weight: 400; font-size: 1.5rem; line-height: 2rem; }
+    .md-display-small  { font-weight: 400; font-size: 2.25rem; line-height: 2.75rem; }
 
-.md-title-large  { font-weight: 400; font-size: 1.375rem; line-height: 1.75rem; }
-.md-title-medium { font-weight: 500; font-size: 1rem; line-height: 1.5rem; letter-spacing: 0.009375rem; }
-.md-title-small  { font-weight: 500; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0.00625rem; }
+    .md-headline-large  { font-weight: 400; font-size: 2rem; line-height: 2.5rem; }
+    .md-headline-medium { font-weight: 400; font-size: 1.75rem; line-height: 2.25rem; }
+    .md-headline-small  { font-weight: 400; font-size: 1.5rem; line-height: 2rem; }
 
-.md-body-large  { font-weight: 400; font-size: 1rem; line-height: 1.5rem; letter-spacing: 0.03125rem; }
-.md-body-medium { font-weight: 400; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0.015625rem; }
-.md-body-small  { font-weight: 400; font-size: 0.75rem; line-height: 1rem; letter-spacing: 0.025rem; }
+    .md-title-large  { font-weight: 400; font-size: 1.375rem; line-height: 1.75rem; }
+    .md-title-medium { font-weight: 500; font-size: 1rem; line-height: 1.5rem; letter-spacing: 0.009375rem; }
+    .md-title-small  { font-weight: 500; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0.00625rem; }
 
-.md-label-large  { font-weight: 500; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0.00625rem; }
-.md-label-medium { font-weight: 500; font-size: 0.75rem; line-height: 1rem; letter-spacing: 0.03125rem; }
-.md-label-small  { font-weight: 500; font-size: 0.6875rem; line-height: 1rem; letter-spacing: 0.03125rem; }
+    .md-body-large  { font-weight: 400; font-size: 1rem; line-height: 1.5rem; letter-spacing: 0.03125rem; }
+    .md-body-medium { font-weight: 400; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0.015625rem; }
+    .md-body-small  { font-weight: 400; font-size: 0.75rem; line-height: 1rem; letter-spacing: 0.025rem; }
+
+    .md-label-large  { font-weight: 500; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0.00625rem; }
+    .md-label-medium { font-weight: 500; font-size: 0.75rem; line-height: 1rem; letter-spacing: 0.03125rem; }
+    .md-label-small  { font-weight: 500; font-size: 0.6875rem; line-height: 1rem; letter-spacing: 0.03125rem; }
+}
 
 /* ── Theme transition ──────────────────────────────────────────────────────── */
 *, *::before, *::after {

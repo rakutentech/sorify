@@ -7,7 +7,7 @@ import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
 import { Card, Chip, Button, Breadcrumb, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
-import { Activity, RotateCcw, LoaderCircle, ChevronRight, Search, ChevronDown, X } from '@lucide/vue';
+import { Activity, RotateCcw, LoaderCircle, ChevronRight, Search, ChevronDown, CircleAlert, X } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -348,6 +348,17 @@ const failedPct = computed(() => {
             </div>
         </Card>
 
+        <!-- Status note (e.g. why a run failed before any test ran) -->
+        <div
+            v-if="run.status_note && !isActive"
+            class="mb-6 flex items-start gap-3 bg-[var(--md-sys-color-error-container)] rounded-[var(--md-sys-shape-corner-medium)] px-5 py-4"
+        >
+            <CircleAlert :size="16" class="mt-0.5 flex-shrink-0" :style="{ color: 'var(--md-sys-color-on-error-container)' }" />
+            <div class="flex-1 min-w-0">
+                <p class="md-body-medium text-[var(--md-sys-color-on-error-container)] break-words">{{ run.status_note }}</p>
+            </div>
+        </div>
+
         <!-- Progress bar (visible while pending or running) -->
         <Card v-if="isActive || run.status === 'running'" class="mb-6">
             <div class="flex items-center justify-between mb-3">
@@ -356,6 +367,7 @@ const failedPct = computed(() => {
                     <span class="md-title-small text-[var(--md-sys-color-on-surface)]">
                         {{ run.status === 'pending' ? t('testRunShow.waitingToStart') : t('testRunShow.runningTests', { completed: completedCount, total: totalTests }) }}
                     </span>
+                    <span v-if="run.status === 'pending' && run.status_note" class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">— {{ run.status_note }}</span>
                 </div>
                 <span class="md-title-small text-[var(--md-sys-color-on-surface)]">{{ progressPct }}%</span>
             </div>

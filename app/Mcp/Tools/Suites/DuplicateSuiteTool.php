@@ -5,6 +5,7 @@ namespace App\Mcp\Tools\Suites;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use App\Services\TestSuiteDuplicationService;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
@@ -42,6 +43,11 @@ class DuplicateSuiteTool extends Tool
         $this->authorizeSuite('create', TestSuite::class);
 
         $clone = $this->duplication->duplicate($source, Auth::user(), $data['name'] ?? null);
+
+        ActivityLogger::log('suite_duplicated', Auth::user(), $clone, $clone, [
+            'name' => $clone->name,
+            'source_suite_name' => $source->name,
+        ]);
 
         return Response::structured([
             'suite' => $clone->fresh(['proxyRules', 'cookies'])->toArray(),

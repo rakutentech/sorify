@@ -25,8 +25,13 @@ class SuiteBookmarkController extends Controller
         $sortDir = $request->string('sort_dir')->toString();
 
         $query = $user->bookmarkedSuites()
-            ->withCount(['tests', 'testRuns', 'proxyRules'])
-            ->with(['schedule', 'members:id,name,email,avatar']);
+            ->withCount(['tests', 'testRuns', 'proxyRules', 'variables', 'cookies'])
+            ->with([
+                'schedule',
+                'members:id,name,email,avatar',
+                // Only what the chip row needs: which integration types exist.
+                'integrations:id,test_suite_id,type,enabled',
+            ]);
 
         SuiteSort::apply($query, $sort, $sortDir);
 
@@ -48,8 +53,10 @@ class SuiteBookmarkController extends Controller
 
         $paginator->through(function (TestSuite $s) {
             $data = array_merge($s->toArray(), $this->reporting->suiteStats($s));
-            unset($data['webhook_token'], $data['teams_webhook_url'], $data['pivot']);
+            unset($data['webhook_token'], $data['teams_webhook_url'], $data['pivot'], $data['integrations']);
             $data['has_teams_webhook'] = (bool) $s->teams_webhook_url;
+            $data['has_github_integration'] = $s->integrations->contains(fn ($i) => $i->type === 'github_action' && $i->enabled);
+            $data['has_http_integration'] = $s->integrations->contains(fn ($i) => $i->type === 'http_request' && $i->enabled);
 
             return $data;
         });

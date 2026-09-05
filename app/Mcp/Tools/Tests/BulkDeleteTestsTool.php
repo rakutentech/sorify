@@ -4,7 +4,9 @@ namespace App\Mcp\Tools\Tests;
 
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -38,6 +40,10 @@ class BulkDeleteTestsTool extends Tool
         $this->authorizeSuite('delete', $suite);
 
         $deletedCount = $suite->tests()->whereIn('id', $data['test_ids'])->delete();
+
+        if ($deletedCount > 0) {
+            ActivityLogger::log('test_deleted', Auth::user(), $suite, null, ['count' => $deletedCount]);
+        }
 
         return Response::structured(['deleted_count' => $deletedCount]);
     }

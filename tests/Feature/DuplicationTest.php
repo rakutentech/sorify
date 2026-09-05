@@ -32,6 +32,7 @@ class DuplicationTest extends TestCase
             'take_screenshot' => false,
             'playwright_proxy' => 'http://proxy.example.com:8080',
             'teams_webhook_url' => 'https://example.test/teams',
+            'teams_notify_on_start' => true,
             'teams_notify_on_success' => true,
             'teams_notify_on_failure' => true,
             'created_by' => $owner->id,
@@ -47,6 +48,20 @@ class DuplicationTest extends TestCase
         $suite->proxyRules()->createMany([
             ['domain' => '^example\\.com$', 'proxy' => 'http://proxy.example.com:8080'],
             ['domain' => '(^|\\.)foo\\.com$', 'proxy' => 'http://foo-proxy:8080'],
+        ]);
+
+        $suite->integrations()->create([
+            'type' => 'github_action',
+            'label' => 'Deploy',
+            'config' => [
+                'repository' => 'acme/app',
+                'workflow' => 'deploy.yml',
+                'ref' => 'main',
+                'inputs' => ['environment' => 'staging'],
+            ],
+            'enabled' => true,
+            'trigger_before' => true,
+            'trigger_after' => false,
         ]);
 
         for ($i = 1; $i <= $testCount; $i++) {
@@ -88,6 +103,7 @@ class DuplicationTest extends TestCase
         $this->assertSame(2, $clone->max_retries);
         $this->assertSame('http://proxy.example.com:8080', $clone->playwright_proxy);
         $this->assertSame('https://example.test/teams', $clone->teams_webhook_url);
+        $this->assertTrue($clone->teams_notify_on_start);
         $this->assertTrue($clone->teams_notify_on_success);
         $this->assertTrue($clone->teams_notify_on_failure);
 
@@ -97,6 +113,17 @@ class DuplicationTest extends TestCase
             $suite->proxyRules->pluck('domain')->all(),
             $clone->proxyRules->pluck('domain')->all(),
         );
+
+        // Integrations were copied.
+        $this->assertSame(1, $clone->integrations()->count());
+        $cloneIntegration = $clone->integrations()->first();
+        $this->assertSame('github_action', $cloneIntegration->type);
+        $this->assertSame('Deploy', $cloneIntegration->label);
+        $this->assertSame('acme/app', $cloneIntegration->config('repository'));
+        $this->assertSame('deploy.yml', $cloneIntegration->config('workflow'));
+        $this->assertSame(['environment' => 'staging'], $cloneIntegration->config('inputs'));
+        $this->assertTrue($cloneIntegration->trigger_before);
+        $this->assertFalse($cloneIntegration->trigger_after);
 
         // The calling user is attached as a full member.
         $this->assertDatabaseHas('test_suite_user', [

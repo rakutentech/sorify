@@ -7,6 +7,7 @@ use App\Models\Test;
 use App\Models\TestSuite;
 use App\Services\PlaywrightCodeValidatorService;
 use App\Services\TestCodeVersionService;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
@@ -51,6 +52,8 @@ class UpdateTestCodeTool extends Tool
         $this->validator->validate($data['playwright_code']);
 
         $this->versions->updateCode($test, $data['playwright_code'], 'mcp', Auth::id());
+
+        ActivityLogger::log('test_code_updated', Auth::user(), $test->testSuite, $test, ['name' => $test->name]);
 
         return Response::structured(['test' => $test->toArray()]);
     }

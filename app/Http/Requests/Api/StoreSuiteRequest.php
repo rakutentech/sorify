@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Http\Requests\StoreTestSuiteIntegrationRequest;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSuiteRequest extends FormRequest
@@ -43,6 +44,8 @@ class StoreSuiteRequest extends FormRequest
                     $fail('The :attribute must set either a domain or a url (Playwright requires one of them).');
                 }
             }],
+            'integrations' => 'nullable|array',
+            ...StoreTestSuiteIntegrationRequest::rulesFor('integrations.*'),
             'browser' => 'nullable|string|in:chromium,firefox,webkit',
             'headless' => 'nullable|boolean',
             'base_url' => 'nullable|string|max:500',
@@ -51,6 +54,7 @@ class StoreSuiteRequest extends FormRequest
             'take_screenshot' => 'nullable|boolean',
             'teams_webhook_url' => 'nullable|string|max:500|url',
             'teams_webhook_proxy' => 'nullable|string|max:500',
+            'teams_notify_on_start' => 'nullable|boolean',
             'teams_notify_on_success' => 'nullable|boolean',
             'teams_notify_on_failure' => 'nullable|boolean',
         ];
