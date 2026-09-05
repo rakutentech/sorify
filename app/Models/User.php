@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'avatar', 'email', 'password', 'is_admin', 'is_view_only', 'locale', 'github_id', 'github_token', 'github_refresh_token'])]
+#[Fillable(['name', 'avatar', 'email', 'password', 'is_admin', 'is_view_only', 'locale', 'github_id', 'github_app_id', 'github_token', 'github_refresh_token'])]
 #[Hidden(['password', 'remember_token', 'github_token', 'github_refresh_token'])]
 class User extends Authenticatable
 {
@@ -54,6 +55,15 @@ class User extends Authenticatable
     public function bookmarkedSuites(): BelongsToMany
     {
         return $this->belongsToMany(TestSuite::class, 'suite_bookmarks')->withTimestamps();
+    }
+
+    /**
+     * The GitHub App (public GitHub or a GitHub Enterprise instance) this
+     * account's github_id belongs to — github ids are only unique per app.
+     */
+    public function githubApp(): BelongsTo
+    {
+        return $this->belongsTo(GithubApp::class);
     }
 
     /**

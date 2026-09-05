@@ -4,7 +4,9 @@ namespace App\Mcp\Tools\Suites;
 
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -100,6 +102,8 @@ class UploadSuiteCookiesTool extends Tool
         $this->syncCookies($suite, $cookies);
 
         $count = $suite->cookies()->count();
+
+        ActivityLogger::log('cookies_updated', Auth::user(), $suite, null, ['count' => $count]);
 
         return Response::structured([
             'suite_id' => $suite->id,

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\GithubApp;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -15,14 +16,14 @@ class GithubAuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function githubConfig(string $baseUrl = 'https://ghe.example.com'): void
+    protected function githubConfig(string $baseUrl = 'https://ghe.example.com', string $clientId = 'test-client-id'): GithubApp
     {
-        config()->set('services.github', [
-            'client_id' => 'test-client-id',
+        return GithubApp::create([
+            'name' => $baseUrl === '' ? 'GitHub' : (string) parse_url($baseUrl, PHP_URL_HOST),
+            'base_url' => $baseUrl,
+            'client_id' => $clientId,
             'client_secret' => 'test-client-secret',
-            'redirect' => 'http://localhost/sorify/auth/github/callback',
-            'url' => $baseUrl,
-            'scopes' => ['user:email'],
+            'redirect_uri' => 'http://localhost/sorify/auth/github/callback',
         ]);
     }
 
@@ -38,6 +39,33 @@ class GithubAuthTest extends TestCase
             $response->getTargetUrl()
         );
         $this->assertStringContainsString('client_id=test-client-id', $response->getTargetUrl());
+    }
+
+    public function test_redirect_requests_the_email_scope_for_oauth_apps(): void
+    {
+        $this->githubConfig('https://ghe.example.com');
+
+        $response = $this->get('/sorify/auth/github/redirect');
+
+        $response->assertRedirect();
+        $this->assertStringContainsString('scope=user%3Aemail', $response->getTargetUrl());
+    }
+
+    public function test_redirect_omits_the_scope_parameter_for_github_apps(): void
+    {
+        // GitHub Apps must not receive a `scope` parameter — GitHub rejects
+        // the whole authorize request otherwise. Their permissions live on
+        // the app itself (e.g. the Email addresses account permission).
+        $this->githubConfig('https://ghe.example.com', 'Iv1.60a2b9fb69782986');
+
+        $response = $this->get('/sorify/auth/github/redirect');
+
+        $response->assertRedirect();
+        $this->assertStringStartsWith(
+            'https://ghe.example.com/login/oauth/authorize',
+            $response->getTargetUrl()
+        );
+        $this->assertStringNotContainsString('scope=', $response->getTargetUrl());
     }
 
     public function test_redirect_falls_back_to_github_com_without_base_url(): void
@@ -136,10 +164,11 @@ class GithubAuthTest extends TestCase
 
     public function test_callback_logs_in_existing_user_matched_by_github_id(): void
     {
-        $this->githubConfig();
+        $app = $this->githubConfig();
 
         $existing = User::factory()->create([
             'github_id' => '998877',
+            'github_app_id' => $app->id,
             'email' => 'other@example.com',
         ]);
 
@@ -154,6 +183,36 @@ class GithubAuthTest extends TestCase
         $this->assertSame(1, User::count());
     }
 
+    public function test_the_same_github_id_on_different_apps_are_distinct_users(): void
+    {
+        // github ids are only unique per app: user 998877 on github.com is a
+        // different person from user 998877 on a GitHub Enterprise instance.
+        $ghe = $this->githubConfig('https://ghe.example.com');
+        $public = $this->githubConfig('', 'public-client-id');
+
+        User::factory()->create([
+            'email' => 'ghe-user@example.com',
+            'github_id' => '998877',
+            'github_app_id' => $ghe->id,
+        ]);
+
+        // Sign in with the public app using the SAME numeric id.
+        $this->mockGithubUser(SocialiteUser::fake([
+            'id' => '998877',
+            'email' => 'public-user@example.com',
+        ]));
+
+        // Point the callback at the public app.
+        $this->withSession(['github_app_id' => $public->id])
+            ->get('/sorify/auth/github/callback');
+
+        $this->assertSame(2, User::count());
+        $this->assertEquals(
+            $public->id,
+            User::where('email', 'public-user@example.com')->first()->github_app_id,
+        );
+    }
+
     public function test_callback_handles_error_from_github(): void
     {
         $response = $this->get('/sorify/auth/github/callback?error=access_denied');
@@ -165,6 +224,8 @@ class GithubAuthTest extends TestCase
 
     public function test_callback_without_email_redirects_with_error(): void
     {
+        // The email permission is mandatory: without it Sorify must
+        // refuse sign-in rather than fall back to a synthetic address.
         $this->githubConfig();
 
         $this->mockGithubUser(SocialiteUser::fake([
@@ -177,6 +238,7 @@ class GithubAuthTest extends TestCase
         $response->assertRedirect('/sorify/login');
         $response->assertSessionHasErrors('github');
         $this->assertGuest();
+        $this->assertSame(0, User::count());
     }
 
     protected function mockGithubUser(SocialiteUser $user): void

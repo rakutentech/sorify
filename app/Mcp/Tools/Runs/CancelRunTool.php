@@ -5,7 +5,9 @@ namespace App\Mcp\Tools\Runs;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestRun;
 use App\Services\TestRunService;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -35,7 +37,7 @@ class CancelRunTool extends Tool
         $run = TestRun::findOrFail($data['run_id']);
         $this->authorizeSuite('run', $run->testSuite);
 
-        $run = $this->runs->cancel($run);
+        $run = $this->runs->cancel($run, Auth::user());
 
         return Response::structured(['run_id' => $run->id, 'status' => $run->status]);
     }

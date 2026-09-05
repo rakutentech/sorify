@@ -1,15 +1,18 @@
 <?php
 
+use App\Http\Controllers\Admin\GithubAppController as AdminGithubAppController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardNoteController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScreenshotController;
 use App\Http\Controllers\SuiteBookmarkController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TestRunController;
 use App\Http\Controllers\TestSuiteController;
+use App\Http\Controllers\TestSuiteIntegrationController;
 use App\Http\Controllers\TestSuiteMemberController;
 use App\Http\Controllers\TestSuiteScheduleController;
 use App\Http\Controllers\WebhookController;
@@ -104,8 +107,15 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
 
         Route::post('/{suite}/runs', [TestRunController::class, 'store'])->name('runs.store');
         Route::post('/{suite}/webhook/regenerate', [TestSuiteController::class, 'regenerateWebhook'])->name('webhook.regenerate');
+        Route::delete('/{suite}/webhook/{token}', [TestSuiteController::class, 'destroyWebhook'])->name('webhook.destroy');
         Route::put('/{suite}/schedule', [TestSuiteScheduleController::class, 'update'])->name('schedule.update');
         Route::delete('/{suite}/schedule', [TestSuiteScheduleController::class, 'destroy'])->name('schedule.destroy');
+
+        Route::scopeBindings()->prefix('/{suite}/integrations')->name('integrations.')->group(function () {
+            Route::post('/', [TestSuiteIntegrationController::class, 'store'])->name('store');
+            Route::put('/{integration}', [TestSuiteIntegrationController::class, 'update'])->name('update');
+            Route::delete('/{integration}', [TestSuiteIntegrationController::class, 'destroy'])->name('destroy');
+        });
 
         Route::prefix('/{suite}/users')->name('users.')->group(function () {
             Route::post('/', [TestSuiteMemberController::class, 'store'])->name('store');
@@ -119,8 +129,16 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
 
     Route::get('/bookmarks', [SuiteBookmarkController::class, 'index'])->name('bookmarks.index');
 
+    // GitHub-style activity feed: runs, suite/test changes, new users, …
+    Route::prefix('feed')->name('feed.')->group(function () {
+        Route::get('/', [FeedController::class, 'index'])->name('index');
+        Route::get('/poll', [FeedController::class, 'poll'])->name('poll');
+    });
+
+    // Legacy /sorify/runs listing now lives in the feed.
+    Route::redirect('/runs', '/sorify/feed', 301);
+
     Route::prefix('runs')->name('runs.')->group(function () {
-        Route::get('/', [TestRunController::class, 'index'])->name('index');
         Route::get('/{run}', [TestRunController::class, 'show'])->name('show');
         Route::get('/{run}/status', [TestRunController::class, 'status'])->name('status');
         Route::post('/{run}/cancel', [TestRunController::class, 'cancel'])->name('cancel');
@@ -149,4 +167,10 @@ Route::prefix('sorify/admin')->middleware(['auth', 'admin'])->name('admin.')->gr
     Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
+
+    Route::get('/github-apps', [AdminGithubAppController::class, 'index'])->name('github-apps.index');
+    Route::post('/github-apps', [AdminGithubAppController::class, 'store'])->name('github-apps.store');
+    Route::put('/github-apps/{githubApp}', [AdminGithubAppController::class, 'update'])->name('github-apps.update');
+    Route::delete('/github-apps/{githubApp}', [AdminGithubAppController::class, 'destroy'])->name('github-apps.destroy');
+    Route::post('/github-apps/test-connection', [AdminGithubAppController::class, 'testConnection'])->name('github-apps.test-connection');
 });

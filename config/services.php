@@ -35,14 +35,16 @@ return [
         ],
     ],
 
-    'github' => [
-        'client_id' => env('GITHUB_CLIENT_ID'),
-        'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'redirect' => env('GITHUB_REDIRECT_URI'),
-        // For GitHub Enterprise, set this to your instance base URL
-        // (e.g. https://ghe.example.com). Leave unset for github.com.
-        'url' => env('GITHUB_BASE_URL'),
-        'scopes' => ['user:email'],
-    ],
+    /*
+    |----------------------------------------------------------------------|
+    | GitHub / GitHub Enterprise                                            |
+    |----------------------------------------------------------------------|
+    | Apps are managed in the dashboard (Admin → GitHub Apps) and stored   |
+    | encrypted in the database — there are no GITHUB_* env variables.     |
+    | The "github" key below has no static defaults: the login flow sets   |
+    | it at runtime from the chosen database app, and the Socialite        |
+    | "github" driver (AppServiceProvider) builds the provider from it.   |
+    | See AuthController::applyGithubAppConfig().                          |
+    */
 
 ];

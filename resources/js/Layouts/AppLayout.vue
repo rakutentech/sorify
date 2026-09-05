@@ -4,10 +4,11 @@ import { usePage, Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Alert, LanguageSwitcher, Avatar } from '@/Components/ui';
+import AdminMenu from '@/Components/AdminMenu.vue';
 import {
     Activity, FolderKanban, Star, BookOpen,
     ShieldCheck, ScrollText, ExternalLink, ChevronDown, Sun, Moon,
-    UserCircle, LogOut, CircleCheck, Info,
+    UserCircle, LogOut, CircleCheck, Info, Workflow,
 } from '@lucide/vue';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
@@ -18,7 +19,7 @@ const { theme, toggleTheme } = useTheme();
 const user = computed(() => page.props.auth?.user ?? null);
 
 const navLinks = computed(() => [
-    { label: t('nav.runs'), href: '/sorify/runs', icon: Activity, accent: 'var(--md-ext-color-success)' },
+    { label: t('nav.feed'), href: '/sorify/feed', icon: Activity, accent: 'var(--md-ext-color-success)' },
     { label: t('nav.testSuites'), href: '/sorify/suites', icon: FolderKanban, accent: 'var(--md-sys-color-tertiary)' },
     { label: t('nav.bookmarks'), href: '/sorify/bookmarks', icon: Star, accent: 'var(--md-ext-color-warning)' },
 ]);
@@ -26,7 +27,8 @@ const navLinks = computed(() => [
 const docsLink = computed(() => ({ label: t('nav.docs'), href: 'https://github.com/rakutentech/sorify', external: true, newTab: true, icon: BookOpen, accent: 'var(--md-sys-color-on-surface-variant)' }));
 
 const adminLinks = computed(() => user.value?.is_admin ? [
-    { label: t('nav.admin'), href: '/sorify/admin/users', icon: ShieldCheck, accent: 'var(--md-sys-color-error)' },
+    { label: t('nav.users'), href: '/sorify/admin/users', icon: ShieldCheck, accent: 'var(--md-sys-color-error)' },
+    { label: t('nav.githubApps'), href: '/sorify/admin/github-apps', icon: Workflow, accent: 'var(--md-sys-color-error)' },
     { label: t('nav.logs'), href: '/sorify/log-viewer', external: true, newTab: true, icon: ScrollText, accent: 'var(--md-sys-color-on-surface-variant)' },
 ] : []);
 
@@ -107,35 +109,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                                 <ExternalLink :size="14" class="flex-shrink-0 opacity-60" />
                             </a>
 
-                            <!-- Admin-only links, visually grouped -->
-                            <div
-                                v-if="adminLinks.length"
-                                class="flex items-center gap-1 ml-1 pl-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-tertiary)]/15 border border-[var(--md-sys-color-tertiary)]/30"
-                            >
-                                <template v-for="link in adminLinks" :key="link.href">
-                                    <a
-                                        v-if="link.external"
-                                        :href="link.href"
-                                        :target="link.newTab ? '_blank' : undefined"
-                                        :rel="link.newTab ? 'noopener noreferrer' : undefined"
-                                        class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20 flex items-center gap-1.5"
-                                    >
-                                        <component :is="link.icon" :size="16" class="flex-shrink-0" :style="{ color: link.accent }" />
-                                        {{ link.label }}
-                                    </a>
-                                    <Link
-                                        v-else
-                                        :href="link.href"
-                                        :class="[
-                                            'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20 flex items-center gap-1.5',
-                                            isActive(link.href) && 'bg-[var(--md-sys-color-tertiary)]/30'
-                                        ]"
-                                    >
-                                        <component :is="link.icon" :size="16" class="flex-shrink-0" :style="{ color: link.accent }" />
-                                        {{ link.label }}
-                                    </Link>
-                                </template>
-                            </div>
+                            <!-- Admin-only links, collapsed into one dropdown -->
+                            <AdminMenu v-if="adminLinks.length" :links="adminLinks" class="ml-1" />
                         </div>
                     </div>
 
@@ -188,6 +163,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                         <IconButton
                             variant="standard"
                             :label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
+                            tip-class="!left-auto right-0 !translate-x-0"
                             @click="toggleTheme"
                         >
                             <Sun v-if="theme === 'dark'" :size="16" :style="{ color: 'var(--md-ext-color-warning)' }" />
@@ -229,34 +205,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                     {{ docsLink.label }}
                 </a>
 
-                <div
-                    v-if="adminLinks.length"
-                    class="flex items-center gap-1 ml-1 pl-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-tertiary)]/15 border border-[var(--md-sys-color-tertiary)]/30"
-                >
-                    <template v-for="link in adminLinks" :key="link.href">
-                        <a
-                            v-if="link.external"
-                            :href="link.href"
-                            :target="link.newTab ? '_blank' : undefined"
-                            :rel="link.newTab ? 'noopener noreferrer' : undefined"
-                            class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20 flex items-center gap-1.5"
-                        >
-                            <component :is="link.icon" :size="16" class="flex-shrink-0" :style="{ color: link.accent }" />
-                            {{ link.label }}
-                        </a>
-                        <Link
-                            v-else
-                            :href="link.href"
-                            :class="[
-                                'px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors text-[var(--md-sys-color-on-tertiary-container)] hover:bg-[var(--md-sys-color-tertiary)]/20 flex items-center gap-1.5',
-                                isActive(link.href) && 'bg-[var(--md-sys-color-tertiary)]/30'
-                            ]"
-                        >
-                            <component :is="link.icon" :size="16" class="flex-shrink-0" :style="{ color: link.accent }" />
-                            {{ link.label }}
-                        </Link>
-                    </template>
-                </div>
+                <AdminMenu v-if="adminLinks.length" :links="adminLinks" />
 
                 <LanguageSwitcher />
             </div>

@@ -11,6 +11,13 @@ use Illuminate\Support\Str;
 
 class TestSuite extends Model
 {
+    /**
+     * Maximum number of webhook URLs a suite may have active at once:
+     * the current one plus the superseded ones still awaiting deletion.
+     * Regeneration is refused while the cap is reached.
+     */
+    public const MAX_WEBHOOK_TOKENS = 5;
+
     protected $fillable = [
         'name',
         'description',
@@ -26,6 +33,7 @@ class TestSuite extends Model
         'created_by',
         'teams_webhook_url',
         'teams_webhook_proxy',
+        'teams_notify_on_start',
         'teams_notify_on_success',
         'teams_notify_on_failure',
         'duplication_status',
@@ -38,6 +46,8 @@ class TestSuite extends Model
         'timeout_ms' => 'integer',
         'history_retention' => 'integer',
         'max_retries' => 'integer',
+        'previous_webhook_tokens' => 'array',
+        'teams_notify_on_start' => 'boolean',
         'teams_notify_on_success' => 'boolean',
         'teams_notify_on_failure' => 'boolean',
     ];
@@ -54,15 +64,81 @@ class TestSuite extends Model
         return 'whk_'.Str::random(40);
     }
 
-    public function regenerateWebhookToken(): void
+    public function regenerateWebhookToken(): bool
     {
+        if ($this->webhookTokenCount() >= static::MAX_WEBHOOK_TOKENS) {
+            return false;
+        }
+
+        $previous = $this->previous_webhook_tokens ?? [];
+
+        if ($this->webhook_token) {
+            $previous[] = $this->webhook_token;
+        }
+
+        $this->previous_webhook_tokens = array_values($previous);
         $this->webhook_token = static::generateWebhookToken();
         $this->save();
+
+        return true;
+    }
+
+    /**
+     * Permanently remove one of the superseded (old) webhook tokens.
+     * The current token cannot be removed this way — regenerate instead.
+     */
+    public function removePreviousWebhookToken(string $token): bool
+    {
+        $previous = $this->previous_webhook_tokens ?? [];
+
+        $index = array_search($token, $previous, true);
+
+        if ($index === false) {
+            return false;
+        }
+
+        unset($previous[$index]);
+
+        $this->previous_webhook_tokens = array_values($previous);
+        $this->save();
+
+        return true;
+    }
+
+    /**
+     * Total active webhook tokens for this suite: the current one plus
+     * every superseded one that has not been deleted yet.
+     */
+    public function webhookTokenCount(): int
+    {
+        return ($this->webhook_token ? 1 : 0) + count($this->previous_webhook_tokens ?? []);
+    }
+
+    public function hasPreviousWebhookToken(string $token): bool
+    {
+        return in_array($token, $this->previous_webhook_tokens ?? [], true);
     }
 
     public function webhookUrl(): ?string
     {
         return $this->webhook_token ? route('webhooks.trigger', ['token' => $this->webhook_token]) : null;
+    }
+
+    /**
+     * Superseded webhook tokens with their trigger URLs, oldest first —
+     * the URLs shown below the current one, waiting to be deleted.
+     *
+     * @return array<int, array{token: string, url: string}>
+     */
+    public function previousWebhooks(): array
+    {
+        return array_map(
+            fn (string $token) => [
+                'token' => $token,
+                'url' => route('webhooks.trigger', ['token' => $token]),
+            ],
+            $this->previous_webhook_tokens ?? [],
+        );
     }
 
     /**
@@ -102,6 +178,22 @@ class TestSuite extends Model
     public function cookies(): HasMany
     {
         return $this->hasMany(TestSuiteCookie::class);
+    }
+
+    public function integrations(): HasMany
+    {
+        return $this->hasMany(TestSuiteIntegration::class);
+    }
+
+    /**
+     * Enabled integrations that fire before a run's tests start. These are
+     * blocking: the run stays pending until every one of them completes.
+     */
+    public function preRunIntegrations()
+    {
+        return $this->integrations()
+            ->where('enabled', true)
+            ->where('trigger_before', true);
     }
 
     public function testRuns(): HasMany

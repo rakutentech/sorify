@@ -6,7 +6,9 @@ use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\Test;
 use App\Models\TestSuite;
 use App\Services\TestSuiteDuplicationService;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -53,6 +55,8 @@ class DuplicateTestTool extends Tool
         $test = Test::where('test_suite_id', $source->id)->findOrFail($data['test_id']);
 
         $clone = $this->duplication->duplicateTest($test, $target, $data['name'] ?? null);
+
+        ActivityLogger::log('test_created', Auth::user(), $target, $clone, ['name' => $clone->name]);
 
         return Response::structured([
             'test' => $clone->toArray(),

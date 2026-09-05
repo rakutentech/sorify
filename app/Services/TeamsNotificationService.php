@@ -6,6 +6,7 @@ use App\Models\Screenshot;
 use App\Models\TestResult;
 use App\Models\TestRun;
 use App\Models\TestSuite;
+use App\Support\AppUrl;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -22,6 +23,17 @@ class TeamsNotificationService
         'cancelled' => '🚫',
     ];
 
+    public function notifyRunStarted(TestRun $run): void
+    {
+        $suite = $run->testSuite;
+
+        if (! $suite || ! $suite->teams_webhook_url || ! $suite->teams_notify_on_start) {
+            return;
+        }
+
+        $this->post($suite, $this->buildStartedPayload($suite, $run), $run, 'start');
+    }
+
     public function notifyRunCompleted(TestRun $run): void
     {
         $suite = $run->testSuite;
@@ -30,7 +42,11 @@ class TeamsNotificationService
             return;
         }
 
-        $isSuccess = (int) $run->failed_count === 0 && (int) $run->error_count === 0;
+        // A run aborted by a failing pre-run integration also has zero
+        // failure counts — the status check keeps those out of "success".
+        $isSuccess = $run->status === 'completed'
+            && (int) $run->failed_count === 0
+            && (int) $run->error_count === 0;
 
         if ($isSuccess && ! $suite->teams_notify_on_success) {
             return;
@@ -40,6 +56,16 @@ class TeamsNotificationService
             return;
         }
 
+        $this->post($suite, $this->buildPayload($suite, $run, $isSuccess), $run, 'completion');
+    }
+
+    /**
+     * Send an Adaptive Card payload to the suite's Teams webhook, honoring
+     * the webhook-specific proxy. Failures are logged, never thrown — a
+     * notification problem must not fail a test run.
+     */
+    private function post(TestSuite $suite, array $payload, TestRun $run, string $kind): void
+    {
         try {
             $request = Http::timeout(10);
 
@@ -47,12 +73,13 @@ class TeamsNotificationService
                 $request->withOptions(['proxy' => $suite->teams_webhook_proxy]);
             }
 
-            $response = $request->post($suite->teams_webhook_url, $this->buildPayload($suite, $run, $isSuccess));
+            $response = $request->post($suite->teams_webhook_url, $payload);
 
             if ($response->failed()) {
                 Log::warning('Teams webhook rejected the notification for test run', [
                     'suite_id' => $suite->id,
                     'run_id' => $run->id,
+                    'kind' => $kind,
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
@@ -61,17 +88,69 @@ class TeamsNotificationService
             Log::warning('Failed to send Teams notification for test run', [
                 'suite_id' => $suite->id,
                 'run_id' => $run->id,
+                'kind' => $kind,
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Compact "run started" card: suite name, test count, trigger source and
+     * a link to the run — enough to glance at what just kicked off.
+     */
+    private function buildStartedPayload(TestSuite $suite, TestRun $run): array
+    {
+        $suiteUrl = AppUrl::absolute(route('suites.show', $suite, absolute: false));
+        $runUrl = $this->absoluteUrl(route('runs.show', $run, absolute: false));
+
+        return [
+            'type' => 'message',
+            'attachments' => [[
+                'contentType' => 'application/vnd.microsoft.card.adaptive',
+                'contentUrl' => null,
+                'content' => [
+                    '$schema' => 'http://adaptivecards.io/schemas/adaptive-card.json',
+                    'type' => 'AdaptiveCard',
+                    'version' => '1.4',
+                    'body' => [
+                        [
+                            'type' => 'TextBlock',
+                            'id' => 'title',
+                            'text' => "Sorify — Suite: {$suite->name} — Run started",
+                            'size' => 'large',
+                            'weight' => 'bolder',
+                            'wrap' => true,
+                        ],
+                        [
+                            'type' => 'TextBlock',
+                            'text' => "{$run->total_tests} test".($run->total_tests === 1 ? '' : 's').' queued',
+                            'wrap' => true,
+                            'spacing' => 'small',
+                        ],
+                        [
+                            'type' => 'TextBlock',
+                            'text' => "Triggered by: {$this->triggeredBy($run)}",
+                            'wrap' => true,
+                            'isSubtle' => true,
+                            'spacing' => 'none',
+                        ],
+                    ],
+                    'actions' => [
+                        ['type' => 'Action.OpenUrl', 'title' => 'View Test Suite', 'url' => $suiteUrl],
+                        ['type' => 'Action.OpenUrl', 'title' => 'View Run', 'url' => $runUrl],
+                    ],
+                    'msteams' => ['width' => 'Full'],
+                ],
+            ]],
+        ];
     }
 
     private function buildPayload(TestSuite $suite, TestRun $run, bool $isSuccess): array
     {
         $status = $isSuccess ? 'Success' : 'Failure';
         $duration = $run->duration_ms ? round($run->duration_ms / 1000, 1).'s' : '—';
-        $suiteUrl = $this->absoluteUrl(route('suites.show', $suite, absolute: false));
-        $runUrl = $this->absoluteUrl(route('runs.show', $run, absolute: false));
+        $suiteUrl = AppUrl::absolute(route('suites.show', $suite, absolute: false));
+        $runUrl = AppUrl::absolute(route('runs.show', $run, absolute: false));
 
         $body = [
             [
@@ -149,14 +228,7 @@ class TeamsNotificationService
      */
     private function absoluteUrl(string $path): string
     {
-        $appUrl = config('app.url');
-        $scheme = parse_url($appUrl, PHP_URL_SCHEME) ?? 'http';
-        $host = parse_url($appUrl, PHP_URL_HOST);
-        $port = parse_url($appUrl, PHP_URL_PORT);
-
-        $root = "{$scheme}://{$host}".($port ? ":{$port}" : '');
-
-        return $root.$path;
+        return AppUrl::absolute($path);
     }
 
     /**
@@ -172,10 +244,10 @@ class TeamsNotificationService
     private function triggeredByLabel(string $source): string
     {
         return match ($source) {
-            'ci'       => 'CI Webhook',
+            'ci' => 'CI Webhook',
             'schedule' => 'Schedule',
-            'mcp'      => 'MCP',
-            default    => 'Manual',
+            'mcp' => 'MCP',
+            default => 'Manual',
         };
     }
 
