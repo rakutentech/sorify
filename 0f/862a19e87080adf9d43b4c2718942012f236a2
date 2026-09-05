@@ -1,0 +1,107 @@
+resources/js/Pages/Admin/GithubApps/Index.vue
+  s_2f5a04e78f8977::t_dd33fd85b1323d 17,29-30,114-115,137-149,159-162,169-171,214,236-237,244,253,256-261,263-267,269-271,274,356-365
+  s_2f5a04e78f8977::t_549edde529cfe8 319
+  s_2f5a04e78f8977::t_65859dfa92e9ff 2,7,31-74,84-91
+  s_2f5a04e78f8977::t_f2e6e2d22f10a7 218,234
+  s_2f5a04e78f8977::t_9be3b44ffe5c47 75-83
+  s_2f5a04e78f8977::t_4914a936c6a62e 172,176
+  s_2f5a04e78f8977::t_8c02a7a8bf2602 326-338
+  s_2f5a04e78f8977::t_2f29f1b6a3edbd 173-175,177-213,215-217,219-233,235
+resources/js/Components/TestSuiteIntegrations.vue
+  s_2f5a04e78f8977::t_f90b10a07c7319 32-34
+  s_2f5a04e78f8977::t_d0bd6e114ac72e 343-351
+resources/js/locales/ms.json
+  s_2f5a04e78f8977::t_24a4ac686adb62 710,712,714-720
+  s_2f5a04e78f8977::t_2793dde9e0ae6b 697-708
+  s_2f5a04e78f8977::t_16de8c2d995180 310
+  s_2f5a04e78f8977::t_8172e48c539d40 15-16,721-724
+  s_2f5a04e78f8977::t_93be85efacc884 709,711,713
+routes/web.php
+  s_2f5a04e78f8977::t_b6f97ad5b91d76 165
+resources/js/Components/AdminMenu.vue
+  s_2f5a04e78f8977::t_0c47159307410b 1-85
+tests/Feature/PreRunIntegrationsTest.php
+  s_2f5a04e78f8977::t_dc97e9dfe25acb 51
+database/migrations/2026_09_03_000002_create_test_suite_integrations_table.php
+  s_2f5a04e78f8977::t_52ab50c96cff2b 19
+  s_2f5a04e78f8977::t_7359be301d71ef 17-18,20
+app/Services/Integrations/GithubAppAuthenticator.php
+  s_2f5a04e78f8977::t_af7d28b44a7872 91-94,98
+resources/js/locales/zh-CN.json
+  s_2f5a04e78f8977::t_8172e48c539d40 15-16,721-724
+  s_2f5a04e78f8977::t_2793dde9e0ae6b 697-708
+  s_2f5a04e78f8977::t_16de8c2d995180 310
+  s_2f5a04e78f8977::t_f9a7e06c5bd874 709,711,713
+  s_2f5a04e78f8977::t_0271d5d6422493 710,712,714-720
+database/migrations/2026_09_05_000001_create_github_apps_table.php
+  s_2f5a04e78f8977::t_a97dcde8edc2d4 31-34
+tests/Unit/GithubActionIntegrationServiceTest.php
+  s_2f5a04e78f8977::t_dc97e9dfe25acb 89
+app/Http/Controllers/Admin/GithubAppController.php
+  s_2f5a04e78f8977::t_a8d9c56d8b1784 85-90,92-119,121-125
+  s_2f5a04e78f8977::t_80f19022151c1d 7,10-11
+  s_2f5a04e78f8977::t_7d6d0f7d169d73 18-24,30-33,44-45,49,146-147,163-164
+  s_2f5a04e78f8977::t_a8b109d6290f0f 91,120
+  s_2f5a04e78f8977::t_4127ed30578803 78-79
+  s_2f5a04e78f8977::t_efc23d049be4a8 54
+README.md
+  h_f44dfe84a46cdf 252
+  s_2f5a04e78f8977::t_f1f9ba15c6c0fd 257
+  s_2f5a04e78f8977::t_4f31161966404d 254-255
+  h_f44dfe84a46cdf 251
+app/Http/Controllers/TestSuiteController.php
+  s_2f5a04e78f8977::t_9bc14be8aa784a 298,301
+app/Models/TestSuiteIntegration.php
+  s_2f5a04e78f8977::t_9e514019aa3877 17
+app/Http/Controllers/TestSuiteIntegrationController.php
+  s_2f5a04e78f8977::t_a4f0f12b3c8f10 39-44
+resources/js/locales/en.json
+  s_2f5a04e78f8977::t_8172e48c539d40 15-16,721-724
+  s_2f5a04e78f8977::t_16de8c2d995180 310
+  s_2f5a04e78f8977::t_2793dde9e0ae6b 697-708
+  s_2f5a04e78f8977::t_766095fc737c6b 709,711,713
+  s_2f5a04e78f8977::t_d0de987d5dc449 710,712,714-720
+resources/js/locales/ja.json
+  s_2f5a04e78f8977::t_b4f35b5e412bf0 709,711,713
+  s_2f5a04e78f8977::t_2793dde9e0ae6b 697-708
+  s_2f5a04e78f8977::t_16de8c2d995180 310
+  s_2f5a04e78f8977::t_e47fa514c6678f 710,712,714-720
+  s_2f5a04e78f8977::t_8172e48c539d40 15-16,721-724
+resources/js/Layouts/AppLayout.vue
+  s_2f5a04e78f8977::t_019b2a35225252 30
+  s_2f5a04e78f8977::t_0fc06276f1cd72 112-113
+  s_2f5a04e78f8977::t_f3dc8a55415ddf 7
+  s_2f5a04e78f8977::t_a4a2d890d5721f 207
+tests/Feature/GithubAppsAdminTest.php
+  s_2f5a04e78f8977::t_c6a327fd66b945 9
+  s_2f5a04e78f8977::t_65d0800961780e 135-182
+  s_2f5a04e78f8977::t_3c3f73cf826962 192
+  s_2f5a04e78f8977::t_878754d506f810 6,91-92,183,191,197-211,216-228
+app/Models/GithubApp.php
+  s_2f5a04e78f8977::t_43387cce3724e8 40-58
+  s_2f5a04e78f8977::t_68f0b67de2f45e 26-27,33-34
+  s_2f5a04e78f8977::t_e2aea60f81d5e6 116,123
+  s_2f5a04e78f8977::t_6534c88110c437 137,143-148,150-153
+  s_2f5a04e78f8977::t_3c3f73cf826962 149
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "0f862a19e87080adf9d43b4c2718942012f236a2",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_2f5a04e78f8977": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f98a42c3dffeHEcErfLpZH3OF3",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

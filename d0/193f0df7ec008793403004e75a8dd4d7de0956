@@ -1,0 +1,63 @@
+app/Http/Controllers/Admin/GithubAppController.php
+  s_a45c30d1b13733::t_1587e56e2abbc7 44-48
+resources/js/locales/en.json
+  s_a45c30d1b13733::t_1b4b2a64277db6 751-755
+resources/js/Components/feed/RunCardBody.vue
+  s_a45c30d1b13733::t_4eee4dce1f899a 100-101
+resources/js/Components/feed/ActivityCard.vue
+  s_a45c30d1b13733::t_a8b64e03ddee8b 159-160,176
+  s_a45c30d1b13733::t_95c4f061003088 161-162,170-172
+  s_a45c30d1b13733::t_93ab1ff4e7e4f6 163-167,169
+  s_a45c30d1b13733::t_b8ee5d6ba67bb2 168
+  s_a45c30d1b13733::t_2b6eb7ebd68cab 135-137,139
+  s_a45c30d1b13733::t_fe720d64966a7c 144,177
+resources/js/Components/ui/TextField.vue
+  s_a45c30d1b13733::t_97d037b3a1e07b 42
+  s_a45c30d1b13733::t_057c43311be1fd 60
+  s_a45c30d1b13733::t_2a5c15b8cd2d74 10
+  s_a45c30d1b13733::t_8588d9e1609cf9 44,62
+resources/js/Layouts/AppLayout.vue
+  s_a45c30d1b13733::t_50f2e6566777cb 166
+app/Http/Controllers/FeedController.php
+  s_a45c30d1b13733::t_35597938c86aa7 53-54,56
+  s_a45c30d1b13733::t_b77e6587fb05a5 132-135,138-139
+resources/js/Pages/Admin/GithubApps/Index.vue
+  s_a45c30d1b13733::t_02358a85711e94 330-334,341-351
+  s_a45c30d1b13733::t_8588d9e1609cf9 360
+  s_a45c30d1b13733::t_28786b238568ae 361
+  s_a45c30d1b13733::t_689012206ade84 101-113
+  s_a45c30d1b13733::t_31830f194fda85 320
+resources/js/Pages/TestSuites/Show.vue
+  s_a45c30d1b13733::t_9c4ddd144f652e 2194-2201
+resources/js/Components/ui/Autocomplete.vue
+  s_a45c30d1b13733::t_8588d9e1609cf9 131
+  s_a45c30d1b13733::t_32f94e6c428ac2 154,157-166
+  s_a45c30d1b13733::t_6e4b772f92f4f1 3
+resources/js/locales/zh-CN.json
+  s_a45c30d1b13733::t_1b4b2a64277db6 751-755
+resources/js/locales/ms.json
+  s_a45c30d1b13733::t_1b4b2a64277db6 751-755
+resources/js/locales/ja.json
+  s_a45c30d1b13733::t_1b4b2a64277db6 751-755
+resources/js/Pages/Feed/Index.vue
+  s_a45c30d1b13733::t_dfd3bdc307b8ef 47
+resources/js/Components/ui/IconButton.vue
+  s_a45c30d1b13733::t_cf0fda0077a34f 33-34,37-38
+  s_a45c30d1b13733::t_757f2a7eaf38fc 7-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d0193f0df7ec008793403004e75a8dd4d7de0956",
+  "prompts": {},
+  "sessions": {
+    "s_a45c30d1b13733": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f900a52b0ffehpeIafq8LtkuoT",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

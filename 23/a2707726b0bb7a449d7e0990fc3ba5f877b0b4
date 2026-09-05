@@ -1,0 +1,170 @@
+app/Http/Controllers/TestSuiteScheduleController.php
+  s_a45c30d1b13733::t_d93c279142887a 7,22-23,40-46,56
+  s_a45c30d1b13733::t_3cb1126fb653c2 57
+app/Mcp/Tools/Suites/RemoveSuiteMemberTool.php
+  s_a45c30d1b13733::t_dd5b6e86d186b1 11
+  s_a45c30d1b13733::t_fc78ea683ce721 9
+  s_a45c30d1b13733::t_29a2b17b3fd425 48-52
+resources/js/Pages/Feed/Index.vue
+  s_a45c30d1b13733::t_3535fcfb3f15a9 149-153
+  s_a45c30d1b13733::t_a11969b5e847c7 1-148,154-341
+app/Mcp/Tools/Suites/UpdateSuiteScheduleTool.php
+  s_a45c30d1b13733::t_fc78ea683ce721 8
+  s_a45c30d1b13733::t_dd4cb98e4b6a0f 46-47,64-68
+  s_a45c30d1b13733::t_ddc5476431ff2b 69-70
+app/Mcp/Tools/Runs/CancelRunTool.php
+  s_a45c30d1b13733::t_fc78ea683ce721 8
+  s_a45c30d1b13733::t_1fd1a449a6a03f 10
+  s_a45c30d1b13733::t_f78b259571ea7b 40
+app/Mcp/Tools/Tests/ToggleTestStatusTool.php
+  s_a45c30d1b13733::t_fc78ea683ce721 8
+  s_a45c30d1b13733::t_dd5b6e86d186b1 10
+  s_a45c30d1b13733::t_7d9147e6fd1681 47-48
+app/Mcp/Tools/Tests/BulkDeleteTestsTool.php
+  s_a45c30d1b13733::t_fc78ea683ce721 7
+  s_a45c30d1b13733::t_4a8b81e868c9a0 44-47
+  s_a45c30d1b13733::t_dd5b6e86d186b1 9
+app/Mcp/Tools/Suites/DeleteSuiteScheduleTool.php
+  s_a45c30d1b13733::t_fc78ea683ce721 7
+  s_a45c30d1b13733::t_16c0eed513dabd 39-40
+  s_a45c30d1b13733::t_dd5b6e86d186b1 9
+app/Mcp/Tools/Tests/BulkCreateTestsTool.php
+  s_a45c30d1b13733::t_dd5b6e86d186b1 11
+  s_a45c30d1b13733::t_79dd2d11f41a33 69-70
+  s_a45c30d1b13733::t_fc78ea683ce721 9
+app/Mcp/Tools/Suites/AddSuiteMemberTool.php
+  s_a45c30d1b13733::t_fc78ea683ce721 9
+  s_a45c30d1b13733::t_dd5b6e86d186b1 12
+  s_a45c30d1b13733::t_8542acc5578afa 65-69
+resources/js/locales/ms.json
+  s_a45c30d1b13733::t_ff6ca946440eb2 4,471-550,788
+app/Mcp/Tools/Suites/DuplicateSuiteTool.php
+  s_a45c30d1b13733::t_e68f86260518b4 47-51
+  s_a45c30d1b13733::t_fc78ea683ce721 8
+resources/js/Components/feed/ActivityCard.vue
+  s_a45c30d1b13733::t_3fdb5a40fcffec 1-9,11-23,42-44,46-50,52-53,55-62,106-107,115-118,120,124-135,137-141,143-150,152-157,160,162-177,179-200
+  s_a45c30d1b13733::t_7d7eb2e17980fa 10,24-41,45,51,54,63-105,108-114,119,121-123,136,142,151,158-159,161,178
+database/migrations/2026_09_05_000002_create_activities_table.php
+  s_a45c30d1b13733::t_7f4c0ade9b57ec 1-43
+app/Http/Controllers/FeedController.php
+  s_a45c30d1b13733::t_253d19db10864c 41-42
+  s_a45c30d1b13733::t_7a3f693ab7e039 1-40,43-166,175,193-197,200,202-239,242-265
+  s_a45c30d1b13733::t_6e561f896989ad 240-241
+  s_a45c30d1b13733::t_2e53fefa861eff 167-174,176-192,198-199,201
+resources/js/locales/ja.json
+  s_a45c30d1b13733::t_ff6ca946440eb2 4,471-550,788
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_a45c30d1b13733::t_2f72bac3375afc 145-152
+  s_a45c30d1b13733::t_fc78ea683ce721 9
+app/Mcp/Tools/Tests/DuplicateTestTool.php
+  s_a45c30d1b13733::t_ab82adf0b65649 59-60
+  s_a45c30d1b13733::t_fc78ea683ce721 9
+  s_a45c30d1b13733::t_dd5b6e86d186b1 11
+app/Models/Activity.php
+  s_a45c30d1b13733::t_9db513731aa433 1-34
+app/Mcp/Tools/Tests/CreateTestTool.php
+  s_a45c30d1b13733::t_03bd9efb820d3c 56-57
+  s_a45c30d1b13733::t_fc78ea683ce721 9
+  s_a45c30d1b13733::t_dd5b6e86d186b1 11
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_a45c30d1b13733::t_dd5b6e86d186b1 12
+  s_a45c30d1b13733::t_fc78ea683ce721 10
+  s_a45c30d1b13733::t_b7d83be1d4060b 127-128,138-139,144-145
+resources/js/locales/zh-CN.json
+  s_a45c30d1b13733::t_ff6ca946440eb2 4,471-550,788
+tests/Feature/FeedTest.php
+  s_a45c30d1b13733::t_16f7478ecd121c 189-190,192
+  s_a45c30d1b13733::t_4b85bd99458aa7 1-9,11-182,188,191,193-288
+  s_a45c30d1b13733::t_12c3258fe251d9 10
+  s_a45c30d1b13733::t_b776fd077012e1 183-187
+app/Mcp/Tools/Tests/DeleteTestTool.php
+  s_a45c30d1b13733::t_dd5b6e86d186b1 10
+  s_a45c30d1b13733::t_7d35357f07afa6 42-44
+  s_a45c30d1b13733::t_fc78ea683ce721 8
+app/Http/Controllers/AuthController.php
+  s_a45c30d1b13733::t_4886ce8ba52251 7
+  s_a45c30d1b13733::t_e5a62caed7556a 91-92
+  s_a45c30d1b13733::t_de82f4398a33fa 259-260
+resources/js/locales/en.json
+  s_a45c30d1b13733::t_ce4074c2189496 4,471-550,788
+app/Mcp/Tools/Suites/UpdateSuiteMemberTool.php
+  s_a45c30d1b13733::t_dd5b6e86d186b1 11
+  s_a45c30d1b13733::t_fc78ea683ce721 9
+  s_a45c30d1b13733::t_4f291f18e47071 70-74
+app/Mcp/Tools/Suites/UploadSuiteCookiesTool.php
+  s_a45c30d1b13733::t_30fe572f2ee62b 106-107
+  s_a45c30d1b13733::t_fc78ea683ce721 7
+  s_a45c30d1b13733::t_dd5b6e86d186b1 9
+resources/js/Components/feed/RunCardBody.vue
+  s_a45c30d1b13733::t_21d50ad8119539 1-118
+app/Http/Controllers/TestSuiteMemberController.php
+  s_a45c30d1b13733::t_e0579ea883def6 53-57
+  s_a45c30d1b13733::t_830b285bdc0e08 9,28-31
+  s_a45c30d1b13733::t_f309ee08a78d8f 71-75
+  s_a45c30d1b13733::t_9639ab98d60891 32
+resources/js/Layouts/AppLayout.vue
+  s_a45c30d1b13733::t_f256e64085f550 22
+app/Http/Controllers/Admin/UserController.php
+  s_a45c30d1b13733::t_85b9ffb66e6774 7
+  s_a45c30d1b13733::t_5bde1bd47a69cd 42,50
+  s_a45c30d1b13733::t_fef78a4c4c6dac 51
+app/Services/TestRunService.php
+  s_a45c30d1b13733::t_08d7b0aea6a0d2 245,249-252
+  s_a45c30d1b13733::t_e53776d5814933 42-45
+  s_a45c30d1b13733::t_ab140039e04837 127-131
+  s_a45c30d1b13733::t_fe6fa8d2a24f64 169-188
+  s_a45c30d1b13733::t_c3993ce38cc1b2 14
+routes/web.php
+  s_a45c30d1b13733::t_d76b37ef24ee36 131-139
+  s_a45c30d1b13733::t_90d241f394c446 8
+app/Http/Controllers/TestRunController.php
+  s_a45c30d1b13733::t_9631fa036327cc 105,109
+app/Http/Controllers/TestController.php
+  s_a45c30d1b13733::t_418e64ad662198 109-110,118-119,133-134,143-147,160-164
+  s_a45c30d1b13733::t_2225d4862ca4ea 210-211,223
+  s_a45c30d1b13733::t_f280f883acca96 25,31
+  s_a45c30d1b13733::t_3e2108f2a7246b 249-250
+  s_a45c30d1b13733::t_c193d15e7e521d 188-189
+  s_a45c30d1b13733::t_9d93c391808a92 10
+  s_a45c30d1b13733::t_e98a307dde5d2a 32
+  s_a45c30d1b13733::t_27bbd20b494489 224
+app/Http/Controllers/TestSuiteIntegrationController.php
+  s_a45c30d1b13733::t_7b87d37e0c696f 29-33
+  s_a45c30d1b13733::t_d4af8c86b72989 51-55
+  s_a45c30d1b13733::t_6b0bf96be4ff3f 67-71
+  s_a45c30d1b13733::t_df2e598d40d77f 8
+app/Mcp/Tools/Tests/UpdateTestTool.php
+  s_a45c30d1b13733::t_acc968ffa7ee8a 55-56
+  s_a45c30d1b13733::t_fc78ea683ce721 9
+  s_a45c30d1b13733::t_dd5b6e86d186b1 11
+app/Services/ActivityLogger.php
+  s_a45c30d1b13733::t_03b232d951970e 1-58
+app/Http/Controllers/TestSuiteController.php
+  s_a45c30d1b13733::t_b9e9128b7fa701 108,112
+  s_a45c30d1b13733::t_168c54e746c233 335-336,345,349
+  s_a45c30d1b13733::t_555686456ece00 394-398
+  s_a45c30d1b13733::t_ded234772822b5 408,410,415,434-435
+  s_a45c30d1b13733::t_01f9fc08ee7da4 12
+  s_a45c30d1b13733::t_0cc5225e8b7e4f 484-485
+  s_a45c30d1b13733::t_67dfefde8519e6 443,445,450
+  s_a45c30d1b13733::t_51a191919768d8 122-123
+app/Mcp/Tools/Tests/UpdateTestCodeTool.php
+  s_a45c30d1b13733::t_fc78ea683ce721 10
+  s_a45c30d1b13733::t_3d1c9d40331b11 56-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "23a2707726b0bb7a449d7e0990fc3ba5f877b0b4",
+  "prompts": {},
+  "sessions": {
+    "s_a45c30d1b13733": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f900a52b0ffehpeIafq8LtkuoT",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
