@@ -24,9 +24,11 @@ class AppServiceProvider extends ServiceProvider
         Vite::createAssetPathsUsing(fn (string $path) => parse_url(asset($path), PHP_URL_PATH));
 
         // Override the built-in GitHub driver so the authorize/token/user
-        // endpoints honor a GitHub Enterprise base URL (services.github.url).
+        // endpoints honor the chosen GitHub App's base URL. The config is
+        // set at runtime from the database app (AuthController::
+        // applyGithubAppConfig) — there are no static GITHUB_* env vars.
         Socialite::extend('github', function ($app) {
-            $config = $app['config']['services.github'];
+            $config = $app['config']['services.github'] ?? [];
 
             return Socialite::buildProvider(GithubEnterpriseProvider::class, $config);
         });

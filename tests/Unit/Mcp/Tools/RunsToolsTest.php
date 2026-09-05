@@ -2,14 +2,13 @@
 
 namespace Tests\Unit\Mcp\Tools;
 
+use App\Jobs\RunSingleTestJob;
 use App\Mcp\Servers\SorifyServer;
 use App\Mcp\Tools\Runs\DeleteRunTool;
 use App\Mcp\Tools\Runs\GetRunStatusTool;
 use App\Mcp\Tools\Runs\GetRunTool;
-use App\Jobs\RunSingleTestJob;
 use App\Mcp\Tools\Runs\ListRunsTool;
 use App\Mcp\Tools\Runs\TriggerRunTool;
-use App\Models\TestRun;
 use App\Models\TestSuite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -66,6 +65,7 @@ class RunsToolsTest extends TestCase
             ->assertOk()
             ->assertStructuredContent([
                 'status' => 'completed',
+                'status_note' => null,
                 'passed_count' => 3,
                 'failed_count' => 1,
                 'error_count' => 0,

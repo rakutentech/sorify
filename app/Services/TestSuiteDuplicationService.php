@@ -20,7 +20,7 @@ class TestSuiteDuplicationService
      */
     public function duplicate(TestSuite $source, User $user, ?string $name = null): TestSuite
     {
-        $source->loadMissing('proxyRules', 'variables', 'cookies');
+        $source->loadMissing('proxyRules', 'variables', 'cookies', 'integrations');
 
         $clone = DB::transaction(function () use ($source, $user, $name) {
             $clone = TestSuite::create([
@@ -36,6 +36,7 @@ class TestSuiteDuplicationService
                 'take_screenshot' => $source->take_screenshot,
                 'teams_webhook_url' => $source->teams_webhook_url,
                 'teams_webhook_proxy' => $source->teams_webhook_proxy,
+                'teams_notify_on_start' => $source->teams_notify_on_start,
                 'teams_notify_on_success' => $source->teams_notify_on_success,
                 'teams_notify_on_failure' => $source->teams_notify_on_failure,
                 'created_by' => $user->id,
@@ -68,6 +69,18 @@ class TestSuiteDuplicationService
                     'http_only' => $cookie->http_only,
                     'secure' => $cookie->secure,
                     'same_site' => $cookie->same_site,
+                ]);
+            }
+
+            foreach ($source->integrations as $integration) {
+                $clone->integrations()->create([
+                    'type' => $integration->type,
+                    'github_app_id' => $integration->github_app_id,
+                    'label' => $integration->label,
+                    'config' => $integration->config,
+                    'enabled' => $integration->enabled,
+                    'trigger_before' => $integration->trigger_before,
+                    'trigger_after' => $integration->trigger_after,
                 ]);
             }
 

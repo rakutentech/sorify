@@ -6,7 +6,9 @@ use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Mcp\Tools\Concerns\ManagesSuiteMemberPrivileges;
 use App\Models\TestSuite;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -42,6 +44,11 @@ class RemoveSuiteMemberTool extends Tool
         }
 
         $suite->members()->detach($target->id);
+
+        ActivityLogger::log('suite_members_changed', Auth::user(), $suite, null, [
+            'action' => 'removed',
+            'member_name' => $target->name,
+        ]);
 
         return Response::structured(['deleted' => true, 'suite_id' => $suite->id, 'user_id' => $target->id]);
     }

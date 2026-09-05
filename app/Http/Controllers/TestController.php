@@ -7,6 +7,7 @@ use App\Models\Test;
 use App\Models\TestCodeVersion;
 use App\Models\TestSuite;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use App\Services\PlaywrightCodeValidatorService;
 use App\Services\TestCodeVersionService;
 use App\Services\TestSuiteDuplicationService;
@@ -21,11 +22,13 @@ class TestController extends Controller
     {
         $this->authorize('edit', $suite);
 
-        $suite->tests()->create([
+        $test = $suite->tests()->create([
             'name' => $request->name,
             'description' => $request->description,
             'uploaded_by' => $request->uploaded_by,
         ]);
+
+        ActivityLogger::log('test_created', $request->user(), $suite, $test, ['name' => $test->name]);
 
         return redirect(route('suites.show', $suite, absolute: false));
     }
@@ -103,12 +106,16 @@ class TestController extends Controller
             'uploaded_by' => $request->uploaded_by,
         ]);
 
+        ActivityLogger::log('test_updated', $request->user(), $suite, $test, ['name' => $test->name]);
+
         return back();
     }
 
     public function destroy(TestSuite $suite, Test $test)
     {
         $this->authorize('delete', $suite);
+
+        ActivityLogger::log('test_deleted', request()->user(), $suite, null, ['name' => $test->name]);
 
         $test->delete();
 
@@ -123,6 +130,8 @@ class TestController extends Controller
             'status' => $test->status === 'disabled' ? 'active' : 'disabled',
         ]);
 
+        ActivityLogger::log('test_status_changed', request()->user(), $suite, $test, ['status' => $test->status]);
+
         return back();
     }
 
@@ -131,7 +140,11 @@ class TestController extends Controller
         $this->authorize('delete', $suite);
 
         $ids = request()->input('test_ids', []);
-        $suite->tests()->whereIn('id', $ids)->delete();
+        $count = $suite->tests()->whereIn('id', $ids)->delete();
+
+        if ($count > 0) {
+            ActivityLogger::log('test_deleted', request()->user(), $suite, null, ['count' => $count]);
+        }
 
         return back();
     }
@@ -144,7 +157,11 @@ class TestController extends Controller
         abort_unless(in_array($status, ['active', 'disabled'], true), 422);
 
         $ids = request()->input('test_ids', []);
-        $suite->tests()->whereIn('id', $ids)->update(['status' => $status]);
+        $count = $suite->tests()->whereIn('id', $ids)->update(['status' => $status]);
+
+        if ($count > 0) {
+            ActivityLogger::log('test_status_changed', request()->user(), $suite, null, ['status' => $status, 'count' => $count]);
+        }
 
         return back();
     }
@@ -168,6 +185,8 @@ class TestController extends Controller
             ->whereIn('id', $ids)
             ->each(fn (Test $test) => $duplication->duplicateTest($test, $suite));
 
+        ActivityLogger::log('test_created', $request->user(), $suite, null, ['count' => count($ids)]);
+
         return back();
     }
 
@@ -188,6 +207,8 @@ class TestController extends Controller
 
         app(TestCodeVersionService::class)->updateCode($test, (string) $code, 'manual', auth()->id());
 
+        ActivityLogger::log('test_code_updated', request()->user(), $suite, $test, ['name' => $test->name]);
+
         return back();
     }
 
@@ -198,6 +219,8 @@ class TestController extends Controller
         abort_if($codeVersion->test_id !== $test->id, 404);
 
         app(TestCodeVersionService::class)->restore($test, $codeVersion, 'manual', auth()->id());
+
+        ActivityLogger::log('test_code_updated', request()->user(), $suite, $test, ['name' => $test->name]);
 
         return back();
     }
@@ -222,6 +245,8 @@ class TestController extends Controller
         $this->authorize('edit', $target);
 
         $clone = $duplication->duplicateTest($test, $target, $data['name'] ?? null);
+
+        ActivityLogger::log('test_created', $request->user(), $target, $clone, ['name' => $clone->name]);
 
         return redirect(route('suites.tests.show', [$target, $clone], absolute: false));
     }

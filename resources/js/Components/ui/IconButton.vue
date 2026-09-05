@@ -4,6 +4,10 @@ defineProps({
     label: { type: String, required: true },
     title: { type: String, default: null },
     disabled: { type: Boolean, default: false },
+    // Extra classes for the tooltip span — e.g. "!left-auto right-0
+    // !translate-x-0" to anchor it under the right edge instead of centered
+    // (use for buttons flush against the viewport's right side).
+    tipClass: { type: String, default: '' },
 });
 
 defineEmits(['click']);
@@ -26,9 +30,12 @@ defineEmits(['click']);
         >
             <slot />
         </button>
+        <!-- display:none while idle (not opacity) so the invisible tooltip
+             never contributes to the page's scrollable overflow. -->
         <span
             v-if="(title ?? label) && !disabled"
-            class="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1.5 px-2 py-1 rounded-[var(--md-sys-shape-corner-extra-small)] bg-gray-900 text-white md-label-small whitespace-nowrap opacity-0 group-hover/tip:opacity-100 transition-opacity duration-150 z-50"
+            class="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1.5 px-2 py-1 rounded-[var(--md-sys-shape-corner-extra-small)] bg-gray-900 text-white md-label-small whitespace-nowrap hidden group-hover/tip:block z-50"
+            :class="tipClass"
         >{{ title ?? label }}</span>
     </div>
 </template>

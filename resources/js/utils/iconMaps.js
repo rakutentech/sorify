@@ -2,7 +2,7 @@ import {
     CircleCheck, CircleX, CircleDot, TriangleAlert, Clock, LoaderCircle,
     Hourglass, Ban, CirclePause, CircleDashed, Pencil,
     GitBranch, CalendarClock, Cable, Hand,
-    MessagesSquare, Camera, Globe, Braces, Cookie, Webhook,
+    MessagesSquare, Camera, Globe, Braces, Cookie, Webhook, Workflow, Send,
     Monitor, EyeOff, Timer, RotateCcw, History,
 } from '@lucide/vue';
 
@@ -48,6 +48,8 @@ export const STATUS_COLOR = {
 export const SETTING_KIND = {
     teams:       { icon: MessagesSquare, color: 'var(--md-sys-color-primary)' },
     webhook:     { icon: Webhook,         color: 'var(--md-sys-color-tertiary)' },
+    github:      { icon: Workflow,        color: 'var(--md-sys-color-on-surface)' },
+    http:        { icon: Send,           color: 'var(--md-sys-color-tertiary)' },
     screenshots: { icon: Camera,          color: 'var(--md-sys-color-tertiary)' },
     proxy:       { icon: Globe,           color: 'var(--md-sys-color-secondary)' },
     variables:   { icon: Braces,          color: 'var(--md-ext-color-warning)' },

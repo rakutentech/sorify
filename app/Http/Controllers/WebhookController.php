@@ -27,7 +27,7 @@ class WebhookController extends Controller
                 'message' => $e->getMessage(),
                 'run_id' => $existing->id,
                 'run_url' => route('runs.show', $existing),
-                'status_url' => route('webhooks.status', ['token' => $suite->webhook_token, 'run' => $existing->id]),
+                'status_url' => route('webhooks.status', ['token' => $token, 'run' => $existing->id]),
             ], 409);
         } catch (RunRateLimitExceededException $e) {
             return response()->json(['message' => $e->getMessage()], 429)
@@ -38,7 +38,7 @@ class WebhookController extends Controller
             'run_id' => $run->id,
             'run_url' => route('runs.show', $run),
             'status' => $run->status,
-            'status_url' => route('webhooks.status', ['token' => $suite->webhook_token, 'run' => $run->id]),
+            'status_url' => route('webhooks.status', ['token' => $token, 'run' => $run->id]),
         ], 202);
     }
 

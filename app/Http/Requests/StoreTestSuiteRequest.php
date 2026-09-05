@@ -51,6 +51,7 @@ class StoreTestSuiteRequest extends FormRequest
             'take_screenshot' => 'nullable|boolean',
             'teams_webhook_url' => 'nullable|string|max:500|url',
             'teams_webhook_proxy' => 'nullable|string|max:500',
+            'teams_notify_on_start' => 'nullable|boolean',
             'teams_notify_on_success' => 'nullable|boolean',
             'teams_notify_on_failure' => 'nullable|boolean',
         ];

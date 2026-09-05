@@ -46,4 +46,9 @@ class TestSuitePolicy
     {
         return $this->edit($user, $suite);
     }
+
+    public function manageIntegrations(User $user, TestSuite $suite): bool
+    {
+        return $this->edit($user, $suite);
+    }
 }

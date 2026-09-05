@@ -21,7 +21,7 @@ class TriggerRunTool extends Tool
 
     protected string $name = 'trigger_run';
 
-    protected string $description = 'Queue a run of a test suite, optionally limited to specific tests.';
+    protected string $description = 'Queue a run of a test suite, optionally limited to specific tests. If the suite has enabled "before run" integrations (GitHub Action / HTTP request), the run stays pending until they succeed — poll get_run_status (status_note explains why a run is pending or failed).';
 
     public function schema(JsonSchema $schema): array
     {

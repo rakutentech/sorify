@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import CopyButton from '@/Components/CopyButton.vue';
+import TestSuiteIntegrations from '@/Components/TestSuiteIntegrations.vue';
 import { Card, Chip, Button, IconButton, TextField, Autocomplete, Modal, Breadcrumb, SuiteName, Avatar, AvatarGroup, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
@@ -12,7 +13,7 @@ import {
     FolderKanban, Star, Pencil, Copy, LoaderCircle, Trash2, Play,
     Plus, FileText, Search, ChevronRight, CircleHelp, Check, ChevronDown,
     FlaskConical, Activity, Gauge, CircleAlert, Webhook,
-    User, UserCog, Settings, SlidersHorizontal, ArrowUp, ArrowDown,
+    User, UserCog, Settings, SlidersHorizontal, ArrowUp, ArrowDown, X,
 } from '@lucide/vue';
 
 const { t } = useI18n();
@@ -24,6 +25,10 @@ const props = defineProps({
     filters: { type: Object, default: () => ({ search: '', per_page: 50 }) },
     recentRuns: { type: Array, default: () => [] },
     webhookUrl: { type: String, default: null },
+    previousWebhooks: { type: Array, default: () => [] },
+    webhookLimitReached: { type: Boolean, default: false },
+    githubActionsConfigured: { type: Boolean, default: true },
+    githubApps: { type: Array, default: () => [] },
     members: { type: Array, default: () => [] },
     candidates: { type: Array, default: () => [] },
     users: { type: Array, default: () => [] },
@@ -81,7 +86,16 @@ const hasStatusCounts = computed(() => {
 function reloadTests(overrides = {}) {
     router.get(
         `/sorify/suites/${props.suite.id}`,
-        { search: testSearch.value, per_page: testPerPage.value, sort: testSort.value, sort_dir: testSortDir.value, status: testStatus.value, ...overrides },
+        {
+            search: testSearch.value,
+            per_page: testPerPage.value,
+            sort: testSort.value,
+            sort_dir: testSortDir.value,
+            status: testStatus.value,
+            // Keep the open settings panel in the URL when filters change.
+            ...(activeSection.value && activeSection.value !== 'tests' ? { settings: activeSection.value } : {}),
+            ...overrides,
+        },
         { preserveState: true, preserveScroll: true, replace: true },
     );
 }
@@ -132,7 +146,6 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutsideStatus
 const statusUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/trigger$/, '/runs/{run}/status') : null);
 const runUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/sorify\/.*$/, '/sorify/runs/{run}') : null);
 
-const showWebhook = ref(false);
 const showCurlExample = ref(false);
 const curlCommand = computed(() => props.webhookUrl
     ? `curl -X POST "${props.webhookUrl}?test_ids=1,2,3"`
@@ -168,8 +181,14 @@ function toggleBookmark() {
 }
 
 function regenerateWebhook() {
+    if (props.webhookLimitReached) return;
     if (!confirm(t('testSuiteShow.confirmRegenerateWebhook'))) return;
     router.post(`/sorify/suites/${props.suite.id}/webhook/regenerate`);
+}
+
+function deleteWebhookToken(token) {
+    if (!confirm(t('testSuiteShow.confirmDeleteWebhook'))) return;
+    router.delete(`/sorify/suites/${props.suite.id}/webhook/${token}`);
 }
 
 // Schedule — auto-saved on change (cron expression, timezone, enabled toggle),
@@ -253,8 +272,7 @@ function submitEdit() {
     });
 }
 
-// Inline suite settings (Proxy, MS Teams) — collapsible, auto-saved on change.
-const showSuiteSettings = ref(false);
+// Inline suite settings (Proxy, MS Teams) — auto-saved on change.
 const showProxyRulesInfo = ref(false);
 const localSuiteSettings = reactive({
     playwright_proxy: props.suite.playwright_proxy ?? '',
@@ -273,6 +291,7 @@ const localSuiteSettings = reactive({
     })),
     teams_webhook_url: props.suite.teams_webhook_url ?? '',
     teams_webhook_proxy: props.suite.teams_webhook_proxy ?? '',
+    teams_notify_on_start: props.suite.teams_notify_on_start ?? false,
     teams_notify_on_success: props.suite.teams_notify_on_success ?? false,
     teams_notify_on_failure: props.suite.teams_notify_on_failure ?? false,
 });
@@ -284,6 +303,7 @@ watch(() => ({
     cookies: props.suite.cookies,
     teams_webhook_url: props.suite.teams_webhook_url,
     teams_webhook_proxy: props.suite.teams_webhook_proxy,
+    teams_notify_on_start: props.suite.teams_notify_on_start,
     teams_notify_on_success: props.suite.teams_notify_on_success,
     teams_notify_on_failure: props.suite.teams_notify_on_failure,
 }), (s) => {
@@ -303,6 +323,7 @@ watch(() => ({
     }));
     localSuiteSettings.teams_webhook_url = s.teams_webhook_url ?? '';
     localSuiteSettings.teams_webhook_proxy = s.teams_webhook_proxy ?? '';
+    localSuiteSettings.teams_notify_on_start = s.teams_notify_on_start ?? false;
     localSuiteSettings.teams_notify_on_success = s.teams_notify_on_success ?? false;
     localSuiteSettings.teams_notify_on_failure = s.teams_notify_on_failure ?? false;
 });
@@ -544,12 +565,96 @@ watch(() => ({
     localSettings.history_retention = s.history_retention ?? 5;
 });
 
+// ── Settings sidebar (Profile-style section nav) ───────────────────────────
+// One settings section is visible at a time; clicking the active nav item
+// (or the panel's close button) deselects it. The open panel is reflected
+// in the URL (?settings=webhook) so refreshes and shared links reopen it.
+const SETTINGS_SECTION_IDS = ['tests', 'suite', 'run', 'webhook'];
+
+const activeSection = ref(
+    SETTINGS_SECTION_IDS.includes(new URLSearchParams(window.location.search).get('settings'))
+        ? new URLSearchParams(window.location.search).get('settings')
+        : 'tests',
+);
+
+const settingsSections = computed(() => [
+    {
+        id: 'suite',
+        label: t('testSuiteShow.suiteSettings'),
+        short: t('testSuiteShow.settingsGroupSuite'),
+        icon: Settings,
+        badges: [
+            { label: t('testSuites.badgeProxy'), active: !!(props.suite.proxy_rules?.length || props.suite.playwright_proxy), successActive: true, kind: 'proxy' },
+            { label: t('testSuites.badgeVariables'), active: !!props.suite.variables?.length, successActive: true, kind: 'variables' },
+            { label: t('testSuiteShow.cookiesCount', { count: props.suite.cookies?.length ?? 0 }), active: !!props.suite.cookies?.length, successActive: true, kind: 'cookies' },
+            { label: t('testSuites.badgeSchedule'), active: !!(props.suite.schedule && props.suite.schedule.is_enabled), successActive: true, kind: 'schedule' },
+        ],
+    },
+    {
+        id: 'run',
+        label: t('testSuiteShow.runSettings'),
+        short: t('testSuiteShow.settingsGroupRun'),
+        icon: SlidersHorizontal,
+        badges: [
+            { label: localSettings.browser, active: true, kind: 'browser' },
+            { label: localSettings.headless ? t('testSuiteShow.headless') : t('testSuiteShow.headedVisible'), active: localSettings.headless, kind: 'headless' },
+            { label: t('testSuiteShow.timeoutShort', { value: localSettings.timeout_ms >= 60000 ? `${Math.round(localSettings.timeout_ms / 60000)}m` : `${localSettings.timeout_ms / 1000}s` }), active: true, kind: 'timeout' },
+            { label: t('testSuiteShow.screenshots'), active: localSettings.take_screenshot, kind: 'screenshots' },
+            { label: t('testSuiteShow.retriesShort', { value: localSettings.max_retries === 0 ? t('testSuites.noRetries') : `${localSettings.max_retries}×` }), active: !!localSettings.max_retries, kind: 'retries' },
+            { label: t('testSuiteShow.keepRunsShort', { count: localSettings.history_retention }), active: true, kind: 'keepRuns' },
+        ],
+    },
+    {
+        id: 'webhook',
+        label: t('testSuiteShow.webhookSettingsHeading'),
+        short: t('testSuiteShow.settingsGroupWebhook'),
+        icon: Webhook,
+        badges: [
+            { label: t('testSuites.badgeWebhook'), active: !!props.webhookUrl, kind: 'webhook' },
+            { label: t('testSuites.badgeTeams'), active: !!props.suite.teams_webhook_url, successActive: true, kind: 'teams' },
+            { label: t('testSuites.badgeGithub'), active: !!(props.suite.integrations && props.suite.integrations.some(i => i.type === 'github_action')), kind: 'github' },
+            { label: t('testSuites.badgeHttp'), active: !!(props.suite.integrations && props.suite.integrations.some(i => i.type === 'http_request')), kind: 'http' },
+        ],
+    },
+]);
+
+// Nav order: Tests first (default), then the settings sections.
+const sections = computed(() => [
+    { id: 'tests', label: t('testSuiteShow.testsHeading'), icon: FlaskConical },
+    ...settingsSections.value,
+]);
+
+function selectSettingsSection(id) {
+    if (activeSection.value === id) return;
+    activeSection.value = id;
+    syncSettingsQueryParams();
+}
+
+// Mirror the open panel into the URL query (?settings=webhook). preserveState
+// keeps the component + table state intact, and replace avoids polluting the
+// history stack on every toggle. router.reload() (the 2s auto-refresh while
+// runs are active) visits window.location.href, so the param survives it.
+function syncSettingsQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+
+    if (activeSection.value && activeSection.value !== 'tests') {
+        params.set('settings', activeSection.value);
+    } else {
+        params.delete('settings');
+    }
+
+    const query = params.toString();
+
+    router.get(
+        window.location.pathname + (query ? `?${query}` : ''),
+        {},
+        { preserveState: true, preserveScroll: true, replace: true },
+    );
+}
+
 const savingSetting = ref(false);
 const savedField = ref(null);
 let savedTimer = null;
-
-// Collapsible quick-settings panel (collapsed by default)
-const showRunSettings = ref(false);
 
 function updateSuiteSetting(field) {
     savingSetting.value = true;
@@ -970,9 +1075,709 @@ function toggleRunsExpanded(testId) {
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 gap-6 items-start lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_minmax(280px,340px)]">
+            <!-- Settings sidebar (Profile-style section nav) -->
+            <aside class="min-w-0 lg:sticky lg:top-6 space-y-4">
+                <Card padding="p-2" variant="outlined">
+                    <ul class="flex lg:flex-col gap-1 overflow-x-auto">
+                        <li v-for="section in sections" :key="section.id" class="flex-1 lg:flex-none">
+                            <button
+                                type="button"
+                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-[var(--md-sys-shape-corner-small)] md-label-large transition-colors text-left whitespace-nowrap"
+                                :class="activeSection === section.id
+                                    ? 'bg-[color-mix(in_srgb,var(--md-sys-color-primary)_12%,transparent)] text-[var(--md-sys-color-primary)]'
+                                    : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)]'"
+                                @click="selectSettingsSection(section.id)"
+                            >
+                                <component :is="section.icon" :size="18" />
+                                <span>{{ section.label }}</span>
+                            </button>
+                        </li>
+                    </ul>
+                </Card>
+
+                <!-- Configuration summary (chips preview) -->
+                <Card padding="p-3" variant="outlined">
+                    <div
+                        v-for="(section, index) in settingsSections"
+                        :key="section.id"
+                        :class="index > 0 ? 'mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]' : ''"
+                    >
+                        <button
+                            type="button"
+                            class="w-full text-left mb-1.5 md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors"
+                            @click="selectSettingsSection(section.id)"
+                        >
+                            {{ section.short }}
+                        </button>
+                        <div class="flex flex-wrap gap-1">
+                            <SettingBadge
+                                v-for="badge in section.badges"
+                                :key="badge.label"
+                                :label="badge.label"
+                                :active="badge.active"
+                                :success-active="badge.successActive"
+                                :kind="badge.kind"
+                            />
+                        </div>
+                    </div>
+                </Card>
+            </aside>
             <!-- Tests list -->
-            <div class="lg:col-span-2">
+            <div class="min-w-0 space-y-6">
+            <!-- suite settings panel -->
+            <div v-if="activeSection === 'suite'" data-settings-panel="suite">
+                <Card padding="p-0">
+                    <div class="flex items-center justify-between gap-3 px-5 h-[56px] border-b border-[var(--md-sys-color-outline-variant)]">
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
+                            <Settings :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
+                            {{ t('testSuiteShow.suiteSettings') }}
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <span v-if="savingSuiteSetting" class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                <LoaderCircle :size="12" class="animate-spin" />
+                                {{ t('testSuiteShow.saving') }}
+                            </span>
+                            <span v-else-if="savedSuiteField" class="flex items-center gap-1 md-label-small text-[var(--md-ext-color-success)]">
+                                <Check :size="12" />
+                                {{ t('testSuiteShow.saved') }}
+                            </span>
+                            <IconButton variant="standard" :label="t('testSuiteShow.closeSettings')" @click="selectSettingsSection('tests')">
+                                <X :size="16" />
+                            </IconButton>
+                        </div>
+                    </div>
+                    <div class="px-5 pb-4 pt-2 space-y-5">
+                        <!-- Proxy -->
+                        <div>
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.proxySection') }}</p>
+                            <div class="mb-3">
+                                <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-default-proxy-${suite.id}`">{{ t('testSuiteShow.defaultHttpProxy') }}</label>
+                                <input
+                                    :id="`suite-default-proxy-${suite.id}`"
+                                    v-model="localSuiteSettings.playwright_proxy"
+                                    @change="saveSuiteField('playwright_proxy')"
+                                    :disabled="!can.edit || savingSuiteSetting"
+                                    type="text"
+                                    placeholder="http://proxy.example.com:8080"
+                                    class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                />
+                                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-1 opacity-70">{{ t('testSuiteShow.defaultProxyHint') }}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center gap-1">
+                                        <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.perHostProxyRules') }}</label>
+                                        <div class="group relative">
+                                            <button
+                                                type="button"
+                                                @click="showProxyRulesInfo = !showProxyRulesInfo"
+                                                :aria-label="t('testSuiteShow.proxyRulesInfoTooltip')"
+                                                :aria-expanded="showProxyRulesInfo"
+                                                class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] transition-colors"
+                                            >
+                                                <CircleHelp :size="11" stroke-width="2.5" />
+                                            </button>
+                                            <div
+                                                class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap"
+                                            >
+                                                <div class="px-2.5 py-1.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-inverse-surface)] text-[var(--md-sys-color-inverse-on-surface)] md-label-small shadow-elevation-1">
+                                                    {{ t('testSuiteShow.proxyRulesInfoTooltip') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button v-if="can.edit" type="button" @click="addProxyRule" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addRule') }}</button>
+                                </div>
+                                <div v-if="showProxyRulesInfo" class="mb-2 p-3 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)]">
+                                    <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">{{ t('testSuiteShow.proxyRulesInfoIntro') }}</p>
+                                    <table class="w-full md-body-small text-[var(--md-sys-color-on-surface)] border-collapse">
+                                        <thead>
+                                            <tr class="text-left text-[var(--md-sys-color-on-surface-variant)]">
+                                                <th class="font-mono font-semibold pr-2 pb-1 align-top w-1/2">{{ t('testSuiteShow.proxyRulesPatternHeader') }}</th>
+                                                <th class="font-medium pr-2 pb-1 align-top">{{ t('testSuiteShow.proxyRulesBehaviorHeader') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-t border-[var(--md-sys-color-outline-variant)]">
+                                                <td class="font-mono pr-2 py-1.5 align-top"><code class="bg-[var(--md-sys-color-surface-container-lowest)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">^example\.com$</code></td>
+                                                <td class="pr-2 py-1.5 align-top">{{ t('testSuiteShow.proxyRulesExactHost') }}</td>
+                                            </tr>
+                                            <tr class="border-t border-[var(--md-sys-color-outline-variant)]">
+                                                <td class="font-mono pr-2 py-1.5 align-top"><code class="bg-[var(--md-sys-color-surface-container-lowest)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">(^|\.)example\.com$</code></td>
+                                                <td class="pr-2 py-1.5 align-top">{{ t('testSuiteShow.proxyRulesHostOrSubdomain') }}</td>
+                                            </tr>
+                                            <tr class="border-t border-[var(--md-sys-color-outline-variant)]">
+                                                <td class="font-mono pr-2 py-1.5 align-top"><code class="bg-[var(--md-sys-color-surface-container-lowest)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">example\.com$</code></td>
+                                                <td class="pr-2 py-1.5 align-top text-[var(--md-sys-color-error)]">{{ t('testSuiteShow.proxyRulesAvoid') }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div v-if="!localSuiteSettings.proxy_rules.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] py-1.5 opacity-70">
+                                    {{ t('testSuiteShow.noRulesConfigured') }}
+                                </div>
+                                <div v-for="(rule, index) in localSuiteSettings.proxy_rules" :key="index" class="flex items-start gap-2 mb-1.5">
+                                    <input
+                                        v-model="rule.domain"
+                                        @change="saveProxyRules"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        placeholder="^example\.com$"
+                                        class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                    <input
+                                        v-model="rule.proxy"
+                                        @change="saveProxyRules"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        placeholder="http://proxy.example.com:8080"
+                                        class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                    <button v-if="can.edit" type="button" @click="removeProxyRule(index)" :disabled="savingSuiteSetting" class="p-1.5 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors disabled:opacity-60">
+                                        <Trash2 :size="14" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Variables -->
+                        <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
+                            <div class="flex items-center justify-between mt-3 mb-1">
+                                <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.variablesSection') }}</p>
+                                <button v-if="can.edit" type="button" @click="addVariable" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addVariable') }}</button>
+                            </div>
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2 opacity-80">{{ t('testSuiteShow.variablesHint') }}</p>
+                            <div class="mb-2 flex items-center gap-2">
+                                <code class="md-body-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">variables.KEY</code>
+                            </div>
+                            <div v-if="!localSuiteSettings.variables.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] py-1.5 opacity-70">
+                                {{ t('testSuiteShow.noVariablesConfigured') }}
+                            </div>
+                            <div v-for="(variable, index) in localSuiteSettings.variables" :key="index" class="flex items-start gap-2 mb-1.5">
+                                <input
+                                    v-model="variable.key"
+                                    @change="saveVariables"
+                                    :disabled="!can.edit || savingSuiteSetting"
+                                    type="text"
+                                    placeholder="VARIABLE_NAME"
+                                    class="w-2/5 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                />
+                                <input
+                                    v-model="variable.value"
+                                    @change="saveVariables"
+                                    :disabled="!can.edit || savingSuiteSetting"
+                                    type="text"
+                                    placeholder="value"
+                                    class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                />
+                                <button v-if="can.edit" type="button" @click="removeVariable(index)" :disabled="savingSuiteSetting" class="p-1.5 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors disabled:opacity-60">
+                                    <Trash2 :size="14" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Cookies -->
+                        <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
+                            <div class="flex items-center justify-between mt-3 mb-1">
+                                <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.cookiesSection') }}</p>
+                                <div class="flex items-center gap-3">
+                                    <button v-if="can.edit" type="button" @click="openCookiePasteModal" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.pasteCookieJson') }}</button>
+                                    <button v-if="can.edit" type="button" @click="addCookie" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addCookie') }}</button>
+                                </div>
+                            </div>
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2 opacity-80">{{ t('testSuiteShow.cookiesHint') }}</p>
+                            <div v-if="!localSuiteSettings.cookies.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] py-1.5 opacity-70">
+                                {{ t('testSuiteShow.noCookiesConfigured') }}
+                            </div>
+                            <div v-for="(cookie, index) in localSuiteSettings.cookies" :key="index" class="mb-2 p-2 border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)]">
+                                <div class="flex items-start gap-2">
+                                    <input
+                                        v-model="cookie.name"
+                                        @change="saveCookies"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        :placeholder="t('testSuiteShow.cookieName')"
+                                        class="w-1/4 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                    <input
+                                        v-model="cookie.value"
+                                        @change="saveCookies"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        :placeholder="t('testSuiteShow.cookieValue')"
+                                        class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                    <button v-if="can.edit" type="button" @click="removeCookie(index)" :disabled="savingSuiteSetting" class="p-1 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors disabled:opacity-60">
+                                        <Trash2 :size="14" />
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                                    <input
+                                        v-model="cookie.domain"
+                                        @change="saveCookies"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        :placeholder="t('testSuiteShow.cookieDomain')"
+                                        class="w-32 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                    <input
+                                        v-model="cookie.path"
+                                        @change="saveCookies"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        :placeholder="t('testSuiteShow.cookiePath')"
+                                        class="w-20 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                    <select
+                                        v-model="cookie.same_site"
+                                        @change="saveCookies"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-1.5 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        <option value="">SameSite —</option>
+                                        <option value="Strict">Strict</option>
+                                        <option value="Lax">Lax</option>
+                                        <option value="None">None</option>
+                                    </select>
+                                    <label class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)] cursor-pointer">
+                                        <input type="checkbox" v-model="cookie.http_only" @change="saveCookies" :disabled="!can.edit || savingSuiteSetting" class="w-3.5 h-3.5 accent-[var(--md-sys-color-primary)] disabled:opacity-60" />
+                                        {{ t('testSuiteShow.cookieHttpOnly') }}
+                                    </label>
+                                    <label class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)] cursor-pointer">
+                                        <input type="checkbox" v-model="cookie.secure" @change="saveCookies" :disabled="!can.edit || savingSuiteSetting" class="w-3.5 h-3.5 accent-[var(--md-sys-color-primary)] disabled:opacity-60" />
+                                        {{ t('testSuiteShow.cookieSecure') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Schedule -->
+                        <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
+                            <div class="flex items-center justify-between mt-3 mb-3">
+                                <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.scheduleHeading') }}</p>
+                                <Button v-if="can.manageSchedule && suite.schedule" variant="text" size="sm" @click="removeSchedule" class="!text-[var(--md-sys-color-error)]">
+                                    {{ t('testSuiteShow.remove') }}
+                                </Button>
+                            </div>
+                            <div v-if="suite.schedule" class="flex items-center gap-2 mb-3">
+                                <code class="md-body-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ suite.schedule.cron_expression }}</code>
+                                <span
+                                    :class="[
+                                        'md-label-small px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]',
+                                        suite.schedule.is_enabled
+                                            ? 'text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)]'
+                                            : 'text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-high)]',
+                                    ]"
+                                >
+                                    {{ suite.schedule.is_enabled ? t('testSuiteShow.enabled') : t('testSuiteShow.disabled') }}
+                                </span>
+                            </div>
+                            <p v-if="suite.schedule" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mb-2">{{ t('testSuiteShow.timezoneLabel', { tz: suite.schedule.timezone }) }} · {{ t('testSuiteShow.nextRun', { date: formatDate(suite.schedule.next_run_at) }) }}</p>
+                            <div v-if="can.manageSchedule" class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                                <div>
+                                    <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-cron-${suite.id}`">{{ t('testSuiteShow.crontabExpression') }}</label>
+                                    <input
+                                        :id="`suite-cron-${suite.id}`"
+                                        v-model="scheduleForm.cron_expression"
+                                        @change="saveSchedule"
+                                        @focus="scheduleError = null"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        placeholder="0 */6 * * *"
+                                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                    <p v-if="scheduleError" class="mt-1 md-label-small text-[var(--md-sys-color-error)]">{{ scheduleError }}</p>
+                                </div>
+                                <div>
+                                    <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-tz-${suite.id}`">{{ t('testSuiteShow.timezoneField') }}</label>
+                                    <input
+                                        :id="`suite-tz-${suite.id}`"
+                                        v-model="scheduleForm.timezone"
+                                        @change="saveSchedule"
+                                        @focus="scheduleError = null"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        placeholder="UTC"
+                                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                </div>
+                            </div>
+                            <div v-if="can.manageSchedule" class="mt-3">
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="scheduleForm.is_enabled" @change="saveSchedule" :disabled="savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.enabled') }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </div>
+
+            <!-- run settings panel -->
+            <div v-if="activeSection === 'run'" data-settings-panel="run">
+                <Card padding="p-0">
+                    <div class="flex items-center justify-between gap-3 px-5 h-[56px] border-b border-[var(--md-sys-color-outline-variant)]">
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
+                            <SlidersHorizontal :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
+                            {{ t('testSuiteShow.runSettings') }}
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <span v-if="savingSetting" class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                <LoaderCircle :size="12" class="animate-spin" />
+                                {{ t('testSuiteShow.saving') }}
+                            </span>
+                            <span v-else-if="savedField" class="flex items-center gap-1 md-label-small text-[var(--md-ext-color-success)]">
+                                <Check :size="12" />
+                                {{ t('testSuiteShow.saved') }}
+                            </span>
+                            <IconButton variant="standard" :label="t('testSuiteShow.closeSettings')" @click="selectSettingsSection('tests')">
+                                <X :size="16" />
+                            </IconButton>
+                        </div>
+                    </div>
+                    <div class="px-5 pb-3 pt-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                        <!-- Browser -->
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-browser-${suite.id}`">{{ t('testSuiteShow.browser') }}</label>
+                            <select
+                                :id="`setting-browser-${suite.id}`"
+                                v-model="localSettings.browser"
+                                @change="updateSuiteSetting('browser')"
+                                :disabled="!can.edit || savingSetting"
+                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                <option value="chromium">Chromium</option>
+                                <option value="firefox">Firefox</option>
+                                <option value="webkit">WebKit</option>
+                            </select>
+                        </div>
+
+                        <!-- Mode -->
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-mode-${suite.id}`">{{ t('testSuiteShow.mode') }}</label>
+                            <select
+                                :id="`setting-mode-${suite.id}`"
+                                v-model="localSettings.headless"
+                                @change="updateSuiteSetting('headless')"
+                                :disabled="!can.edit || savingSetting"
+                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                <option :value="true">{{ t('testSuiteShow.headless') }}</option>
+                                <option :value="false">{{ t('testSuiteShow.headedVisible') }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Timeout -->
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-timeout-${suite.id}`">{{ t('testSuiteShow.timeout') }}</label>
+                            <select
+                                :id="`setting-timeout-${suite.id}`"
+                                v-model="localSettings.timeout_ms"
+                                @change="updateSuiteSetting('timeout_ms')"
+                                :disabled="!can.edit || savingSetting"
+                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                <option :value="10000">{{ t('testSuiteShow.tenSeconds') }}</option>
+                                <option :value="30000">{{ t('testSuiteShow.thirtySeconds') }}</option>
+                                <option :value="60000">{{ t('testSuiteShow.sixtySeconds') }}</option>
+                                <option :value="120000">{{ t('testSuiteShow.twoMinutes') }}</option>
+                                <option :value="300000">{{ t('testSuiteShow.fiveMinutes') }}</option>
+                                <option :value="600000">{{ t('testSuiteShow.tenMinutes') }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Screenshots -->
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-screenshots-${suite.id}`">{{ t('testSuiteShow.screenshots') }}</label>
+                            <select
+                                :id="`setting-screenshots-${suite.id}`"
+                                v-model="localSettings.take_screenshot"
+                                @change="updateSuiteSetting('take_screenshot')"
+                                :disabled="!can.edit || savingSetting"
+                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                <option :value="true">{{ t('testSuiteShow.enabled') }}</option>
+                                <option :value="false">{{ t('testSuiteShow.screenshotsDisabled') }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Retries -->
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-retries-${suite.id}`">{{ t('testSuiteShow.retries') }}</label>
+                            <select
+                                :id="`setting-retries-${suite.id}`"
+                                v-model="localSettings.max_retries"
+                                @change="updateSuiteSetting('max_retries')"
+                                :disabled="!can.edit || savingSetting"
+                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                <option :value="0">{{ t('testSuites.noRetries') }}</option>
+                                <option :value="1">{{ t('testSuites.retryOnce') }}</option>
+                                <option :value="2">{{ t('testSuites.retryTwice') }}</option>
+                                <option :value="3">{{ t('testSuites.retry3Times') }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Keep History -->
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-history-${suite.id}`">{{ t('testSuiteShow.keepHistory') }}</label>
+                            <select
+                                :id="`setting-history-${suite.id}`"
+                                v-model="localSettings.history_retention"
+                                @change="updateSuiteSetting('history_retention')"
+                                :disabled="!can.edit || savingSetting"
+                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                <option :value="3">{{ t('testSuites.last3Runs') }}</option>
+                                <option :value="5">{{ t('testSuites.last5Runs') }}</option>
+                                <option :value="10">{{ t('testSuites.last10Runs') }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </Card>
+            </div>
+
+            <!-- webhook settings panel -->
+            <div v-if="activeSection === 'webhook'" data-settings-panel="webhook">
+                <Card padding="p-0">
+                    <div class="flex items-center justify-between gap-3 px-5 h-[56px] border-b border-[var(--md-sys-color-outline-variant)]">
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
+                            <Webhook :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
+                            {{ t('testSuiteShow.webhookSettingsHeading') }}
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <span v-if="savingSuiteSetting" class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                <LoaderCircle :size="12" class="animate-spin" />
+                                {{ t('testSuiteShow.saving') }}
+                            </span>
+                            <span v-else-if="savedSuiteField" class="flex items-center gap-1 md-label-small text-[var(--md-ext-color-success)]">
+                                <Check :size="12" />
+                                {{ t('testSuiteShow.saved') }}
+                            </span>
+                            <Button
+                                v-if="can.delete"
+                                variant="tonal"
+                                size="sm"
+                                :disabled="webhookLimitReached"
+                                :title="webhookLimitReached ? t('testSuiteShow.webhookLimitReached') : null"
+                                @click="regenerateWebhook"
+                                class="!text-[var(--md-sys-color-error)]"
+                            >
+                                {{ t('testSuiteShow.regenerate') }}
+                            </Button>
+                            <IconButton variant="standard" :label="t('testSuiteShow.closeSettings')" @click="selectSettingsSection('tests')">
+                                <X :size="16" />
+                            </IconButton>
+                        </div>
+                    </div>
+                    <div class="px-5 pb-4 pt-2">
+                        <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.triggerARun') }}</p>
+                        <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.webhookInstructions') }}</p>
+                        <CopyableSecret v-if="webhookUrl" :value="webhookUrl" />
+                        <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.noWebhookConfigured') }}</p>
+
+                        <p v-if="webhookLimitReached" class="mt-3 md-body-small text-[var(--md-sys-color-error)]">{{ t('testSuiteShow.webhookLimitReached') }}</p>
+
+                        <!-- Old webhook URLs: kept active until explicitly deleted -->
+                        <div v-if="webhookUrl && previousWebhooks.length" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.oldWebhookUrls') }}</p>
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">{{ t('testSuiteShow.oldWebhookUrlsHint') }}</p>
+                            <div class="space-y-2">
+                                <div v-for="webhook in previousWebhooks" :key="webhook.token" class="flex items-center gap-2">
+                                    <CopyableSecret :value="webhook.url" class="flex-1 min-w-0" />
+                                    <IconButton
+                                        v-if="can.delete"
+                                        variant="standard"
+                                        :label="t('testSuiteShow.deleteWebhook')"
+                                        @click="deleteWebhookToken(webhook.token)"
+                                        class="!text-[var(--md-sys-color-error)] flex-shrink-0"
+                                    >
+                                        <Trash2 :size="16" />
+                                    </IconButton>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="webhookUrl" class="mt-3">
+                            <button
+                                @click="showCurlExample = !showCurlExample"
+                                class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                            >
+                                <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showCurlExample }" />
+                                {{ showCurlExample ? t('testSuiteShow.hideCurlExample') : t('testSuiteShow.showCurlExample') }}
+                            </button>
+                            <div v-if="showCurlExample" class="mt-2">
+                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
+                                    {{ t('testSuiteShow.testIdsHint') }}
+                                </p>
+                                <div class="relative">
+                                    <pre class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 pr-4 overflow-x-auto whitespace-pre">{{ curlCommand }}</pre>
+                                    <div class="absolute top-2 right-2">
+                                        <CopyButton :value="curlCommand" />
+                                    </div>
+                                </div>
+
+                                <button
+                                    @click="showTriggerResponseSample = !showTriggerResponseSample"
+                                    class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
+                                >
+                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showTriggerResponseSample }" />
+                                    {{ showTriggerResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
+                                </button>
+                                <pre v-if="showTriggerResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ triggerResponseSample }}</pre>
+                            </div>
+                        </div>
+
+                        <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.pollRunStatus') }}</p>
+                            <CopyableSecret :value="statusUrlTemplate" />
+
+                            <button
+                                @click="showStatusResponseSample = !showStatusResponseSample"
+                                class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
+                            >
+                                <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showStatusResponseSample }" />
+                                {{ showStatusResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
+                            </button>
+                            <pre v-if="showStatusResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ statusResponseSample }}</pre>
+                        </div>
+
+                        <!-- MS Teams notifications (moved here from Suite Settings) -->
+                        <div class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.msTeamsSection') }}</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                                <div>
+                                    <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-teams-webhook-${suite.id}`">{{ t('testSuiteShow.msTeamsWebhookUrl') }}</label>
+                                    <input
+                                        :id="`suite-teams-webhook-${suite.id}`"
+                                        v-model="localSuiteSettings.teams_webhook_url"
+                                        @change="saveSuiteField('teams_webhook_url')"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-teams-proxy-${suite.id}`">{{ t('testSuiteShow.msTeamsWebhookProxy') }}</label>
+                                    <input
+                                        :id="`suite-teams-proxy-${suite.id}`"
+                                        v-model="localSuiteSettings.teams_webhook_proxy"
+                                        @change="saveSuiteField('teams_webhook_proxy')"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        type="text"
+                                        placeholder="http://proxy.example.com:8080"
+                                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    />
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 mt-3 mb-4 flex-wrap">
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="localSuiteSettings.teams_notify_on_start" @change="saveSuiteField('teams_notify_on_start')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnStart') }}
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="localSuiteSettings.teams_notify_on_success" @change="saveSuiteField('teams_notify_on_success')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnSuccess') }}
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="localSuiteSettings.teams_notify_on_failure" @change="saveSuiteField('teams_notify_on_failure')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnFailure') }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Integrations (pre/post run hooks: GitHub Actions) -->
+                        <TestSuiteIntegrations :suite="suite" :can-edit="can.edit" :github-configured="githubActionsConfigured" :github-apps="githubApps" />
+                    </div>
+                </Card>
+            </div>
+
+            <template v-if="activeSection === 'tests'">
+                <!-- Tests toolbar: search / sort / status filter -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="relative max-w-xs flex-1 min-w-[10rem]">
+                        <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" />
+                        <input
+                            v-model="testSearch"
+                            type="text"
+                            :placeholder="t('testSuiteShow.searchTestsPlaceholder')"
+                            class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] pl-9 pr-4 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                        />
+                    </div>
+
+                    <!-- Sort: field select + direction toggle, grouped as one control -->
+                    <div class="flex items-stretch">
+                        <select
+                            v-model="testSort"
+                            class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] border-r-0 rounded-l-[var(--md-sys-shape-corner-small)] px-3 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                        >
+                            <option value="run_date">{{ t('testSuiteShow.sortRunDate') }}</option>
+                            <optgroup :label="t('testSuiteShow.sortGroupRunStatus')">
+                                <option value="passed">{{ t('testSuiteShow.sortPassed') }}</option>
+                                <option value="errors">{{ t('testSuiteShow.sortErrors') }}</option>
+                                <option value="running">{{ t('testSuiteShow.sortRunning') }}</option>
+                            </optgroup>
+                            <optgroup :label="t('testSuiteShow.sortGroupActiveDisabled')">
+                                <option value="status">{{ t('testSuiteShow.sortStatus') }}</option>
+                            </optgroup>
+                            <optgroup :label="t('testSuiteShow.sortGroupDuration')">
+                                <option value="duration">{{ t('testSuiteShow.sortDuration') }}</option>
+                            </optgroup>
+                            <optgroup :label="t('testSuiteShow.sortGroupScreenshots')">
+                                <option value="has_screenshots">{{ t('testSuiteShow.sortHasScreenshots') }}</option>
+                            </optgroup>
+                            <optgroup :label="t('testSuiteShow.sortGroupCreatedUpdated')">
+                                <option value="created">{{ t('testSuiteShow.sortCreated') }}</option>
+                                <option value="updated">{{ t('testSuiteShow.sortUpdated') }}</option>
+                            </optgroup>
+                        </select>
+                        <button
+                            type="button"
+                            @click="testSortDir = testSortDir === 'asc' ? 'desc' : 'asc'"
+                            class="flex items-center justify-center bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-r-[var(--md-sys-shape-corner-small)] px-2.5 text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                            :title="testSortDir === 'asc' ? t('testSuiteShow.sortAscending') : t('testSuiteShow.sortDescending')"
+                        >
+                            <ArrowUp v-if="testSortDir === 'asc'" :size="16" />
+                            <ArrowDown v-else :size="16" />
+                        </button>
+                    </div>
+
+                    <div ref="statusFilterRef" class="relative">
+                        <button
+                            type="button"
+                            @click="showStatusFilter = !showStatusFilter"
+                            class="flex items-center gap-1.5 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                        >
+                            {{ t('testSuiteShow.statusFilterLabel') }}<span v-if="testStatus.length">&nbsp;({{ testStatus.length }})</span>
+                            <ChevronDown :size="14" />
+                        </button>
+
+                        <div
+                            v-if="showStatusFilter"
+                            class="absolute z-10 mt-1 w-48 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] shadow-lg py-1"
+                        >
+                            <label
+                                v-for="status in STATUS_OPTIONS"
+                                :key="status"
+                                class="flex items-center gap-2 px-3 py-1.5 md-body-medium text-[var(--md-sys-color-on-surface)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer"
+                            >
+                                <input
+                                    type="checkbox"
+                                    :checked="testStatus.includes(status)"
+                                    @change="toggleStatusOption(status)"
+                                    class="w-4 h-4 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
+                                />
+                                {{ t(`testSuiteShow.status_${status}`) }}
+                            </label>
+                            <button
+                                v-if="testStatus.length"
+                                type="button"
+                                @click="clearStatusFilter"
+                                class="w-full text-left px-3 py-1.5 mt-1 border-t border-[var(--md-sys-color-outline-variant)] md-label-small text-[var(--md-sys-color-primary)] hover:underline"
+                            >
+                                {{ t('testSuiteShow.statusFilterClear') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <Card padding="p-0">
                     <div class="flex items-center justify-between gap-3 px-5 h-[64px] border-b border-[var(--md-sys-color-outline-variant)]">
                         <div class="flex items-center gap-2 min-w-0 flex-nowrap overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
@@ -1055,631 +1860,6 @@ function toggleRunsExpanded(testId) {
                         </div>
                     </div>
 
-                    <!-- Suite settings (collapsible, edited inline, auto-saved on change) -->
-                    <div class="border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
-                        <button
-                            type="button"
-                            @click="showSuiteSettings = !showSuiteSettings"
-                            class="w-full flex items-center gap-2 px-5 py-2.5 text-left hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
-                        >
-                            <ChevronRight :size="16" class="text-[var(--md-sys-color-on-surface-variant)] transition-transform" :class="{ 'rotate-90': showSuiteSettings }" />
-                            <Settings :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
-                            <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.suiteSettings') }}</span>
-
-                            <!-- Compact summary when collapsed -->
-                            <span v-if="!showSuiteSettings" class="flex items-center gap-1.5 ml-1 flex-wrap">
-                                <SettingBadge :label="t('testSuites.badgeTeams')" :active="!!suite.teams_webhook_url" success-active kind="teams" />
-                                <SettingBadge :label="t('testSuites.badgeProxy')" :active="!!(suite.proxy_rules?.length || suite.playwright_proxy)" success-active kind="proxy" />
-                                <SettingBadge :label="t('testSuites.badgeVariables')" :active="!!suite.variables?.length" success-active kind="variables" />
-                                <SettingBadge :label="t('testSuiteShow.cookiesCount', { count: suite.cookies?.length ?? 0 })" :active="!!suite.cookies?.length" success-active kind="cookies" />
-                                <SettingBadge :label="t('testSuites.badgeSchedule')" :active="!!(suite.schedule && suite.schedule.is_enabled)" success-active kind="schedule" />
-                            </span>
-
-                            <span v-if="savingSuiteSetting" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                <LoaderCircle :size="12" class="animate-spin" />
-                                {{ t('testSuiteShow.saving') }}
-                            </span>
-                            <span v-else-if="savedSuiteField" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-ext-color-success)]">
-                                <Check :size="12" />
-                                {{ t('testSuiteShow.saved') }}
-                            </span>
-                        </button>
-
-                        <div v-if="showSuiteSettings" class="px-5 pb-4 pt-2 space-y-5">
-                            <!-- MS Teams -->
-                            <div>
-                                <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.msTeamsSection') }}</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
-                                    <div>
-                                        <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-teams-webhook-${suite.id}`">{{ t('testSuiteShow.msTeamsWebhookUrl') }}</label>
-                                        <input
-                                            :id="`suite-teams-webhook-${suite.id}`"
-                                            v-model="localSuiteSettings.teams_webhook_url"
-                                            @change="saveSuiteField('teams_webhook_url')"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-teams-proxy-${suite.id}`">{{ t('testSuiteShow.msTeamsWebhookProxy') }}</label>
-                                        <input
-                                            :id="`suite-teams-proxy-${suite.id}`"
-                                            v-model="localSuiteSettings.teams_webhook_proxy"
-                                            @change="saveSuiteField('teams_webhook_proxy')"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            placeholder="http://proxy.example.com:8080"
-                                            class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-4 mt-3">
-                                    <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                        <input type="checkbox" v-model="localSuiteSettings.teams_notify_on_success" @change="saveSuiteField('teams_notify_on_success')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnSuccess') }}
-                                    </label>
-                                    <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                        <input type="checkbox" v-model="localSuiteSettings.teams_notify_on_failure" @change="saveSuiteField('teams_notify_on_failure')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnFailure') }}
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Proxy -->
-                            <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-                                <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-3 mt-3">{{ t('testSuiteShow.proxySection') }}</p>
-                                <div class="mb-3">
-                                    <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-default-proxy-${suite.id}`">{{ t('testSuiteShow.defaultHttpProxy') }}</label>
-                                    <input
-                                        :id="`suite-default-proxy-${suite.id}`"
-                                        v-model="localSuiteSettings.playwright_proxy"
-                                        @change="saveSuiteField('playwright_proxy')"
-                                        :disabled="!can.edit || savingSuiteSetting"
-                                        type="text"
-                                        placeholder="http://proxy.example.com:8080"
-                                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                    />
-                                    <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-1 opacity-70">{{ t('testSuiteShow.defaultProxyHint') }}</p>
-                                </div>
-                                <div>
-                                    <div class="flex items-center justify-between mb-1">
-                                        <div class="flex items-center gap-1">
-                                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.perHostProxyRules') }}</label>
-                                            <div class="group relative">
-                                                <button
-                                                    type="button"
-                                                    @click="showProxyRulesInfo = !showProxyRulesInfo"
-                                                    :aria-label="t('testSuiteShow.proxyRulesInfoTooltip')"
-                                                    :aria-expanded="showProxyRulesInfo"
-                                                    class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] transition-colors"
-                                                >
-                                                    <CircleHelp :size="11" stroke-width="2.5" />
-                                                </button>
-                                                <div
-                                                    class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap"
-                                                >
-                                                    <div class="px-2.5 py-1.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-inverse-surface)] text-[var(--md-sys-color-inverse-on-surface)] md-label-small shadow-elevation-1">
-                                                        {{ t('testSuiteShow.proxyRulesInfoTooltip') }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button v-if="can.edit" type="button" @click="addProxyRule" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addRule') }}</button>
-                                    </div>
-                                    <div v-if="showProxyRulesInfo" class="mb-2 p-3 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)]">
-                                        <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">{{ t('testSuiteShow.proxyRulesInfoIntro') }}</p>
-                                        <table class="w-full md-body-small text-[var(--md-sys-color-on-surface)] border-collapse">
-                                            <thead>
-                                                <tr class="text-left text-[var(--md-sys-color-on-surface-variant)]">
-                                                    <th class="font-mono font-semibold pr-2 pb-1 align-top w-1/2">{{ t('testSuiteShow.proxyRulesPatternHeader') }}</th>
-                                                    <th class="font-medium pr-2 pb-1 align-top">{{ t('testSuiteShow.proxyRulesBehaviorHeader') }}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="border-t border-[var(--md-sys-color-outline-variant)]">
-                                                    <td class="font-mono pr-2 py-1.5 align-top"><code class="bg-[var(--md-sys-color-surface-container-lowest)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">^example\.com$</code></td>
-                                                    <td class="pr-2 py-1.5 align-top">{{ t('testSuiteShow.proxyRulesExactHost') }}</td>
-                                                </tr>
-                                                <tr class="border-t border-[var(--md-sys-color-outline-variant)]">
-                                                    <td class="font-mono pr-2 py-1.5 align-top"><code class="bg-[var(--md-sys-color-surface-container-lowest)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">(^|\.)example\.com$</code></td>
-                                                    <td class="pr-2 py-1.5 align-top">{{ t('testSuiteShow.proxyRulesHostOrSubdomain') }}</td>
-                                                </tr>
-                                                <tr class="border-t border-[var(--md-sys-color-outline-variant)]">
-                                                    <td class="font-mono pr-2 py-1.5 align-top"><code class="bg-[var(--md-sys-color-surface-container-lowest)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">example\.com$</code></td>
-                                                    <td class="pr-2 py-1.5 align-top text-[var(--md-sys-color-error)]">{{ t('testSuiteShow.proxyRulesAvoid') }}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div v-if="!localSuiteSettings.proxy_rules.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] py-1.5 opacity-70">
-                                        {{ t('testSuiteShow.noRulesConfigured') }}
-                                    </div>
-                                    <div v-for="(rule, index) in localSuiteSettings.proxy_rules" :key="index" class="flex items-start gap-2 mb-1.5">
-                                        <input
-                                            v-model="rule.domain"
-                                            @change="saveProxyRules"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            placeholder="^example\.com$"
-                                            class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                        <input
-                                            v-model="rule.proxy"
-                                            @change="saveProxyRules"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            placeholder="http://proxy.example.com:8080"
-                                            class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                        <button v-if="can.edit" type="button" @click="removeProxyRule(index)" :disabled="savingSuiteSetting" class="p-1.5 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors disabled:opacity-60">
-                                            <Trash2 :size="14" />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Variables -->
-                            <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-                                <div class="flex items-center justify-between mt-3 mb-1">
-                                    <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.variablesSection') }}</p>
-                                    <button v-if="can.edit" type="button" @click="addVariable" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addVariable') }}</button>
-                                </div>
-                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2 opacity-80">{{ t('testSuiteShow.variablesHint') }}</p>
-                                <div class="mb-2 flex items-center gap-2">
-                                    <code class="md-body-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">variables.KEY</code>
-                                </div>
-                                <div v-if="!localSuiteSettings.variables.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] py-1.5 opacity-70">
-                                    {{ t('testSuiteShow.noVariablesConfigured') }}
-                                </div>
-                                <div v-for="(variable, index) in localSuiteSettings.variables" :key="index" class="flex items-start gap-2 mb-1.5">
-                                    <input
-                                        v-model="variable.key"
-                                        @change="saveVariables"
-                                        :disabled="!can.edit || savingSuiteSetting"
-                                        type="text"
-                                        placeholder="VARIABLE_NAME"
-                                        class="w-2/5 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                    />
-                                    <input
-                                        v-model="variable.value"
-                                        @change="saveVariables"
-                                        :disabled="!can.edit || savingSuiteSetting"
-                                        type="text"
-                                        placeholder="value"
-                                        class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                    />
-                                    <button v-if="can.edit" type="button" @click="removeVariable(index)" :disabled="savingSuiteSetting" class="p-1.5 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors disabled:opacity-60">
-                                        <Trash2 :size="14" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Cookies -->
-                            <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-                                <div class="flex items-center justify-between mt-3 mb-1">
-                                    <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.cookiesSection') }}</p>
-                                    <div class="flex items-center gap-3">
-                                        <button v-if="can.edit" type="button" @click="openCookiePasteModal" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.pasteCookieJson') }}</button>
-                                        <button v-if="can.edit" type="button" @click="addCookie" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addCookie') }}</button>
-                                    </div>
-                                </div>
-                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2 opacity-80">{{ t('testSuiteShow.cookiesHint') }}</p>
-                                <div v-if="!localSuiteSettings.cookies.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] py-1.5 opacity-70">
-                                    {{ t('testSuiteShow.noCookiesConfigured') }}
-                                </div>
-                                <div v-for="(cookie, index) in localSuiteSettings.cookies" :key="index" class="mb-2 p-2 border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)]">
-                                    <div class="flex items-start gap-2">
-                                        <input
-                                            v-model="cookie.name"
-                                            @change="saveCookies"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            :placeholder="t('testSuiteShow.cookieName')"
-                                            class="w-1/4 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                        <input
-                                            v-model="cookie.value"
-                                            @change="saveCookies"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            :placeholder="t('testSuiteShow.cookieValue')"
-                                            class="flex-1 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                        <button v-if="can.edit" type="button" @click="removeCookie(index)" :disabled="savingSuiteSetting" class="p-1 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors disabled:opacity-60">
-                                            <Trash2 :size="14" />
-                                        </button>
-                                    </div>
-                                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
-                                        <input
-                                            v-model="cookie.domain"
-                                            @change="saveCookies"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            :placeholder="t('testSuiteShow.cookieDomain')"
-                                            class="w-32 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                        <input
-                                            v-model="cookie.path"
-                                            @change="saveCookies"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            :placeholder="t('testSuiteShow.cookiePath')"
-                                            class="w-20 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2 py-1 md-label-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                        <select
-                                            v-model="cookie.same_site"
-                                            @change="saveCookies"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-1.5 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        >
-                                            <option value="">SameSite —</option>
-                                            <option value="Strict">Strict</option>
-                                            <option value="Lax">Lax</option>
-                                            <option value="None">None</option>
-                                        </select>
-                                        <label class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)] cursor-pointer">
-                                            <input type="checkbox" v-model="cookie.http_only" @change="saveCookies" :disabled="!can.edit || savingSuiteSetting" class="w-3.5 h-3.5 accent-[var(--md-sys-color-primary)] disabled:opacity-60" />
-                                            {{ t('testSuiteShow.cookieHttpOnly') }}
-                                        </label>
-                                        <label class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)] cursor-pointer">
-                                            <input type="checkbox" v-model="cookie.secure" @change="saveCookies" :disabled="!can.edit || savingSuiteSetting" class="w-3.5 h-3.5 accent-[var(--md-sys-color-primary)] disabled:opacity-60" />
-                                            {{ t('testSuiteShow.cookieSecure') }}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Schedule -->
-                            <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-                                <div class="flex items-center justify-between mt-3 mb-3">
-                                    <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.scheduleHeading') }}</p>
-                                    <Button v-if="can.manageSchedule && suite.schedule" variant="text" size="sm" @click="removeSchedule" class="!text-[var(--md-sys-color-error)]">
-                                        {{ t('testSuiteShow.remove') }}
-                                    </Button>
-                                </div>
-                                <div v-if="suite.schedule" class="flex items-center gap-2 mb-3">
-                                    <code class="md-body-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ suite.schedule.cron_expression }}</code>
-                                    <span
-                                        :class="[
-                                            'md-label-small px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]',
-                                            suite.schedule.is_enabled
-                                                ? 'text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)]'
-                                                : 'text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-high)]',
-                                        ]"
-                                    >
-                                        {{ suite.schedule.is_enabled ? t('testSuiteShow.enabled') : t('testSuiteShow.disabled') }}
-                                    </span>
-                                </div>
-                                <p v-if="suite.schedule" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mb-2">{{ t('testSuiteShow.timezoneLabel', { tz: suite.schedule.timezone }) }} · {{ t('testSuiteShow.nextRun', { date: formatDate(suite.schedule.next_run_at) }) }}</p>
-                                <div v-if="can.manageSchedule" class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
-                                    <div>
-                                        <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-cron-${suite.id}`">{{ t('testSuiteShow.crontabExpression') }}</label>
-                                        <input
-                                            :id="`suite-cron-${suite.id}`"
-                                            v-model="scheduleForm.cron_expression"
-                                            @change="saveSchedule"
-                                            @focus="scheduleError = null"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            placeholder="0 */6 * * *"
-                                            class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                        <p v-if="scheduleError" class="mt-1 md-label-small text-[var(--md-sys-color-error)]">{{ scheduleError }}</p>
-                                    </div>
-                                    <div>
-                                        <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-tz-${suite.id}`">{{ t('testSuiteShow.timezoneField') }}</label>
-                                        <input
-                                            :id="`suite-tz-${suite.id}`"
-                                            v-model="scheduleForm.timezone"
-                                            @change="saveSchedule"
-                                            @focus="scheduleError = null"
-                                            :disabled="!can.edit || savingSuiteSetting"
-                                            type="text"
-                                            placeholder="UTC"
-                                            class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                        />
-                                    </div>
-                                </div>
-                                <div v-if="can.manageSchedule" class="mt-3">
-                                    <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                        <input type="checkbox" v-model="scheduleForm.is_enabled" @change="saveSchedule" :disabled="savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.enabled') }}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick run settings (collapsible, edited inline, auto-saved on change) -->
-                    <div class="border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
-                        <button
-                            type="button"
-                            @click="showRunSettings = !showRunSettings"
-                            class="w-full flex items-center gap-2 px-5 py-2.5 text-left hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
-                        >
-                            <ChevronRight :size="16" class="text-[var(--md-sys-color-on-surface-variant)] transition-transform" :class="{ 'rotate-90': showRunSettings }" />
-                            <SlidersHorizontal :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
-                            <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.runSettings') }}</span>
-
-                            <!-- Compact summary when collapsed -->
-                            <span v-if="!showRunSettings" class="flex items-center gap-1.5 ml-1 flex-wrap">
-                                <SettingBadge :label="localSettings.browser" :active="true" kind="browser" />
-                                <SettingBadge :label="localSettings.headless ? t('testSuiteShow.headless') : t('testSuiteShow.headedVisible')" :active="localSettings.headless" kind="headless" />
-                                <SettingBadge :label="t('testSuiteShow.timeoutShort', { value: localSettings.timeout_ms >= 60000 ? `${Math.round(localSettings.timeout_ms / 60000)}m` : `${localSettings.timeout_ms / 1000}s` })" :active="true" kind="timeout" />
-                                <SettingBadge :label="t('testSuiteShow.screenshots')" :active="localSettings.take_screenshot" kind="screenshots" />
-                                <SettingBadge :label="t('testSuiteShow.retriesShort', { value: localSettings.max_retries === 0 ? t('testSuites.noRetries') : `${localSettings.max_retries}×` })" :active="!!localSettings.max_retries" kind="retries" />
-                                <SettingBadge :label="t('testSuiteShow.keepRunsShort', { count: localSettings.history_retention })" :active="true" kind="keepRuns" />
-                            </span>
-
-                            <span v-if="savingSetting" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                <LoaderCircle :size="12" class="animate-spin" />
-                                {{ t('testSuiteShow.saving') }}
-                            </span>
-                            <span v-else-if="savedField" class="ml-auto flex items-center gap-1 md-label-small text-[var(--md-ext-color-success)]">
-                                <Check :size="12" />
-                                {{ t('testSuiteShow.saved') }}
-                            </span>
-                        </button>
-
-                        <div v-if="showRunSettings" class="px-5 pb-3 pt-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
-                            <!-- Browser -->
-                            <div class="flex items-center justify-between gap-3">
-                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-browser-${suite.id}`">{{ t('testSuiteShow.browser') }}</label>
-                                <select
-                                    :id="`setting-browser-${suite.id}`"
-                                    v-model="localSettings.browser"
-                                    @change="updateSuiteSetting('browser')"
-                                    :disabled="!can.edit || savingSetting"
-                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                >
-                                    <option value="chromium">Chromium</option>
-                                    <option value="firefox">Firefox</option>
-                                    <option value="webkit">WebKit</option>
-                                </select>
-                            </div>
-
-                            <!-- Mode -->
-                            <div class="flex items-center justify-between gap-3">
-                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-mode-${suite.id}`">{{ t('testSuiteShow.mode') }}</label>
-                                <select
-                                    :id="`setting-mode-${suite.id}`"
-                                    v-model="localSettings.headless"
-                                    @change="updateSuiteSetting('headless')"
-                                    :disabled="!can.edit || savingSetting"
-                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                >
-                                    <option :value="true">{{ t('testSuiteShow.headless') }}</option>
-                                    <option :value="false">{{ t('testSuiteShow.headedVisible') }}</option>
-                                </select>
-                            </div>
-
-                            <!-- Timeout -->
-                            <div class="flex items-center justify-between gap-3">
-                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-timeout-${suite.id}`">{{ t('testSuiteShow.timeout') }}</label>
-                                <select
-                                    :id="`setting-timeout-${suite.id}`"
-                                    v-model="localSettings.timeout_ms"
-                                    @change="updateSuiteSetting('timeout_ms')"
-                                    :disabled="!can.edit || savingSetting"
-                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                >
-                                    <option :value="10000">{{ t('testSuiteShow.tenSeconds') }}</option>
-                                    <option :value="30000">{{ t('testSuiteShow.thirtySeconds') }}</option>
-                                    <option :value="60000">{{ t('testSuiteShow.sixtySeconds') }}</option>
-                                    <option :value="120000">{{ t('testSuiteShow.twoMinutes') }}</option>
-                                    <option :value="300000">{{ t('testSuiteShow.fiveMinutes') }}</option>
-                                    <option :value="600000">{{ t('testSuiteShow.tenMinutes') }}</option>
-                                </select>
-                            </div>
-
-                            <!-- Screenshots -->
-                            <div class="flex items-center justify-between gap-3">
-                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-screenshots-${suite.id}`">{{ t('testSuiteShow.screenshots') }}</label>
-                                <select
-                                    :id="`setting-screenshots-${suite.id}`"
-                                    v-model="localSettings.take_screenshot"
-                                    @change="updateSuiteSetting('take_screenshot')"
-                                    :disabled="!can.edit || savingSetting"
-                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                >
-                                    <option :value="true">{{ t('testSuiteShow.enabled') }}</option>
-                                    <option :value="false">{{ t('testSuiteShow.screenshotsDisabled') }}</option>
-                                </select>
-                            </div>
-
-                            <!-- Retries -->
-                            <div class="flex items-center justify-between gap-3">
-                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-retries-${suite.id}`">{{ t('testSuiteShow.retries') }}</label>
-                                <select
-                                    :id="`setting-retries-${suite.id}`"
-                                    v-model="localSettings.max_retries"
-                                    @change="updateSuiteSetting('max_retries')"
-                                    :disabled="!can.edit || savingSetting"
-                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                >
-                                    <option :value="0">{{ t('testSuites.noRetries') }}</option>
-                                    <option :value="1">{{ t('testSuites.retryOnce') }}</option>
-                                    <option :value="2">{{ t('testSuites.retryTwice') }}</option>
-                                    <option :value="3">{{ t('testSuites.retry3Times') }}</option>
-                                </select>
-                            </div>
-
-                            <!-- Keep History -->
-                            <div class="flex items-center justify-between gap-3">
-                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-history-${suite.id}`">{{ t('testSuiteShow.keepHistory') }}</label>
-                                <select
-                                    :id="`setting-history-${suite.id}`"
-                                    v-model="localSettings.history_retention"
-                                    @change="updateSuiteSetting('history_retention')"
-                                    :disabled="!can.edit || savingSetting"
-                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
-                                >
-                                    <option :value="3">{{ t('testSuites.last3Runs') }}</option>
-                                    <option :value="5">{{ t('testSuites.last5Runs') }}</option>
-                                    <option :value="10">{{ t('testSuites.last10Runs') }}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CI Webhook (collapsible, mirrors the Suite Settings / Run Settings pattern) -->
-                    <div class="border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
-                        <button
-                            type="button"
-                            @click="showWebhook = !showWebhook"
-                            class="w-full flex items-center gap-2 px-5 py-2.5 text-left hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors"
-                        >
-                            <ChevronRight :size="16" class="text-[var(--md-sys-color-on-surface-variant)] transition-transform" :class="{ 'rotate-90': showWebhook }" />
-                            <Webhook :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
-                            <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.ciWebhookHeading') }}</span>
-
-                            <Button
-                                v-if="can.delete && showWebhook"
-                                variant="tonal"
-                                size="sm"
-                                @click.stop="regenerateWebhook"
-                                class="!text-[var(--md-sys-color-error)] ml-auto"
-                            >
-                                {{ t('testSuiteShow.regenerate') }}
-                            </Button>
-                        </button>
-
-                        <div v-if="showWebhook" class="px-5 pb-4 pt-2">
-                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.triggerARun') }}</p>
-                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.webhookInstructions') }}</p>
-                            <CopyableSecret v-if="webhookUrl" :value="webhookUrl" />
-                            <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.noWebhookConfigured') }}</p>
-
-                            <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
-                                <button
-                                    @click="showCurlExample = !showCurlExample"
-                                    class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
-                                >
-                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showCurlExample }" />
-                                    {{ showCurlExample ? t('testSuiteShow.hideCurlExample') : t('testSuiteShow.showCurlExample') }}
-                                </button>
-                                <div v-if="showCurlExample" class="mt-2">
-                                    <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
-                                        {{ t('testSuiteShow.testIdsHint') }}
-                                    </p>
-                                    <div class="relative">
-                                        <pre class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 pr-4 overflow-x-auto whitespace-pre">{{ curlCommand }}</pre>
-                                        <div class="absolute top-2 right-2">
-                                            <CopyButton :value="curlCommand" />
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        @click="showTriggerResponseSample = !showTriggerResponseSample"
-                                        class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
-                                    >
-                                        <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showTriggerResponseSample }" />
-                                        {{ showTriggerResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
-                                    </button>
-                                    <pre v-if="showTriggerResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ triggerResponseSample }}</pre>
-                                </div>
-                            </div>
-
-                            <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
-                                <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.pollRunStatus') }}</p>
-                                <CopyableSecret :value="statusUrlTemplate" />
-
-                                <button
-                                    @click="showStatusResponseSample = !showStatusResponseSample"
-                                    class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
-                                >
-                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showStatusResponseSample }" />
-                                    {{ showStatusResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
-                                </button>
-                                <pre v-if="showStatusResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ statusResponseSample }}</pre>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] flex items-center gap-3 flex-wrap">
-                        <div class="relative max-w-xs flex-1 min-w-[10rem]">
-                            <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--md-sys-color-on-surface-variant)] pointer-events-none" />
-                            <input
-                                v-model="testSearch"
-                                type="text"
-                                :placeholder="t('testSuiteShow.searchTestsPlaceholder')"
-                                class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] pl-9 pr-4 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
-                            />
-                        </div>
-
-                        <!-- Sort: field select + direction toggle, grouped as one control -->
-                        <div class="flex items-stretch">
-                            <select
-                                v-model="testSort"
-                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] border-r-0 rounded-l-[var(--md-sys-shape-corner-small)] px-3 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
-                            >
-                                <option value="run_date">{{ t('testSuiteShow.sortRunDate') }}</option>
-                                <optgroup :label="t('testSuiteShow.sortGroupRunStatus')">
-                                    <option value="passed">{{ t('testSuiteShow.sortPassed') }}</option>
-                                    <option value="errors">{{ t('testSuiteShow.sortErrors') }}</option>
-                                    <option value="running">{{ t('testSuiteShow.sortRunning') }}</option>
-                                </optgroup>
-                                <optgroup :label="t('testSuiteShow.sortGroupActiveDisabled')">
-                                    <option value="status">{{ t('testSuiteShow.sortStatus') }}</option>
-                                </optgroup>
-                                <optgroup :label="t('testSuiteShow.sortGroupDuration')">
-                                    <option value="duration">{{ t('testSuiteShow.sortDuration') }}</option>
-                                </optgroup>
-                                <optgroup :label="t('testSuiteShow.sortGroupScreenshots')">
-                                    <option value="has_screenshots">{{ t('testSuiteShow.sortHasScreenshots') }}</option>
-                                </optgroup>
-                                <optgroup :label="t('testSuiteShow.sortGroupCreatedUpdated')">
-                                    <option value="created">{{ t('testSuiteShow.sortCreated') }}</option>
-                                    <option value="updated">{{ t('testSuiteShow.sortUpdated') }}</option>
-                                </optgroup>
-                            </select>
-                            <button
-                                type="button"
-                                @click="testSortDir = testSortDir === 'asc' ? 'desc' : 'asc'"
-                                class="flex items-center justify-center bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-r-[var(--md-sys-shape-corner-small)] px-2.5 text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
-                                :title="testSortDir === 'asc' ? t('testSuiteShow.sortAscending') : t('testSuiteShow.sortDescending')"
-                            >
-                                <ArrowUp v-if="testSortDir === 'asc'" :size="16" />
-                                <ArrowDown v-else :size="16" />
-                            </button>
-                        </div>
-
-                        <div ref="statusFilterRef" class="relative">
-                            <button
-                                type="button"
-                                @click="showStatusFilter = !showStatusFilter"
-                                class="flex items-center gap-1.5 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
-                            >
-                                {{ t('testSuiteShow.statusFilterLabel') }}<span v-if="testStatus.length">&nbsp;({{ testStatus.length }})</span>
-                                <ChevronDown :size="14" />
-                            </button>
-
-                            <div
-                                v-if="showStatusFilter"
-                                class="absolute z-10 mt-1 w-48 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] shadow-lg py-1"
-                            >
-                                <label
-                                    v-for="status in STATUS_OPTIONS"
-                                    :key="status"
-                                    class="flex items-center gap-2 px-3 py-1.5 md-body-medium text-[var(--md-sys-color-on-surface)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        :checked="testStatus.includes(status)"
-                                        @change="toggleStatusOption(status)"
-                                        class="w-4 h-4 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
-                                    />
-                                    {{ t(`testSuiteShow.status_${status}`) }}
-                                </label>
-                                <button
-                                    v-if="testStatus.length"
-                                    type="button"
-                                    @click="clearStatusFilter"
-                                    class="w-full text-left px-3 py-1.5 mt-1 border-t border-[var(--md-sys-color-outline-variant)] md-label-small text-[var(--md-sys-color-primary)] hover:underline"
-                                >
-                                    {{ t('testSuiteShow.statusFilterClear') }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
 
                     <div v-if="!tests.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                         <FlaskConical :size="32" class="mx-auto mb-3 opacity-40" />
@@ -1864,9 +2044,10 @@ function toggleRunsExpanded(testId) {
                         </div>
                     </div>
                 </Card>
+            </template>
             </div>
 
-            <div class="space-y-6">
+            <div class="space-y-6 min-w-0 lg:col-start-2 xl:col-start-auto">
                 <!-- Recent runs -->
                 <Card padding="p-0">
                     <div class="px-5 py-4 min-h-[60px] flex items-center border-b border-[var(--md-sys-color-outline-variant)]">
@@ -2042,9 +2223,14 @@ function toggleRunsExpanded(testId) {
                             <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
                                 <tr v-for="member in members" :key="member.id">
                                     <td class="py-2 md-body-medium text-[var(--md-sys-color-on-surface)]">
-                                        {{ member.name }}
-                                        <span v-if="member.is_view_only" class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.viewOnly') }}</span>
-                                        <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ member.email }}</p>
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <Avatar :name="member.name" :email="member.email" :avatar-url="member.avatar_url" />
+                                            <span class="min-w-0">
+                                                <span class="truncate block">{{ member.name }}</span>
+                                                <span v-if="member.is_view_only" class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.viewOnly') }}</span>
+                                                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] truncate">{{ member.email }}</p>
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="py-2 text-center">
                                         <input type="checkbox" v-model="member.can_view" @change="updateMemberPrivilege(member, 'can_view')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer" />
