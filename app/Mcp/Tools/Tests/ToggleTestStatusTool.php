@@ -5,7 +5,9 @@ namespace App\Mcp\Tools\Tests;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\Test;
 use App\Models\TestSuite;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -41,6 +43,8 @@ class ToggleTestStatusTool extends Tool
         $test->update([
             'status' => $test->status === 'disabled' ? 'active' : 'disabled',
         ]);
+
+        ActivityLogger::log('test_status_changed', Auth::user(), $test->testSuite, $test, ['status' => $test->status]);
 
         return Response::structured(['test_id' => $test->id, 'status' => $test->status]);
     }

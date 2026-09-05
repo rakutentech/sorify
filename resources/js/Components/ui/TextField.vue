@@ -7,6 +7,7 @@ const props = defineProps({
     type: { type: String, default: 'text' },
     error: { type: String, default: '' },
     hint: { type: String, default: '' },
+    placeholder: { type: String, default: null },
     autocomplete: { type: String, default: null },
     required: { type: Boolean, default: false },
     rows: { type: Number, default: null },
@@ -38,8 +39,9 @@ const hasLeading = computed(() => !!slots.leading);
                 :rows="rows ?? 4"
                 :value="modelValue"
                 :required="required"
+                :placeholder="placeholder"
                 @input="$emit('update:modelValue', $event.target.value)"
-                class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border text-[var(--md-sys-color-on-surface)] md-body-medium placeholder:text-[var(--md-sys-color-on-surface-variant)] focus:outline-none focus:ring-2 transition-colors"
+                class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border text-[var(--md-sys-color-on-surface)] md-body-medium placeholder:text-[var(--md-sys-color-on-surface-variant)] placeholder:opacity-60 focus:outline-none focus:ring-2 transition-colors"
                 :class="[
                     hasLeading ? 'pl-10' : '',
                     mono ? '!font-mono !text-sm' : '',
@@ -55,8 +57,9 @@ const hasLeading = computed(() => !!slots.leading);
                 :value="modelValue"
                 :autocomplete="autocomplete"
                 :required="required"
+                :placeholder="placeholder"
                 @input="$emit('update:modelValue', $event.target.value)"
-                class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border text-[var(--md-sys-color-on-surface)] md-body-medium placeholder:text-[var(--md-sys-color-on-surface-variant)] focus:outline-none focus:ring-2 transition-colors"
+                class="w-full px-3.5 py-2.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border text-[var(--md-sys-color-on-surface)] md-body-medium placeholder:text-[var(--md-sys-color-on-surface-variant)] placeholder:opacity-60 focus:outline-none focus:ring-2 transition-colors"
                 :class="[
                     hasLeading ? 'pl-10' : '',
                     error

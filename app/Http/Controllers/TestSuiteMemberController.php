@@ -6,6 +6,7 @@ use App\Http\Requests\AddSuiteMemberRequest;
 use App\Http\Requests\UpdateSuiteMemberRequest;
 use App\Models\TestSuite;
 use App\Models\User;
+use App\Services\ActivityLogger;
 
 class TestSuiteMemberController extends Controller
 {
@@ -23,6 +24,11 @@ class TestSuiteMemberController extends Controller
         ]);
 
         $suite->members()->attach($target->id, $privileges);
+
+        ActivityLogger::log('suite_members_changed', $request->user(), $suite, null, [
+            'action' => 'added',
+            'member_name' => $target->name,
+        ]);
 
         return back()->with('flash.success', 'Member added.');
     }
@@ -44,6 +50,11 @@ class TestSuiteMemberController extends Controller
 
         $suite->members()->updateExistingPivot($user->id, $privileges);
 
+        ActivityLogger::log('suite_members_changed', $request->user(), $suite, null, [
+            'action' => 'updated',
+            'member_name' => $user->name,
+        ]);
+
         return back()->with('flash.success', 'Privileges updated.');
     }
 
@@ -56,6 +67,11 @@ class TestSuiteMemberController extends Controller
         }
 
         $suite->members()->detach($user->id);
+
+        ActivityLogger::log('suite_members_changed', request()->user(), $suite, null, [
+            'action' => 'removed',
+            'member_name' => $user->name,
+        ]);
 
         return back()->with('flash.success', 'Member removed.');
     }

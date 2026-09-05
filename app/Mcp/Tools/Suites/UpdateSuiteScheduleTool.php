@@ -5,6 +5,7 @@ namespace App\Mcp\Tools\Suites;
 use App\Http\Requests\StoreTestSuiteScheduleRequest;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -42,6 +43,8 @@ class UpdateSuiteScheduleTool extends Tool
         if (($data['cron_expression'] ?? '') === '') {
             $suite->schedule()->delete();
 
+            ActivityLogger::log('schedule_updated', Auth::user(), $suite, null, ['action' => 'removed']);
+
             return Response::structured(['schedule' => null]);
         }
 
@@ -56,6 +59,13 @@ class UpdateSuiteScheduleTool extends Tool
             'next_run_at' => $schedule->is_enabled
                 ? $schedule->nextRunAfter(Carbon::now($timezone))
                 : null,
+        ]);
+
+        ActivityLogger::log('schedule_updated', Auth::user(), $suite, null, [
+            'action' => 'set',
+            'cron_expression' => $schedule->cron_expression,
+            'timezone' => $schedule->timezone,
+            'is_enabled' => (bool) $schedule->is_enabled,
         ]);
 
         return Response::structured(['schedule' => $schedule->toArray()]);

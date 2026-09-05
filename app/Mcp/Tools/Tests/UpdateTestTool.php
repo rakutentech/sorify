@@ -6,7 +6,9 @@ use App\Http\Requests\StoreTestRequest;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\Test;
 use App\Models\TestSuite;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -49,6 +51,8 @@ class UpdateTestTool extends Tool
             'description' => $data['description'] ?? null,
             'uploaded_by' => $data['uploaded_by'] ?? null,
         ]);
+
+        ActivityLogger::log('test_updated', Auth::user(), $test->testSuite, $test, ['name' => $test->name]);
 
         return Response::structured(['test' => $test->toArray()]);
     }

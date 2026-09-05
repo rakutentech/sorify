@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTestSuiteScheduleRequest;
 use App\Models\TestSuite;
+use App\Services\ActivityLogger;
 use Illuminate\Support\Carbon;
 
 class TestSuiteScheduleController extends Controller
@@ -17,6 +18,8 @@ class TestSuiteScheduleController extends Controller
 
         if (($data['cron_expression'] ?? '') === '') {
             $suite->schedule()->delete();
+
+            ActivityLogger::log('schedule_updated', $request->user(), $suite, null, ['action' => 'removed']);
 
             return back();
         }
@@ -34,6 +37,13 @@ class TestSuiteScheduleController extends Controller
                 : null,
         ]);
 
+        ActivityLogger::log('schedule_updated', $request->user(), $suite, null, [
+            'action' => 'set',
+            'cron_expression' => $schedule->cron_expression,
+            'timezone' => $schedule->timezone,
+            'is_enabled' => (bool) $schedule->is_enabled,
+        ]);
+
         return back();
     }
 
@@ -42,6 +52,8 @@ class TestSuiteScheduleController extends Controller
         $this->authorize('manageSchedule', $suite);
 
         $suite->schedule()->delete();
+
+        ActivityLogger::log('schedule_updated', request()->user(), $suite, null, ['action' => 'removed']);
 
         return back();
     }

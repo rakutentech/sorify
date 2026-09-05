@@ -6,7 +6,9 @@ use App\Http\Requests\Api\BulkStoreTestRequest;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
 use App\Services\PlaywrightCodeValidatorService;
+use App\Services\ActivityLogger;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -63,6 +65,8 @@ class BulkCreateTestsTool extends Tool
 
             $created[] = $test->toArray();
         }
+
+        ActivityLogger::log('test_created', Auth::user(), $suite, null, ['count' => count($created)]);
 
         return Response::structured(['created' => count($created), 'tests' => $created]);
     }

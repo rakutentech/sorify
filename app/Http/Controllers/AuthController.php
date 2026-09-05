@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GithubApp;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -21,7 +24,11 @@ class AuthController extends Controller
             return redirect('/sorify/');
         }
 
-        return Inertia::render('Auth/Login');
+        return Inertia::render('Auth/Login', [
+            'githubApps' => GithubApp::signInApps()
+                ->map(fn (GithubApp $app) => ['id' => $app->id, 'name' => $app->name])
+                ->values(),
+        ]);
     }
 
     public function login(Request $request): RedirectResponse
@@ -58,7 +65,11 @@ class AuthController extends Controller
             return redirect('/sorify/');
         }
 
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/Register', [
+            'githubApps' => GithubApp::signInApps()
+                ->map(fn (GithubApp $app) => ['id' => $app->id, 'name' => $app->name])
+                ->values(),
+        ]);
     }
 
     public function register(Request $request): RedirectResponse
@@ -76,6 +87,8 @@ class AuthController extends Controller
             'is_view_only' => true,
             'locale' => $request->getPreferredLanguage(array_keys(config('app.supported_locales'))),
         ]);
+
+        ActivityLogger::log('user_registered', $user, null, $user);
 
         Auth::login($user);
 
@@ -145,12 +158,16 @@ class AuthController extends Controller
         return redirect()->route('login')->with('flash.success', __($status));
     }
 
-    public function redirectToGithub(): RedirectResponse
+    public function redirectToGithub(Request $request): RedirectResponse
     {
-        if (! config('services.github.client_id')) {
+        $app = $this->resolveGithubApp($request, storeInSession: true);
+
+        if (! $app) {
             return redirect()->route('login')
                 ->withErrors(['github' => 'GitHub sign-in is not configured.']);
         }
+
+        $this->applyGithubAppConfig($app);
 
         return Socialite::driver('github')->redirect();
     }
@@ -162,9 +179,27 @@ class AuthController extends Controller
                 ->withErrors(['github' => $request->get('error_description', 'GitHub authentication was cancelled.')]);
         }
 
+        // Which app this round-trip belongs to (stored on redirect). Falls
+        // back to the first sign-in app — e.g. when the session expired.
+        $app = GithubApp::find($request->session()->pull('github_app_id'))
+            ?? GithubApp::signInApps()->first();
+
+        if (! $app) {
+            return redirect()->route('login')
+                ->withErrors(['github' => 'GitHub sign-in is not configured.']);
+        }
+
+        $this->applyGithubAppConfig($app);
+
         try {
             $githubUser = Socialite::driver('github')->user();
         } catch (\Throwable $e) {
+            Log::warning('GitHub sign-in failed', [
+                'error' => $e->getMessage(),
+                'exception' => $e::class,
+                'github_app_id' => $app->id,
+            ]);
+
             return redirect()->route('login')
                 ->withErrors(['github' => 'Unable to authenticate with GitHub. Please try again.']);
         }
@@ -173,13 +208,21 @@ class AuthController extends Controller
         $githubId = $githubUser->getId();
 
         if (! $email) {
+            Log::warning('GitHub sign-in rejected: no verified primary email', [
+                'github_id' => $githubId,
+                'github_app_id' => $app->id,
+                'hint' => 'Enable "Email addresses: Read-only" on the GitHub App (Permissions & events → Account permissions) and re-authorize.',
+            ]);
+
             return redirect()->route('login')
                 ->withErrors(['github' => 'Your GitHub account has no verified primary email.']);
         }
 
-        $user = User::where('github_id', $githubId)
-            ->orWhere('email', $email)
-            ->first();
+        // github_id is only unique per app: the same numeric id on github.com
+        // and a GitHub Enterprise instance are different people.
+        $user = User::where(function ($query) use ($app, $githubId) {
+            $query->where('github_app_id', $app->id)->where('github_id', $githubId);
+        })->orWhere('email', $email)->first();
 
         // Prefer GitHub's avatar URL, but never overwrite a user-uploaded one.
         $githubAvatar = $githubUser->getAvatar();
@@ -187,6 +230,7 @@ class AuthController extends Controller
         if ($user) {
             $user->forceFill([
                 'github_id' => $githubId,
+                'github_app_id' => $app->id,
                 'github_token' => $githubUser->token,
                 'github_refresh_token' => $githubUser->refreshToken ?? $user->github_refresh_token,
                 'last_login_at' => now(),
@@ -203,6 +247,7 @@ class AuthController extends Controller
                 'email' => $email,
                 'password' => null,
                 'github_id' => $githubId,
+                'github_app_id' => $app->id,
                 'github_token' => $githubUser->token,
                 'github_refresh_token' => $githubUser->refreshToken,
                 'is_view_only' => true,
@@ -211,11 +256,54 @@ class AuthController extends Controller
 
             // GitHub has verified the email ownership, so mark it verified.
             $user->forceFill(['email_verified_at' => now()])->save();
+
+            ActivityLogger::log('user_registered', $user, null, $user);
         }
 
         Auth::login($user, true);
         $request->session()->regenerate();
 
         return redirect()->intended('/sorify/');
+    }
+
+    /**
+     * The app this login attempt is for: ?app= wins (a login button per
+     * app), falling back to the first enabled sign-in app.
+     */
+    private function resolveGithubApp(Request $request, bool $storeInSession): ?GithubApp
+    {
+        $apps = GithubApp::signInApps();
+
+        if ($apps->isEmpty()) {
+            return null;
+        }
+
+        $app = $apps->firstWhere('id', (int) $request->query('app', 0)) ?? $apps->first();
+
+        if ($storeInSession) {
+            $request->session()->put('github_app_id', $app->id);
+        }
+
+        return $app;
+    }
+
+    /**
+     * The Socialite "github" driver is built from the services.github
+     * config, so point that config at the chosen app before using it. The
+     * optional app proxy flows into the Guzzle options used for the token
+     * exchange and user/emails API calls.
+     */
+    private function applyGithubAppConfig(GithubApp $app): void
+    {
+        config([
+            'services.github' => [
+                'client_id' => $app->client_id,
+                'client_secret' => $app->client_secret,
+                'redirect' => $app->redirect_uri ?: route('github.callback'),
+                'url' => $app->base_url,
+                'scopes' => ['user:email'],
+                'guzzle' => $app->proxy ? ['proxy' => $app->proxy] : [],
+            ],
+        ]);
     }
 }

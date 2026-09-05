@@ -1,21 +1,28 @@
 <h1 align="center"><img src="resources/images/sorify-icon.svg" width="192" align="center"/></h1>
 
 <p align="center">
-  Next generation AI First - Browser Testing platform <br><br>
+  Next generation AI First - Browser Testing <br>& browser automation platform <br><br>
   Low Tokens consumption<br>
   Built for AI Agents - Claude/Codex<br><br>
-  Built for developers, QA or both<br>
-  Control entire QA via MCP<br><br>
-  <b>Bonus</b> Chrome Extension & MCP...<br> ...with Recorder, AI Test Writer
+  Built for developers<br>
+  Manage entire workspace through MCP<br><br>
+  Create powerful <b>browser automations</b><br>
+  With scheduler<br><br>
+  Bi-directional webhooks integrations<br>
+  <b>And a bonus</b> Chrome Extension, with MCP<br>
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/xxVw65d.png" alt="Sorify screenshot"/>
+  <img src="https://i.imgur.com/xxVw65d.png" alt="Sorify screenshot" width="850" />
 </p>
 
 ★ **Automate:** Automate browser testing, using claude, codex - with skills, mcp, test runners & dashboard.
 
 ★ **Chrome Extension:** Capture browser actions, send to AI to write tests, upload, self heal.
+
+★ **Webhooks:** 3 types of bi-directional integrations. Trigger runs remotely, or trigger Github Actions or HTTP webhook pre/post a run from Sorify.
+
+★ **Schedule:** In built scheduler to run automated browser tasks.
 
 ✴︎ **Test Management:** Organize test suites and test cases, run them on demand or on a schedule.
 
@@ -31,6 +38,11 @@
 
 ✴︎ **Agent Plugins:** Claude/Codex plugins included - zero-code test code management.
 
+<br>
+<p align="center">
+  <img src="https://i.imgur.com/zoNzjBg.png" alt="Sorify screenshot" width="850"/>
+</p>
+
 ## Feature Matrix
 
 | Feature | MCP | Dashboard | CI Webhook |
@@ -38,6 +50,7 @@
 | Suites: list / get / create / update / delete / duplicate | ✅ | ✅ | - |
 | Suite schedule: update / delete | ✅ | ✅ | - |
 | Suite cookies: upload | ✅ | ✅ | - |
+| Suite integrations: GitHub Action / HTTP request (configure pre/post run hooks) | ✅ | ✅ | - |
 | Suite bookmarks: list / toggle | ✅ | ✅ | - |
 | Suite members: list / add / update / remove | ✅ | ✅ | - |
 | Tests: list / get / create / update / update code / delete / duplicate | ✅ | ✅ | - |
@@ -229,17 +242,44 @@ MAIL_MAILER=smtp
 MAIL_SCHEME=null
 MAIL_HOST=<your-mail-host>
 
-# Optional - if oAuth login also needs to be provided
-
-# Leave empty for public github.com.
-# For GitHub Enterprise: https://<your-ghe-host>/settings/developers
-GITHUB_CLIENT_ID=${SORIFY_GITHUB_CLIENT_ID}
-GITHUB_CLIENT_SECRET=${SORIFY_GITHUB_CLIENT_SECRET}
-GITHUB_REDIRECT_URI=${APP_URL}/auth/github/callback
-GITHUB_BASE_URL=https://<your-ghe-host>
+# More sorify settings, see envs in config/sorify.php
 ```
 
----
+# Integrations
+
+1. **Sorify Webhook:** Trigger Sorify run/runs from outside
+2. **HTTP Webhook:** Trigger HTTP from sorify - pre/post run
+3. **Github Action Webhook:** Trigger Github action from sorify - pre/post run. Details below:
+
+## GitHub, GHES, GHEC integrations
+
+GitHub Apps are managed under **Admin → GitHub Apps** (dashboard).
+Used for either **login** or triggering **actions** from Sorify.
+
+To register an app, follow the walkthrough on the dashboard itself: **Admin → GitHub Apps → "How to
+register"**.
+
+A workflow dispatched by Sorify looks like this:
+
+```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      # Injected by Sorify — do not edit
+      sorify_run_id:
+        type: string
+      sorify_suite_id:
+        type: string
+      # and so on. Custom add from - sorify's suite/{id} > settings
+
+jobs:
+  sorify:
+    name: Sorify
+    steps:
+      - name: Show Sorify context
+        run: |
+          echo "sorify_run_id=${{ github.event.inputs.sorify_run_id }}"
+```
 
 ## Owners
 
@@ -316,4 +356,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v1.6** - i18n support for Malay, Simplified Chinese. Extension captures file uploads, iframes, tabs, network. oAuth login, with Avatar. Duplicate a test suite (background copy of tests) and duplicate a test case, available on the dashboard and via MCP (`duplicate_suite`, `duplicate_test`).
 - **v1.7** - Cookies support, variables support.
 - **v1.8** - MCP supports runs. Auto redirect after login page. Support for one time CI webhook and who ran the CI.
-- **v1.9** - Chrome extension memory leak fix.
+- **v1.9** - Chrome extension memory leak fix. Support pre/post webhooks for multiple connectors.
