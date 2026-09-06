@@ -302,8 +302,8 @@ function cardTitle(card) {
 </script>
 
 <template>
-    <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-        <div class="flex items-center justify-between mt-3 mb-1">
+    <div>
+        <div class="flex items-center justify-between mb-1">
             <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.integrationsSection') }}</p>
             <div class="flex items-center gap-3">
                 <span v-if="saving" class="flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">

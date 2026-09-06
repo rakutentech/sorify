@@ -36,6 +36,9 @@ class TestSuite extends Model
         'teams_notify_on_start',
         'teams_notify_on_success',
         'teams_notify_on_failure',
+        'email_notify_on_start',
+        'email_notify_on_success',
+        'email_notify_on_failure',
         'duplication_status',
         'duplicated_from_suite_id',
     ];
@@ -50,6 +53,9 @@ class TestSuite extends Model
         'teams_notify_on_start' => 'boolean',
         'teams_notify_on_success' => 'boolean',
         'teams_notify_on_failure' => 'boolean',
+        'email_notify_on_start' => 'boolean',
+        'email_notify_on_success' => 'boolean',
+        'email_notify_on_failure' => 'boolean',
     ];
 
     protected static function booted(): void
@@ -215,6 +221,16 @@ class TestSuite extends Model
     {
         return $this->belongsToMany(User::class, 'test_suite_user')
             ->withPivot(['can_view', 'can_edit', 'can_delete', 'can_run'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Users emailed about this suite's runs. Only suite members can be added;
+     * member removal also detaches them here.
+     */
+    public function emailRecipients(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'test_suite_email_recipients', 'test_suite_id', 'user_id')
             ->withTimestamps();
     }
 

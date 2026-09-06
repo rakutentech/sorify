@@ -21,12 +21,12 @@ function copy() {
             :value="value"
             type="text"
             readonly
-            class="flex-1 min-w-0 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 text-[var(--md-sys-color-on-surface-variant)] md-body-small font-mono truncate focus:outline-none"
+            class="flex-1 min-w-0 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 text-[var(--md-sys-color-on-surface-variant)] md-body-small font-mono truncate focus:outline-none"
             @focus="$event.target.select()"
         />
         <button
             @click="copy"
-            class="flex-shrink-0 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-high)] px-3 py-2 rounded-[var(--md-sys-shape-corner-small)] transition-colors"
+            class="flex-shrink-0 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline-variant)] px-3 py-2 rounded-[var(--md-sys-shape-corner-small)] transition-colors hover:bg-[var(--md-sys-color-surface-container-highest)]"
         >
             {{ copied ? 'Copied!' : 'Copy' }}
         </button>

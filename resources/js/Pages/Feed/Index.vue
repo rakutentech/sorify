@@ -46,6 +46,18 @@ const suiteOptions = computed(() =>
 const userOptions = computed(() =>
     (props.filterOptions.users ?? []).map((u) => ({ id: u.id, name: u.name, email: u.email, avatar_url: u.avatar_url })));
 
+// Activity types grouped for the sidebar, filtered down to the types the
+// server actually sent so stale groups never render empty headers.
+const typeGroups = computed(() => [
+    { key: 'runs', types: ['run_triggered', 'run_completed', 'run_cancelled'] },
+    { key: 'suites', types: ['suite_created', 'suite_updated', 'suite_duplicated'] },
+    { key: 'tests', types: ['test_created', 'test_updated', 'test_code_updated', 'test_deleted', 'test_status_changed'] },
+    { key: 'people', types: ['suite_members_changed', 'user_registered', 'user_created'] },
+    { key: 'settings', types: ['schedule_updated', 'variables_updated', 'cookies_updated', 'integration_updated', 'email_recipients_updated'] },
+]
+    .map((group) => ({ ...group, types: group.types.filter((type) => props.filterOptions.types.includes(type)) }))
+    .filter((group) => group.types.length > 0));
+
 function filterParams() {
     const params = {};
     if (selectedTypes.value.length) params.type = selectedTypes.value;
@@ -218,116 +230,133 @@ function showNewActivities() {
             <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('feed.subtitle') }}</p>
         </div>
 
-        <!-- Filter bar -->
-        <div class="rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container-low)] p-4 mb-5 space-y-4">
-            <!-- Activity type chips -->
-            <div class="flex flex-wrap items-center gap-1.5">
-                <button
-                    v-for="type in filterOptions.types"
-                    :key="type"
-                    type="button"
-                    @click="toggleType(type)"
-                    class="px-3 py-1 rounded-[var(--md-sys-shape-corner-full)] md-label-small transition-colors border"
-                    :class="selectedTypes.includes(type)
-                        ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)] border-transparent'
-                        : 'text-[var(--md-sys-color-on-surface-variant)] border-[var(--md-sys-color-outline-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]'"
-                >
-                    {{ t(`feed.types.${type}`) }}
-                </button>
-            </div>
-
-            <!-- Suite / user / date range -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
-                <div class="lg:col-span-2">
-                    <Autocomplete
-                        v-model="suiteId"
-                        :options="suiteOptions"
-                        :label="t('feed.filters.suite')"
-                        :placeholder="t('feed.filters.allSuites')"
-                        value-key="id"
-                        :emit-on-input="false"
-                        @update:model-value="applyFilters"
-                    />
-                </div>
-                <div class="lg:col-span-2">
-                    <Autocomplete
-                        v-model="actorId"
-                        :options="userOptions"
-                        :label="t('feed.filters.actor')"
-                        :placeholder="t('feed.filters.allUsers')"
-                        value-key="id"
-                        :emit-on-input="false"
-                        @update:model-value="applyFilters"
-                    />
-                </div>
-                <div class="flex items-end gap-2">
-                    <div class="flex-1">
-                        <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5" for="feed-from">{{ t('feed.filters.dateRange') }}</label>
-                        <div class="flex items-center gap-1.5">
-                            <input
-                                id="feed-from"
-                                v-model="fromDate"
-                                type="date"
-                                class="w-full px-2.5 py-2 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
-                                :aria-label="t('feed.filters.from')"
-                            />
-                            <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">–</span>
-                            <input
-                                v-model="toDate"
-                                type="date"
-                                class="w-full px-2.5 py-2 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
-                                :aria-label="t('feed.filters.to')"
-                                @change="applyFilters"
-                            />
+        <div class="grid grid-cols-1 gap-6 items-start lg:grid-cols-[280px_minmax(0,1fr)]">
+            <!-- Filter sidebar -->
+            <aside class="min-w-0 lg:sticky lg:top-6">
+                <div class="rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container-low)] p-4 space-y-4">
+                    <!-- Activity type chips, grouped by category -->
+                    <div
+                        v-for="group in typeGroups"
+                        :key="group.key"
+                        :class="group !== typeGroups[0] ? 'pt-3 border-t border-[var(--md-sys-color-outline-variant)]' : ''"
+                    >
+                        <p class="mb-1.5 md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">
+                            {{ t(`feed.filterGroups.${group.key}`) }}
+                        </p>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button
+                                v-for="type in group.types"
+                                :key="type"
+                                type="button"
+                                @click="toggleType(type)"
+                                class="relative group w-full px-2 py-1 rounded-[var(--md-sys-shape-corner-full)] md-label-small transition-colors border text-center"
+                                :class="selectedTypes.includes(type)
+                                    ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)] border-transparent'
+                                    : 'text-[var(--md-sys-color-on-surface-variant)] border-[var(--md-sys-color-outline-variant)] hover:bg-[var(--md-sys-color-surface-container-high)]'"
+                            >
+                                <!-- Inner span carries the truncation so the
+                                     button's overflow stays visible for the
+                                     hover tooltip anchored to it. -->
+                                <span class="block truncate">{{ t(`feed.types.${type}`) }}</span>
+                                <div class="pointer-events-none absolute left-1/2 bottom-full -translate-x-1/2 mb-2 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap">
+                                    <div class="px-2.5 py-1.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-inverse-surface)] text-[var(--md-sys-color-inverse-on-surface)] md-label-small shadow-elevation-1">
+                                        {{ t(`feed.types.${type}`) }}
+                                    </div>
+                                </div>
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Suite / user / date range -->
+                    <div class="space-y-3">
+                        <Autocomplete
+                            v-model="suiteId"
+                            :options="suiteOptions"
+                            :label="t('feed.filters.suite')"
+                            :placeholder="t('feed.filters.allSuites')"
+                            value-key="id"
+                            :emit-on-input="false"
+                            @update:model-value="applyFilters"
+                        />
+                        <Autocomplete
+                            v-model="actorId"
+                            :options="userOptions"
+                            :label="t('feed.filters.actor')"
+                            :placeholder="t('feed.filters.allUsers')"
+                            value-key="id"
+                            :emit-on-input="false"
+                            @update:model-value="applyFilters"
+                        />
+                        <div>
+                            <label class="block md-label-large text-[var(--md-sys-color-on-surface)] mb-1.5" for="feed-from">{{ t('feed.filters.dateRange') }}</label>
+                            <div class="space-y-1.5">
+                                <input
+                                    id="feed-from"
+                                    v-model="fromDate"
+                                    type="date"
+                                    class="w-full px-2.5 py-2 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                                    :aria-label="t('feed.filters.from')"
+                                />
+                                <div class="md-label-small text-[var(--md-sys-color-on-surface-variant)] text-center">–</div>
+                                <input
+                                    v-model="toDate"
+                                    type="date"
+                                    class="w-full px-2.5 py-2 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                                    :aria-label="t('feed.filters.to')"
+                                    @change="applyFilters"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="hasActiveFilters" class="flex justify-end">
+                        <Button variant="text" @click="clearFilters">
+                            <FilterX :size="14" />
+                            {{ t('feed.filters.clear') }}
+                        </Button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Feed -->
+            <div class="min-w-0">
+                <!-- New activity pill -->
+                <button
+                    v-if="showNewPill"
+                    type="button"
+                    class="w-full mb-4 flex items-center justify-center gap-2 py-2 rounded-[var(--md-sys-shape-corner-full)] md-label-large bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] hover:opacity-90 transition-opacity"
+                    @click="showNewActivities"
+                >
+                    <ArrowUp :size="14" />
+                    {{ t('feed.newActivity') }}
+                </button>
+
+                <div v-if="!items.length" class="rounded-[var(--md-sys-shape-corner-medium)] border border-dashed border-[var(--md-sys-color-outline-variant)] px-5 py-12 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                    <Rss :size="32" class="mx-auto mb-3 opacity-40" />
+                    {{ t('feed.noneYet') }}
+                </div>
+
+                <div v-else class="space-y-3">
+                    <ActivityCard
+                        v-for="activity in items"
+                        :key="activity.id"
+                        :activity="activity"
+                        :live-run="liveRunFor(activity)"
+                        @open-lightbox="lightbox.open"
+                    />
+                </div>
+
+                <!-- Infinite scroll sentinel -->
+                <div v-if="items.length" ref="sentinel" class="py-6 flex items-center justify-center">
+                    <span v-if="loadingMore" class="inline-flex items-center gap-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)]">
+                        <LoaderCircle :size="16" class="animate-spin" />
+                        {{ t('feed.loadingMore') }}
+                    </span>
+                    <span v-else-if="page >= lastPage" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">
+                        {{ t('feed.endOfFeed') }}
+                    </span>
                 </div>
             </div>
-
-            <div v-if="hasActiveFilters" class="flex justify-end">
-                <Button variant="text" @click="clearFilters">
-                    <FilterX :size="14" />
-                    {{ t('feed.filters.clear') }}
-                </Button>
-            </div>
-        </div>
-
-        <!-- New activity pill -->
-        <button
-            v-if="showNewPill"
-            type="button"
-            class="w-full mb-4 flex items-center justify-center gap-2 py-2 rounded-[var(--md-sys-shape-corner-full)] md-label-large bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] hover:opacity-90 transition-opacity"
-            @click="showNewActivities"
-        >
-            <ArrowUp :size="14" />
-            {{ t('feed.newActivity') }}
-        </button>
-
-        <!-- Feed -->
-        <div v-if="!items.length" class="rounded-[var(--md-sys-shape-corner-medium)] border border-dashed border-[var(--md-sys-color-outline-variant)] px-5 py-12 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-            <Rss :size="32" class="mx-auto mb-3 opacity-40" />
-            {{ t('feed.noneYet') }}
-        </div>
-
-        <div v-else class="space-y-3">
-            <ActivityCard
-                v-for="activity in items"
-                :key="activity.id"
-                :activity="activity"
-                :live-run="liveRunFor(activity)"
-                @open-lightbox="lightbox.open"
-            />
-        </div>
-
-        <!-- Infinite scroll sentinel -->
-        <div v-if="items.length" ref="sentinel" class="py-6 flex items-center justify-center">
-            <span v-if="loadingMore" class="inline-flex items-center gap-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)]">
-                <LoaderCircle :size="16" class="animate-spin" />
-                {{ t('feed.loadingMore') }}
-            </span>
-            <span v-else-if="page >= lastPage" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">
-                {{ t('feed.endOfFeed') }}
-            </span>
         </div>
 
         <!-- Screenshot lightbox -->
