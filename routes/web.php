@@ -92,6 +92,8 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
         Route::post('/{suite}/duplicate', [TestSuiteController::class, 'duplicate'])->name('duplicate');
 
         Route::scopeBindings()->prefix('/{suite}/tests')->name('tests.')->group(function () {
+            // Must be registered before /{test} so "all" is not resolved as a test ID.
+            Route::get('/all', [TestSuiteController::class, 'allTests'])->name('all');
             Route::post('/', [TestController::class, 'store'])->name('store');
             Route::delete('/bulk', [TestController::class, 'bulkDestroy'])->name('bulk-destroy');
             Route::patch('/bulk/status', [TestController::class, 'bulkUpdateStatus'])->name('bulk-status');

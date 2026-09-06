@@ -25,7 +25,7 @@ class SuiteBookmarkController extends Controller
         $sortDir = $request->string('sort_dir')->toString();
 
         $query = $user->bookmarkedSuites()
-            ->withCount(['tests', 'testRuns', 'proxyRules', 'variables', 'cookies'])
+            ->withCount(['tests', 'testRuns', 'proxyRules', 'variables', 'cookies', 'emailRecipients'])
             ->with([
                 'schedule',
                 'members:id,name,email,avatar',
@@ -55,6 +55,8 @@ class SuiteBookmarkController extends Controller
             $data = array_merge($s->toArray(), $this->reporting->suiteStats($s));
             unset($data['webhook_token'], $data['teams_webhook_url'], $data['pivot'], $data['integrations']);
             $data['has_teams_webhook'] = (bool) $s->teams_webhook_url;
+            $data['has_email_notifications'] = $s->email_recipients_count > 0
+                && ((bool) $s->email_notify_on_start || (bool) $s->email_notify_on_success || (bool) $s->email_notify_on_failure);
             $data['has_github_integration'] = $s->integrations->contains(fn ($i) => $i->type === 'github_action' && $i->enabled);
             $data['has_http_integration'] = $s->integrations->contains(fn ($i) => $i->type === 'http_request' && $i->enabled);
 

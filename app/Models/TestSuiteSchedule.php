@@ -5,6 +5,7 @@ namespace App\Models;
 use Cron\CronExpression;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TestSuiteSchedule extends Model
 {
@@ -24,9 +25,29 @@ class TestSuiteSchedule extends Model
         'next_run_at' => 'datetime',
     ];
 
+    protected $appends = ['test_ids'];
+
     public function testSuite(): BelongsTo
     {
         return $this->belongsTo(TestSuite::class);
+    }
+
+    /**
+     * Tests the schedule runs. Empty = every active test in the suite runs.
+     */
+    public function tests(): BelongsToMany
+    {
+        return $this->belongsToMany(Test::class, 'test_schedule_test', 'test_suite_schedule_id', 'test_id');
+    }
+
+    /**
+     * IDs of the tests this schedule runs, for the UI payload.
+     *
+     * @return array<int, int>
+     */
+    public function getTestIdsAttribute(): array
+    {
+        return $this->tests()->allRelatedIds()->all();
     }
 
     public function createdBy(): BelongsTo

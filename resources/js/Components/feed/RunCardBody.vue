@@ -33,11 +33,6 @@ function payloadNumber(key) {
 const status = computed(() => props.run?.status ?? props.activity.payload?.status ?? null);
 const durationMs = computed(() => runValue('duration_ms') ?? payloadNumber('duration_ms'));
 const isActive = computed(() => ['pending', 'running'].includes(status.value));
-const passRate = computed(() => {
-    const total = counts.value.total;
-    if (!total) return 0;
-    return Math.round(((counts.value.passed ?? 0) / total) * 100);
-});
 const hasFailures = computed(() => (counts.value.failed ?? 0) + (counts.value.error ?? 0) > 0);
 
 const failedTests = computed(() => {
@@ -63,12 +58,14 @@ function formatDuration(ms) {
     <div class="mt-3 space-y-3">
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Chip v-if="status" :status="status" :label="status === 'failed' ? t('feed.failedInterrupted') : status" />
-            <span class="md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                <span class="text-[var(--md-ext-color-success)]">{{ counts.passed ?? 0 }}</span>
-                <span class="opacity-70">/{{ counts.total ?? 0 }}</span>
-                <span v-if="hasFailures" class="text-[var(--md-sys-color-error)] ml-1.5">
-                    {{ t('feed.failedCount', { count: (counts.failed ?? 0) + (counts.error ?? 0) }) }}
-                </span>
+            <span class="md-body-medium font-medium text-[var(--md-ext-color-success)]">
+                {{ t('feed.passedOfTotal', { passed: counts.passed ?? 0, total: counts.total ?? 0 }) }}
+            </span>
+            <span
+                v-if="hasFailures"
+                class="md-body-medium font-medium text-[var(--md-sys-color-error)]"
+            >
+                {{ t('feed.failedCount', { count: (counts.failed ?? 0) + (counts.error ?? 0) }) }}
             </span>
             <span v-if="durationMs !== null" class="inline-flex items-center gap-1 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                 <Timer :size="14" />{{ formatDuration(durationMs) }}
@@ -76,18 +73,6 @@ function formatDuration(ms) {
             <span class="inline-flex items-center gap-1.5 md-label-medium text-[var(--md-sys-color-on-surface-variant)]">
                 <RanBy :triggered-by="triggeredBy" :triggered-by-user="triggeredByUser" />
             </span>
-        </div>
-
-        <!-- Pass-rate bar -->
-        <div v-if="counts.total" class="h-2 rounded-[var(--md-sys-shape-corner-full)] overflow-hidden flex bg-[var(--md-sys-color-surface-container-high)]">
-            <div
-                class="bg-[var(--md-ext-color-success)] h-full transition-all duration-500"
-                :style="{ width: `${passRate}%` }"
-            />
-            <div
-                v-if="hasFailures"
-                class="bg-[var(--md-sys-color-error)] h-full flex-1 transition-all duration-500"
-            />
         </div>
 
         <p v-if="run?.status_note" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] italic">{{ run.status_note }}</p>

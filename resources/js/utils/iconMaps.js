@@ -3,7 +3,7 @@ import {
     Hourglass, Ban, CirclePause, CircleDashed, Pencil,
     GitBranch, CalendarClock, Cable, Hand,
     MessagesSquare, Camera, Globe, Braces, Cookie, Webhook, Workflow, Send,
-    Monitor, EyeOff, Timer, RotateCcw, History,
+    Monitor, EyeOff, Timer, RotateCcw, History, Mail,
 } from '@lucide/vue';
 
 // Test-run / status -> icon component (+ whether it should spin).
@@ -47,6 +47,7 @@ export const STATUS_COLOR = {
 // a distinct, colorful icon instead of a generic checkmark.
 export const SETTING_KIND = {
     teams:       { icon: MessagesSquare, color: 'var(--md-sys-color-primary)' },
+    email:       { icon: Mail,           color: 'var(--md-sys-color-primary)' },
     webhook:     { icon: Webhook,         color: 'var(--md-sys-color-tertiary)' },
     github:      { icon: Workflow,        color: 'var(--md-sys-color-on-surface)' },
     http:        { icon: Send,           color: 'var(--md-sys-color-tertiary)' },

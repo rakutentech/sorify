@@ -31,6 +31,12 @@ class TestSuiteScheduleController extends Controller
             'created_by' => $request->user()?->id,
         ]);
 
+        // Which tests the schedule runs: an explicit (possibly empty) list
+        // replaces the previous selection; omitting the key keeps it.
+        if (array_key_exists('test_ids', $data)) {
+            $schedule->tests()->sync($data['test_ids'] ?? []);
+        }
+
         $schedule->update([
             'next_run_at' => $schedule->is_enabled
                 ? $schedule->nextRunAfter(Carbon::now($timezone))

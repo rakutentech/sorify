@@ -16,6 +16,7 @@ const { t } = useI18n();
 
 const allChips = computed(() => [
     { label: t('testSuites.badgeTeams'), active: !!props.suite.has_teams_webhook, successActive: true, kind: 'teams' },
+    { label: t('testSuites.badgeEmail'), active: !!props.suite.has_email_notifications, successActive: true, kind: 'email' },
     { label: t('testSuites.badgeGithub'), active: !!props.suite.has_github_integration, successActive: true, kind: 'github' },
     { label: t('testSuites.badgeHttp'), active: !!props.suite.has_http_integration, successActive: true, kind: 'http' },
     { label: t('testSuites.badgeScreenshots'), active: !!props.suite.take_screenshot, successActive: true, kind: 'screenshots' },

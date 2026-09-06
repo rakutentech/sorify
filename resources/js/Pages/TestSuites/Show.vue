@@ -31,6 +31,7 @@ const props = defineProps({
     githubApps: { type: Array, default: () => [] },
     members: { type: Array, default: () => [] },
     candidates: { type: Array, default: () => [] },
+    emailRecipients: { type: Array, default: () => [] },
     users: { type: Array, default: () => [] },
     can: { type: Object, default: () => ({ edit: false, delete: false, run: false, manageUsers: false, manageSchedule: false }) },
     isBookmarked: { type: Boolean, default: false },
@@ -200,10 +201,14 @@ const scheduleForm = useForm({
 });
 const scheduleError = ref(null);
 
+// Tests a scheduled run executes — empty means every active test in the suite.
+const scheduleTestIds = ref([...(props.suite.schedule?.test_ids ?? [])]);
+
 watch(() => props.suite.schedule, (s) => {
     scheduleForm.cron_expression = s?.cron_expression ?? '';
     scheduleForm.timezone = s?.timezone ?? 'UTC';
     scheduleForm.is_enabled = s?.is_enabled ?? false;
+    scheduleTestIds.value = [...(s?.test_ids ?? [])];
 });
 
 function saveSchedule() {
@@ -220,6 +225,7 @@ function saveSchedule() {
     const oldCron = props.suite.schedule?.cron_expression ?? '';
     const oldTz = props.suite.schedule?.timezone ?? 'UTC';
     const oldEnabled = props.suite.schedule?.is_enabled ?? false;
+    const oldTestIds = [...(props.suite.schedule?.test_ids ?? [])];
 
     router.put(
         `/sorify/suites/${props.suite.id}/schedule`,
@@ -227,6 +233,7 @@ function saveSchedule() {
             cron_expression: scheduleForm.cron_expression,
             timezone: scheduleForm.timezone,
             is_enabled: scheduleForm.is_enabled,
+            test_ids: scheduleTestIds.value,
         },
         {
             preserveState: true,
@@ -240,6 +247,7 @@ function saveSchedule() {
                 scheduleForm.cron_expression = oldCron;
                 scheduleForm.timezone = oldTz;
                 scheduleForm.is_enabled = oldEnabled;
+                scheduleTestIds.value = oldTestIds;
                 scheduleError.value = errors.cron_expression || errors.timezone || null;
             },
             onFinish: () => { savingSuiteSetting.value = false; },
@@ -294,6 +302,9 @@ const localSuiteSettings = reactive({
     teams_notify_on_start: props.suite.teams_notify_on_start ?? false,
     teams_notify_on_success: props.suite.teams_notify_on_success ?? false,
     teams_notify_on_failure: props.suite.teams_notify_on_failure ?? false,
+    email_notify_on_start: props.suite.email_notify_on_start ?? false,
+    email_notify_on_success: props.suite.email_notify_on_success ?? false,
+    email_notify_on_failure: props.suite.email_notify_on_failure ?? false,
 });
 
 watch(() => ({
@@ -306,6 +317,9 @@ watch(() => ({
     teams_notify_on_start: props.suite.teams_notify_on_start,
     teams_notify_on_success: props.suite.teams_notify_on_success,
     teams_notify_on_failure: props.suite.teams_notify_on_failure,
+    email_notify_on_start: props.suite.email_notify_on_start,
+    email_notify_on_success: props.suite.email_notify_on_success,
+    email_notify_on_failure: props.suite.email_notify_on_failure,
 }), (s) => {
     localSuiteSettings.playwright_proxy = s.playwright_proxy ?? '';
     localSuiteSettings.proxy_rules = (s.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy }));
@@ -326,6 +340,9 @@ watch(() => ({
     localSuiteSettings.teams_notify_on_start = s.teams_notify_on_start ?? false;
     localSuiteSettings.teams_notify_on_success = s.teams_notify_on_success ?? false;
     localSuiteSettings.teams_notify_on_failure = s.teams_notify_on_failure ?? false;
+    localSuiteSettings.email_notify_on_start = s.email_notify_on_start ?? false;
+    localSuiteSettings.email_notify_on_success = s.email_notify_on_success ?? false;
+    localSuiteSettings.email_notify_on_failure = s.email_notify_on_failure ?? false;
 });
 
 const savingSuiteSetting = ref(false);
@@ -351,6 +368,63 @@ function saveSuiteField(field) {
         },
     );
 }
+
+// Email notification recipients — only suite members can be picked. The
+// chips render from the server-provided list; the picker filters members
+// down to the ones not yet selected.
+const newEmailRecipientId = ref('');
+
+const emailRecipientCandidates = computed(() =>
+    props.members.filter((m) => !props.emailRecipients.some((r) => r.id === m.id)),
+);
+
+function addEmailRecipient(id) {
+    if (!id || props.emailRecipients.some((r) => r.id === id)) return;
+
+    savingSuiteSetting.value = true;
+    router.put(
+        `/sorify/suites/${props.suite.id}`,
+        { email_recipient_ids: [...props.emailRecipients.map((r) => r.id), id] },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                savingSuiteSetting.value = false;
+                savedSuiteField.value = 'email_recipients';
+                clearTimeout(savedSuiteTimer);
+                savedSuiteTimer = setTimeout(() => { savedSuiteField.value = null; }, 1500);
+            },
+        },
+    );
+}
+
+function removeEmailRecipient(id) {
+    savingSuiteSetting.value = true;
+    router.put(
+        `/sorify/suites/${props.suite.id}`,
+        { email_recipient_ids: props.emailRecipients.filter((r) => r.id !== id).map((r) => r.id) },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                savingSuiteSetting.value = false;
+                savedSuiteField.value = 'email_recipients';
+                clearTimeout(savedSuiteTimer);
+                savedSuiteTimer = setTimeout(() => { savedSuiteField.value = null; }, 1500);
+            },
+        },
+    );
+}
+
+// The Autocomplete emits the picked user's id — add them, then clear the
+// selection so the same member can't be re-added (they leave the candidate
+// list anyway) and the input resets for the next pick.
+watch(newEmailRecipientId, (id) => {
+    if (id) {
+        addEmailRecipient(id);
+        newEmailRecipientId.value = '';
+    }
+});
 
 function saveProxyRules() {
     const rules = localSuiteSettings.proxy_rules
@@ -612,6 +686,7 @@ const settingsSections = computed(() => [
         badges: [
             { label: t('testSuites.badgeWebhook'), active: !!props.webhookUrl, kind: 'webhook' },
             { label: t('testSuites.badgeTeams'), active: !!props.suite.teams_webhook_url, successActive: true, kind: 'teams' },
+            { label: t('testSuites.badgeEmail'), active: !!(props.emailRecipients.length && (props.suite.email_notify_on_start || props.suite.email_notify_on_success || props.suite.email_notify_on_failure)), successActive: true, kind: 'email' },
             { label: t('testSuites.badgeGithub'), active: !!(props.suite.integrations && props.suite.integrations.some(i => i.type === 'github_action')), kind: 'github' },
             { label: t('testSuites.badgeHttp'), active: !!(props.suite.integrations && props.suite.integrations.some(i => i.type === 'http_request')), kind: 'http' },
         ],
@@ -651,6 +726,94 @@ function syncSettingsQueryParams() {
         { preserveState: true, preserveScroll: true, replace: true },
     );
 }
+
+// ── Schedule: run only selected tests ───────────────────────────────────────
+// The picker needs every test in the suite regardless of the main table's
+// search/pagination, so it fetches a dedicated lightweight list when the
+// suite settings panel (which hosts the schedule) opens.
+const scheduleTests = ref([]);
+const scheduleTestsLoaded = ref(false);
+const showScheduleTestPicker = ref(false);
+const scheduleTestSearch = ref('');
+const scheduleTestPickerRef = ref(null);
+
+function loadScheduleTests() {
+    if (scheduleTestsLoaded.value || !props.can.manageSchedule) return;
+    scheduleTestsLoaded.value = true;
+
+    fetch(`/sorify/suites/${props.suite.id}/tests/all`, { headers: { Accept: 'application/json' } })
+        .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
+        .then((tests) => { scheduleTests.value = tests; })
+        .catch(() => { scheduleTestsLoaded.value = false; });
+}
+
+watch(activeSection, (section) => {
+    if (section === 'suite') loadScheduleTests();
+});
+if (activeSection.value === 'suite') loadScheduleTests();
+
+const selectedScheduleTests = computed(() =>
+    scheduleTests.value.filter((test) => scheduleTestIds.value.includes(test.id)),
+);
+
+const filteredScheduleTests = computed(() => {
+    const q = scheduleTestSearch.value.trim().toLowerCase();
+    return q
+        ? scheduleTests.value.filter((test) => test.name.toLowerCase().includes(q))
+        : scheduleTests.value;
+});
+
+function saveScheduleTests() {
+    // A schedule row must exist for the selection to be persisted — the
+    // endpoint deletes the schedule when the cron expression is empty.
+    if (!scheduleForm.cron_expression.trim()) return;
+
+    savingSuiteSetting.value = true;
+    const oldTestIds = [...(props.suite.schedule?.test_ids ?? [])];
+
+    router.put(
+        `/sorify/suites/${props.suite.id}/schedule`,
+        {
+            cron_expression: scheduleForm.cron_expression,
+            timezone: scheduleForm.timezone,
+            is_enabled: scheduleForm.is_enabled,
+            test_ids: scheduleTestIds.value,
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                savedSuiteField.value = 'schedule_tests';
+                clearTimeout(savedSuiteTimer);
+                savedSuiteTimer = setTimeout(() => { savedSuiteField.value = null; }, 1500);
+            },
+            onError: () => { scheduleTestIds.value = oldTestIds; },
+            onFinish: () => { savingSuiteSetting.value = false; },
+        },
+    );
+}
+
+function toggleScheduleTest(id) {
+    const next = new Set(scheduleTestIds.value);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    scheduleTestIds.value = [...next];
+    saveScheduleTests();
+}
+
+function removeScheduleTest(id) {
+    scheduleTestIds.value = scheduleTestIds.value.filter((i) => i !== id);
+    saveScheduleTests();
+}
+
+function onClickOutsideScheduleTestPicker(event) {
+    if (scheduleTestPickerRef.value && !scheduleTestPickerRef.value.contains(event.target)) {
+        showScheduleTestPicker.value = false;
+    }
+}
+
+onMounted(() => document.addEventListener('mousedown', onClickOutsideScheduleTestPicker));
+onUnmounted(() => document.removeEventListener('mousedown', onClickOutsideScheduleTestPicker));
 
 const savingSetting = ref(false);
 const savedField = ref(null);
@@ -1127,7 +1290,7 @@ function toggleRunsExpanded(testId) {
             <div class="min-w-0 space-y-6">
             <!-- suite settings panel -->
             <div v-if="activeSection === 'suite'" data-settings-panel="suite">
-                <Card padding="p-0">
+                <Card padding="p-0" class="!bg-[var(--md-sys-color-surface-container-lowest)]">
                     <div class="flex items-center justify-between gap-3 px-5 h-[56px] border-b border-[var(--md-sys-color-outline-variant)]">
                         <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
                             <Settings :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
@@ -1147,9 +1310,9 @@ function toggleRunsExpanded(testId) {
                             </IconButton>
                         </div>
                     </div>
-                    <div class="px-5 pb-4 pt-2 space-y-5">
+                    <div class="px-3 pb-4 pt-3 space-y-3">
                         <!-- Proxy -->
-                        <div>
+                        <div class="rounded-[var(--md-sys-shape-corner-medium)] px-4 py-3 bg-[var(--md-sys-color-surface-container-high)]">
                             <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.proxySection') }}</p>
                             <div class="mb-3">
                                 <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-default-proxy-${suite.id}`">{{ t('testSuiteShow.defaultHttpProxy') }}</label>
@@ -1189,7 +1352,7 @@ function toggleRunsExpanded(testId) {
                                     </div>
                                     <button v-if="can.edit" type="button" @click="addProxyRule" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addRule') }}</button>
                                 </div>
-                                <div v-if="showProxyRulesInfo" class="mb-2 p-3 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)]">
+                                <div v-if="showProxyRulesInfo" class="mb-2 p-3 bg-[var(--md-sys-color-surface-container-highest)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)]">
                                     <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">{{ t('testSuiteShow.proxyRulesInfoIntro') }}</p>
                                     <table class="w-full md-body-small text-[var(--md-sys-color-on-surface)] border-collapse">
                                         <thead>
@@ -1242,14 +1405,14 @@ function toggleRunsExpanded(testId) {
                         </div>
 
                         <!-- Variables -->
-                        <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <div class="flex items-center justify-between mt-3 mb-1">
+                        <div class="rounded-[var(--md-sys-shape-corner-medium)] px-4 py-3 bg-[var(--md-sys-color-surface-container-high)]">
+                            <div class="flex items-center justify-between mb-1">
                                 <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.variablesSection') }}</p>
                                 <button v-if="can.edit" type="button" @click="addVariable" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addVariable') }}</button>
                             </div>
                             <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2 opacity-80">{{ t('testSuiteShow.variablesHint') }}</p>
                             <div class="mb-2 flex items-center gap-2">
-                                <code class="md-body-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">variables.KEY</code>
+                                <code class="md-body-small font-mono bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">variables.KEY</code>
                             </div>
                             <div v-if="!localSuiteSettings.variables.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] py-1.5 opacity-70">
                                 {{ t('testSuiteShow.noVariablesConfigured') }}
@@ -1278,8 +1441,8 @@ function toggleRunsExpanded(testId) {
                         </div>
 
                         <!-- Cookies -->
-                        <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <div class="flex items-center justify-between mt-3 mb-1">
+                        <div class="rounded-[var(--md-sys-shape-corner-medium)] px-4 py-3 bg-[var(--md-sys-color-surface-container-high)]">
+                            <div class="flex items-center justify-between mb-1">
                                 <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.cookiesSection') }}</p>
                                 <div class="flex items-center gap-3">
                                     <button v-if="can.edit" type="button" @click="openCookiePasteModal" :disabled="savingSuiteSetting" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.pasteCookieJson') }}</button>
@@ -1353,21 +1516,21 @@ function toggleRunsExpanded(testId) {
                         </div>
 
                         <!-- Schedule -->
-                        <div class="pt-2 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <div class="flex items-center justify-between mt-3 mb-3">
+                        <div class="rounded-[var(--md-sys-shape-corner-medium)] px-4 py-3 bg-[var(--md-sys-color-surface-container-high)]">
+                            <div class="flex items-center justify-between mb-3">
                                 <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.scheduleHeading') }}</p>
                                 <Button v-if="can.manageSchedule && suite.schedule" variant="text" size="sm" @click="removeSchedule" class="!text-[var(--md-sys-color-error)]">
                                     {{ t('testSuiteShow.remove') }}
                                 </Button>
                             </div>
                             <div v-if="suite.schedule" class="flex items-center gap-2 mb-3">
-                                <code class="md-body-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ suite.schedule.cron_expression }}</code>
+                                <code class="md-body-small font-mono bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ suite.schedule.cron_expression }}</code>
                                 <span
                                     :class="[
                                         'md-label-small px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]',
                                         suite.schedule.is_enabled
                                             ? 'text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)]'
-                                            : 'text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-high)]',
+                                            : 'text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-highest)]',
                                     ]"
                                 >
                                     {{ suite.schedule.is_enabled ? t('testSuiteShow.enabled') : t('testSuiteShow.disabled') }}
@@ -1408,6 +1571,113 @@ function toggleRunsExpanded(testId) {
                                     <input type="checkbox" v-model="scheduleForm.is_enabled" @change="saveSchedule" :disabled="savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.enabled') }}
                                 </label>
                             </div>
+
+                            <!-- Schedule: run only selected tests -->
+                            <div v-if="can.manageSchedule" class="mt-4" :class="{ 'opacity-60': !suite.schedule }">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.scheduleTestsHeading') }}</label>
+                                    <span v-if="savedSuiteField === 'schedule_tests'" class="flex items-center gap-1 md-label-small text-[var(--md-ext-color-success)]">
+                                        <Check :size="12" />
+                                        {{ t('testSuiteShow.saved') }}
+                                    </span>
+                                </div>
+                                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mb-2">
+                                    {{ scheduleTestIds.length
+                                        ? t('testSuiteShow.scheduleTestsSelected', { count: scheduleTestIds.length })
+                                        : t('testSuiteShow.scheduleTestsAll') }}
+                                </p>
+
+                                <div v-if="selectedScheduleTests.length" class="flex flex-wrap gap-1.5 mb-2">
+                                    <span
+                                        v-for="test in selectedScheduleTests"
+                                        :key="test.id"
+                                        class="inline-flex items-center gap-1 pl-2 pr-1 py-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-surface-container-highest)] md-label-small text-[var(--md-sys-color-on-surface)]"
+                                    >
+                                        <Link
+                                            :href="`/sorify/suites/${suite.id}/tests/${test.id}`"
+                                            :title="test.name"
+                                            class="max-w-48 truncate hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
+                                        >
+                                            {{ test.name }}
+                                        </Link>
+                                        <button
+                                            type="button"
+                                            @click="removeScheduleTest(test.id)"
+                                            :disabled="!suite.schedule || savingSuiteSetting"
+                                            class="p-0.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-highest)] hover:text-[var(--md-sys-color-on-surface)] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                            :aria-label="t('testSuiteShow.remove')"
+                                        >
+                                            <X :size="12" />
+                                        </button>
+                                    </span>
+                                </div>
+
+                                <div v-if="suite.schedule" ref="scheduleTestPickerRef" class="relative">
+                                    <button
+                                        type="button"
+                                        @click="showScheduleTestPicker = !showScheduleTestPicker"
+                                        :disabled="!can.edit || savingSuiteSetting || !scheduleTests.length"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] md-label-small font-medium hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        <Plus :size="14" />
+                                        {{ t('testSuiteShow.scheduleTestsAdd') }}
+                                    </button>
+
+                                    <div
+                                        v-if="showScheduleTestPicker"
+                                        class="absolute z-10 mt-1 w-full min-w-64 bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)] shadow-lg"
+                                    >
+                                        <div class="p-2 border-b border-[var(--md-sys-color-outline-variant)]">
+                                            <input
+                                                v-model="scheduleTestSearch"
+                                                type="text"
+                                                :placeholder="t('testSuiteShow.scheduleTestsSearch')"
+                                                class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                                            />
+                                        </div>
+                                        <div class="max-h-56 overflow-y-auto py-1">
+                                            <label
+                                                v-for="test in filteredScheduleTests"
+                                                :key="test.id"
+                                                :title="test.status !== 'active' ? t('testSuiteShow.scheduleTestsDisabledHint') : null"
+                                                class="flex items-center gap-2 px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] hover:bg-[var(--md-sys-color-surface-container-high)] cursor-pointer"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    :checked="scheduleTestIds.includes(test.id)"
+                                                    @change="toggleScheduleTest(test.id)"
+                                                    class="w-4 h-4 rounded-[var(--md-sys-shape-corner-extra-small)] border-[var(--md-sys-color-outline)] accent-[var(--md-sys-color-primary)] cursor-pointer"
+                                                />
+                                                <span class="flex-1 truncate">{{ test.name }}</span>
+                                                <span
+                                                    :class="[
+                                                        'md-label-small px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]',
+                                                        test.status === 'active'
+                                                            ? 'text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)]'
+                                                            : 'text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-high)]',
+                                                    ]"
+                                                >
+                                                    {{ test.status === 'active' ? t('testSuiteShow.enabled') : t('testSuiteShow.disabled') }}
+                                                </span>
+                                            </label>
+                                            <p v-if="!filteredScheduleTests.length" class="px-3 py-2 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                                {{ t('testSuiteShow.scheduleTestsEmpty') }}
+                                            </p>
+                                        </div>
+                                        <button
+                                            v-if="scheduleTestIds.length"
+                                            type="button"
+                                            @click="scheduleTestIds = []; saveScheduleTests()"
+                                            class="w-full text-left px-3 py-1.5 border-t border-[var(--md-sys-color-outline-variant)] md-label-small text-[var(--md-sys-color-primary)] hover:underline"
+                                        >
+                                            {{ t('testSuiteShow.scheduleTestsClear') }}
+                                        </button>
+                                    </div>
+                                </div>
+                                <p v-else class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">
+                                    {{ t('testSuiteShow.scheduleTestsRequiresSchedule') }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </Card>
@@ -1415,7 +1685,7 @@ function toggleRunsExpanded(testId) {
 
             <!-- run settings panel -->
             <div v-if="activeSection === 'run'" data-settings-panel="run">
-                <Card padding="p-0">
+                <Card padding="p-0" class="!bg-[var(--md-sys-color-surface-container-lowest)]">
                     <div class="flex items-center justify-between gap-3 px-5 h-[56px] border-b border-[var(--md-sys-color-outline-variant)]">
                         <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
                             <SlidersHorizontal :size="18" :style="{ color: 'var(--md-sys-color-on-surface-variant)' }" />
@@ -1435,8 +1705,9 @@ function toggleRunsExpanded(testId) {
                             </IconButton>
                         </div>
                     </div>
-                    <div class="px-5 pb-3 pt-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
-                        <!-- Browser -->
+                    <div class="px-3 pb-4 pt-3 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container-high)] px-4 py-3">
+                            <!-- Browser -->
                         <div class="flex items-center justify-between gap-3">
                             <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-browser-${suite.id}`">{{ t('testSuiteShow.browser') }}</label>
                             <select
@@ -1533,13 +1804,14 @@ function toggleRunsExpanded(testId) {
                                 <option :value="10">{{ t('testSuites.last10Runs') }}</option>
                             </select>
                         </div>
+                        </div>
                     </div>
                 </Card>
             </div>
 
             <!-- webhook settings panel -->
             <div v-if="activeSection === 'webhook'" data-settings-panel="webhook">
-                <Card padding="p-0">
+                <Card padding="p-0" class="!bg-[var(--md-sys-color-surface-container-lowest)]">
                     <div class="flex items-center justify-between gap-3 px-5 h-[56px] border-b border-[var(--md-sys-color-outline-variant)]">
                         <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
                             <Webhook :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
@@ -1554,96 +1826,115 @@ function toggleRunsExpanded(testId) {
                                 <Check :size="12" />
                                 {{ t('testSuiteShow.saved') }}
                             </span>
-                            <Button
-                                v-if="can.delete"
-                                variant="tonal"
-                                size="sm"
-                                :disabled="webhookLimitReached"
-                                :title="webhookLimitReached ? t('testSuiteShow.webhookLimitReached') : null"
-                                @click="regenerateWebhook"
-                                class="!text-[var(--md-sys-color-error)]"
-                            >
-                                {{ t('testSuiteShow.regenerate') }}
-                            </Button>
                             <IconButton variant="standard" :label="t('testSuiteShow.closeSettings')" @click="selectSettingsSection('tests')">
                                 <X :size="16" />
                             </IconButton>
                         </div>
                     </div>
-                    <div class="px-5 pb-4 pt-2">
-                        <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.triggerARun') }}</p>
-                        <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.webhookInstructions') }}</p>
-                        <CopyableSecret v-if="webhookUrl" :value="webhookUrl" />
-                        <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.noWebhookConfigured') }}</p>
+                    <div class="px-3 pb-4 pt-3 space-y-3">
+                        <!-- Trigger a run -->
+                        <div class="rounded-[var(--md-sys-shape-corner-medium)] px-4 py-3 bg-[var(--md-sys-color-surface-container-high)]">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.triggerARun') }}</p>
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.webhookInstructions') }}</p>
+                            <CopyableSecret v-if="webhookUrl" :value="webhookUrl" />
+                            <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.noWebhookConfigured') }}</p>
 
-                        <p v-if="webhookLimitReached" class="mt-3 md-body-small text-[var(--md-sys-color-error)]">{{ t('testSuiteShow.webhookLimitReached') }}</p>
+                            <div v-if="webhookUrl" class="mt-3">
+                                <button
+                                    @click="showCurlExample = !showCurlExample"
+                                    class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                                >
+                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showCurlExample }" />
+                                    {{ showCurlExample ? t('testSuiteShow.hideCurlExample') : t('testSuiteShow.showCurlExample') }}
+                                </button>
+                                <div v-if="showCurlExample" class="mt-2">
+                                    <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
+                                        {{ t('testSuiteShow.testIdsHint') }}
+                                    </p>
+                                    <div class="relative">
+                                        <pre class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 pr-4 overflow-x-auto whitespace-pre">{{ curlCommand }}</pre>
+                                        <div class="absolute top-2 right-2">
+                                            <CopyButton :value="curlCommand" />
+                                        </div>
+                                    </div>
 
-                        <!-- Old webhook URLs: kept active until explicitly deleted -->
-                        <div v-if="webhookUrl && previousWebhooks.length" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.oldWebhookUrls') }}</p>
-                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">{{ t('testSuiteShow.oldWebhookUrlsHint') }}</p>
-                            <div class="space-y-2">
-                                <div v-for="webhook in previousWebhooks" :key="webhook.token" class="flex items-center gap-2">
-                                    <CopyableSecret :value="webhook.url" class="flex-1 min-w-0" />
-                                    <IconButton
-                                        v-if="can.delete"
-                                        variant="standard"
-                                        :label="t('testSuiteShow.deleteWebhook')"
-                                        @click="deleteWebhookToken(webhook.token)"
-                                        class="!text-[var(--md-sys-color-error)] flex-shrink-0"
+                                    <button
+                                        @click="showTriggerResponseSample = !showTriggerResponseSample"
+                                        class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
                                     >
-                                        <Trash2 :size="16" />
-                                    </IconButton>
+                                        <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showTriggerResponseSample }" />
+                                        {{ showTriggerResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
+                                    </button>
+                                    <pre v-if="showTriggerResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ triggerResponseSample }}</pre>
                                 </div>
                             </div>
-                        </div>
 
-                        <div v-if="webhookUrl" class="mt-3">
-                            <button
-                                @click="showCurlExample = !showCurlExample"
-                                class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
-                            >
-                                <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showCurlExample }" />
-                                {{ showCurlExample ? t('testSuiteShow.hideCurlExample') : t('testSuiteShow.showCurlExample') }}
-                            </button>
-                            <div v-if="showCurlExample" class="mt-2">
-                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
-                                    {{ t('testSuiteShow.testIdsHint') }}
-                                </p>
-                                <div class="relative">
-                                    <pre class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 pr-4 overflow-x-auto whitespace-pre">{{ curlCommand }}</pre>
-                                    <div class="absolute top-2 right-2">
-                                        <CopyButton :value="curlCommand" />
+                            <!-- Regenerate webhook URL -->
+                            <div class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                                <div class="flex items-center justify-between gap-3 flex-wrap">
+                                    <i18n-t
+                                        keypath="testSuiteShow.regenerateWebhookHint"
+                                        tag="p"
+                                        scope="global"
+                                        class="md-body-small text-[var(--md-sys-color-on-surface-variant)] flex-1 min-w-48"
+                                    >
+                                        <template #bold>
+                                            <strong class="text-[var(--md-sys-color-on-surface)] font-semibold">{{ t('testSuiteShow.regenerateWebhookNotInvalidated') }}</strong>
+                                        </template>
+                                    </i18n-t>
+                                    <Button
+                                        v-if="can.delete"
+                                        variant="tonal"
+                                        size="sm"
+                                        :disabled="webhookLimitReached"
+                                        :title="webhookLimitReached ? t('testSuiteShow.webhookLimitReached') : null"
+                                        @click="regenerateWebhook"
+                                        class="!text-[var(--md-sys-color-error)]"
+                                    >
+                                        {{ t('testSuiteShow.regenerate') }}
+                                    </Button>
+                                </div>
+                                <p v-if="webhookLimitReached" class="mt-2 md-body-small text-[var(--md-sys-color-error)]">{{ t('testSuiteShow.webhookLimitReached') }}</p>
+                            </div>
+
+                            <!-- Old webhook URLs: kept active until explicitly deleted -->
+                            <div v-if="webhookUrl && previousWebhooks.length" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                                <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.oldWebhookUrls') }}</p>
+                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">{{ t('testSuiteShow.oldWebhookUrlsHint') }}</p>
+                                <div class="space-y-2">
+                                    <div v-for="webhook in previousWebhooks" :key="webhook.token" class="flex items-center gap-2">
+                                        <CopyableSecret :value="webhook.url" class="flex-1 min-w-0" />
+                                        <IconButton
+                                            v-if="can.delete"
+                                            variant="standard"
+                                            :label="t('testSuiteShow.deleteWebhook')"
+                                            @click="deleteWebhookToken(webhook.token)"
+                                            class="!text-[var(--md-sys-color-error)] flex-shrink-0"
+                                        >
+                                            <Trash2 :size="16" />
+                                        </IconButton>
                                     </div>
                                 </div>
+                            </div>
+
+                            <!-- Poll run status -->
+                            <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                                <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.pollRunStatus') }}</p>
+                                <CopyableSecret :value="statusUrlTemplate" />
 
                                 <button
-                                    @click="showTriggerResponseSample = !showTriggerResponseSample"
+                                    @click="showStatusResponseSample = !showStatusResponseSample"
                                     class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
                                 >
-                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showTriggerResponseSample }" />
-                                    {{ showTriggerResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
+                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showStatusResponseSample }" />
+                                    {{ showStatusResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
                                 </button>
-                                <pre v-if="showTriggerResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ triggerResponseSample }}</pre>
+                                <pre v-if="showStatusResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ statusResponseSample }}</pre>
                             </div>
-                        </div>
-
-                        <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
-                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.pollRunStatus') }}</p>
-                            <CopyableSecret :value="statusUrlTemplate" />
-
-                            <button
-                                @click="showStatusResponseSample = !showStatusResponseSample"
-                                class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
-                            >
-                                <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showStatusResponseSample }" />
-                                {{ showStatusResponseSample ? t('testSuiteShow.hideSampleResponse') : t('testSuiteShow.showSampleResponse') }}
-                            </button>
-                            <pre v-if="showStatusResponseSample" class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 mt-2 overflow-x-auto whitespace-pre">{{ statusResponseSample }}</pre>
                         </div>
 
                         <!-- MS Teams notifications (moved here from Suite Settings) -->
-                        <div class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
+                        <div class="rounded-[var(--md-sys-shape-corner-medium)] px-4 py-3 bg-[var(--md-sys-color-surface-container-high)]">
                             <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.msTeamsSection') }}</p>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
                                 <div>
@@ -1683,8 +1974,63 @@ function toggleRunsExpanded(testId) {
                             </div>
                         </div>
 
+                        <!-- Email notifications -->
+                        <div class="rounded-[var(--md-sys-shape-corner-medium)] px-4 py-3 bg-[var(--md-sys-color-surface-container-high)]">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.emailSection') }}</p>
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-3">{{ t('testSuiteShow.emailSectionHint') }}</p>
+
+                            <div v-if="emailRecipients.length" class="flex flex-wrap gap-1.5 mb-3">
+                                <span
+                                    v-for="recipient in emailRecipients"
+                                    :key="recipient.id"
+                                    class="inline-flex items-center gap-1.5 pl-2 pr-1 py-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-surface-container-highest)] md-label-small text-[var(--md-sys-color-on-surface)]"
+                                >
+                                    <Avatar :name="recipient.name" :email="recipient.email" :avatar-url="recipient.avatar_url" />
+                                    <span class="max-w-40 truncate">{{ recipient.name }} ({{ recipient.email }})</span>
+                                    <button
+                                        v-if="can.edit"
+                                        type="button"
+                                        @click="removeEmailRecipient(recipient.id)"
+                                        :disabled="savingSuiteSetting"
+                                        class="p-0.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-highest)] hover:text-[var(--md-sys-color-on-surface)] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                        :aria-label="t('testSuiteShow.remove')"
+                                    >
+                                        <X :size="12" />
+                                    </button>
+                                </span>
+                            </div>
+                            <p v-else class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mb-3">{{ t('testSuiteShow.emailRecipientsEmpty') }}</p>
+
+                            <Autocomplete
+                                v-if="can.edit && emailRecipientCandidates.length"
+                                v-model="newEmailRecipientId"
+                                :options="emailRecipientCandidates"
+                                value-key="id"
+                                :emit-on-input="false"
+                                :label="t('testSuiteShow.emailRecipientsAdd')"
+                                :placeholder="t('testSuiteShow.searchNameOrEmail')"
+                                :disabled="savingSuiteSetting"
+                                class="mb-1"
+                            />
+                            <p v-if="can.edit" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ t('testSuiteShow.emailRecipientsMembersOnly') }}</p>
+
+                            <div class="flex items-center gap-4 mt-3 mb-4 flex-wrap">
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="localSuiteSettings.email_notify_on_start" @change="saveSuiteField('email_notify_on_start')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnStart') }}
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="localSuiteSettings.email_notify_on_success" @change="saveSuiteField('email_notify_on_success')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnSuccess') }}
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="localSuiteSettings.email_notify_on_failure" @change="saveSuiteField('email_notify_on_failure')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnFailure') }}
+                                </label>
+                            </div>
+                        </div>
+
                         <!-- Integrations (pre/post run hooks: GitHub Actions) -->
-                        <TestSuiteIntegrations :suite="suite" :can-edit="can.edit" :github-configured="githubActionsConfigured" :github-apps="githubApps" />
+                        <div class="rounded-[var(--md-sys-shape-corner-medium)] px-4 py-3 bg-[var(--md-sys-color-surface-container-high)]">
+                            <TestSuiteIntegrations :suite="suite" :can-edit="can.edit" :github-configured="githubActionsConfigured" :github-apps="githubApps" />
+                        </div>
                     </div>
                 </Card>
             </div>

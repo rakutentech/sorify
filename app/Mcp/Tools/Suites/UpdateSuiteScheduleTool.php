@@ -29,6 +29,9 @@ class UpdateSuiteScheduleTool extends Tool
             'cron_expression' => $schema->string()->description('Cron expression for when the suite should run (e.g. "0 * * * *"). Empty string removes the schedule.'),
             'timezone' => $schema->string()->description('Timezone for the schedule (e.g. "UTC", "Asia/Tokyo"). Defaults to UTC.'),
             'is_enabled' => $schema->boolean()->description('Whether the schedule is active. Defaults to true.'),
+            'test_ids' => $schema->array()
+                ->items($schema->integer())
+                ->description('IDs of tests to run on the schedule. Passing this replaces the previous selection; pass an empty array to run all active tests. When omitted, the existing selection is kept. IDs of tests not in this suite are ignored.'),
         ];
     }
 
@@ -54,6 +57,18 @@ class UpdateSuiteScheduleTool extends Tool
             'is_enabled' => $data['is_enabled'] ?? true,
             'created_by' => Auth::id(),
         ]);
+
+        // Which tests the schedule runs: an explicit (possibly empty) list
+        // replaces the previous selection; omitting the key keeps it. Only
+        // tests that actually belong to the suite are kept.
+        if (array_key_exists('test_ids', $data)) {
+            $testIds = $suite->tests()
+                ->whereIn('tests.id', $data['test_ids'] ?? [])
+                ->pluck('tests.id')
+                ->all();
+
+            $schedule->tests()->sync($testIds);
+        }
 
         $schedule->update([
             'next_run_at' => $schedule->is_enabled

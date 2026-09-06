@@ -78,6 +78,7 @@
         "colLastRun": "最后运行",
         "colActions": "操作",
         "badgeTeams": "Teams",
+        "badgeEmail": "邮件",
         "badgeScreenshots": "截图",
         "badgeProxy": "代理",
         "badgeVariables": "变量",
@@ -198,6 +199,7 @@
         "regenerate": "重新生成",
         "triggerARun": "触发运行",
         "webhookInstructions": "从 CI（例如 GitHub Actions）向此 URL 发送 POST 请求以触发此套件的运行。",
+        "regenerateWebhookHint": "生成新的 Webhook URL。旧 URL {bold}——它会移入下方的旧 URL 列表,并在删除前继续有效。",
         "noWebhookConfigured": "未配置 webhook。",
         "hideCurlExample": "隐藏 curl 示例",
         "showCurlExample": "显示 curl 示例",
@@ -415,7 +417,22 @@
         "duplicateTestShort": "复制",
         "confirmDuplicateTest": "复制测试“{name}”？将在此套件中创建一个副本。",
         "duplicateTestPromptLabel": "新测试名称（可选）",
-        "duplicateTestPromptPlaceholder": "登录流程测试 (copy)"
+        "duplicateTestPromptPlaceholder": "登录流程测试 (copy)",
+        "scheduleTestsHeading": "仅运行所选测试",
+        "scheduleTestsSelected": "已选择 {count} 个",
+        "scheduleTestsAll": "计划任务将运行所有启用的测试。",
+        "scheduleTestsAdd": "添加测试",
+        "scheduleTestsSearch": "搜索测试…",
+        "scheduleTestsEmpty": "没有匹配的测试。",
+        "scheduleTestsClear": "清除选择",
+        "scheduleTestsRequiresSchedule": "请先添加计划任务,再选择测试。",
+        "emailSection": "邮件",
+        "emailSectionHint": "下列套件成员将通过邮件收到运行结果,并附带最多 10 张截图。",
+        "emailRecipientsEmpty": "未选择收件人 — 不会发送邮件。",
+        "emailRecipientsAdd": "添加收件人",
+        "emailRecipientsMembersOnly": "只有套件成员可以被添加为收件人。",
+        "scheduleTestsDisabledHint": "已禁用的测试会被跳过,直到重新启用。",
+        "regenerateWebhookNotInvalidated": "不会被立即失效"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · 审查",
@@ -483,6 +500,7 @@
         "system": "系统",
         "failedInterrupted": "失败/中断",
         "failedCount": "{count} 个失败",
+        "passedOfTotal": "{passed}/{total} 通过",
         "viewRun": "查看运行",
         "viewLiveRun": "查看进行中的运行",
         "enabled": "已启用",
@@ -505,7 +523,8 @@
             "schedule_updated": "定时任务变更",
             "variables_updated": "变量更新",
             "cookies_updated": "Cookie 更新",
-            "integration_updated": "集成变更"
+            "integration_updated": "集成变更",
+            "email_recipients_updated": "邮件收件人变更"
         },
         "actions": {
             "run_triggered": "开始了一次运行",
@@ -535,13 +554,36 @@
             "cookies_updated": "更新了 {count} 个 Cookie",
             "integration_added": "添加了 {type} 集成",
             "integration_updated": "更新了 {type} 集成",
-            "integration_removed": "移除了 {type} 集成"
+            "integration_removed": "移除了 {type} 集成",
+            "email_recipients_updated": "更新了邮件收件人"
+        },
+        "changed": "变更项:",
+        "fields": {
+            "name": "名称",
+            "description": "描述",
+            "base_url": "基础 URL",
+            "browser": "浏览器",
+            "headless": "无头模式",
+            "proxy": "代理",
+            "history_retention": "历史保留",
+            "timeout": "超时",
+            "retries": "重试",
+            "screenshots": "截图",
+            "teams_notifications": "Teams 通知",
+            "email_notifications": "邮件通知"
         },
         "prepositions": {
             "in": "",
             "as": "为",
             "to": "",
             "from": ""
+        },
+        "filterGroups": {
+            "runs": "运行",
+            "suites": "套件",
+            "tests": "测试",
+            "people": "成员与用户",
+            "settings": "设置与通知"
         },
         "filters": {
             "suite": "套件",

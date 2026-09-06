@@ -78,6 +78,7 @@
         "colLastRun": "最終実行",
         "colActions": "操作",
         "badgeTeams": "Teams",
+        "badgeEmail": "メール",
         "badgeScreenshots": "スクリーンショット",
         "badgeProxy": "プロキシ",
         "badgeVariables": "変数",
@@ -198,6 +199,7 @@
         "regenerate": "再生成",
         "triggerARun": "実行をトリガー",
         "webhookInstructions": "CI（例: GitHub Actions）からこのURLにPOSTすると、このスイートの実行がトリガーされます。",
+        "regenerateWebhookHint": "新しいWebhook URLを生成します。古いURLは{bold}——下の古いURL一覧に移動し、削除されるまで引き続き機能します。",
         "noWebhookConfigured": "Webhookは設定されていません。",
         "hideCurlExample": "curlの例を隠す",
         "showCurlExample": "curlの例を表示",
@@ -415,7 +417,22 @@
         "duplicateTestShort": "複製",
         "confirmDuplicateTest": "テスト「{name}」を複製しますか？このスイートにコピーが作成されます。",
         "duplicateTestPromptLabel": "新しいテスト名（任意）",
-        "duplicateTestPromptPlaceholder": "ログインフローテスト (copy)"
+        "duplicateTestPromptPlaceholder": "ログインフローテスト (copy)",
+        "scheduleTestsHeading": "実行するテストを選択",
+        "scheduleTestsSelected": "{count}件選択中",
+        "scheduleTestsAll": "スケジュール実行時にすべての有効なテストが実行されます。",
+        "scheduleTestsAdd": "テストを追加",
+        "scheduleTestsSearch": "テストを検索…",
+        "scheduleTestsEmpty": "一致するテストがありません。",
+        "scheduleTestsClear": "選択を解除",
+        "scheduleTestsRequiresSchedule": "テストを選択するには、先にスケジュールを追加してください。",
+        "emailSection": "メール",
+        "emailSectionHint": "以下のスイートメンバーが実行結果をメールで受け取ります(最大10枚のスクリーンショット付き)。",
+        "emailRecipientsEmpty": "受信者が選択されていません — メールは送信されません。",
+        "emailRecipientsAdd": "受信者を追加",
+        "emailRecipientsMembersOnly": "受信者として追加できるのはスイートメンバーのみです。",
+        "scheduleTestsDisabledHint": "無効なテストは再度有効化されるまでスキップされます。",
+        "regenerateWebhookNotInvalidated": "無効化されず"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · レビュー",
@@ -483,6 +500,7 @@
         "system": "システム",
         "failedInterrupted": "失敗/中断",
         "failedCount": "{count}件失敗",
+        "passedOfTotal": "{passed}/{total} 成功",
         "viewRun": "実行を表示",
         "viewLiveRun": "実行中の詳細を表示",
         "enabled": "有効",
@@ -505,7 +523,8 @@
             "schedule_updated": "スケジュール変更",
             "variables_updated": "変数更新",
             "cookies_updated": "Cookie更新",
-            "integration_updated": "連携変更"
+            "integration_updated": "連携変更",
+            "email_recipients_updated": "メール受信者変更"
         },
         "actions": {
             "run_triggered": "が実行を開始",
@@ -535,13 +554,36 @@
             "cookies_updated": "が{count}件のCookieを更新",
             "integration_added": "が{type}連携を追加",
             "integration_updated": "が{type}連携を更新",
-            "integration_removed": "が{type}連携を削除"
+            "integration_removed": "が{type}連携を削除",
+            "email_recipients_updated": "メール受信者を更新"
+        },
+        "changed": "変更項目:",
+        "fields": {
+            "name": "名前",
+            "description": "説明",
+            "base_url": "ベースURL",
+            "browser": "ブラウザ",
+            "headless": "ヘッドレスモード",
+            "proxy": "プロキシ",
+            "history_retention": "履歴保持件数",
+            "timeout": "タイムアウト",
+            "retries": "再試行",
+            "screenshots": "スクリーンショット",
+            "teams_notifications": "Teams通知",
+            "email_notifications": "メール通知"
         },
         "prepositions": {
             "in": "",
             "as": "→",
             "to": "",
             "from": ""
+        },
+        "filterGroups": {
+            "runs": "実行",
+            "suites": "スイート",
+            "tests": "テスト",
+            "people": "メンバーとユーザー",
+            "settings": "設定と通知"
         },
         "filters": {
             "suite": "スイート",
