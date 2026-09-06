@@ -161,6 +161,39 @@ class DuplicationTest extends TestCase
         $this->assertDatabaseHas('test_suites', ['name' => 'My Custom Clone Name']);
     }
 
+    public function test_duplication_copies_email_settings_and_narrows_recipients_to_clone_members(): void
+    {
+        Queue::fake();
+
+        $owner = User::factory()->admin()->create();
+        $other = User::factory()->create();
+        $suite = $this->makeSuiteWithTests($owner, testCount: 0, suiteAttrs: [
+            'email_notify_on_start' => true,
+            'email_notify_on_success' => true,
+            'email_notify_on_failure' => true,
+        ]);
+
+        $suite->members()->attach($other->id, [
+            'can_view' => true, 'can_edit' => false, 'can_delete' => false, 'can_run' => false,
+        ]);
+        $suite->emailRecipients()->attach([$owner->id, $other->id]);
+
+        $this->actingAs($owner)
+            ->post("/sorify/suites/{$suite->id}/duplicate", [])
+            ->assertRedirect();
+
+        $clone = TestSuite::where('name', 'Original Suite (copy)')->first();
+        $this->assertNotNull($clone);
+
+        $this->assertTrue($clone->email_notify_on_start);
+        $this->assertTrue($clone->email_notify_on_success);
+        $this->assertTrue($clone->email_notify_on_failure);
+
+        // The clone's only member is the calling user — the other recipient
+        // is not a member there, so they are not carried over.
+        $this->assertEquals([$owner->id], $clone->emailRecipients()->allRelatedIds()->all());
+    }
+
     public function test_duplicate_suite_bumps_copy_suffix_when_source_already_ends_with_copy(): void
     {
         Queue::fake();

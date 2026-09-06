@@ -33,7 +33,7 @@ class TestSuiteController extends Controller
         $sort = $request->string('sort')->toString();
         $sortDir = $request->string('sort_dir')->toString();
 
-        $query = TestSuite::withCount(['tests', 'testRuns', 'proxyRules', 'variables', 'cookies'])
+        $query = TestSuite::withCount(['tests', 'testRuns', 'proxyRules', 'variables', 'cookies', 'emailRecipients'])
             ->with([
                 'schedule',
                 'members:id,name,email,avatar',
@@ -64,6 +64,8 @@ class TestSuiteController extends Controller
             $data = array_merge($s->toArray(), $this->reporting->suiteStats($s));
             unset($data['webhook_token'], $data['teams_webhook_url'], $data['bookmarked_by'], $data['integrations']);
             $data['has_teams_webhook'] = (bool) $s->teams_webhook_url;
+            $data['has_email_notifications'] = $s->email_recipients_count > 0
+                && ((bool) $s->email_notify_on_start || (bool) $s->email_notify_on_success || (bool) $s->email_notify_on_failure);
             $data['is_bookmarked'] = $s->bookmarkedBy->isNotEmpty();
             $data['has_github_integration'] = $s->integrations->contains(fn ($i) => $i->type === 'github_action' && $i->enabled);
             $data['has_http_integration'] = $s->integrations->contains(fn ($i) => $i->type === 'http_request' && $i->enabled);
@@ -94,6 +96,9 @@ class TestSuiteController extends Controller
         unset($data['variables']);
         $cookies = $data['cookies'] ?? null;
         unset($data['cookies']);
+        $hasEmailRecipients = array_key_exists('email_recipient_ids', $data);
+        $emailRecipientIds = $data['email_recipient_ids'] ?? [];
+        unset($data['email_recipient_ids']);
 
         $suite = TestSuite::create([
             ...$data,
@@ -118,6 +123,13 @@ class TestSuiteController extends Controller
             'can_delete' => true,
             'can_run' => true,
         ]);
+
+        // After the creator is attached — membership is just them at this
+        // point, so the member-only filter effectively narrows recipients to
+        // the creator.
+        if ($hasEmailRecipients) {
+            $this->syncEmailRecipients($suite, $emailRecipientIds);
+        }
 
         ActivityLogger::log('suite_created', $request->user(), $suite, $suite, ['name' => $suite->name]);
 
@@ -306,6 +318,15 @@ class TestSuiteController extends Controller
             'githubActionsConfigured' => GithubApp::dispatchApps()->isNotEmpty(),
             'members' => $members,
             'candidates' => $candidates,
+            'emailRecipients' => $suite->emailRecipients()
+                ->orderBy('users.name')
+                ->get(['users.id', 'users.name', 'users.email', 'users.avatar'])
+                ->map(fn (User $u) => [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'email' => $u->email,
+                    'avatar_url' => $u->avatar_url,
+                ]),
             'users' => User::orderBy('name')->get(['id', 'name', 'email', 'avatar']),
             'can' => [
                 'edit' => $privileges['edit'],
@@ -315,6 +336,22 @@ class TestSuiteController extends Controller
                 'manageSchedule' => $canManageUsers,
             ],
         ]);
+    }
+
+    /**
+     * Every test in the suite (id, name, status) — feeds the schedule's
+     * "run only selected tests" picker, which needs the full list regardless
+     * of the main table's search/pagination state.
+     */
+    public function allTests(Request $request, TestSuite $suite)
+    {
+        $this->authorize('manageSchedule', $suite);
+
+        return response()->json(
+            $suite->tests()
+                ->orderBy('name')
+                ->get(['id', 'name', 'status'])
+        );
     }
 
     public function update(StoreTestSuiteRequest $request, TestSuite $suite)
@@ -331,10 +368,18 @@ class TestSuiteController extends Controller
         $hasCookies = array_key_exists('cookies', $data);
         $cookies = $data['cookies'] ?? null;
         unset($data['cookies']);
+        $hasEmailRecipients = array_key_exists('email_recipient_ids', $data);
+        $emailRecipientIds = $data['email_recipient_ids'] ?? [];
+        unset($data['email_recipient_ids']);
 
         $suite->update($data);
 
-        ActivityLogger::log('suite_updated', $request->user(), $suite, $suite, ['name' => $suite->name]);
+        ActivityLogger::log('suite_updated', $request->user(), $suite, $suite, [
+            'name' => $suite->name,
+            // Which columns this update actually changed (names only,
+            // never values) so the feed can say what was updated.
+            'fields' => collect($suite->getChanges())->forget('updated_at')->keys()->values()->all(),
+        ]);
 
         if ($hasProxyRules) {
             $suite->proxyRules()->delete();
@@ -349,6 +394,12 @@ class TestSuiteController extends Controller
 
         if ($hasCookies) {
             ActivityLogger::log('cookies_updated', $request->user(), $suite, null, ['count' => $this->syncCookies($suite, $cookies)]);
+        }
+
+        if ($hasEmailRecipients) {
+            ActivityLogger::log('email_recipients_updated', $request->user(), $suite, null, [
+                'count' => $this->syncEmailRecipients($suite, $emailRecipientIds),
+            ]);
         }
 
         if ($suite->wasChanged('history_retention')) {
@@ -508,6 +559,27 @@ class TestSuiteController extends Controller
         }
 
         return count($rows);
+    }
+
+    /**
+     * Replace the suite's email notification recipients (null clears them).
+     * Only suite members may be notified — non-member ids are dropped.
+     *
+     * @param  array<int, int>|null  $recipientIds
+     * @return int Number of recipients stored.
+     */
+    private function syncEmailRecipients(TestSuite $suite, ?array $recipientIds): int
+    {
+        if ($recipientIds === null) {
+            $recipientIds = [];
+        }
+
+        $memberIds = $suite->members()->pluck('users.id')->all();
+        $ids = array_values(array_unique(array_intersect($recipientIds, $memberIds)));
+
+        $suite->emailRecipients()->sync($ids);
+
+        return count($ids);
     }
 
     private function presentString(mixed $value): ?string

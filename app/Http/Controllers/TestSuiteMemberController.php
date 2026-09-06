@@ -68,6 +68,10 @@ class TestSuiteMemberController extends Controller
 
         $suite->members()->detach($user->id);
 
+        // Email recipients must be suite members — drop them along with
+        // the membership.
+        $suite->emailRecipients()->detach($user->id);
+
         ActivityLogger::log('suite_members_changed', request()->user(), $suite, null, [
             'action' => 'removed',
             'member_name' => $user->name,

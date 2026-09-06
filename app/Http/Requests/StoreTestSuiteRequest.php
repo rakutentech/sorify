@@ -54,6 +54,11 @@ class StoreTestSuiteRequest extends FormRequest
             'teams_notify_on_start' => 'nullable|boolean',
             'teams_notify_on_success' => 'nullable|boolean',
             'teams_notify_on_failure' => 'nullable|boolean',
+            'email_notify_on_start' => 'nullable|boolean',
+            'email_notify_on_success' => 'nullable|boolean',
+            'email_notify_on_failure' => 'nullable|boolean',
+            'email_recipient_ids' => 'nullable|array',
+            'email_recipient_ids.*' => 'integer|exists:users,id',
         ];
     }
 

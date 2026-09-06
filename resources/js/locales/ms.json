@@ -78,6 +78,7 @@
         "colLastRun": "Pelaksanaan Terakhir",
         "colActions": "Tindakan",
         "badgeTeams": "Teams",
+        "badgeEmail": "E-mel",
         "badgeScreenshots": "Tangkap layar",
         "badgeProxy": "Proksi",
         "badgeVariables": "Pemboleh ubah",
@@ -198,6 +199,7 @@
         "regenerate": "Jana Semula",
         "triggerARun": "Cetuskan pelaksanaan",
         "webhookInstructions": "POST ke URL ini dari CI (cth. GitHub Actions) untuk mencetuskan pelaksanaan set ini.",
+        "regenerateWebhookHint": "Jana URL webhook baharu. URL lama {bold} — ia dipindahkan ke senarai URL lama di bawah dan terus berfungsi sehingga dipadamkan.",
         "noWebhookConfigured": "Tiada webhook dikonfigurasi.",
         "hideCurlExample": "Sembunyi contoh curl",
         "showCurlExample": "Tunjuk contoh curl",
@@ -415,7 +417,22 @@
         "duplicateTestShort": "Duplikasi",
         "confirmDuplicateTest": "Duplikasi ujian \"{name}\"? Satu salinan akan dicipta dalam set ini.",
         "duplicateTestPromptLabel": "Nama ujian baharu (pilihan)",
-        "duplicateTestPromptPlaceholder": "Ujian aliran log masuk (copy)"
+        "duplicateTestPromptPlaceholder": "Ujian aliran log masuk (copy)",
+        "scheduleTestsHeading": "Jalankan ujian terpilih sahaja",
+        "scheduleTestsSelected": "{count} dipilih",
+        "scheduleTestsAll": "Semua ujian aktif dijalankan mengikut jadual.",
+        "scheduleTestsAdd": "Tambah ujian",
+        "scheduleTestsSearch": "Cari ujian…",
+        "scheduleTestsEmpty": "Tiada ujian sepadan.",
+        "scheduleTestsClear": "Kosongkan pilihan",
+        "scheduleTestsRequiresSchedule": "Tambahkan jadual terlebih dahulu sebelum memilih ujian.",
+        "emailSection": "E-mel",
+        "emailSectionHint": "Ahli suite di bawah menerima keputusan jalanan melalui e-mel, dengan sehingga 10 tangkapan skrin dilampirkan.",
+        "emailRecipientsEmpty": "Tiada penerima dipilih — tiada e-mel dihantar.",
+        "emailRecipientsAdd": "Tambah penerima",
+        "emailRecipientsMembersOnly": "Hanya ahli suite boleh ditambah sebagai penerima.",
+        "scheduleTestsDisabledHint": "Ujian dilumpuhkan dilangkau sehingga diaktifkan semula.",
+        "regenerateWebhookNotInvalidated": "tidak dimansuhkan"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · Semakan",
@@ -483,6 +500,7 @@
         "system": "Sistem",
         "failedInterrupted": "Gagal/Di ganggu",
         "failedCount": "{count} gagal",
+        "passedOfTotal": "{passed}/{total} lulus",
         "viewRun": "Lihat jalan uji",
         "viewLiveRun": "Lihat jalan uji langsung",
         "enabled": "Aktif",
@@ -505,7 +523,8 @@
             "schedule_updated": "Jadual berubah",
             "variables_updated": "Pemboleh ubah dikemas kini",
             "cookies_updated": "Cookie dikemas kini",
-            "integration_updated": "Integrasi berubah"
+            "integration_updated": "Integrasi berubah",
+            "email_recipients_updated": "Penerima e-mel diubah"
         },
         "actions": {
             "run_triggered": "memulakan jalan uji",
@@ -535,13 +554,36 @@
             "cookies_updated": "mengemas kini {count} cookie",
             "integration_added": "menambah integrasi {type}",
             "integration_updated": "mengemas kini integrasi {type}",
-            "integration_removed": "membuang integrasi {type}"
+            "integration_removed": "membuang integrasi {type}",
+            "email_recipients_updated": "mengemas kini penerima e-mel"
+        },
+        "changed": "Perubahan:",
+        "fields": {
+            "name": "nama",
+            "description": "penerangan",
+            "base_url": "URL asas",
+            "browser": "pelayar",
+            "headless": "mod headless",
+            "proxy": "proksi",
+            "history_retention": "simpanan sejarah",
+            "timeout": "had masa",
+            "retries": "cuba semula",
+            "screenshots": "tangkapan skrin",
+            "teams_notifications": "notifikasi Teams",
+            "email_notifications": "notifikasi e-mel"
         },
         "prepositions": {
             "in": "dalam",
             "as": "sebagai",
             "to": "ke suite",
             "from": "daripada suite"
+        },
+        "filterGroups": {
+            "runs": "Jalan Uji",
+            "suites": "Set",
+            "tests": "Ujian",
+            "people": "Ahli & Pengguna",
+            "settings": "Tetapan & Notifikasi"
         },
         "filters": {
             "suite": "Suite",

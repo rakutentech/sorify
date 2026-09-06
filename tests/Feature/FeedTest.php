@@ -46,6 +46,48 @@ class FeedTest extends TestCase
             );
     }
 
+    public function test_feed_includes_suite_settings_chip_summary(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $recipient = User::factory()->create();
+
+        $suite = TestSuite::create([
+            'name' => 'Suite',
+            'base_url' => 'https://example.com',
+            'teams_webhook_url' => 'https://example.test/teams',
+            'email_notify_on_failure' => true,
+            'take_screenshot' => false,
+            'created_by' => $admin->id,
+        ]);
+        $suite->members()->attach($recipient->id, ['can_view' => true]);
+        $suite->emailRecipients()->attach($recipient->id);
+        $suite->tests()->create(['name' => 'Test', 'playwright_code' => '// noop', 'status' => 'active']);
+        $suite->integrations()->create([
+            'type' => 'github_action',
+            'config' => ['repository' => 'acme/app', 'workflow' => 'deploy.yml'],
+            'enabled' => true,
+            'trigger_after' => true,
+        ]);
+        $suite->variables()->create(['key' => 'TOKEN', 'value' => 'x']);
+        $suite->schedule()->create(['cron_expression' => '0 */6 * * *', 'timezone' => 'UTC', 'is_enabled' => true]);
+
+        app(\App\Services\TestRunService::class)->triggerRun($suite, null, 'schedule');
+
+        $this->actingAs($admin)
+            ->get('/sorify/feed')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('activities.data.0.suite.has_teams_webhook', true)
+                ->where('activities.data.0.suite.has_email_notifications', true)
+                ->where('activities.data.0.suite.has_github_integration', true)
+                ->where('activities.data.0.suite.has_http_integration', false)
+                ->where('activities.data.0.suite.take_screenshot', false)
+                ->where('activities.data.0.suite.variables_count', 1)
+                ->where('activities.data.0.suite.cookies_count', 0)
+                ->where('activities.data.0.suite.schedule.is_enabled', true)
+            );
+    }
+
     public function test_non_member_only_sees_global_activities(): void
     {
         $user = User::factory()->create(['is_admin' => false]);

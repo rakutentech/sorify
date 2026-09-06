@@ -251,6 +251,11 @@ MAIL_HOST=<your-mail-host>
 2. **HTTP Webhook:** Trigger HTTP from sorify - pre/post run
 3. **Github Action Webhook:** Trigger Github action from sorify - pre/post run. Details below:
 
+
+<p align="center">
+  <img src="./sorify-webhooks.svg" width="850" alt="Sorify workflow"/>
+</p>
+
 ## GitHub, GHES, GHEC integrations
 
 GitHub Apps are managed under **Admin → GitHub Apps** (dashboard).
