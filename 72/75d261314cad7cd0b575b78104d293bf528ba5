@@ -1,0 +1,31 @@
+resources/js/locales/ms.json
+  s_7ee3d7f7c8d398::t_57e934cadaacf9 581-587
+resources/js/Pages/Feed/Index.vue
+  s_7ee3d7f7c8d398::t_e7f6f74184f01d 252,257-260,262-265
+  s_7ee3d7f7c8d398::t_82218a3c5704d8 237-251,253-256,266-267
+  s_7ee3d7f7c8d398::t_7855b2bf03318c 49-60
+  s_7ee3d7f7c8d398::t_b0715ff48cd84b 261
+  s_7ee3d7f7c8d398::t_acae60d1166a85 233-236,268-323,325,327-328,330-331,334-336,338-345,349-358
+resources/js/locales/en.json
+  s_7ee3d7f7c8d398::t_8abbea862a26d5 581-587
+resources/js/locales/ja.json
+  s_7ee3d7f7c8d398::t_db4295c22b3c73 581-587
+resources/js/locales/zh-CN.json
+  s_7ee3d7f7c8d398::t_cf09e4a90927ff 581-587
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "7275d261314cad7cd0b575b78104d293bf528ba5",
+  "prompts": {},
+  "sessions": {
+    "s_7ee3d7f7c8d398": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f8aab1209ffeKwEacEU5vy7x33",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
