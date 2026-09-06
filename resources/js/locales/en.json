@@ -78,6 +78,7 @@
         "colLastRun": "Last Run",
         "colActions": "Actions",
         "badgeTeams": "Teams",
+        "badgeEmail": "Email",
         "badgeWebhook": "Webhook",
         "badgeGithub": "GitHub",
         "badgeHttp": "HTTP",
@@ -198,6 +199,7 @@
         "regenerate": "Regenerate",
         "triggerARun": "Trigger a run",
         "webhookInstructions": "POST to this URL from CI (e.g. GitHub Actions) to trigger a run of this suite.",
+        "regenerateWebhookHint": "Generate a fresh webhook URL. The old URL is {bold} — it moves into the old URLs list below and keeps working until you delete it.",
         "noWebhookConfigured": "No webhook configured.",
         "hideCurlExample": "Hide curl example",
         "showCurlExample": "Show curl example",
@@ -415,7 +417,22 @@
         "duplicateTestShort": "Duplicate",
         "confirmDuplicateTest": "Duplicate test \"{name}\"? A copy will be created in this suite.",
         "duplicateTestPromptLabel": "New test name (optional)",
-        "duplicateTestPromptPlaceholder": "Login flow test (copy)"
+        "duplicateTestPromptPlaceholder": "Login flow test (copy)",
+        "scheduleTestsHeading": "Run only selected tests",
+        "scheduleTestsSelected": "{count} selected",
+        "scheduleTestsAll": "All active tests run on the schedule.",
+        "scheduleTestsAdd": "Add tests",
+        "scheduleTestsSearch": "Search tests…",
+        "scheduleTestsEmpty": "No tests match your search.",
+        "scheduleTestsClear": "Clear selection",
+        "scheduleTestsRequiresSchedule": "Add a schedule first to select specific tests.",
+        "emailSection": "Email",
+        "emailSectionHint": "Suite members listed below receive run results by email, with up to 10 screenshots included.",
+        "emailRecipientsEmpty": "No recipients selected — nothing is emailed.",
+        "emailRecipientsAdd": "Add recipient",
+        "emailRecipientsMembersOnly": "Only suite members can be added as recipients.",
+        "scheduleTestsDisabledHint": "Disabled tests are skipped until re-enabled.",
+        "regenerateWebhookNotInvalidated": "not invalidated"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · Review",
@@ -483,6 +500,7 @@
         "system": "System",
         "failedInterrupted": "Failed/Interrupted",
         "failedCount": "{count} failed",
+        "passedOfTotal": "{passed}/{total} passed",
         "viewRun": "View run",
         "viewLiveRun": "View live run",
         "enabled": "Enabled",
@@ -505,7 +523,8 @@
             "schedule_updated": "Schedule changed",
             "variables_updated": "Variables updated",
             "cookies_updated": "Cookies updated",
-            "integration_updated": "Integrations changed"
+            "integration_updated": "Integrations changed",
+            "email_recipients_updated": "Email recipients changed"
         },
         "actions": {
             "run_triggered": "started a run",
@@ -535,13 +554,36 @@
             "cookies_updated": "updated {count} cookies",
             "integration_added": "added a {type} integration",
             "integration_updated": "updated a {type} integration",
-            "integration_removed": "removed a {type} integration"
+            "integration_removed": "removed a {type} integration",
+            "email_recipients_updated": "updated email recipients"
+        },
+        "changed": "Changed:",
+        "fields": {
+            "name": "name",
+            "description": "description",
+            "base_url": "base URL",
+            "browser": "browser",
+            "headless": "headless mode",
+            "proxy": "proxy",
+            "history_retention": "history retention",
+            "timeout": "timeout",
+            "retries": "retries",
+            "screenshots": "screenshots",
+            "teams_notifications": "Teams notifications",
+            "email_notifications": "email notifications"
         },
         "prepositions": {
             "in": "in",
             "as": "as",
             "to": "to suite",
             "from": "from suite"
+        },
+        "filterGroups": {
+            "runs": "Runs",
+            "suites": "Suites",
+            "tests": "Tests",
+            "people": "People",
+            "settings": "Settings & Notifications"
         },
         "filters": {
             "suite": "Suite",

@@ -69,6 +69,12 @@ class CreateSuiteTool extends Tool
             'teams_notify_on_start' => $schema->boolean()->description('Whether to notify Teams when a run starts.'),
             'teams_notify_on_success' => $schema->boolean()->description('Whether to notify Teams when a run succeeds.'),
             'teams_notify_on_failure' => $schema->boolean()->description('Whether to notify Teams when a run fails.'),
+            'email_notify_on_start' => $schema->boolean()->description('Whether to email recipients when a run starts.'),
+            'email_notify_on_success' => $schema->boolean()->description('Whether to email recipients when a run succeeds.'),
+            'email_notify_on_failure' => $schema->boolean()->description('Whether to email recipients when a run fails.'),
+            'email_recipient_ids' => $schema->array()
+                ->items($schema->integer())
+                ->description('User IDs to email run results to. Only suite members are notified — non-member IDs are dropped (at creation the only member is the calling user, so this effectively selects just them). Nothing is emailed unless at least one notify_on_* flag is checked.'),
             'integrations' => $schema->array()
                 ->items($schema->object([
                     'type' => $schema->string()->enum(['github_action', 'http_request'])->required()->description('Integration type: "github_action" (dispatch a GitHub Actions workflow) or "http_request" (call a URL with GET/POST/PUT/DELETE).'),
@@ -114,6 +120,8 @@ class CreateSuiteTool extends Tool
         unset($data['cookies']);
         $integrations = $data['integrations'] ?? null;
         unset($data['integrations']);
+        $emailRecipientIds = $data['email_recipient_ids'] ?? null;
+        unset($data['email_recipient_ids']);
 
         $suite = TestSuite::create([...$data, 'created_by' => Auth::id()]);
 
@@ -142,6 +150,13 @@ class CreateSuiteTool extends Tool
             ]);
         }
 
+        // After the calling user is attached — they are the only member at
+        // creation, so the member-only filter effectively narrows recipients
+        // to them.
+        if ($emailRecipientIds !== null) {
+            $this->syncEmailRecipients($suite, $emailRecipientIds);
+        }
+
         ActivityLogger::log('suite_created', Auth::user(), $suite, $suite, ['name' => $suite->name]);
         if ($variables) {
             ActivityLogger::log('variables_updated', Auth::user(), $suite, null, ['count' => count($variables)]);
@@ -150,7 +165,20 @@ class CreateSuiteTool extends Tool
             ActivityLogger::log('cookies_updated', Auth::user(), $suite, null, ['count' => count($cookies)]);
         }
 
-        return Response::structured(['suite' => $suite->load(['proxyRules', 'variables', 'cookies', 'integrations'])->toArray()]);
+        return Response::structured(['suite' => $suite->load(['proxyRules', 'variables', 'cookies', 'integrations', 'emailRecipients:id,name,email'])->toArray()]);
+    }
+
+    /**
+     * Replace the suite's email recipients (null clears them). Only suite
+     * members may be notified — non-member ids are dropped.
+     *
+     * @param  array<int, int>|null  $recipientIds
+     */
+    private function syncEmailRecipients(TestSuite $suite, ?array $recipientIds): void
+    {
+        $memberIds = $suite->members()->pluck('users.id')->all();
+
+        $suite->emailRecipients()->sync(array_values(array_unique(array_intersect($recipientIds ?? [], $memberIds))));
     }
 
     /**

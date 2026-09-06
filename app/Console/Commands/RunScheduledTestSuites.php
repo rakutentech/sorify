@@ -32,7 +32,11 @@ class RunScheduledTestSuites extends Command
                     return;
                 }
 
-                $runs->triggerRun($schedule->testSuite, null, 'schedule');
+                // The schedule may restrict which tests run; an empty
+                // selection means every active test in the suite.
+                $testIds = $schedule->tests()->allRelatedIds()->all();
+
+                $runs->triggerRun($schedule->testSuite, $testIds ?: null, 'schedule');
 
                 $schedule->update([
                     'last_run_at' => now(),

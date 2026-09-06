@@ -124,6 +124,38 @@ const scheduleMeta = computed(() => {
     };
 });
 
+// suite_updated payload carries the changed column names; map them to
+// grouped label keys (several columns collapse into one label, e.g. the
+// Teams webhook settings) and drop anything unrecognized.
+const SUITE_FIELD_LABELS = {
+    name: 'name',
+    description: 'description',
+    base_url: 'base_url',
+    browser: 'browser',
+    headless: 'headless',
+    playwright_proxy: 'proxy',
+    history_retention: 'history_retention',
+    timeout_ms: 'timeout',
+    max_retries: 'retries',
+    take_screenshot: 'screenshots',
+    teams_webhook_url: 'teams_notifications',
+    teams_webhook_proxy: 'teams_notifications',
+    teams_notify_on_start: 'teams_notifications',
+    teams_notify_on_success: 'teams_notifications',
+    teams_notify_on_failure: 'teams_notifications',
+    email_notify_on_start: 'email_notifications',
+    email_notify_on_success: 'email_notifications',
+    email_notify_on_failure: 'email_notifications',
+};
+
+const changedFieldLabels = computed(() => {
+    if (props.activity.type !== 'suite_updated') return [];
+    const keys = (payload.value.fields ?? [])
+        .map((field) => SUITE_FIELD_LABELS[field])
+        .filter(Boolean);
+    return [...new Set(keys)].map((key) => t(`feed.fields.${key}`));
+});
+
 function integrationTypeLabel(type) {
     if (type === 'github_action') return 'GitHub Action';
     if (type === 'http_request') return 'HTTP';
@@ -187,6 +219,14 @@ function integrationTypeLabel(type) {
                             </div>
                         </div>
                     </span>
+                </div>
+
+                <!-- Suite update detail: which settings changed -->
+                <div
+                    v-if="changedFieldLabels.length"
+                    class="mt-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)]"
+                >
+                    {{ t('feed.changed') }} {{ changedFieldLabels.join(', ') }}
                 </div>
 
                 <!-- Run bodies (the large cards) -->

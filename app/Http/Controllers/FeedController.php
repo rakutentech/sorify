@@ -39,7 +39,8 @@ class FeedController extends Controller
 
         $runs = $this->loadRunSubjects(collect($paginator->items()));
         $tests = $this->loadTestSubjects(collect($paginator->items()));
-        $paginator->through(fn (Activity $activity) => $this->serialize($activity, $runs, $tests));
+        $suites = $this->loadSuiteSummaries(collect($paginator->items()));
+        $paginator->through(fn (Activity $activity) => $this->serialize($activity, $runs, $tests, $suites));
 
         if (! $request->hasHeader('X-Inertia') && $request->wantsJson()) {
             return response()->json($paginator);
@@ -195,7 +196,74 @@ class FeedController extends Controller
         return Test::whereIn('id', $testIds)->get(['id', 'test_suite_id'])->keyBy('id');
     }
 
-    private function serialize(Activity $activity, $runs, $tests): array
+    /**
+     * Per-suite settings chip summaries for the feed cards (Teams, Email,
+     * integrations, schedule, … — the same chips the suites page shows).
+     * Loaded in one query per page, keyed by suite id, so every activity
+     * of the same suite shares one row.
+     *
+     * @param  \Illuminate\Support\Collection<Activity>  $activities
+     */
+    private function loadSuiteSummaries($activities)
+    {
+        $suiteIds = $activities
+            ->filter(fn (Activity $a) => $a->suite_id !== null)
+            ->pluck('suite_id')
+            ->unique()
+            ->values();
+
+        if ($suiteIds->isEmpty()) {
+            return collect();
+        }
+
+        return TestSuite::whereIn('id', $suiteIds)
+            ->withCount(['proxyRules', 'variables', 'cookies', 'emailRecipients'])
+            ->with([
+                'schedule:test_suite_id,is_enabled',
+                'integrations:id,test_suite_id,type,enabled',
+            ])
+            ->get([
+                'id', 'name', 'teams_webhook_url', 'playwright_proxy', 'take_screenshot',
+                'email_notify_on_start', 'email_notify_on_success', 'email_notify_on_failure',
+            ])
+            ->keyBy('id')
+            ->map(fn (TestSuite $suite) => [
+                'id' => $suite->id,
+                'name' => $suite->name,
+                'has_teams_webhook' => (bool) $suite->teams_webhook_url,
+                'has_email_notifications' => $suite->email_recipients_count > 0
+                    && ((bool) $suite->email_notify_on_start || (bool) $suite->email_notify_on_success || (bool) $suite->email_notify_on_failure),
+                'has_github_integration' => $suite->integrations->contains(fn ($i) => $i->type === 'github_action' && $i->enabled),
+                'has_http_integration' => $suite->integrations->contains(fn ($i) => $i->type === 'http_request' && $i->enabled),
+                'take_screenshot' => (bool) $suite->take_screenshot,
+                'proxy_rules_count' => $suite->proxy_rules_count,
+                'playwright_proxy' => $suite->playwright_proxy,
+                'variables_count' => $suite->variables_count,
+                'cookies_count' => $suite->cookies_count,
+                'schedule' => ['is_enabled' => (bool) $suite->schedule?->is_enabled],
+            ]);
+    }
+
+    /**
+     * The suite a feed card belongs to: the pre-built settings-chip summary
+     * when available (it already carries id + name), falling back to the
+     * bare relation.
+     *
+     * @param  \Illuminate\Support\Collection  $suites
+     */
+    private function serializeSuite(Activity $activity, $suites): ?array
+    {
+        if ($activity->suite_id === null) {
+            return null;
+        }
+
+        return $suites->get($activity->suite_id) ?? [
+            'id' => $activity->suite->id,
+            'name' => $activity->suite->name,
+        ];
+    }
+
+    private function serialize(Activity $activity, $runs, $tests, $suites): array
     {
         $subject = null;
         $runMorph = (new TestRun)->getMorphClass();
@@ -260,10 +328,7 @@ class FeedController extends Controller
                 'email' => $activity->actor->email,
                 'avatar_url' => $activity->actor->avatar_url,
             ] : null,
-            'suite' => $activity->suite ? [
-                'id' => $activity->suite->id,
-                'name' => $activity->suite->name,
-            ] : null,
+            'suite' => $this->serializeSuite($activity, $suites),
             'payload' => $activity->payload,
             'subject' => $subject,
             'created_at' => $activity->created_at?->toISOString(),

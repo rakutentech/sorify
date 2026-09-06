@@ -39,6 +39,9 @@ class TestSuiteDuplicationService
                 'teams_notify_on_start' => $source->teams_notify_on_start,
                 'teams_notify_on_success' => $source->teams_notify_on_success,
                 'teams_notify_on_failure' => $source->teams_notify_on_failure,
+                'email_notify_on_start' => $source->email_notify_on_start,
+                'email_notify_on_success' => $source->email_notify_on_success,
+                'email_notify_on_failure' => $source->email_notify_on_failure,
                 'created_by' => $user->id,
                 'duplication_status' => 'pending',
                 'duplicated_from_suite_id' => $source->id,
@@ -90,6 +93,14 @@ class TestSuiteDuplicationService
                 'can_delete' => true,
                 'can_run' => true,
             ]);
+
+            // Recipients must be members of the suite they notify — the
+            // clone's only member so far is the calling user, so copying
+            // narrows the list to them if they were a source recipient.
+            $source->loadMissing('emailRecipients');
+            if ($source->emailRecipients->contains($user->id)) {
+                $clone->emailRecipients()->attach($user->id);
+            }
 
             return $clone;
         });

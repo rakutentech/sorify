@@ -71,6 +71,12 @@ class UpdateSuiteTool extends Tool
             'teams_notify_on_start' => $schema->boolean()->description('Whether to notify Teams when a run starts.'),
             'teams_notify_on_success' => $schema->boolean()->description('Whether to notify Teams when a run succeeds.'),
             'teams_notify_on_failure' => $schema->boolean()->description('Whether to notify Teams when a run fails.'),
+            'email_notify_on_start' => $schema->boolean()->description('Whether to email recipients when a run starts.'),
+            'email_notify_on_success' => $schema->boolean()->description('Whether to email recipients when a run succeeds.'),
+            'email_notify_on_failure' => $schema->boolean()->description('Whether to email recipients when a run fails.'),
+            'email_recipient_ids' => $schema->array()
+                ->items($schema->integer())
+                ->description('User IDs to email run results to. Only suite members are notified — non-member IDs are dropped. Passing this replaces the recipient list; omit to leave it untouched. Nothing is emailed unless at least one notify_on_* flag is checked.'),
             'integrations' => $schema->array()
                 ->items($schema->object([
                     'type' => $schema->string()->enum(['github_action', 'http_request'])->required()->description('Integration type: "github_action" (dispatch a GitHub Actions workflow) or "http_request" (call a URL with GET/POST/PUT/DELETE).'),
@@ -121,10 +127,18 @@ class UpdateSuiteTool extends Tool
         $hasIntegrations = array_key_exists('integrations', $data);
         $integrations = $data['integrations'] ?? null;
         unset($data['integrations']);
+        $hasEmailRecipients = array_key_exists('email_recipient_ids', $data);
+        $emailRecipientIds = $data['email_recipient_ids'] ?? [];
+        unset($data['email_recipient_ids']);
 
         $suite->update($data);
 
-        ActivityLogger::log('suite_updated', Auth::user(), $suite, $suite, ['name' => $suite->name]);
+        ActivityLogger::log('suite_updated', Auth::user(), $suite, $suite, [
+            'name' => $suite->name,
+            // Which columns this update actually changed (names only,
+            // never values) so the feed can say what was updated.
+            'fields' => collect($suite->getChanges())->forget('updated_at')->keys()->values()->all(),
+        ]);
 
         if ($hasProxyRules) {
             $suite->proxyRules()->delete();
@@ -149,11 +163,28 @@ class UpdateSuiteTool extends Tool
             $this->syncIntegrations($suite, $integrations);
         }
 
+        if ($hasEmailRecipients) {
+            $this->syncEmailRecipients($suite, $emailRecipientIds);
+        }
+
         if ($suite->wasChanged('history_retention')) {
             PruneSuiteHistoryJob::dispatch($suite);
         }
 
-        return Response::structured(['suite' => $suite->load(['proxyRules', 'variables', 'cookies', 'integrations'])->toArray()]);
+        return Response::structured(['suite' => $suite->load(['proxyRules', 'variables', 'cookies', 'integrations', 'emailRecipients:id,name,email'])->toArray()]);
+    }
+
+    /**
+     * Replace the suite's email recipients (null clears them). Only suite
+     * members may be notified — non-member ids are dropped.
+     *
+     * @param  array<int, int>|null  $recipientIds
+     */
+    private function syncEmailRecipients(TestSuite $suite, ?array $recipientIds): void
+    {
+        $memberIds = $suite->members()->pluck('users.id')->all();
+
+        $suite->emailRecipients()->sync(array_values(array_unique(array_intersect($recipientIds ?? [], $memberIds))));
     }
 
     /**

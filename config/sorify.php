@@ -14,6 +14,10 @@ return [
 
     'teams_max_screenshots' => env('SORIFY_TEAMS_MAX_SCREENSHOTS', 5),
 
+    // Screenshots embedded inline (<img>) in result emails, failing/error
+    // results first.
+    'email_max_screenshots' => env('SORIFY_EMAIL_MAX_SCREENSHOTS', 10),
+
     'integrations' => [
         'github_action' => [
             // How long a blocking pre-run workflow may take before the run
