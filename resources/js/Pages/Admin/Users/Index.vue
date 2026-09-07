@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Button, TextField, Modal, Tooltip } from '@/Components/ui';
+import { Card, Button, TextField, Modal, Tooltip, SortableTh } from '@/Components/ui';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { ShieldCheck, UserPlus, Users, Mail, KeyRound, Trash2, Calendar, User, Clock } from '@lucide/vue';
@@ -16,6 +16,39 @@ const props = defineProps({
 
 const page = usePage();
 const currentUserId = computed(() => page.props.auth?.user?.id ?? null);
+
+// ── Client-side table sorting (the table loads every user at once, no
+// pagination to keep in sync — same SortableTh header as the other tables).
+const sort = ref('name');
+const sortDir = ref('asc');
+
+function setSort(field, dir) {
+    sort.value = field;
+    sortDir.value = dir;
+}
+
+const sortedUsers = computed(() => {
+    const field = sort.value;
+    const dir = sortDir.value === 'asc' ? 1 : -1;
+    const isDate = field === 'created_at' || field === 'last_login_at';
+
+    return [...props.users].sort((a, b) => {
+        let va = field === 'role' ? roleOf(a) : a[field];
+        let vb = field === 'role' ? roleOf(b) : b[field];
+
+        // Users who never logged in sink to the bottom whichever way the
+        // column is sorted — there is no date to compare against.
+        if (va == null && vb == null) return 0;
+        if (va == null) return 1;
+        if (vb == null) return -1;
+
+        if (isDate) {
+            return (Date.parse(va) - Date.parse(vb)) * dir;
+        }
+
+        return String(va).localeCompare(String(vb)) * dir;
+    });
+});
 
 const showAddModal = ref(false);
 
@@ -85,16 +118,16 @@ watch(
                 <table class="w-full">
                     <thead>
                         <tr class="border-b border-[var(--md-sys-color-outline-variant)] text-left bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><User :size="13" />{{ t('adminUsers.colName') }}</span></th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Mail :size="13" />{{ t('adminUsers.colEmail') }}</span></th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><ShieldCheck :size="13" />{{ t('adminUsers.colRole') }}</span></th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Calendar :size="13" />{{ t('adminUsers.colJoined') }}</span></th>
-                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Clock :size="13" />{{ t('adminUsers.colLastActive') }}</span></th>
+                            <SortableTh field="name" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><User :size="13" />{{ t('adminUsers.colName') }}</SortableTh>
+                            <SortableTh field="email" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Mail :size="13" />{{ t('adminUsers.colEmail') }}</SortableTh>
+                            <SortableTh field="role" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><ShieldCheck :size="13" />{{ t('adminUsers.colRole') }}</SortableTh>
+                            <SortableTh field="created_at" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Calendar :size="13" />{{ t('adminUsers.colJoined') }}</SortableTh>
+                            <SortableTh field="last_login_at" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Clock :size="13" />{{ t('adminUsers.colLastActive') }}</SortableTh>
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colActions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
-                        <tr v-for="user in users" :key="user.id" class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors">
+                        <tr v-for="user in sortedUsers" :key="user.id" class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors">
                             <td class="px-4 py-3 md-body-medium font-medium text-[var(--md-sys-color-on-surface)]">{{ user.name }}</td>
                             <td class="px-4 py-3 md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ user.email }}</td>
                             <td class="px-4 py-3">

@@ -79,6 +79,7 @@ class TestSuiteDuplicationService
                 $clone->integrations()->create([
                     'type' => $integration->type,
                     'github_app_id' => $integration->github_app_id,
+                    'created_by' => $integration->created_by,
                     'label' => $integration->label,
                     'config' => $integration->config,
                     'enabled' => $integration->enabled,

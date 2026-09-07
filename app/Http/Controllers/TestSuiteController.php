@@ -311,11 +311,17 @@ class TestSuiteController extends Controller
             'webhookUrl' => $suite->webhookUrl(),
             'previousWebhooks' => $suite->previousWebhooks(),
             'webhookLimitReached' => $suite->webhookTokenCount() >= TestSuite::MAX_WEBHOOK_TOKENS,
-            // Apps the GitHub Action integration can dispatch as.
+            // Apps the GitHub Action integration can dispatch as — limited to
+            // the ones the current user may use (the app's access list; see
+            // Admin → GitHub Apps), so the picker never offers an app whose
+            // save would be rejected.
             'githubApps' => GithubApp::dispatchApps()
+                ->filter(fn (GithubApp $app) => $app->allowsDispatchBy($request->user()))
                 ->map(fn (GithubApp $app) => ['id' => $app->id, 'name' => $app->name])
                 ->values(),
             'githubActionsConfigured' => GithubApp::dispatchApps()->isNotEmpty(),
+            'githubActionsAllowed' => GithubApp::dispatchApps()
+                ->contains(fn (GithubApp $app) => $app->allowsDispatchBy($request->user())),
             'members' => $members,
             'candidates' => $candidates,
             'emailRecipients' => $suite->emailRecipients()

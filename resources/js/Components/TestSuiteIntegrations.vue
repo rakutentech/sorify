@@ -10,6 +10,10 @@ const props = defineProps({
     canEdit: { type: Boolean, default: false },
     githubConfigured: { type: Boolean, default: true },
     githubApps: { type: Array, default: () => [] },
+    // False when GitHub Apps exist but the current user is on none of their
+    // access lists (Admin → GitHub Apps) — the GitHub Action integration
+    // is off-limits for them.
+    githubAllowed: { type: Boolean, default: true },
 });
 
 let keySeq = 0;
@@ -314,11 +318,19 @@ function cardTitle(card) {
                     <Check :size="12" />
                     {{ t('testSuiteShow.saved') }}
                 </span>
-                <button v-if="canEdit" type="button" @click="addIntegration('github_action')" :disabled="saving" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addGithubIntegration') }}</button>
+                <button v-if="canEdit && (githubAllowed || !githubConfigured)" type="button" @click="addIntegration('github_action')" :disabled="saving" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addGithubIntegration') }}</button>
                 <button v-if="canEdit" type="button" @click="addIntegration('http_request')" :disabled="saving" class="md-label-small text-[var(--md-sys-color-primary)] hover:underline disabled:opacity-60">{{ t('testSuiteShow.addHttpIntegration') }}</button>
             </div>
         </div>
         <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2 opacity-80">{{ t('testSuiteShow.integrationsHint') }}</p>
+
+        <div
+            v-if="githubConfigured && !githubAllowed"
+            class="mb-3 p-2.5 flex items-start gap-2 bg-[var(--md-sys-color-surface-container)] text-[var(--md-sys-color-on-surface-variant)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-small)]"
+        >
+            <CircleAlert :size="14" class="mt-0.5 flex-shrink-0" />
+            <p class="md-body-small">{{ t('testSuiteShow.githubActionsNoAccess') }}</p>
+        </div>
 
         <div
             v-if="githubConfigured === false && cards.some(c => c.type === 'github_action')"

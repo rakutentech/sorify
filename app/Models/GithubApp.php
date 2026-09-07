@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -64,6 +65,17 @@ class GithubApp extends Model
     public function integrations(): HasMany
     {
         return $this->hasMany(TestSuiteIntegration::class);
+    }
+
+    /**
+     * The app's dispatch access list: when non-empty, only these users (and
+     * admins) may add or edit github_action integrations that dispatch as
+     * this app. Distinct from users(), which is the app's sign-in identity.
+     */
+    public function allowedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'github_app_allowed_users', 'github_app_id', 'user_id')
+            ->withTimestamps();
     }
 
     public function isPublic(): bool
@@ -141,6 +153,21 @@ class GithubApp extends Model
     public static function signInApps()
     {
         return static::query()->where('sign_in_enabled', true)->orderBy('id')->get()->filter->canSignIn();
+    }
+
+    /**
+     * Whether the user may add or edit github_action integrations that
+     * dispatch as this app: admins always, else anyone while the access
+     * list is empty, else only listed users.
+     */
+    public function allowsDispatchBy(?User $user): bool
+    {
+        if ($user === null || $user->is_admin) {
+            return true;
+        }
+
+        return ! $this->allowedUsers()->exists()
+            || $this->allowedUsers()->whereKey($user->id)->exists();
     }
 
     /**
