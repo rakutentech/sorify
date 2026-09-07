@@ -1,0 +1,22 @@
+tests/Feature/FeedTest.php
+  s_a30e47b8ade3e1::t_4568f409f4d6f4 276-309
+resources/js/Components/feed/ActivityCard.vue
+  s_a30e47b8ade3e1::t_de0e402d062e82 63-77
+  s_a30e47b8ade3e1::t_7a6cc3ef0e428f 218-224
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "fabe173ed5c3319a16dbf55c59e4cb9bce7ec35a",
+  "prompts": {},
+  "sessions": {
+    "s_a30e47b8ade3e1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f86a47728ffetoqzCTpxGGY7J3",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
