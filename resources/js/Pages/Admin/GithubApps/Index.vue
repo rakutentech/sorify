@@ -1,16 +1,17 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Card, Button, TextField, Modal, Tooltip } from '@/Components/ui';
-import { ShieldCheck, Plus, Trash2, Pencil, Globe, Workflow, KeyRound, Users, Cable, Power, ChevronDown, CircleHelp, LoaderCircle, CircleCheck, CircleAlert } from '@lucide/vue';
+import { Card, Button, TextField, Modal, Tooltip, Autocomplete } from '@/Components/ui';
+import { ShieldCheck, Plus, Trash2, Pencil, Globe, Workflow, KeyRound, Users, Cable, Power, ChevronDown, CircleHelp, LoaderCircle, CircleCheck, CircleAlert, X } from '@lucide/vue';
 
 const { t } = useI18n();
 
 const props = defineProps({
     apps: Array,
     defaultRedirectUri: String,
+    users: { type: Array, default: () => [] },
 });
 
 const showFormModal = ref(false);
@@ -28,7 +29,26 @@ const form = useForm({
     private_key: '',
     sign_in_enabled: true,
     actions_enabled: true,
+    allowed_user_ids: [],
 });
+
+// Access-list picker: select from the Autocomplete adds to the form's list.
+const accessPicker = ref('');
+
+watch(accessPicker, (id) => {
+    if (!id || form.allowed_user_ids.includes(id)) return;
+
+    form.allowed_user_ids.push(id);
+    nextTick(() => { accessPicker.value = ''; });
+});
+
+function removeAllowedUser(id) {
+    form.allowed_user_ids = form.allowed_user_ids.filter((u) => u !== id);
+}
+
+function allowedUserById(id) {
+    return props.users.find((u) => u.id === id);
+}
 
 // Live connection check for the Base URL / Proxy fields: debounced,
 // admin-only endpoint, runs while the modal is open.
@@ -126,6 +146,7 @@ function openEditModal(app) {
         private_key: '',
         sign_in_enabled: app.sign_in_enabled,
         actions_enabled: app.actions_enabled,
+        allowed_user_ids: (app.allowed_users || []).map((u) => u.id),
     });
     showFormModal.value = true;
 }
@@ -257,6 +278,7 @@ jobs:
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminGithubApps.colUses') }}</th>
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Users :size="13" />{{ t('adminGithubApps.colUsers') }}</span></th>
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Cable :size="13" />{{ t('adminGithubApps.colIntegrations') }}</span></th>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><span class="inline-flex items-center gap-1"><Users :size="13" />{{ t('adminGithubApps.colAccessList') }}</span></th>
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminGithubApps.colActions') }}</th>
                         </tr>
                     </thead>
@@ -285,6 +307,15 @@ jobs:
                             </td>
                             <td class="px-4 py-3 md-body-medium text-[var(--md-sys-color-on-surface)]">{{ app.users_count }}</td>
                             <td class="px-4 py-3 md-body-medium text-[var(--md-sys-color-on-surface)]">{{ app.active_integrations_count }}</td>
+                            <td class="px-4 py-3 md-body-medium text-[var(--md-sys-color-on-surface)]">
+                                <Tooltip v-if="app.allowed_users?.length" :text="app.allowed_users.map((u) => u.name).join(', ')">
+                                    <span class="inline-flex items-center gap-1 cursor-help">
+                                        <Users :size="13" class="text-[var(--md-sys-color-on-surface-variant)]" />
+                                        {{ t('adminGithubApps.accessListCount', { count: app.allowed_users.length }) }}
+                                    </span>
+                                </Tooltip>
+                                <span v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ t('adminGithubApps.accessListAll') }}</span>
+                            </td>
                             <td class="px-4 py-3 space-x-3">
                                 <button
                                     @click="openEditModal(app)"
@@ -305,7 +336,7 @@ jobs:
                             </td>
                         </tr>
                         <tr v-if="!apps.length">
-                            <td colspan="5" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                            <td colspan="6" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                                 {{ t('adminGithubApps.noApps') }}
                             </td>
                         </tr>
@@ -375,6 +406,45 @@ jobs:
                         <input type="checkbox" v-model="form.actions_enabled" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer" />
                         {{ t('adminGithubApps.actionsEnabled') }}
                     </label>
+                </div>
+
+                <!-- Dispatch access list: when non-empty, only these users
+                     (and admins) may add github_action integrations that
+                     dispatch as this app. Empty = everyone with suite edit
+                     rights. -->
+                <div v-if="form.actions_enabled" class="pt-1">
+                    <label class="block md-label-large text-[var(--md-sys-color-on-surface)]">{{ t('adminGithubApps.accessList') }}</label>
+                    <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mt-1 mb-2">
+                        {{ t('adminGithubApps.accessListHint') }}
+                    </p>
+                    <Autocomplete
+                        v-model="accessPicker"
+                        :options="users.filter((u) => !form.allowed_user_ids.includes(u.id))"
+                        :label="t('adminGithubApps.accessListAdd')"
+                        :placeholder="t('adminGithubApps.accessListPlaceholder')"
+                        value-key="id"
+                        :emit-on-input="false"
+                    />
+                    <div v-if="form.allowed_user_ids.length" class="flex flex-wrap gap-1.5 mt-2.5">
+                        <span
+                            v-for="id in form.allowed_user_ids"
+                            :key="id"
+                            class="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)] md-label-small"
+                        >
+                            {{ allowedUserById(id)?.name || `#${id}` }}
+                            <button
+                                type="button"
+                                @click="removeAllowedUser(id)"
+                                class="p-0.5 rounded-full hover:bg-[var(--md-sys-color-on-secondary-container)]/10 cursor-pointer"
+                                :title="t('adminGithubApps.accessListRemove')"
+                            >
+                                <X :size="12" />
+                            </button>
+                        </span>
+                    </div>
+                    <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mt-2">
+                        {{ t('adminGithubApps.accessListEveryone') }}
+                    </p>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2">

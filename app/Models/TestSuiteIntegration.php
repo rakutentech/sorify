@@ -12,6 +12,7 @@ class TestSuiteIntegration extends Model
     protected $fillable = [
         'type',
         'github_app_id',
+        'created_by',
         'label',
         'config',
         'disabled_note',
@@ -39,6 +40,16 @@ class TestSuiteIntegration extends Model
     public function githubApp(): BelongsTo
     {
         return $this->belongsTo(GithubApp::class);
+    }
+
+    /**
+     * Who set up the integration — used by the GitHub App access-list sweep
+     * to spare integrations a still-whitelisted member created. Null for
+     * integrations created before the feature existed.
+     */
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function config(string $key, mixed $default = null): mixed
