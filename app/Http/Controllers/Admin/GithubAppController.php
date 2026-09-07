@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GithubApp;
+use App\Models\User;
+use App\Services\GithubAppAccessService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,18 +21,23 @@ use Inertia\Response;
  * sign-in and Actions dispatch — and secrets (client secret, private key)
  * are never echoed back: submitting them blank keeps the stored value.
  *
- * Deleting an app force-disables every active integration that dispatches
- * as it (with an explanatory note shown on the suite page) instead of
- * silently re-routing them to another app.
+ * Each app also carries a dispatch access list: when non-empty, only the
+ * listed users (and admins) may add or edit github_action integrations that
+ * dispatch as it. Removing a user force-disables the integrations their
+ * removal affects (with an explanatory note shown on the suite page), the
+ * same as deleting an app does.
  */
 class GithubAppController extends Controller
 {
+    public function __construct(private readonly GithubAppAccessService $access) {}
+
     public function index(): Response
     {
         $apps = GithubApp::withCount([
             'users',
             'integrations' => fn ($query) => $query->where('enabled', true),
         ])
+            ->with('allowedUsers:id,name,email')
             ->orderBy('id')
             ->get()
             ->map(fn (GithubApp $app) => [
@@ -52,11 +59,19 @@ class GithubAppController extends Controller
                 'can_dispatch' => $app->canDispatch(),
                 'users_count' => $app->users_count,
                 'active_integrations_count' => $app->integrations_count,
+                // The dispatch access list (empty = everyone with suite
+                // edit rights may use the app for github_action).
+                'allowed_users' => $app->allowedUsers->map(fn (User $user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ])->values(),
             ]);
 
         return Inertia::render('Admin/GithubApps/Index', [
             'apps' => $apps,
             'defaultRedirectUri' => route('github.callback'),
+            'users' => User::orderBy('name')->get(['id', 'name', 'email', 'avatar']),
         ]);
     }
 
@@ -64,7 +79,11 @@ class GithubAppController extends Controller
     {
         $data = $this->validated($request);
 
-        GithubApp::create($this->attributes($data));
+        $app = GithubApp::create($this->attributes($data));
+
+        if (array_key_exists('allowed_user_ids', $data)) {
+            $this->access->syncAllowedUsers($app, $data['allowed_user_ids'] ?? []);
+        }
 
         return back()->with('flash.success', 'GitHub App added.');
     }
@@ -74,6 +93,13 @@ class GithubAppController extends Controller
         $data = $this->validated($request, $githubApp);
 
         $githubApp->update($this->attributes($data, $githubApp));
+
+        // The access-list sync runs the removal sweep: dropped users lose
+        // the github_action integrations their removal affects. Omitting
+        // the field (the row-toggle shortcut) keeps the stored list.
+        if (array_key_exists('allowed_user_ids', $data)) {
+            $this->access->syncAllowedUsers($githubApp, $data['allowed_user_ids'] ?? []);
+        }
 
         return back()->with('flash.success', 'GitHub App updated.');
     }
@@ -150,6 +176,11 @@ class GithubAppController extends Controller
             'private_key' => ['nullable', 'string', 'max:20000'],
             'sign_in_enabled' => ['nullable', 'boolean'],
             'actions_enabled' => ['nullable', 'boolean'],
+            // Dispatch access list — absent keeps the stored list (the
+            // row-toggle shortcut sends no field), empty array opens the
+            // app to everyone with suite edit rights again.
+            'allowed_user_ids' => ['nullable', 'array'],
+            'allowed_user_ids.*' => ['integer', Rule::exists('users', 'id')],
         ]);
     }
 

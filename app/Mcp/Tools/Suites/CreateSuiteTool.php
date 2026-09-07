@@ -5,8 +5,9 @@ namespace App\Mcp\Tools\Suites;
 use App\Http\Requests\Api\StoreSuiteRequest;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestSuite;
-use App\Support\IntegrationPayload;
 use App\Services\ActivityLogger;
+use App\Services\GithubAppAccessService;
+use App\Support\IntegrationPayload;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
@@ -21,6 +22,8 @@ class CreateSuiteTool extends Tool
     protected string $name = 'create_suite';
 
     protected string $description = 'Create a new test suite.';
+
+    public function __construct(private readonly GithubAppAccessService $githubAppAccess) {}
 
     public function schema(JsonSchema $schema): array
     {
@@ -123,6 +126,13 @@ class CreateSuiteTool extends Tool
         $emailRecipientIds = $data['email_recipient_ids'] ?? null;
         unset($data['email_recipient_ids']);
 
+        // github_action integrations may only be set up by users on the
+        // dispatching GitHub App's access list — reject before anything
+        // is created so no partial suite is left behind.
+        if ($integrations && ($denial = $this->githubAppDenial($integrations)) !== null) {
+            return Response::error($denial);
+        }
+
         $suite = TestSuite::create([...$data, 'created_by' => Auth::id()]);
 
         if ($proxyRules) {
@@ -191,8 +201,33 @@ class CreateSuiteTool extends Tool
         $suite->integrations()->delete();
 
         foreach ($integrations as $integration) {
-            $suite->integrations()->create(IntegrationPayload::normalize($integration));
+            $suite->integrations()->create(
+                IntegrationPayload::normalize($integration) + ['created_by' => Auth::id()]
+            );
         }
+    }
+
+    /**
+     * First access-list denial among the payload's github_action
+     * integrations, if any — see Admin → GitHub Apps.
+     *
+     * @param  array<int, array<string, mixed>>  $integrations
+     */
+    private function githubAppDenial(array $integrations): ?string
+    {
+        foreach ($integrations as $integration) {
+            $message = $this->githubAppAccess->denialMessage(
+                Auth::user(),
+                isset($integration['github_app_id']) && $integration['github_app_id'] !== '' ? (int) $integration['github_app_id'] : null,
+                (string) ($integration['type'] ?? ''),
+            );
+
+            if ($message !== null) {
+                return $message;
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -67,6 +67,16 @@ class User extends Authenticatable
     }
 
     /**
+     * GitHub Apps whose Actions-dispatch access list includes this user —
+     * the per-app whitelists managed under Admin → GitHub Apps.
+     */
+    public function allowedGithubApps(): BelongsToMany
+    {
+        return $this->belongsToMany(GithubApp::class, 'github_app_allowed_users', 'user_id', 'github_app_id')
+            ->withTimestamps();
+    }
+
+    /**
      * Display name, truncated for compact UI surfaces. Names longer than 32
      * characters are shown as 31 characters plus an ellipsis.
      */

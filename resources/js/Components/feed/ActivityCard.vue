@@ -60,6 +60,21 @@ const sourceLabel = computed(() => {
 
 const actorLabel = computed(() => props.activity.actor?.name ?? sourceLabel.value ?? t('feed.system'));
 
+// Deep link for the activity's test subject (test_created / test_updated /
+// test_code_updated / test_status_changed cards): the card links the test
+// name to its suite page section. Null for run/suite subjects, bulk counts
+// and deleted tests — those keep the plain-text object (a deleted test's
+// subject row is gone, so there is nothing left to link to).
+const testUrl = computed(() => {
+    if (isRunType.value) return null;
+
+    const subject = props.activity.subject;
+
+    return subject?.id != null && subject?.suite_id != null
+        ? `/sorify/suites/${subject.suite_id}/tests/${subject.id}`
+        : null;
+});
+
 // Uniform sentence: {actor} {verb} {object} {preposition} {suite link}
 const parts = computed(() => {
     const p = payload.value;
@@ -200,7 +215,13 @@ function integrationTypeLabel(type) {
                         <p class="md-body-medium text-[var(--md-sys-color-on-surface)] min-w-0 flex items-center gap-x-1.5 overflow-hidden">
                             <span class="font-semibold truncate min-w-0 shrink sm:shrink-0 max-w-[8rem] sm:max-w-[16rem]">{{ actorLabel }}</span>
                             <span class="flex-shrink-0 whitespace-nowrap">{{ parts.verb }}</span>
-                            <span v-if="parts.object" class="font-medium truncate min-w-0">{{ parts.object }}</span>
+                            <Link
+                                v-if="parts.object && testUrl"
+                                :href="testUrl"
+                                class="font-medium truncate min-w-0 text-[var(--md-sys-color-primary)] hover:underline"
+                                :title="parts.object"
+                            >{{ parts.object }}</Link>
+                            <span v-else-if="parts.object" class="font-medium truncate min-w-0">{{ parts.object }}</span>
                             <span v-if="prepositionLabel" class="opacity-70 flex-shrink-0 whitespace-nowrap">{{ prepositionLabel }}</span>
                             <Link
                                 v-if="activity.suite"

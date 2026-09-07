@@ -273,6 +273,40 @@ class FeedTest extends TestCase
             );
     }
 
+    public function test_test_activity_subject_exposes_deep_link_data(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $suite = TestSuite::create(['name' => 'Suite', 'base_url' => 'https://example.com', 'created_by' => $admin->id]);
+        $test = $suite->tests()->create(['name' => 'Login flow', 'playwright_code' => 'code', 'status' => 'active']);
+
+        ActivityLogger::log('test_code_updated', $admin, $suite, $test, ['name' => $test->name]);
+
+        // The card links the test name to /suites/{suite}/tests/{test} —
+        // the subject must carry both ids.
+        $this->actingAs($admin)
+            ->get('/sorify/feed')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('activities.data.0.type', 'test_code_updated')
+                ->where('activities.data.0.subject.id', $test->id)
+                ->where('activities.data.0.subject.suite_id', $suite->id)
+                ->where('activities.data.0.payload.name', 'Login flow')
+            );
+
+        // A deleted test has no subject row left, so the name stays plain
+        // text — there is nowhere to link to.
+        ActivityLogger::log('test_deleted', $admin, $suite, $test, ['name' => $test->name]);
+        $test->delete();
+
+        $this->actingAs($admin)
+            ->get('/sorify/feed')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('activities.data.0.type', 'test_deleted')
+                ->where('activities.data.0.subject', null)
+            );
+    }
+
     public function test_secret_values_never_reach_the_activity_payload(): void
     {
         $admin = User::factory()->admin()->create();
