@@ -28,6 +28,7 @@ const props = defineProps({
     previousWebhooks: { type: Array, default: () => [] },
     webhookLimitReached: { type: Boolean, default: false },
     githubActionsConfigured: { type: Boolean, default: true },
+    githubActionsAllowed: { type: Boolean, default: true },
     githubApps: { type: Array, default: () => [] },
     members: { type: Array, default: () => [] },
     candidates: { type: Array, default: () => [] },
@@ -2029,7 +2030,7 @@ function toggleRunsExpanded(testId) {
 
                         <!-- Integrations (pre/post run hooks: GitHub Actions) -->
                         <div class="rounded-[var(--md-sys-shape-corner-medium)] px-4 py-3 bg-[var(--md-sys-color-surface-container-high)]">
-                            <TestSuiteIntegrations :suite="suite" :can-edit="can.edit" :github-configured="githubActionsConfigured" :github-apps="githubApps" />
+                            <TestSuiteIntegrations :suite="suite" :can-edit="can.edit" :github-configured="githubActionsConfigured" :github-apps="githubApps" :github-allowed="githubActionsAllowed" />
                         </div>
                     </div>
                 </Card>
