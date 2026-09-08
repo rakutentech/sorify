@@ -29,7 +29,7 @@ class DuplicationTest extends TestCase
             'history_retention' => 10,
             'timeout_ms' => 60000,
             'max_retries' => 2,
-            'take_screenshot' => false,
+            'take_screenshot' => 'on_failure',
             'playwright_proxy' => 'http://proxy.example.com:8080',
             'teams_webhook_url' => 'https://example.test/teams',
             'teams_notify_on_start' => true,

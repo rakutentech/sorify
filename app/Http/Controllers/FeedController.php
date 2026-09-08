@@ -11,6 +11,7 @@ use App\Services\ActivityLogger;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -150,7 +151,7 @@ class FeedController extends Controller
      * query keyed by run id (instead of a morphTo eager load, which would
      * drag heavy columns like tests.playwright_code along for every subject).
      *
-     * @param  \Illuminate\Support\Collection<Activity>  $activities
+     * @param  Collection<Activity>  $activities
      */
     private function loadRunSubjects($activities)
     {
@@ -177,7 +178,7 @@ class FeedController extends Controller
      * query instead of a morphTo eager load (which would pull the heavy
      * playwright_code column of every subject row).
      *
-     * @param  \Illuminate\Support\Collection<Activity>  $activities
+     * @param  Collection<Activity>  $activities
      */
     private function loadTestSubjects($activities)
     {
@@ -202,7 +203,7 @@ class FeedController extends Controller
      * Loaded in one query per page, keyed by suite id, so every activity
      * of the same suite shares one row.
      *
-     * @param  \Illuminate\Support\Collection<Activity>  $activities
+     * @param  Collection<Activity>  $activities
      */
     private function loadSuiteSummaries($activities)
     {
@@ -235,7 +236,7 @@ class FeedController extends Controller
                     && ((bool) $suite->email_notify_on_start || (bool) $suite->email_notify_on_success || (bool) $suite->email_notify_on_failure),
                 'has_github_integration' => $suite->integrations->contains(fn ($i) => $i->type === 'github_action' && $i->enabled),
                 'has_http_integration' => $suite->integrations->contains(fn ($i) => $i->type === 'http_request' && $i->enabled),
-                'take_screenshot' => (bool) $suite->take_screenshot,
+                'take_screenshot' => $suite->take_screenshot,
                 'proxy_rules_count' => $suite->proxy_rules_count,
                 'playwright_proxy' => $suite->playwright_proxy,
                 'variables_count' => $suite->variables_count,
@@ -249,7 +250,7 @@ class FeedController extends Controller
      * when available (it already carries id + name), falling back to the
      * bare relation.
      *
-     * @param  \Illuminate\Support\Collection  $suites
+     * @param  Collection  $suites
      */
     private function serializeSuite(Activity $activity, $suites): ?array
     {

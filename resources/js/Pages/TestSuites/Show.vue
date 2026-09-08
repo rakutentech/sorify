@@ -615,11 +615,19 @@ function applyCookiePaste() {
 
 // Inline run settings (Browser, Mode, Timeout, Screenshots, Retries, Keep History)
 // Edited directly from the tests table; auto-saved on change.
+// Legacy boolean take_screenshot values (pre-enum DB rows / stale props) are
+// normalized to a mode string so the select always shows a selection.
+const screenshotMode = (value) => {
+    if (value === true || value === 1 || value === 'true' || value === '1') return 'enabled';
+    if (value === false || value === 0 || value === 'false' || value === '0') return 'disabled';
+    return value ?? 'enabled';
+};
+
 const localSettings = reactive({
     browser: props.suite.browser ?? 'chromium',
     headless: props.suite.headless ?? true,
     timeout_ms: props.suite.timeout_ms ?? 30000,
-    take_screenshot: props.suite.take_screenshot ?? true,
+    take_screenshot: screenshotMode(props.suite.take_screenshot),
     max_retries: props.suite.max_retries ?? 0,
     history_retention: props.suite.history_retention ?? 5,
 });
@@ -635,7 +643,7 @@ watch(() => ({
     localSettings.browser = s.browser ?? 'chromium';
     localSettings.headless = s.headless ?? true;
     localSettings.timeout_ms = s.timeout_ms ?? 30000;
-    localSettings.take_screenshot = s.take_screenshot ?? true;
+    localSettings.take_screenshot = screenshotMode(s.take_screenshot);
     localSettings.max_retries = s.max_retries ?? 0;
     localSettings.history_retention = s.history_retention ?? 5;
 });
@@ -674,7 +682,7 @@ const settingsSections = computed(() => [
             { label: localSettings.browser, active: true, kind: 'browser' },
             { label: localSettings.headless ? t('testSuiteShow.headless') : t('testSuiteShow.headedVisible'), active: localSettings.headless, kind: 'headless' },
             { label: t('testSuiteShow.timeoutShort', { value: localSettings.timeout_ms >= 60000 ? `${Math.round(localSettings.timeout_ms / 60000)}m` : `${localSettings.timeout_ms / 1000}s` }), active: true, kind: 'timeout' },
-            { label: t('testSuiteShow.screenshots'), active: localSettings.take_screenshot, kind: 'screenshots' },
+            { label: localSettings.take_screenshot === 'on_failure' ? t('testSuiteShow.screenshotsOnFailure') : t('testSuiteShow.screenshots'), active: localSettings.take_screenshot !== 'disabled', kind: 'screenshots' },
             { label: t('testSuiteShow.retriesShort', { value: localSettings.max_retries === 0 ? t('testSuites.noRetries') : `${localSettings.max_retries}×` }), active: !!localSettings.max_retries, kind: 'retries' },
             { label: t('testSuiteShow.keepRunsShort', { count: localSettings.history_retention }), active: true, kind: 'keepRuns' },
         ],
@@ -1768,8 +1776,9 @@ function toggleRunsExpanded(testId) {
                                 :disabled="!can.edit || savingSetting"
                                 class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
                             >
-                                <option :value="true">{{ t('testSuiteShow.enabled') }}</option>
-                                <option :value="false">{{ t('testSuiteShow.screenshotsDisabled') }}</option>
+                                <option value="enabled">{{ t('testSuiteShow.enabled') }}</option>
+                                <option value="on_failure">{{ t('testSuiteShow.screenshotsOnFailure') }}</option>
+                                <option value="disabled">{{ t('testSuiteShow.screenshotsDisabled') }}</option>
                             </select>
                         </div>
 

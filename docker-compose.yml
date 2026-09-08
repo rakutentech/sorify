@@ -54,14 +54,19 @@ services:
     restart: unless-stopped
     deploy:
       replicas: 3
+    # --timeout is only the default for jobs without their own timeout();
+    # RunSingleTestJob overrides it. DB_QUEUE_RETRY_AFTER must exceed the
+    # largest possible job timeout: (600s timeout_ms + 10) * (1 + 3 max
+    # retries) + 30 = 2470s, else a still-running job is re-released to the
+    # queue and double-executed.
     command: ["php", "artisan", "queue:work", "--queue=sorify,default", "--tries=1", "--timeout=600", "--sleep=3"]
     environment:
-      - DB_QUEUE_RETRY_AFTER=660
+      - DB_QUEUE_RETRY_AFTER=2520
 
   scheduler:
     <<: *app-image
     restart: unless-stopped
-    command: ["sh", "-c", "while true; do php artisan schedule:run --no-interaction; sleep 60; done"]
+    command: ["php", "artisan", "schedule:work"]
 
 volumes:
   mysql_data:

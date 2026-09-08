@@ -6,7 +6,10 @@
  * Called by Laravel's PlaywrightRunnerService via:
  *   node runner.js --spec <path> --output <dir> [--timeout <ms>] [--base-url <url>] [--proxy <url>]
  *     [--proxy-rules <path-to-json-file>] [--variables <path-to-json-file>] [--cookies <path-to-json-file>]
- *     [--browser chromium|firefox|webkit] [--headless true|false] [--take-screenshot true|false]
+ *     [--browser chromium|firefox|webkit] [--headless true|false] [--screenshot-mode enabled|on_failure|disabled]
+ *
+ * The legacy [--take-screenshot true|false] flag is still accepted and maps
+ * to enabled/disabled; --screenshot-mode takes priority when both are given.
  *
  * --proxy-rules points to a JSON file containing an array of {domain, proxy} objects,
  * where `domain` is a regular expression tested against each request's hostname.
@@ -58,6 +61,8 @@ function parseArgs(argv) {
       args.headless = argv[++i] !== 'false';
     } else if (flag === '--take-screenshot' && argv[i + 1]) {
       args.takeScreenshot = argv[++i] !== 'false';
+    } else if (flag === '--screenshot-mode' && argv[i + 1]) {
+      args.screenshotMode = argv[++i];
     }
   }
   return args;
@@ -102,7 +107,15 @@ function finish(result, exitCode) {
     const cookies = args.cookies ? JSON.parse(fs.readFileSync(path.resolve(args.cookies), 'utf8')) : [];
     const browser = args.browser || 'chromium';
     const headless = args.headless !== false;
-    const takeScreenshot = args.takeScreenshot !== false;
+    // --screenshot-mode wins; the legacy --take-screenshot boolean maps onto
+    // enabled/disabled; anything invalid falls back to enabled.
+    let screenshotMode = args.screenshotMode
+      || (args.takeScreenshot === undefined ? undefined : (args.takeScreenshot ? 'enabled' : 'disabled'))
+      || 'enabled';
+    if (!['enabled', 'on_failure', 'disabled'].includes(screenshotMode)) {
+      console.error(`Invalid --screenshot-mode "${screenshotMode}", defaulting to "enabled"`);
+      screenshotMode = 'enabled';
+    }
 
     // Read the spec file
     let generatedCode;
@@ -113,7 +126,7 @@ function finish(result, exitCode) {
     }
 
     // Run the test
-    const result = await runWithHarness(generatedCode, outputDir, baseUrl, timeout, proxy, browser, headless, takeScreenshot, proxyRules, variables, cookies);
+    const result = await runWithHarness(generatedCode, outputDir, baseUrl, timeout, proxy, browser, headless, screenshotMode, proxyRules, variables, cookies);
 
     const exitCode = result.status === 'passed' ? 0 : 1;
     finish(result, exitCode);

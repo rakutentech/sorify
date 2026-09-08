@@ -9,6 +9,7 @@ use App\Models\TestSuite;
 use App\Services\ActivityLogger;
 use App\Services\GithubAppAccessService;
 use App\Support\IntegrationPayload;
+use App\Support\ScreenshotMode;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
@@ -68,7 +69,10 @@ class UpdateSuiteTool extends Tool
                 ->description('Cookies added to the Playwright browser context before any page is created, so tests start already authenticated. Each cookie must set either domain or url. Passing this replaces the suite\'s full cookie set; omit to leave existing cookies untouched. Values are only visible to suite members.'),
             'history_retention' => $schema->integer()->enum([3, 5, 10])->description('Number of past runs to keep per test (3, 5, or 10). Older results and screenshots are pruned automatically. Defaults to 5.'),
             'timeout_ms' => $schema->integer()->enum([10000, 30000, 60000, 120000, 300000, 600000])->description('Per-action timeout in milliseconds (10000, 30000, 60000, 120000, 300000, or 600000). Defaults to 30000.'),
-            'take_screenshot' => $schema->boolean()->description('Whether to capture screenshots during test runs. Disable for faster runs. Defaults to true.'),
+            'take_screenshot' => $schema->anyOf([
+                $schema->boolean(),
+                $schema->string()->enum(ScreenshotMode::ALL),
+            ])->description('Screenshot capture mode: "enabled" (default), "on_failure" (screenshots are captured but kept only when a test fails), or "disabled" (never captured, faster runs). A boolean is accepted for backwards compatibility: true = enabled, false = disabled.'),
             'teams_webhook_url' => $schema->string()->description('MS Teams incoming webhook URL to notify when runs complete.'),
             'teams_webhook_proxy' => $schema->string()->description('HTTP proxy to use when posting to the Teams webhook, if any.'),
             'teams_notify_on_start' => $schema->boolean()->description('Whether to notify Teams when a run starts.'),
@@ -116,6 +120,12 @@ class UpdateSuiteTool extends Tool
     {
         $suite = TestSuite::findOrFail($request->validate(['suite_id' => 'required|integer|exists:test_suites,id'])['suite_id']);
         $this->authorizeSuite('edit', $suite);
+
+        // Legacy boolean take_screenshot input is normalized to a mode string
+        // before validation; an absent key stays absent (omit = leave untouched).
+        if ($request->has('take_screenshot')) {
+            $request->merge(['take_screenshot' => ScreenshotMode::normalize($request->input('take_screenshot'))]);
+        }
 
         $data = $request->validate((new StoreSuiteRequest)->rules());
         $hasProxyRules = array_key_exists('proxy_rules', $data);
