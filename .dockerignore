@@ -5,6 +5,7 @@ vendor
 public/build
 public/hot
 public/storage
+public/sorify
 
 storage/app/*
 !storage/app/.gitignore

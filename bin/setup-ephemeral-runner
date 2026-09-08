@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+#
+# setup-ephemeral-runner — one-time host-side setup for Sorify's ephemeral
+# test execution mode. Run as root ON THE UBUNTU VM that hosts Sorify.
+#
+# What this does:
+#   1. Creates a dedicated "sorify-runner" user with its own rootless Docker
+#      daemon (so escaped test code compromises an unprivileged user, not root).
+#   2. Creates a shared runs directory bind-mounted into both the app/queue
+#      containers and the runner containers (spec files in, screenshots out).
+#   3. Creates the dedicated "sorify-runners" docker network on a pinned subnet.
+#   4. Installs egress iptables rules: rootless container traffic originates
+#      from the sorify-runner user's processes, so filtering by owner UID blocks
+#      cloud metadata, this host's services, and the main daemon's docker
+#      bridges (app + mysql) — while internal staging networks and the public
+#      internet stay reachable.
+#
+# Usage:
+#   SORIFY_HOST_IP=10.0.1.5 sudo -E bin/setup-ephemeral-runner
+#
+# Optional environment:
+#   SORIFY_COMPOSE_SUBNET  main docker-compose bridge subnet to block
+#                          (default: 172.17.0.0/16 — run `docker network inspect
+#                          sorify_default` to check yours)
+
+set -euo pipefail
+
+RUNNER_USER=sorify-runner
+RUNS_DIR=/srv/sorify/runs
+SUBNET=172.30.0.0/24
+COMPOSE_SUBNET="${SORIFY_COMPOSE_SUBNET:-172.17.0.0/16}"
+HOST_IP="${SORIFY_HOST_IP:?SORIFY_HOST_IP must be set to this VM primary IP}"
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Run as root: SORIFY_HOST_IP=<ip> sudo -E $0" >&2
+    exit 1
+fi
+
+# 1. Dedicated user + rootless docker daemon
+id "$RUNNER_USER" >/dev/null 2>&1 || useradd -m -s /bin/bash "$RUNNER_USER"
+
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y uidmap dbus-user-session iptables-persistent
+
+loginctl enable-linger "$RUNNER_USER"
+
+RUNNER_UID=$(id -u "$RUNNER_USER")
+RUNNER_RUNTIME_DIR="/run/user/$RUNNER_UID"
+export XDG_RUNTIME_DIR="$RUNNER_RUNTIME_DIR"
+
+if ! runuser -u "$RUNNER_USER" -- env XDG_RUNTIME_DIR="$RUNNER_RUNTIME_DIR" \
+    command -v dockerd-rootless-setuptoolt.sh >/dev/null 2>&1; then
+    echo "Installing rootless Docker for $RUNNER_USER ..."
+    runuser -u "$RUNNER_USER" -- env XDG_RUNTIME_DIR="$RUNNER_RUNTIME_DIR" \
+        sh -c 'curl -fsSL https://get.docker.com/rootless | sh'
+fi
+
+SOCKET="unix://$RUNNER_RUNTIME_DIR/docker.sock"
+runuser -u "$RUNNER_USER" -- env XDG_RUNTIME_DIR="$RUNNER_RUNTIME_DIR" \
+    docker --host "$SOCKET" info >/dev/null
+echo "Rootless daemon reachable at $SOCKET"
+
+# 2. Shared runs directory (app container writes specs, runner containers
+#    read them and write screenshots back)
+mkdir -p "$RUNS_DIR"
+chmod 0777 "$RUNS_DIR"
+
+# 3. Dedicated runner network on a pinned subnet
+docker_runner() {
+    runuser -u "$RUNNER_USER" -- env XDG_RUNTIME_DIR="$RUNNER_RUNTIME_DIR" \
+        docker --host "$SOCKET" "$@"
+}
+
+if ! docker_runner network inspect sorify-runners >/dev/null 2>&1; then
+    docker_runner network create --subnet "$SUBNET" sorify-runners
+fi
+echo "Runner network ready"
+
+# 4. Egress lockdown (see header). Persistent across reboots via
+#    iptables-persistent.
+add_rule() {
+    local dest="$1"
+    if ! iptables -C OUTPUT -m owner --uid-owner "$RUNNER_UID" -d "$dest" -j DROP 2>/dev/null; then
+        iptables -I OUTPUT -m owner --uid-owner "$RUNNER_UID" -d "$dest" -j DROP
+    fi
+}
+
+add_rule 169.254.169.254/32   # cloud metadata
+add_rule "${HOST_IP}/32"      # this host's own services (app port, etc.)
+add_rule "${COMPOSE_SUBNET}"  # main daemon bridges (app, mysql)
+
+netfilter-persistent save || iptables-save > /etc/iptables/rules.v4
+
+cat <<EOF
+
+Setup complete. Now:
+
+1. Build the runner image as the runner user:
+     sudo -u $RUNNER_USER XDG_RUNTIME_DIR=$RUNNER_RUNTIME_DIR \\
+       docker --host $SOCKET build -t sorify-runner:latest -f docker/runner.Dockerfile .
+
+   (or configure the app to use this daemon and run: php artisan sorify:runner-image)
+
+2. Wire the compose stack (.env.docker + docker-compose.yml):
+     SORIFY_EXECUTION_DOCKER_HOST=$SOCKET
+     SORIFY_EXECUTION_HOST_RUNS_DIR=$RUNS_DIR
+   and bind-mount into the app/queue containers:
+     $RUNS_DIR:/app/storage/app/tmp
+     $RUNNER_RUNTIME_DIR/docker.sock:/var/run/sorify-docker.sock:ro
+
+3. Switch the mode to "Ephemeral" in the admin System page
+   (after its readiness checks pass).
+EOF

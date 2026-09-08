@@ -34,10 +34,16 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
 
 # System deps + Node 20 (base image ships PHP/FrankenPHP tooling only, no Node)
+# + docker CLI so the app/queue containers can drive the runner daemon for
+# ephemeral test execution mode. The sorify-test user (uid 2000) is the
+# unprivileged identity that local-mode test processes are dropped to via
+# setpriv (see DockerExecutor::localRunnerPrefix) so test code cannot write
+# outside its per-run staging dir.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates curl gnupg git unzip \
+        ca-certificates curl gnupg git unzip docker.io \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
+    && useradd -u 2000 -M -s /usr/sbin/nologin sorify-test \
     && rm -rf /var/lib/apt/lists/*
 
 # PHP extensions Laravel/Sorify need that the base image doesn't already ship

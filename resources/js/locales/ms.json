@@ -13,7 +13,8 @@
         "switchToDark": "Tukar ke mod gelap",
         "language": "Bahasa",
         "githubApps": "Aplikasi GitHub",
-        "users": "Pengguna"
+        "users": "Pengguna",
+        "system": "Sistem"
     },
     "dashboard": {
         "title": "Papan Pemuka",
@@ -847,5 +848,36 @@
         "connectionOk": "Sambungan OK (HTTP {status})",
         "connectionFailed": "Sambungan gagal: {detail}",
         "connectionSkipped": "Masukkan URL asas http(s) yang sah untuk menguji sambungan"
+    },
+    "adminSystem": {
+        "pageTitle": "Admin — Sistem",
+        "heading": "Sistem",
+        "executionMode": "Mod pelaksanaan ujian",
+        "localMode": "Lokal (proses node)",
+        "localHelp": "Ujian dijalankan sebagai proses node dalam kontena aplikasi. Lebih pantas, tetapi kod ujian mempunyai keistimewaan aplikasi.",
+        "ephemeralMode": "Ephemeral (kontena sandbox)",
+        "ephemeralHelp": "Setiap ujian dijalankan dalam kontena kukuh sekali pakai pada daemon Docker. Kod ujian tidak boleh mengakses aplikasi, rahsianya, atau hos.",
+        "saveMode": "Simpan mod",
+        "notReadyHint": "Persekitaran belum sedia untuk mod ephemeral — lihat semakan kesediaan di bawah.",
+        "readiness": "Kesediaan persekitaran",
+        "recheck": "Semak semula",
+        "buildImage": "Bina imej",
+        "checking": "Menyemak…",
+        "noChecks": "Belum ada semakan.",
+        "statusPass": "OK",
+        "statusFail": "Gagal",
+        "statusWarn": "Amaran",
+        "statusInfo": "Maklumat",
+        "lastBuildOk": "Binaan imej terakhir: {at}",
+        "lastBuildFailed": "Binaan imej gagal pada {at}: {error}",
+        "checks": {
+            "docker_cli": "Docker CLI",
+            "daemon": "Docker daemon",
+            "image": "Imej runner",
+            "network": "Rangkaian runner",
+            "gvisor": "Runtime gVisor",
+            "root_daemon": "Sambungan daemon",
+            "smoke": "Ujian smoke"
+        }
     }
 }
