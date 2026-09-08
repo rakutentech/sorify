@@ -1,0 +1,19 @@
+.gitignore
+  s_645934b3e888eb::t_6db717284bb0d1 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ac4d8f0a345e5d9ec8f88bbbeea91c1fa267c6f7",
+  "prompts": {},
+  "sessions": {
+    "s_645934b3e888eb": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7ea5713affe3ACrMRYvmr7Oll",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
