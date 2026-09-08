@@ -32,7 +32,50 @@ type clearRecordingArgs struct {
 
 type noArgs struct{}
 
-func registerMCPTools(server *mcp.Server, store *RecordingStore, ws *WSServer) {
+// recorderBackend is the live-recorder half of the tool surface: start/stop
+// and extension/status queries. This instance implements it directly when it
+// owns the WebSocket port; otherwise a ProxyClient forwards to the owning
+// instance. list/clear are deliberately not part of it — they operate on the
+// file-backed recordings directory, which every instance can do.
+type recorderBackend interface {
+	Start(label *string) (StartResult, error)
+	Stop(sessionID *string) (*StopResult, error)
+	RecorderStatus() (RecorderStatusInfo, error)
+}
+
+// ownerBackend drives the recorder directly: this instance owns the
+// WebSocket port and the Chrome extension connects to it.
+type ownerBackend struct {
+	store *RecordingStore
+	ws    *WSServer
+}
+
+func (b *ownerBackend) Start(label *string) (StartResult, error) {
+	res, err := b.store.Start(label)
+	if err == nil {
+		b.ws.BroadcastStatus()
+	}
+	return res, err
+}
+
+func (b *ownerBackend) Stop(sessionID *string) (*StopResult, error) {
+	res, err := b.store.Stop(sessionID)
+	if err == nil {
+		b.ws.BroadcastStatus()
+	}
+	return res, err
+}
+
+func (b *ownerBackend) RecorderStatus() (RecorderStatusInfo, error) {
+	st := b.store.Status()
+	return RecorderStatusInfo{
+		ActiveSessionID:    st.ActiveSessionID,
+		EventCount:         st.EventCount,
+		ExtensionConnected: b.ws.IsExtensionConnected(),
+	}, nil
+}
+
+func registerMCPTools(server *mcp.Server, store *RecordingStore, backend recorderBackend) {
 	mcp.AddTool(server, &mcp.Tool{
 		Name:  "start_recording",
 		Title: "Start recording",
@@ -41,11 +84,10 @@ func registerMCPTools(server *mcp.Server, store *RecordingStore, ws *WSServer) {
 			"(the pre-auth baseline) and written to the JSONL as a cookies row. Returns the session id and " +
 			"the JSONL file path it will be written to.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, args startRecordingArgs) (*mcp.CallToolResult, any, error) {
-		result, err := store.Start(args.Label)
+		result, err := backend.Start(args.Label)
 		if err != nil {
 			return nil, nil, err
 		}
-		ws.BroadcastStatus()
 		return textResult(map[string]any{"session_id": result.SessionID, "path": result.Path})
 	})
 
@@ -54,11 +96,10 @@ func registerMCPTools(server *mcp.Server, store *RecordingStore, ws *WSServer) {
 		Title:       "Stop recording",
 		Description: "Stop the active (or given) recording session and finalize its JSONL file. The final cookie snapshot (for all domains visited during the session) is captured automatically and included as a cookies row in the JSONL.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, args stopRecordingArgs) (*mcp.CallToolResult, any, error) {
-		result, err := store.Stop(args.SessionID)
+		result, err := backend.Stop(args.SessionID)
 		if err != nil {
 			return nil, nil, err
 		}
-		ws.BroadcastStatus()
 		if result == nil {
 			return textResult(map[string]any{"error": "no_active_session"})
 		}
@@ -75,11 +116,18 @@ func registerMCPTools(server *mcp.Server, store *RecordingStore, ws *WSServer) {
 		Description: "Check whether the Chrome extension is currently connected to this bridge, and whether a " +
 			"recording session is active.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, _ noArgs) (*mcp.CallToolResult, any, error) {
-		status := store.Status()
+		info, err := backend.RecorderStatus()
+		if err != nil {
+			return nil, nil, err
+		}
+		activeSessionID := any(info.ActiveSessionID)
+		if info.ActiveSessionID == "" {
+			activeSessionID = nil
+		}
 		return textResult(map[string]any{
-			"extension_connected": ws.IsExtensionConnected(),
-			"active_session_id":   statusSessionID(status),
-			"event_count":         status.EventCount,
+			"extension_connected": info.ExtensionConnected,
+			"active_session_id":   activeSessionID,
+			"event_count":         info.EventCount,
 		})
 	})
 

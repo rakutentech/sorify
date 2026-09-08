@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\GithubAppController as AdminGithubAppController;
+use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -175,4 +176,9 @@ Route::prefix('sorify/admin')->middleware(['auth', 'admin'])->name('admin.')->gr
     Route::put('/github-apps/{githubApp}', [AdminGithubAppController::class, 'update'])->name('github-apps.update');
     Route::delete('/github-apps/{githubApp}', [AdminGithubAppController::class, 'destroy'])->name('github-apps.destroy');
     Route::post('/github-apps/test-connection', [AdminGithubAppController::class, 'testConnection'])->name('github-apps.test-connection');
+
+    Route::get('/system', [SystemController::class, 'index'])->name('system.index');
+    Route::get('/system/readiness', [SystemController::class, 'readiness'])->name('system.readiness');
+    Route::put('/system/mode', [SystemController::class, 'updateMode'])->name('system.mode');
+    Route::post('/system/build-image', [SystemController::class, 'buildImage'])->name('system.build-image');
 });

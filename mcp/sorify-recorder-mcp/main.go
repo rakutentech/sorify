@@ -26,12 +26,32 @@ func main() {
 
 	store := &RecordingStore{}
 	ws := NewWSServer(store)
+
+	// When the WebSocket port is already taken, another instance of this
+	// server (e.g. spawned by a different agent session) owns the Chrome
+	// extension connection. Instead of exiting — which made every additional
+	// agent session report the MCP as "not connected" — attach to that
+	// instance in proxy mode.
+	var backend recorderBackend
 	if err := ws.Start(port); err != nil {
-		os.Exit(1)
+		if !isAddrInUse(err) {
+			log.Printf("[sorify-recorder-mcp] WebSocket server error: %v", err)
+			os.Exit(1)
+		}
+		log.Printf("[sorify-recorder-mcp] port %d already in use — attaching to the existing instance in proxy mode", port)
+		proxy := NewProxyClient(port)
+		if err := proxy.Connect(); err != nil {
+			log.Printf("[sorify-recorder-mcp] could not attach to the instance on port %d: %v", port, err)
+			os.Exit(1)
+		}
+		defer proxy.Close()
+		backend = proxy
+	} else {
+		backend = &ownerBackend{store: store, ws: ws}
 	}
 
-	server := mcp.NewServer(&mcp.Implementation{Name: "sorify-recorder", Version: "0.1.0"}, nil)
-	registerMCPTools(server, store, ws)
+	server := mcp.NewServer(&mcp.Implementation{Name: "sorify-recorder", Version: "0.2.0"}, nil)
+	registerMCPTools(server, store, backend)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

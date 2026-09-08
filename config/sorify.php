@@ -7,6 +7,32 @@ return [
     'tmp_dir' => storage_path('app/tmp'),
     'test_code_version_retention' => env('SORIFY_TEST_CODE_VERSION_RETENTION', 10),
 
+    'execution' => [
+        'default_mode' => env('SORIFY_EXECUTION_DEFAULT_MODE', 'local'),
+        // Where Playwright looks for browser binaries in local mode. Unset =
+        // Playwright's default ($HOME/.cache/ms-playwright). The Docker image
+        // sets PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright via ENV, so no
+        // value is needed there; non-Docker hosts point this at their browser
+        // install or leave it unset for the HOME-based default.
+        'browsers_path' => env('SORIFY_BROWSERS_PATH'),
+
+        'docker_binary' => env('SORIFY_EXECUTION_DOCKER_BINARY', 'docker'),
+        'docker_host' => env('SORIFY_EXECUTION_DOCKER_HOST'),
+        'runner_image' => env('SORIFY_EXECUTION_RUNNER_IMAGE', 'sorify-runner:latest'),
+        'runner_network' => env('SORIFY_EXECUTION_RUNNER_NETWORK', 'sorify-runners'),
+        'gvisor_runtime' => env('SORIFY_EXECUTION_GVISOR_RUNTIME', 'runsc'),
+        'host_runs_dir' => env('SORIFY_EXECUTION_HOST_RUNS_DIR'),
+        'local_test_uid' => env('SORIFY_LOCAL_TEST_UID'),
+        'local_max_processes' => env('SORIFY_LOCAL_MAX_PROCESSES', 256),
+        'local_max_filesize' => env('SORIFY_LOCAL_MAX_FILESIZE', 1073741824),
+        'container' => [
+            'pids_limit' => env('SORIFY_EXECUTION_PIDS_LIMIT', 512),
+            'memory' => env('SORIFY_EXECUTION_MEMORY', '2g'),
+            'cpus' => env('SORIFY_EXECUTION_CPUS', 2),
+            'tmpfs_size' => env('SORIFY_EXECUTION_TMPFS_SIZE', '256m'),
+        ],
+    ],
+
     'run_trigger_rate_limit' => [
         'max_attempts' => env('SORIFY_RUN_TRIGGER_MAX_ATTEMPTS', 10),
         'decay_seconds' => env('SORIFY_RUN_TRIGGER_DECAY_SECONDS', 60),

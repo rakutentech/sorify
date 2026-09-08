@@ -22,6 +22,8 @@
 
 ★ **Webhooks:** 3 types of bi-directional integrations. Trigger runs remotely, or trigger Github Actions or HTTP webhook pre/post a run from Sorify.
 
+★ **Ephemeral:** Self host, scalable on ephemeral mode.
+
 ★ **Schedule:** In built scheduler to run automated browser tasks.
 
 ✴︎ **Test Management:** Organize test suites and test cases, run them on demand or on a schedule.
@@ -181,8 +183,6 @@ You can check using `/mcp` → `plugin:sorify:sorify-recorder`
 
 ## Development (local)
 
-**Option 1** - Simple
-
 ```sh
 # Update: APP_KEY, DB_PASSWORD, MYSQL_ROOT_PASSWORD
 cp .env.example .env
@@ -191,25 +191,7 @@ composer setup
 php artisan dev
 ```
 
-**Option 2** - Detailed
-
-```sh
-npm run dev
-php artisan serve
-php artisan queue:work --queue=sorify,default
-php artisan schedule:work
-```
-
-## Self Hosting
-
-```bash
-cp .env.docker.example .env.docker
-# Update: APP_KEY, DB_PASSWORD, MYSQL_ROOT_PASSWORD
-# Change: APP_ENV=prod for prod ready
-docker compose --env-file .env.docker up
-```
-
-## Verify
+ ## Verify
 
 ```sh
 http://localhost:8000/sorify
@@ -218,32 +200,7 @@ http://localhost:8000/sorify
 - **User:** admin@sorify.local
 - **Password:** changeme
 
-## Notes for users
-
-- Fully self hosted, no telemetry
-- What your AI does in yolo mode is your responsibility
-- Files and folders on your system, that this system creates/requires
-  - `~/.sorify`: your credentials
-  - `~/.sorify-bin/`: chrome extension mcp
-  - `~/.sorify-recordings/`: chrome extension mcp's events recordings
-
-**Envs info**
-
-```js
-APP_URL=https://<your-host>/sorify
-ASSET_URL=https://<your-host>/sorify
-
-# Sorify App related
-SORIFY_SCREENSHOT_RETENTION_DAYS=30
-DB_QUEUE_RETRY_AFTER=300
-
-# For local, check logs for invite email for new users
-MAIL_MAILER=smtp
-MAIL_SCHEME=null
-MAIL_HOST=<your-mail-host>
-
-# More sorify settings, see envs in config/sorify.php
-```
+See [INSTALL.md](./INSTALL.md) for other details, self hosting, ephemeral mode, docker.
 
 # Integrations
 
@@ -362,3 +319,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v1.7** - Cookies support, variables support.
 - **v1.8** - MCP supports runs. Auto redirect after login page. Support for one time CI webhook and who ran the CI.
 - **v1.9** - Chrome extension memory leak fix. Support pre/post webhooks for multiple connectors.
+- **v2.0** - Ephemeral mode
