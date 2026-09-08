@@ -1,0 +1,40 @@
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_7ee3d7f7c8d398::t_3fae29e2ce5c6c 136-141
+resources/js/locales/ms.json
+  s_7ee3d7f7c8d398::t_8926cf89ec4aee 560-574
+  s_7ee3d7f7c8d398::t_cd4453db939c03 503
+resources/js/Components/feed/ActivityCard.vue
+  s_7ee3d7f7c8d398::t_0e521d0e16134d 224-231
+  s_7ee3d7f7c8d398::t_5d2e7bd4a97bdd 127-158
+resources/js/Components/feed/RunCardBody.vue
+  s_7ee3d7f7c8d398::t_9cbbcc27b0a34e 61-68
+resources/js/locales/en.json
+  s_7ee3d7f7c8d398::t_420eae6857c182 560-574
+  s_7ee3d7f7c8d398::t_6805b8e08aba0c 503
+resources/js/locales/ja.json
+  s_7ee3d7f7c8d398::t_5b0e7267f7d6ee 560-574
+  s_7ee3d7f7c8d398::t_93723d4ff364a7 503
+app/Http/Controllers/TestSuiteController.php
+  s_7ee3d7f7c8d398::t_51c45eab80effe 377-382
+app/Services/ActivityLogger.php
+  s_7ee3d7f7c8d398::t_dc789438e30298 28
+resources/js/locales/zh-CN.json
+  s_7ee3d7f7c8d398::t_d780ec3f0f48e3 503
+  s_7ee3d7f7c8d398::t_2a0dfa5b77ea45 560-574
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "90ecba1912b58d45a84eb961cee124ab5c9a3e96",
+  "prompts": {},
+  "sessions": {
+    "s_7ee3d7f7c8d398": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f8aab1209ffeKwEacEU5vy7x33",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

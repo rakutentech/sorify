@@ -1,0 +1,24 @@
+tests/Unit/SettingTest.php
+  s_83459e2e12e69e::t_e05f0c90600bb3 1-41
+database/migrations/2026_09_08_000002_create_settings_table.php
+  s_83459e2e12e69e::t_108487d1a5815a 1-22
+app/Models/Setting.php
+  s_83459e2e12e69e::t_1ac37bdf7a9fdd 9-14
+  s_83459e2e12e69e::t_d44e81ef961334 1-8,15-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "5a79606f77ecb0a561891128a51464d3dc8d2dae",
+  "prompts": {},
+  "sessions": {
+    "s_83459e2e12e69e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7f6bf2f2ffekyJ8xdYEJ0FaaU",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

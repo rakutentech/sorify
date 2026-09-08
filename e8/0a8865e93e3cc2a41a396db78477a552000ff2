@@ -1,0 +1,100 @@
+app/Services/ExecutionMode.php
+  s_83459e2e12e69e::t_aeaee4c9e8a4c7 1-20
+bin/setup-ephemeral-runner
+  s_83459e2e12e69e::t_0f75c2aa739287 32
+  s_83459e2e12e69e::t_c821ac4fb09bdd 1-31,33-114
+app/Console/Commands/BuildRunnerImageCommand.php
+  s_83459e2e12e69e::t_e4fc04b9f1edc2 1-33
+resources/js/Layouts/AppLayout.vue
+  s_83459e2e12e69e::t_ae13a347abf59c 11
+  s_83459e2e12e69e::t_0a68cfb68e01dc 32
+docker/runner.Dockerfile
+  s_83459e2e12e69e::t_b201df3c96a364 31-33
+  s_83459e2e12e69e::t_1bb760ed067f0d 15-17,20-21
+  s_83459e2e12e69e::t_9d371dd0e057a3 1-14,18-19,22-25,29-30,34
+  s_83459e2e12e69e::t_5576716bbe3400 26-28,35
+app/Services/PlaywrightRunnerService.php
+  s_83459e2e12e69e::t_ea1c553314bca0 9,23,57,59-63,65,74,85-86,91,95-96,101,105-106,111,122-123,130-145,147-158,160-163,167,225-230,234,255,261-265,268,273-274,276,285-289,291-294
+  s_83459e2e12e69e::t_610ad9bddee443 146,159
+  s_83459e2e12e69e::t_1e001bc6284736 290,295
+  s_83459e2e12e69e::t_6a2df9216cf524 79-81
+  s_83459e2e12e69e::t_717e48d1f918b4 75
+  s_83459e2e12e69e::t_1e0562a159c2dc 296-297
+tests/Unit/DockerExecutorTest.php
+  s_83459e2e12e69e::t_f0f8d9aec76ddb 57
+  s_83459e2e12e69e::t_4ab9aaedd5a47e 1-56,58-107,109-113,115-129
+  s_83459e2e12e69e::t_c81f367dc03fdd 108,114
+resources/js/locales/ms.json
+  s_83459e2e12e69e::t_58fd2d96bdc69e 16-17,851-881
+tests/Feature/SuiteVariablesTest.php
+  s_83459e2e12e69e::t_14a50c760f5f4b 362
+app/Jobs/BuildRunnerImageJob.php
+  s_83459e2e12e69e::t_08aa439ce88fb4 1-35
+Dockerfile
+  s_83459e2e12e69e::t_7528433dec45ed 37-38,40
+app/Services/DockerExecutor.php
+  s_83459e2e12e69e::t_8c439b4f9f5b43 1-65,67-97,114-115,117-118,120-121
+  s_83459e2e12e69e::t_d58867edc3ff08 66
+  s_83459e2e12e69e::t_9d604da2e8e640 98-113,116,119
+app/Http/Controllers/Admin/SystemController.php
+  s_83459e2e12e69e::t_0d39161e9bf669 1-58
+database/migrations/2026_09_08_000002_create_settings_table.php
+  s_83459e2e12e69e::t_108487d1a5815a 1-22
+tests/Feature/SuiteCookiesTest.php
+  s_83459e2e12e69e::t_14a50c760f5f4b 440
+tests/Feature/EphemeralExecutionTest.php
+  s_83459e2e12e69e::t_60657a54bac342 1-190
+tests/Unit/SettingTest.php
+  s_83459e2e12e69e::t_e05f0c90600bb3 1-41
+tests/Unit/ExecutionModeTest.php
+  s_83459e2e12e69e::t_674efca64a1909 1-39
+resources/js/Pages/Admin/System.vue
+  s_83459e2e12e69e::t_b114140dc7d17a 1-78,83-89,91-93,95-104,106-114,116,118-127,129,131-136,138-139,141-146,148-150,152-154,156-163,165-168,170-177,179-185,188-192
+  s_83459e2e12e69e::t_704ac3e5e589f9 79-82,90,94,105,115,117,128,130,137,140,147,151,155,164,169,178,186-187
+config/sorify.php
+  s_83459e2e12e69e::t_1be2d329bcb6e1 10-25
+.env.docker.example
+  s_83459e2e12e69e::t_3ca83bbe42e407 77-90
+routes/web.php
+  s_83459e2e12e69e::t_89826a9f6b2368 179-183
+  s_83459e2e12e69e::t_63dcbc7a3b04c7 4
+tests/Feature/ScreenshotModeTest.php
+  s_83459e2e12e69e::t_fe573758fb7333 126
+app/Services/EphemeralReadinessChecker.php
+  s_83459e2e12e69e::t_55715fa6f63a25 1-14,16-18,20-213
+  s_83459e2e12e69e::t_f9a028863feaa7 15,19
+app/Models/Setting.php
+  s_83459e2e12e69e::t_1ac37bdf7a9fdd 9-14
+  s_83459e2e12e69e::t_d44e81ef961334 1-8,15-33
+tests/Feature/AdminSystemTest.php
+  s_83459e2e12e69e::t_d51f4d555d3b73 1-144
+tests/Unit/EphemeralReadinessCheckerTest.php
+  s_83459e2e12e69e::t_084a51d0c70619 46,102,121,140,157,176,192,212
+  s_83459e2e12e69e::t_106423aa5c1dec 1-45,47-101,103-120,122-139,141-156,158-175,177-191,193-211,213-241
+resources/js/locales/en.json
+  s_83459e2e12e69e::t_58fd2d96bdc69e 16-17,851-881
+resources/playwright/smoke.spec.js
+  s_83459e2e12e69e::t_a3ce3d453ed8fc 1
+resources/js/locales/zh-CN.json
+  s_83459e2e12e69e::t_58fd2d96bdc69e 16-17,851-881
+docker-compose.yml
+  s_83459e2e12e69e::t_3fb05151cc3c53 15-22
+resources/js/locales/ja.json
+  s_83459e2e12e69e::t_58fd2d96bdc69e 16-17,851-881
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "e80a8865e93e3cc2a41a396db78477a552000ff2",
+  "prompts": {},
+  "sessions": {
+    "s_83459e2e12e69e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7f6bf2f2ffekyJ8xdYEJ0FaaU",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+docs/superpowers/plans/2026-09-08-ephemeral-execution-mode.md
+  s_83459e2e12e69e::t_9e1306bd0f8317 1-1249
+docs/superpowers/specs/2026-09-08-ephemeral-execution-mode-design.md
+  s_83459e2e12e69e::t_6495e8e12650f4 1-223
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "727d1cb89bafd6d2a4f164bdf8f8321e13434e49",
+  "prompts": {},
+  "sessions": {
+    "s_83459e2e12e69e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7f6bf2f2ffekyJ8xdYEJ0FaaU",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

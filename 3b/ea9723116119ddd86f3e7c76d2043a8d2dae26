@@ -1,0 +1,21 @@
+resources/js/Pages/Admin/Users/Index.vue
+  s_a30e47b8ade3e1::t_03a82984cf6ee8 6,20-51
+  s_a30e47b8ade3e1::t_df011173781392 121-125,130
+  s_a30e47b8ade3e1::t_5c962c04d74619 52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "3bea9723116119ddd86f3e7c76d2043a8d2dae26",
+  "prompts": {},
+  "sessions": {
+    "s_a30e47b8ade3e1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f86a47728ffetoqzCTpxGGY7J3",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

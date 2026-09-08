@@ -1,0 +1,23 @@
+app/Services/EphemeralReadinessChecker.php
+  s_83459e2e12e69e::t_f9a028863feaa7 15,19
+  s_83459e2e12e69e::t_55715fa6f63a25 1-14,16-18,20-213
+tests/Unit/EphemeralReadinessCheckerTest.php
+  s_83459e2e12e69e::t_084a51d0c70619 46,102,121,140,157,176,192,212
+  s_83459e2e12e69e::t_106423aa5c1dec 1-45,47-101,103-120,122-139,141-156,158-175,177-191,193-211,213-241
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b47230ff67d16ffbcc081e10e5735beb7a98379b",
+  "prompts": {},
+  "sessions": {
+    "s_83459e2e12e69e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7f6bf2f2ffekyJ8xdYEJ0FaaU",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

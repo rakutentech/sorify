@@ -1,0 +1,23 @@
+app/Services/ExecutionMode.php
+  s_83459e2e12e69e::t_aeaee4c9e8a4c7 1-20
+config/sorify.php
+  s_83459e2e12e69e::t_1be2d329bcb6e1 10-25
+tests/Unit/ExecutionModeTest.php
+  s_83459e2e12e69e::t_674efca64a1909 1-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "38ffe9ac85759087b46283476d303d85093be425",
+  "prompts": {},
+  "sessions": {
+    "s_83459e2e12e69e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7f6bf2f2ffekyJ8xdYEJ0FaaU",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

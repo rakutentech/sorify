@@ -1,0 +1,59 @@
+resources/js/locales/zh-CN.json
+  s_e80e1f61a77660::t_dd06d3c62e40fb 202,434-435
+resources/js/locales/ms.json
+  s_e80e1f61a77660::t_dd06d3c62e40fb 202,434-435
+resources/js/locales/en.json
+  s_e80e1f61a77660::t_dd06d3c62e40fb 202,434-435
+app/Http/Controllers/FeedController.php
+  s_e80e1f61a77660::t_1b7bcac0fe2e84 247-265
+  s_e80e1f61a77660::t_842f4d886e86a3 199-246,266
+  s_e80e1f61a77660::t_daeab9e6c0e555 331
+  s_e80e1f61a77660::t_77d9cb510b20f6 42-43
+tests/Feature/FeedTest.php
+  s_e80e1f61a77660::t_7b8ceb5a2e913a 49-90
+resources/js/Components/CopyableSecret.vue
+  s_e80e1f61a77660::t_fa25c8200337b2 24,29
+resources/js/locales/ja.json
+  s_e80e1f61a77660::t_dd06d3c62e40fb 202,434-435
+resources/js/Pages/TestSuites/Show.vue
+  s_e80e1f61a77660::t_332d3d977e7c61 1315
+  s_e80e1f61a77660::t_6bf6f15530e36b 1527
+  s_e80e1f61a77660::t_a2cf89cae3f8d5 1313
+  s_e80e1f61a77660::t_c9040aa06ee3ef 1834-1835,1837-1845,1847-1869
+  s_e80e1f61a77660::t_f3e78b28581be1 1986
+  s_e80e1f61a77660::t_963e238af1694e 1533
+  s_e80e1f61a77660::t_b7f73755a6f5f7 1807
+  s_e80e1f61a77660::t_bb02c6658c5e00 1519-1520
+  s_e80e1f61a77660::t_0a62e133090ad5 1872-1874,1885,1887-1892,1894-1895,1897,1900-1915,1918-1923,1926,1929-1930,1932
+  s_e80e1f61a77660::t_9a3637ccdc53a1 1293,1688,1814
+  s_e80e1f61a77660::t_bb0c87a069a2bd 1444
+  s_e80e1f61a77660::t_d227fbd624fcbc 1408-1409,1415
+  s_e80e1f61a77660::t_2fa81fb7dc0a6d 1445
+  s_e80e1f61a77660::t_3bf2f3de7f18a2 1836
+  s_e80e1f61a77660::t_1449351f0da8a2 1875-1877,1879-1884
+  s_e80e1f61a77660::t_e3f3cab3d77795 1878
+  s_e80e1f61a77660::t_ecc968d0c3ccc2 1594
+  s_e80e1f61a77660::t_6f71b78b252373 2031-2033
+  s_e80e1f61a77660::t_b0bc1b61d00a12 1937
+  s_e80e1f61a77660::t_52c42ae84463a8 1355
+  s_e80e1f61a77660::t_5fd6a248c281ad 1978
+  s_e80e1f61a77660::t_846f4bf620c797 1708-1710
+resources/js/Components/TestSuiteIntegrations.vue
+  s_e80e1f61a77660::t_24975a8d2f9b56 305-306
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "93e5a83630243b5650f983bf57ea77adb7c86e66",
+  "prompts": {},
+  "sessions": {
+    "s_e80e1f61a77660": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f8afc7626ffeIL60ZEUM1kX37P",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

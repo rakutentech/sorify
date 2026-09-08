@@ -1,0 +1,92 @@
+tests/Feature/DuplicationTest.php
+  s_3320b03aeeeca2::t_57dad4a547f20c 32
+resources/js/Components/ui/SuiteChips.vue
+  s_3320b03aeeeca2::t_eea924ad5094d2 22
+resources/js/locales/en.json
+  s_3320b03aeeeca2::t_ec57981fbcd188 88
+tests/Feature/ScreenshotModeTest.php
+  s_3320b03aeeeca2::t_5ca5a1291a504a 1-141
+resources/playwright/harness.cjs
+  s_3320b03aeeeca2::t_f0157966654524 142
+  s_3320b03aeeeca2::t_73612abe3bb550 283,293
+  s_3320b03aeeeca2::t_65275894fb252a 324-336
+  s_3320b03aeeeca2::t_14d4e7881d828a 162,167-175
+  s_3320b03aeeeca2::t_fb3b9d6fd61efa 251,257-261
+app/Http/Controllers/FeedController.php
+  s_3320b03aeeeca2::t_75ab2dd0b7afcf 239
+  s_3320b03aeeeca2::t_dcddf4ccb00328 14,154,181,206,253
+app/Services/PlaywrightRunnerService.php
+  s_3320b03aeeeca2::t_f1af5e52e418f5 139-144
+  s_3320b03aeeeca2::t_cf7d2965e3c391 8
+resources/js/locales/ms.json
+  s_3320b03aeeeca2::t_e552ba63a72a77 286
+  s_3320b03aeeeca2::t_4b868d8204679e 83
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_3320b03aeeeca2::t_d5476bba4027aa 124-129
+  s_3320b03aeeeca2::t_9135d9ecd420c2 12
+  s_3320b03aeeeca2::t_77dc40d561f4ff 72-75
+resources/playwright/runner.cjs
+  s_3320b03aeeeca2::t_df2cbf7fbf6429 129
+  s_3320b03aeeeca2::t_fc938644725c21 64-65
+  s_3320b03aeeeca2::t_dea93cc5a1ebe3 110-118
+  s_3320b03aeeeca2::t_60247ab1477f42 9-12
+database/migrations/2026_09_08_000001_convert_take_screenshot_to_mode_string.php
+  s_3320b03aeeeca2::t_bbd8cf5cf12b20 1-45
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_3320b03aeeeca2::t_7fc9cc78398917 11
+  s_3320b03aeeeca2::t_cc135de9d9d37e 70-73
+  s_3320b03aeeeca2::t_6e57567b2dc4da 121-126
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_3320b03aeeeca2::t_33d144e665e457 63
+  s_3320b03aeeeca2::t_d9a096885ea28b 6,8,17-21
+  s_3320b03aeeeca2::t_25c4928ab2e4e5 22-23
+plugins/sorify/commands/gateway.md
+  s_3320b03aeeeca2::t_adadb46cd7aa9e 110
+  s_3320b03aeeeca2::t_16111c353eaba8 109
+resources/js/Pages/TestSuites/Show.vue
+  s_3320b03aeeeca2::t_ea85a845ed1c08 685
+  s_3320b03aeeeca2::t_1c5d19d992c174 618-625,630,646
+  s_3320b03aeeeca2::t_9fffaf503aec2a 1779-1781
+tests/Feature/FeedTest.php
+  s_3320b03aeeeca2::t_3f332440f820c9 60
+  s_3320b03aeeeca2::t_dcddf4ccb00328 9,75,355
+  s_3320b03aeeeca2::t_89bfa899fd35fd 85
+app/Support/ScreenshotMode.php
+  s_3320b03aeeeca2::t_ec941942d31514 1-41
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_3320b03aeeeca2::t_6b17126dba6cf7 60
+  s_3320b03aeeeca2::t_1e8bcca2d6495b 5,7,16-20
+  s_3320b03aeeeca2::t_92fa6ffb2b634c 21-22
+docker-compose.yml
+  s_4996e78eb9df18::t_bad977ec8d8740 57-61,64,69
+resources/js/locales/ja.json
+  s_3320b03aeeeca2::t_34293a7ce55b65 83
+  s_3320b03aeeeca2::t_269752188dd8e1 286
+resources/js/locales/zh-CN.json
+  s_3320b03aeeeca2::t_facce3dc2175b0 83
+  s_3320b03aeeeca2::t_e04b54bcb02f6a 286
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "93f3218d441d4c6136c3d7a67aaa5f664734246d",
+  "prompts": {},
+  "sessions": {
+    "s_3320b03aeeeca2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f813587a2ffeTIf2mRnbUDMqbI",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_4996e78eb9df18": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f85104d42ffeCeBl5JNN82qXOG",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

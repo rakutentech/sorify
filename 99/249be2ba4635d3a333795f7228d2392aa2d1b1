@@ -1,0 +1,30 @@
+tests/Unit/DockerExecutorTest.php
+  s_83459e2e12e69e::t_f0f8d9aec76ddb 57
+app/Console/Commands/BuildRunnerImageCommand.php
+  s_83459e2e12e69e::t_e4fc04b9f1edc2 1-33
+docker/runner.Dockerfile
+  s_83459e2e12e69e::t_9d371dd0e057a3 1-14,18-19,22-25,29-30,34
+  s_83459e2e12e69e::t_b201df3c96a364 31-33
+  s_83459e2e12e69e::t_5576716bbe3400 26-28,35
+  s_83459e2e12e69e::t_1bb760ed067f0d 15-17,20-21
+resources/playwright/smoke.spec.js
+  s_83459e2e12e69e::t_a3ce3d453ed8fc 1
+app/Services/DockerExecutor.php
+  s_83459e2e12e69e::t_d58867edc3ff08 66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "99249be2ba4635d3a333795f7228d2392aa2d1b1",
+  "prompts": {},
+  "sessions": {
+    "s_83459e2e12e69e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7f6bf2f2ffekyJ8xdYEJ0FaaU",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

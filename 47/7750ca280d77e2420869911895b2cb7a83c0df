@@ -1,0 +1,89 @@
+app/Http/Controllers/TestSuiteController.php
+  s_a30e47b8ade3e1::t_b4bcd2ea3d2fd5 314-317,319,323-324
+resources/js/locales/en.json
+  s_a30e47b8ade3e1::t_2e916320fda692 813-821
+  s_a30e47b8ade3e1::t_397864a572d1ff 313
+resources/js/locales/zh-CN.json
+  s_a30e47b8ade3e1::t_4c7754877ac565 313
+  s_a30e47b8ade3e1::t_9a50932f2bd19c 813-821
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_a30e47b8ade3e1::t_baf88ca6797b0c 10-11,27
+  s_a30e47b8ade3e1::t_b8bee1e7966225 137-143
+  s_a30e47b8ade3e1::t_11733570fb20b1 210-212,216-236
+  s_a30e47b8ade3e1::t_77207b8a887814 28,237-238
+resources/js/Pages/Admin/GithubApps/Index.vue
+  s_a30e47b8ade3e1::t_2d432264f9263b 2,6-7
+  s_a30e47b8ade3e1::t_0d0fd4ae34f8c2 281
+  s_a30e47b8ade3e1::t_1c2989b0b7b44f 339
+  s_a30e47b8ade3e1::t_cd2759d056252c 14
+  s_a30e47b8ade3e1::t_3ed016f7b2337c 310-318
+  s_a30e47b8ade3e1::t_e585357332a54e 149
+  s_a30e47b8ade3e1::t_c008beac2f003d 411-449
+  s_a30e47b8ade3e1::t_93a01478781cc5 32,35-51
+  s_a30e47b8ade3e1::t_390a9a9f69edca 52
+tests/Feature/GithubAppAccessListTest.php
+  s_a30e47b8ade3e1::t_e47aff6c2175a8 1-11,13-59,61-378
+  s_a30e47b8ade3e1::t_47592a67e85879 12,60
+database/migrations/2026_09_07_000001_create_github_app_allowed_users_table.php
+  s_a30e47b8ade3e1::t_94c63f8d5c0961 1-29
+app/Http/Controllers/TestSuiteIntegrationController.php
+  s_a30e47b8ade3e1::t_04e85f8efae64e 9,19-22,27,31,34,48,54-55,83-98
+  s_a30e47b8ade3e1::t_47592a67e85879 26
+  s_a30e47b8ade3e1::t_19505e269981a5 99
+app/Services/TestSuiteDuplicationService.php
+  s_a30e47b8ade3e1::t_c2450592398087 82
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_a30e47b8ade3e1::t_719235068912ea 9-10,26
+  s_a30e47b8ade3e1::t_46c2d465bf7b00 204-206,210-230
+  s_a30e47b8ade3e1::t_29184bab5a55a8 129-135
+  s_a30e47b8ade3e1::t_7fe96a4a92e4f8 27,231-232
+resources/js/Pages/TestSuites/Show.vue
+  s_a30e47b8ade3e1::t_ff99b6d1311a64 2033
+  s_a30e47b8ade3e1::t_54e24a936c5546 31
+app/Http/Controllers/Admin/GithubAppController.php
+  s_a30e47b8ade3e1::t_a649ee88819402 7
+  s_a30e47b8ade3e1::t_10d99c52fbb4a9 179-183
+  s_a30e47b8ade3e1::t_47592a67e85879 32
+  s_a30e47b8ade3e1::t_3f9e48062b6a7a 8,24-28,33,40,62-68,74,82-86,97-102
+  s_a30e47b8ade3e1::t_be3a3fcc82b630 103
+database/migrations/2026_09_07_000002_add_created_by_to_test_suite_integrations_table.php
+  s_a30e47b8ade3e1::t_0c1b23f8068fc4 1-26
+app/Models/User.php
+  s_a30e47b8ade3e1::t_06b2c547df0168 70-78
+  s_a30e47b8ade3e1::t_03ae9ef5d7ea67 69
+app/Models/GithubApp.php
+  s_a30e47b8ade3e1::t_295d9d2e514e42 7
+  s_a30e47b8ade3e1::t_16ca5189aa7476 70-80,158
+  s_a30e47b8ade3e1::t_91c2cdf974b3b4 159-172
+resources/js/locales/ja.json
+  s_a30e47b8ade3e1::t_a35bff46e8f930 813-821
+  s_a30e47b8ade3e1::t_5ad5343ac9936e 313
+resources/js/Components/TestSuiteIntegrations.vue
+  s_a30e47b8ade3e1::t_5f7771b0bd8c56 321,327-333
+  s_a30e47b8ade3e1::t_fa8af8be057478 13-16
+  s_a30e47b8ade3e1::t_02ae5c02d68fe8 334
+resources/js/locales/ms.json
+  s_a30e47b8ade3e1::t_641750a5efd1fa 313
+  s_a30e47b8ade3e1::t_7e8925dfcd3036 813-821
+app/Services/GithubAppAccessService.php
+  s_a30e47b8ade3e1::t_eea4fef86df735 1-131
+app/Models/TestSuiteIntegration.php
+  s_a30e47b8ade3e1::t_8c03184f4f9d61 15
+  s_a30e47b8ade3e1::t_8c4d822ab20465 45-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "477750ca280d77e2420869911895b2cb7a83c0df",
+  "prompts": {},
+  "sessions": {
+    "s_a30e47b8ade3e1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f86a47728ffetoqzCTpxGGY7J3",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
