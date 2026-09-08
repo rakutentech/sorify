@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Test;
 use App\Models\TestResult;
 use App\Models\TestRun;
+use App\Support\ScreenshotMode;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
 
@@ -135,9 +136,12 @@ class PlaywrightRunnerService
             $command[] = '--headless';
             $command[] = $headless ? 'true' : 'false';
 
-            $takeScreenshot = $testRun->testSuite->take_screenshot ?? true;
-            $command[] = '--take-screenshot';
-            $command[] = $takeScreenshot ? 'true' : 'false';
+            $screenshotMode = $testRun->testSuite->take_screenshot ?? 'enabled';
+            if (! in_array($screenshotMode, ScreenshotMode::ALL, true)) {
+                $screenshotMode = 'enabled';
+            }
+            $command[] = '--screenshot-mode';
+            $command[] = $screenshotMode;
 
             $process = new Process(
                 command: $command,
