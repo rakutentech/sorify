@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\TestSuite;
 use App\Models\User;
 use App\Services\ActivityLogger;
+use App\Services\TestRunService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
@@ -56,7 +57,7 @@ class FeedTest extends TestCase
             'base_url' => 'https://example.com',
             'teams_webhook_url' => 'https://example.test/teams',
             'email_notify_on_failure' => true,
-            'take_screenshot' => false,
+            'take_screenshot' => 'disabled',
             'created_by' => $admin->id,
         ]);
         $suite->members()->attach($recipient->id, ['can_view' => true]);
@@ -71,7 +72,7 @@ class FeedTest extends TestCase
         $suite->variables()->create(['key' => 'TOKEN', 'value' => 'x']);
         $suite->schedule()->create(['cron_expression' => '0 */6 * * *', 'timezone' => 'UTC', 'is_enabled' => true]);
 
-        app(\App\Services\TestRunService::class)->triggerRun($suite, null, 'schedule');
+        app(TestRunService::class)->triggerRun($suite, null, 'schedule');
 
         $this->actingAs($admin)
             ->get('/sorify/feed')
@@ -81,7 +82,7 @@ class FeedTest extends TestCase
                 ->where('activities.data.0.suite.has_email_notifications', true)
                 ->where('activities.data.0.suite.has_github_integration', true)
                 ->where('activities.data.0.suite.has_http_integration', false)
-                ->where('activities.data.0.suite.take_screenshot', false)
+                ->where('activities.data.0.suite.take_screenshot', 'disabled')
                 ->where('activities.data.0.suite.variables_count', 1)
                 ->where('activities.data.0.suite.cookies_count', 0)
                 ->where('activities.data.0.suite.schedule.is_enabled', true)
@@ -351,7 +352,7 @@ class FeedTest extends TestCase
         $user = User::factory()->create();
         $suite = TestSuite::create(['name' => 'Suite', 'base_url' => 'https://example.com', 'created_by' => $user->id]);
 
-        $run = app(\App\Services\TestRunService::class)->triggerRun($suite, null, 'manual', $user->id);
+        $run = app(TestRunService::class)->triggerRun($suite, null, 'manual', $user->id);
 
         $activity = Activity::where('type', 'run_triggered')->first();
 

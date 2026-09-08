@@ -45,7 +45,6 @@ class TestSuite extends Model
 
     protected $casts = [
         'headless' => 'boolean',
-        'take_screenshot' => 'boolean',
         'timeout_ms' => 'integer',
         'history_retention' => 'integer',
         'max_retries' => 'integer',

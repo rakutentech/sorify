@@ -3,13 +3,22 @@
 namespace App\Http\Requests\Api;
 
 use App\Http\Requests\StoreTestSuiteIntegrationRequest;
+use App\Support\ScreenshotMode;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSuiteRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('take_screenshot')) {
+            $this->merge(['take_screenshot' => ScreenshotMode::normalize($this->input('take_screenshot'))]);
+        }
     }
 
     public function rules(): array
@@ -51,7 +60,7 @@ class StoreSuiteRequest extends FormRequest
             'base_url' => 'nullable|string|max:500',
             'history_retention' => 'nullable|integer|in:3,5,10',
             'timeout_ms' => 'nullable|integer|in:10000,30000,60000,120000,300000,600000',
-            'take_screenshot' => 'nullable|boolean',
+            'take_screenshot' => ['nullable', 'string', Rule::in(ScreenshotMode::ALL)],
             'teams_webhook_url' => 'nullable|string|max:500|url',
             'teams_webhook_proxy' => 'nullable|string|max:500',
             'teams_notify_on_start' => 'nullable|boolean',

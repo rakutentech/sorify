@@ -19,7 +19,7 @@ const allChips = computed(() => [
     { label: t('testSuites.badgeEmail'), active: !!props.suite.has_email_notifications, successActive: true, kind: 'email' },
     { label: t('testSuites.badgeGithub'), active: !!props.suite.has_github_integration, successActive: true, kind: 'github' },
     { label: t('testSuites.badgeHttp'), active: !!props.suite.has_http_integration, successActive: true, kind: 'http' },
-    { label: t('testSuites.badgeScreenshots'), active: !!props.suite.take_screenshot, successActive: true, kind: 'screenshots' },
+    { label: props.suite.take_screenshot === 'on_failure' ? t('testSuites.badgeScreenshotsOnFailure') : t('testSuites.badgeScreenshots'), active: props.suite.take_screenshot !== 'disabled', successActive: true, kind: 'screenshots' },
     { label: t('testSuites.badgeProxy'), active: !!(props.suite.proxy_rules_count || props.suite.playwright_proxy), successActive: true, kind: 'proxy' },
     { label: t('testSuites.badgeVariables'), active: !!((props.suite.variables_count ?? 0) > 0), successActive: true, kind: 'variables' },
     { label: t('testSuiteShow.cookiesCount', { count: props.suite.cookies_count ?? 0 }), active: !!((props.suite.cookies_count ?? 0) > 0), successActive: true, kind: 'cookies' },
