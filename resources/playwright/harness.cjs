@@ -139,7 +139,7 @@ function startProxyDispatcher (proxyRules, defaultProxy) {
  * @param {string|null} defaultProxy  HTTP proxy URL used when no proxyRule matches a request's host, or null
  * @param {string}      browserName  Browser engine: 'chromium' | 'firefox' | 'webkit'
  * @param {boolean}     headless   Whether to run headless
- * @param {boolean}     takeScreenshot  Whether page.screenshot() calls actually capture a PNG
+ * @param {string}      screenshotMode  Screenshot capture mode: 'enabled' | 'on_failure' | 'disabled'
  * @param {Array<{domain: string, proxy: string}>} proxyRules  Per-host proxy overrides; `domain` is a regex tested against the hostname
  * @param {Record<string, *>}  variables  Suite-level key/value pairs exposed to the test code as a `variables` object
  * @param {Array<{name: string, value: string, domain?: string, url?: string, path?: string, expires?: number, httpOnly?: boolean, secure?: boolean, sameSite?: 'Strict'|'Lax'|'None'}>}  cookies  Suite-level cookies added to the browser context before any page is created
@@ -159,11 +159,20 @@ async function runWithHarness (
     defaultProxy = null,
     browserName = 'chromium',
     headless = true,
-    takeScreenshot = true,
+    screenshotMode = 'enabled',
     proxyRules = [],
     variables = {},
     cookies = []
 ) {
+    // Normalize: legacy boolean input (true/false) maps onto enabled/disabled;
+    // anything invalid falls back to enabled.
+    if (typeof screenshotMode === 'boolean') {
+        screenshotMode = screenshotMode ? 'enabled' : 'disabled'
+    }
+    if (!['enabled', 'on_failure', 'disabled'].includes(screenshotMode)) {
+        screenshotMode = 'enabled'
+    }
+
     // Ensure output directory exists before anything else
     fs.mkdirSync(outputDir, { recursive: true })
 
@@ -239,14 +248,17 @@ async function runWithHarness (
         page.setDefaultNavigationTimeout(timeout)
 
         // Monkey-patch screenshot capture at the PROTOTYPE level so the suite's
-        // take_screenshot setting takes priority over ANY screenshot call in the
+        // screenshot mode setting takes priority over ANY screenshot call in the
         // generated test code: page.screenshot(), locator.screenshot(), on the
         // initial page or any page later created via context.newPage().
         //
         // When disabled, every screenshot call short-circuits to an empty Buffer
         // and writes no PNG, regardless of what the test code requests. When
-        // enabled, PNGs are forced into outputDir (caller-supplied paths are
-        // ignored) and recorded in the screenshots index.
+        // enabled or on_failure, PNGs are forced into outputDir (caller-supplied
+        // paths are ignored) and recorded in the screenshots index. In
+        // on_failure mode the PNGs are captured exactly like enabled — whether
+        // they are kept is decided only once the test's final status is known
+        // (see the discard below).
         const PageCtor = page.constructor
         const LocatorCtor = page.locator('html').constructor
 
@@ -268,7 +280,7 @@ async function runWithHarness (
         // via context.newPage(), since they share the same prototype.
         const originalPageScreenshot = PageCtor.prototype.screenshot
         PageCtor.prototype.screenshot = async function patchedPageScreenshot (options = {}) {
-            if (!takeScreenshot) {
+            if (screenshotMode === 'disabled') {
                 return Buffer.alloc(0)
             }
             const filePath = recordScreenshot(options, 'page')
@@ -278,7 +290,7 @@ async function runWithHarness (
         // Element-level screenshots via locator.screenshot().
         const originalLocatorScreenshot = LocatorCtor.prototype.screenshot
         LocatorCtor.prototype.screenshot = async function patchedLocatorScreenshot (options = {}) {
-            if (!takeScreenshot) {
+            if (screenshotMode === 'disabled') {
                 return Buffer.alloc(0)
             }
             const filePath = recordScreenshot(options, 'locator')
@@ -307,6 +319,19 @@ async function runWithHarness (
         await browser.close()
         if (dispatcher) {
             dispatcher.close()
+        }
+
+        // on_failure mode: the screenshots were captured during the run, but a
+        // passing test discards them — both the PNG files and the index — so
+        // nothing is reported or stored. Failing/erroring runs (the catch
+        // block below) return them untouched.
+        if (screenshotMode === 'on_failure' && screenshots.length > 0) {
+            for (const shot of screenshots) {
+                try {
+                    fs.unlinkSync(path.join(outputDir, shot.filename))
+                } catch {}
+            }
+            screenshots.length = 0
         }
 
         return {
