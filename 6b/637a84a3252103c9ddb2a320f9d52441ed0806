@@ -1,0 +1,41 @@
+Dockerfile
+  s_83459e2e12e69e::t_6d38ec790a9071 38-41,46
+config/sorify.php
+  s_83459e2e12e69e::t_b6e117d1b86907 18-20
+app/Services/PlaywrightRunnerService.php
+  s_83459e2e12e69e::t_8d42f47dbee2fd 161-169
+docker-compose.yml
+  s_83459e2e12e69e::t_2eb9a5a7c2e7d3 23-25
+tests/Unit/LocalRunnerSafetyNetTest.php
+  s_83459e2e12e69e::t_f9eec6044dabf2 1-63
+.env.docker.example
+  s_83459e2e12e69e::t_6e6c2ec014d067 91-98
+tests/Unit/PlaywrightCodeValidatorServiceTest.php
+  s_83459e2e12e69e::t_3acf30836e3aeb 1-6,8-36,38-57
+  s_83459e2e12e69e::t_9903e8168354f6 7
+  s_83459e2e12e69e::t_c0f68800c16e10 37
+.dockerignore
+  s_83459e2e12e69e::t_e53ba0a9c2ec73 8
+README.md
+  s_83459e2e12e69e::t_2a6c53d255d63a 243-267
+app/Services/PlaywrightCodeValidatorService.php
+  s_83459e2e12e69e::t_c1339c4d8e6da0 12,14,20-21
+app/Services/DockerExecutor.php
+  s_83459e2e12e69e::t_4aa94b90042e75 114-150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "6b637a84a3252103c9ddb2a320f9d52441ed0806",
+  "prompts": {},
+  "sessions": {
+    "s_83459e2e12e69e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7f6bf2f2ffekyJ8xdYEJ0FaaU",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
