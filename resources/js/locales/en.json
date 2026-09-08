@@ -13,7 +13,8 @@
         "switchToDark": "Switch to dark mode",
         "language": "Language",
         "githubApps": "GitHub Apps",
-        "users": "Users"
+        "users": "Users",
+        "system": "System"
     },
     "dashboard": {
         "title": "Dashboard",
@@ -847,5 +848,36 @@
         "connectionOk": "Connection OK (HTTP {status})",
         "connectionFailed": "Connection failed: {detail}",
         "connectionSkipped": "Enter a valid http(s) base URL to test the connection"
+    },
+    "adminSystem": {
+        "pageTitle": "Admin — System",
+        "heading": "System",
+        "executionMode": "Test execution mode",
+        "localMode": "Local (node process)",
+        "localHelp": "Tests run as a node process inside the app container. Faster, but test code has the app's privileges.",
+        "ephemeralMode": "Ephemeral (sandboxed container)",
+        "ephemeralHelp": "Each test runs in a one-off hardened container on the Docker daemon. Test code cannot reach the app, its secrets, or the host.",
+        "saveMode": "Save mode",
+        "notReadyHint": "The environment is not ready for ephemeral mode yet — see the readiness checks below.",
+        "readiness": "Environment readiness",
+        "recheck": "Re-check",
+        "buildImage": "Build image",
+        "checking": "Checking…",
+        "noChecks": "No checks yet.",
+        "statusPass": "OK",
+        "statusFail": "Fail",
+        "statusWarn": "Warning",
+        "statusInfo": "Info",
+        "lastBuildOk": "Last image build: {at}",
+        "lastBuildFailed": "Last image build failed at {at}: {error}",
+        "checks": {
+            "docker_cli": "Docker CLI",
+            "daemon": "Docker daemon",
+            "image": "Runner image",
+            "network": "Runner network",
+            "gvisor": "gVisor runtime",
+            "root_daemon": "Daemon connection",
+            "smoke": "Smoke run"
+        }
     }
 }

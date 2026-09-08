@@ -6,6 +6,7 @@ use App\Models\Test;
 use App\Models\TestResult;
 use App\Models\TestRun;
 use App\Support\ScreenshotMode;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
 
@@ -19,6 +20,7 @@ class PlaywrightRunnerService
 
     public function __construct(
         private readonly ScreenshotService $screenshotService,
+        private readonly DockerExecutor $docker,
     ) {
         $this->runnerScript = config('sorify.runner_script_path');
         $this->tmpDir = config('sorify.tmp_dir');
@@ -52,17 +54,15 @@ class PlaywrightRunnerService
             return $this->createErrorResult($testRun, $test, 'Test has no Playwright code. Please upload code via the API before running.');
         }
 
-        @mkdir($this->tmpDir, 0755, true);
+        $mode = ExecutionMode::current();
 
-        $specPath = $this->tmpDir."/test-{$test->id}-{$testRun->id}.spec.js";
-        $outputDir = $this->tmpDir."/output-{$testRun->id}-{$test->id}";
-        $proxyRulesPath = null;
-        $variablesPath = null;
-        $cookiesPath = null;
+        $runDir = $this->tmpDir."/run-{$testRun->id}-{$test->id}";
+        $workDir = $runDir.'/work';
+        $outDir = $runDir.'/out';
+        File::ensureDirectoryExists($workDir, 0755);
+        File::ensureDirectoryExists($outDir, 0755);
 
-        @mkdir($outputDir, 0755, true);
-
-        file_put_contents($specPath, $test->playwright_code);
+        file_put_contents($workDir.'/spec.js', $test->playwright_code);
 
         $result = TestResult::create([
             'test_run_id' => $testRun->id,
@@ -71,49 +71,44 @@ class PlaywrightRunnerService
             'started_at' => now(),
         ]);
 
+        $containerName = null;
+
         try {
             $timeoutMs = $testRun->testSuite->timeout_ms ?? $this->timeoutMs;
 
-            $command = [
-                'node',
-                $this->runnerScript,
-                '--spec',    $specPath,
-                '--output',  $outputDir,
-                '--timeout', (string) $timeoutMs,
-            ];
+            // Path placeholders (SPEC, OUTPUT, ...) are substituted per mode below
+            // so both execution modes share one arg list.
+            $runnerArgs = ['--spec', 'SPEC', '--output', 'OUTPUT', '--timeout', (string) $timeoutMs];
 
             $proxy = $testRun->testSuite->playwright_proxy ?: null;
             if ($proxy) {
-                $command[] = '--proxy';
-                $command[] = $proxy;
+                $runnerArgs[] = '--proxy';
+                $runnerArgs[] = $proxy;
             }
 
             $proxyRules = $testRun->testSuite->proxyRules;
             if ($proxyRules->isNotEmpty()) {
-                $proxyRulesPath = $this->tmpDir."/proxy-rules-{$testRun->id}-{$test->id}.json";
-                file_put_contents($proxyRulesPath, $proxyRules->map(fn ($rule) => [
+                file_put_contents($workDir.'/proxy-rules.json', $proxyRules->map(fn ($rule) => [
                     'domain' => $rule->domain,
                     'proxy' => $rule->proxy,
                 ])->values()->toJson());
-                $command[] = '--proxy-rules';
-                $command[] = $proxyRulesPath;
+                $runnerArgs[] = '--proxy-rules';
+                $runnerArgs[] = 'PROXY_RULES';
             }
 
             $variables = $testRun->testSuite->variables;
             if ($variables->isNotEmpty()) {
-                $variablesPath = $this->tmpDir."/variables-{$testRun->id}-{$test->id}.json";
-                file_put_contents($variablesPath, json_encode(
+                file_put_contents($workDir.'/variables.json', json_encode(
                     $variables->mapWithKeys(fn ($v) => [$v->key => $v->value])->all(),
                     JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
                 ));
-                $command[] = '--variables';
-                $command[] = $variablesPath;
+                $runnerArgs[] = '--variables';
+                $runnerArgs[] = 'VARIABLES';
             }
 
             $cookies = $testRun->testSuite->cookies;
             if ($cookies->isNotEmpty()) {
-                $cookiesPath = $this->tmpDir."/cookies-{$testRun->id}-{$test->id}.json";
-                file_put_contents($cookiesPath, $cookies->map(fn ($c) => [
+                file_put_contents($workDir.'/cookies.json', $cookies->map(fn ($c) => [
                     'name' => $c->name,
                     'value' => $c->value ?? '',
                     'domain' => $c->domain,
@@ -124,27 +119,60 @@ class PlaywrightRunnerService
                     'secure' => (bool) $c->secure,
                     'sameSite' => $c->same_site,
                 ])->values()->toJson(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-                $command[] = '--cookies';
-                $command[] = $cookiesPath;
+                $runnerArgs[] = '--cookies';
+                $runnerArgs[] = 'COOKIES';
             }
-
-            $browser = $testRun->testSuite->browser ?? 'chromium';
-            $command[] = '--browser';
-            $command[] = $browser;
-
-            $headless = $testRun->testSuite->headless ?? true;
-            $command[] = '--headless';
-            $command[] = $headless ? 'true' : 'false';
 
             $screenshotMode = $testRun->testSuite->take_screenshot ?? 'enabled';
             if (! in_array($screenshotMode, ScreenshotMode::ALL, true)) {
                 $screenshotMode = 'enabled';
             }
-            $command[] = '--screenshot-mode';
-            $command[] = $screenshotMode;
+
+            $runnerArgs[] = '--browser';
+            $runnerArgs[] = $testRun->testSuite->browser ?? 'chromium';
+            $runnerArgs[] = '--headless';
+            $runnerArgs[] = ($testRun->testSuite->headless ?? true) ? 'true' : 'false';
+            $runnerArgs[] = '--screenshot-mode';
+            $runnerArgs[] = $screenshotMode;
+
+            if ($mode === ExecutionMode::EPHEMERAL) {
+                $paths = [
+                    'SPEC' => '/work/spec.js',
+                    'OUTPUT' => '/out',
+                    'PROXY_RULES' => '/work/proxy-rules.json',
+                    'VARIABLES' => '/work/variables.json',
+                    'COOKIES' => '/work/cookies.json',
+                ];
+                $runnerArgs = array_map(fn ($arg) => $paths[$arg] ?? $arg, $runnerArgs);
+
+                $command = $this->docker->buildRunnerCommand($workDir, $outDir, $runnerArgs, $testRun->id, $test->id);
+                $containerName = $this->docker->containerName($testRun->id, $test->id);
+                $env = $this->docker->cliEnv();
+            } else {
+                $paths = [
+                    'SPEC' => $workDir.'/spec.js',
+                    'OUTPUT' => $outDir,
+                    'PROXY_RULES' => $workDir.'/proxy-rules.json',
+                    'VARIABLES' => $workDir.'/variables.json',
+                    'COOKIES' => $workDir.'/cookies.json',
+                ];
+                $runnerArgs = array_map(fn ($arg) => $paths[$arg] ?? $arg, $runnerArgs);
+
+                // Safety net: drop the node child to the unprivileged test user
+                // (setpriv + prlimit caps) when configured — see DockerExecutor::localRunnerPrefix.
+                $prefix = $this->docker->localRunnerPrefix();
+                if ($prefix) {
+                    @chmod($workDir, 0777);
+                    @chmod($outDir, 0777);
+                }
+
+                $command = array_merge($prefix, ['node', $this->runnerScript], $runnerArgs);
+                $env = $this->localEnv();
+            }
 
             $process = new Process(
                 command: $command,
+                env: $env,
                 timeout: ($timeoutMs / 1000) + 10
             );
 
@@ -202,10 +230,16 @@ class PlaywrightRunnerService
             $payload = $jsonLine ? json_decode($jsonLine, true) : null;
 
             if (! is_array($payload)) {
+                $errorMessage = 'Runner produced no valid JSON output';
+                if ($mode === ExecutionMode::EPHEMERAL) {
+                    $firstStderrLine = strtok(trim($stderr) ?: $rawOutput, "\n") ?: 'unknown error';
+                    $errorMessage = 'Ephemeral execution mode is enabled but Docker is unavailable: '.$firstStderrLine;
+                }
+
                 $result->update([
                     'status' => 'error',
                     'stderr' => $stderr ?: 'No JSON output from runner',
-                    'error_message' => 'Runner produced no valid JSON output',
+                    'error_message' => $errorMessage,
                     'completed_at' => now(),
                 ]);
 
@@ -226,36 +260,64 @@ class PlaywrightRunnerService
                 $this->screenshotService->storeFromRunOutput(
                     $result,
                     $payload['screenshots'],
-                    $outputDir
+                    $outDir
                 );
             }
         } catch (\Throwable $e) {
             Log::error('Playwright runner error', ['test_id' => $test->id, 'error' => $e->getMessage()]);
 
+            $errorMessage = $e->getMessage();
+            if ($mode === ExecutionMode::EPHEMERAL) {
+                $errorMessage = 'Ephemeral execution mode is enabled but Docker is unavailable: '.$errorMessage;
+            }
+
             $result->update([
                 'status' => 'error',
-                'error_message' => $e->getMessage(),
+                'error_message' => $errorMessage,
                 'error_stack' => $e->getTraceAsString(),
                 'completed_at' => now(),
             ]);
         } finally {
-            @unlink($specPath);
-            if ($proxyRulesPath) {
-                @unlink($proxyRulesPath);
+            if ($containerName) {
+                $this->docker->removeContainer($containerName);
             }
-            if ($variablesPath) {
-                @unlink($variablesPath);
-            }
-            if ($cookiesPath) {
-                @unlink($cookiesPath);
-            }
-            $this->screenshotService->cleanTmpDir($outputDir);
+            File::deleteDirectory($runDir);
             if (! $result->completed_at) {
                 $result->update(['completed_at' => now()]);
             }
         }
 
         return $result->refresh();
+    }
+
+    /**
+     * Browser resolution: honor an ambient PLAYWRIGHT_BROWSERS_PATH (set by
+     * the Docker image) or the SORIFY_BROWSERS_PATH config override. With
+     * neither set, Playwright falls back to $HOME/.cache/ms-playwright — so
+     * the real HOME must be passed through instead of /tmp, and the env var
+     * must stay out of the child env entirely (an empty value would resolve
+     * to the filesystem root, not the HOME-based default).
+     *
+     * @return array<string, string>
+     */
+    private function localEnv(): array
+    {
+        $env = [
+            'PATH' => getenv('PATH') ?: '/usr/local/bin:/usr/bin:/bin',
+            'NODE_ENV' => 'production',
+        ];
+
+        $browsersPath = getenv('PLAYWRIGHT_BROWSERS_PATH')
+            ?: (string) (config('sorify.execution.browsers_path') ?: '');
+
+        if ($browsersPath !== '') {
+            $env['PLAYWRIGHT_BROWSERS_PATH'] = $browsersPath;
+            $env['HOME'] = '/tmp';
+        } else {
+            $env['HOME'] = getenv('HOME') ?: '/tmp';
+        }
+
+        return $this->docker->scrubbedEnv($env);
     }
 
     private function createErrorResult(TestRun $testRun, Test $test, string $message): TestResult

@@ -437,7 +437,7 @@ JS);
         $screenshot = $this->mock(ScreenshotService::class);
         $screenshot->shouldIgnoreMissing();
 
-        $service = new PlaywrightRunnerService($screenshot);
+        $service = new PlaywrightRunnerService($screenshot, new \App\Services\DockerExecutor());
         $result = $service->runWithRetries($test, $run);
 
         $this->assertSame('passed', $result->status, 'Stub runner should report passed. stdout: '.$result->stdout);

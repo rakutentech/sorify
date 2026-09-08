@@ -13,7 +13,8 @@
         "switchToDark": "ダークモードに切り替え",
         "language": "言語",
         "githubApps": "GitHub アプリ",
-        "users": "ユーザー"
+        "users": "ユーザー",
+        "system": "システム"
     },
     "dashboard": {
         "title": "ダッシュボード",
@@ -847,5 +848,36 @@
         "connectionOk": "接続OK（HTTP {status}）",
         "connectionFailed": "接続失敗：{detail}",
         "connectionSkipped": "接続テストには有効な http(s) ベースURLを入力してください"
+    },
+    "adminSystem": {
+        "pageTitle": "管理 — システム",
+        "heading": "システム",
+        "executionMode": "テスト実行モード",
+        "localMode": "ローカル（node プロセス）",
+        "localHelp": "テストはアプリコンテナー内の node プロセスとして実行されます。高速ですが、テストコードはアプリと同じ権限を持ちます。",
+        "ephemeralMode": "エフェメラル（サンドボックスコンテナー）",
+        "ephemeralHelp": "各テストは Docker デーモン上の使い捨て強化コンテナーで実行されます。テストコードはアプリ・シークレット・ホストにアクセスできません。",
+        "saveMode": "モードを保存",
+        "notReadyHint": "環境はまだエフェメラルモードに対応していません — 下の準備状況を確認してください。",
+        "readiness": "環境の準備状況",
+        "recheck": "再チェック",
+        "buildImage": "イメージをビルド",
+        "checking": "確認中…",
+        "noChecks": "チェックはまだありません。",
+        "statusPass": "OK",
+        "statusFail": "失敗",
+        "statusWarn": "警告",
+        "statusInfo": "情報",
+        "lastBuildOk": "最終イメージビルド: {at}",
+        "lastBuildFailed": "{at} にイメージビルドが失敗しました: {error}",
+        "checks": {
+            "docker_cli": "Docker CLI",
+            "daemon": "Docker デーモン",
+            "image": "ランナーイメージ",
+            "network": "ランナーネットワーク",
+            "gvisor": "gVisor ランタイム",
+            "root_daemon": "デーモン接続",
+            "smoke": "スモーク実行"
+        }
     }
 }

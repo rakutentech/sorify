@@ -13,7 +13,8 @@
         "switchToDark": "切换到深色模式",
         "language": "语言",
         "githubApps": "GitHub 应用",
-        "users": "用户"
+        "users": "用户",
+        "system": "系统"
     },
     "dashboard": {
         "title": "仪表板",
@@ -847,5 +848,36 @@
         "connectionOk": "连接正常（HTTP {status}）",
         "connectionFailed": "连接失败：{detail}",
         "connectionSkipped": "输入有效的 http(s) 基础 URL 以测试连接"
+    },
+    "adminSystem": {
+        "pageTitle": "管理 — 系统",
+        "heading": "系统",
+        "executionMode": "测试执行模式",
+        "localMode": "本地（node 进程）",
+        "localHelp": "测试以 node 进程方式在应用容器内运行。速度更快，但测试代码拥有与应用相同的权限。",
+        "ephemeralMode": "临时（沙箱容器）",
+        "ephemeralHelp": "每个测试在 Docker 守护进程上的一次性强化容器中运行。测试代码无法访问应用、其机密或主机。",
+        "saveMode": "保存模式",
+        "notReadyHint": "环境尚未就绪，无法启用临时模式 — 请查看下方的就绪检查。",
+        "readiness": "环境就绪状态",
+        "recheck": "重新检查",
+        "buildImage": "构建镜像",
+        "checking": "检查中…",
+        "noChecks": "暂无检查。",
+        "statusPass": "通过",
+        "statusFail": "失败",
+        "statusWarn": "警告",
+        "statusInfo": "信息",
+        "lastBuildOk": "上次镜像构建：{at}",
+        "lastBuildFailed": "镜像构建于 {at} 失败：{error}",
+        "checks": {
+            "docker_cli": "Docker CLI",
+            "daemon": "Docker 守护进程",
+            "image": "Runner 镜像",
+            "network": "Runner 网络",
+            "gvisor": "gVisor 运行时",
+            "root_daemon": "守护进程连接",
+            "smoke": "冒烟运行"
+        }
     }
 }

@@ -8,7 +8,7 @@ import AdminMenu from '@/Components/AdminMenu.vue';
 import {
     Activity, FolderKanban, Star, BookOpen,
     ShieldCheck, ScrollText, ExternalLink, ChevronDown, Sun, Moon,
-    UserCircle, LogOut, CircleCheck, Info, Workflow,
+    UserCircle, LogOut, CircleCheck, Info, Workflow, Cpu,
 } from '@lucide/vue';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
@@ -29,6 +29,7 @@ const docsLink = computed(() => ({ label: t('nav.docs'), href: 'https://github.c
 const adminLinks = computed(() => user.value?.is_admin ? [
     { label: t('nav.users'), href: '/sorify/admin/users', icon: ShieldCheck, accent: 'var(--md-sys-color-error)' },
     { label: t('nav.githubApps'), href: '/sorify/admin/github-apps', icon: Workflow, accent: 'var(--md-sys-color-error)' },
+    { label: t('nav.system'), href: '/sorify/admin/system', icon: Cpu, accent: 'var(--md-sys-color-error)' },
     { label: t('nav.logs'), href: '/sorify/log-viewer', external: true, newTab: true, icon: ScrollText, accent: 'var(--md-sys-color-on-surface-variant)' },
 ] : []);
 

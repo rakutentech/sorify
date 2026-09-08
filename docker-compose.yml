@@ -12,6 +12,17 @@ x-app-image: &app-image
     - .env.docker
   volumes:
     - storage_data:/app/storage
+    # Ephemeral execution mode: shared staging dir for test specs/screenshots
+    # (bind-mounts into runner containers on the rootless daemon) + the
+    # rootless daemon socket. No-ops in local mode.
+    - ${SORIFY_RUNS_DIR:-/srv/sorify/runs}:/app/storage/app/tmp
+    - ${SORIFY_RUNNER_SOCKET:-/run/user/1500/docker.sock}:/var/run/sorify-docker.sock:ro
+  environment:
+    - SORIFY_EXECUTION_DOCKER_HOST=unix:///var/run/sorify-docker.sock
+    - SORIFY_EXECUTION_HOST_RUNS_DIR=${SORIFY_RUNS_DIR:-/srv/sorify/runs}
+    # Local-mode safety net: drop node test processes to the unprivileged
+    # sorify-test user (created in the Dockerfile) with kernel-enforced caps.
+    - SORIFY_LOCAL_TEST_UID=2000
   depends_on:
     mysql:
       condition: service_healthy
