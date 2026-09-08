@@ -1,0 +1,26 @@
+app/Http/Controllers/Admin/SystemController.php
+  s_83459e2e12e69e::t_0d39161e9bf669 1-58
+routes/web.php
+  s_83459e2e12e69e::t_89826a9f6b2368 179-183
+  s_83459e2e12e69e::t_63dcbc7a3b04c7 4
+tests/Feature/AdminSystemTest.php
+  s_83459e2e12e69e::t_d51f4d555d3b73 1-144
+app/Jobs/BuildRunnerImageJob.php
+  s_83459e2e12e69e::t_08aa439ce88fb4 1-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "2dd99f426934daebcf61066c2eb89c7240b33f37",
+  "prompts": {},
+  "sessions": {
+    "s_83459e2e12e69e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7f6bf2f2ffekyJ8xdYEJ0FaaU",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
