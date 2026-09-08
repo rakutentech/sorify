@@ -1,0 +1,16 @@
+README.md
+  h_f44dfe84a46cdf 318
+INSTALL.md
+  h_f44dfe84a46cdf 1-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "8b3f2c676aa223fcf73c40916650e108b5879029",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
