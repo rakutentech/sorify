@@ -1,0 +1,26 @@
+docker-compose.yml
+  s_83459e2e12e69e::t_3fb05151cc3c53 15-22
+Dockerfile
+  s_83459e2e12e69e::t_7528433dec45ed 37-38,40
+bin/setup-ephemeral-runner
+  s_83459e2e12e69e::t_c821ac4fb09bdd 1-31,33-114
+  s_83459e2e12e69e::t_0f75c2aa739287 32
+.env.docker.example
+  s_83459e2e12e69e::t_3ca83bbe42e407 77-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "6b0060be0c1e53a8061bdd9fdd073e5f76a5afef",
+  "prompts": {},
+  "sessions": {
+    "s_83459e2e12e69e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7f6bf2f2ffekyJ8xdYEJ0FaaU",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
