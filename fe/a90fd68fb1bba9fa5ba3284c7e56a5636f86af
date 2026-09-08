@@ -1,0 +1,27 @@
+deploy.php
+  s_645934b3e888eb::t_0d959b47522d39 86
+  s_645934b3e888eb::t_878e9186d5f723 63-65,70-71,75-79
+  s_645934b3e888eb::t_66f3d94bd46786 66-67,69
+  s_645934b3e888eb::t_25dd528eb754d0 68,72-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "fea90fd68fb1bba9fa5ba3284c7e56a5636f86af",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_645934b3e888eb": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7ea5713affe3ACrMRYvmr7Oll",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
