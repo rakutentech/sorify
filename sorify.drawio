@@ -139,7 +139,7 @@
                         <mxPoint x="-32" y="-20" as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=2;endArrow=block;endFill=1;endSize=12;startArrow=block;startFill=1;startSize=12;jumpStyle=arc;jumpSize=8" parent="1" source="11" target="10" edge="1">
+                <mxCell id="20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=1;endArrow=block;endFill=1;endSize=12;startArrow=block;startFill=1;startSize=12;jumpStyle=arc;jumpSize=8" parent="1" source="11" target="10" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="820" y="276"/>
@@ -147,12 +147,12 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="21" value="MANAGE" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="20" vertex="1" connectable="0">
+                <mxCell id="21" value="TOOLS" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="20" vertex="1" connectable="0">
                     <mxGeometry x="0.5" relative="1" as="geometry">
                         <mxPoint x="14" y="-20" as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=2;endArrow=block;endFill=1;endSize=12;jumpStyle=arc;jumpSize=8" parent="1" source="13" target="11" edge="1">
+                <mxCell id="24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=1;endArrow=block;endFill=1;endSize=12;jumpStyle=arc;jumpSize=8" parent="1" source="13" target="11" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="472" y="480"/>
@@ -173,7 +173,7 @@
                         <mxPoint x="64" as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=2;endArrow=block;endFill=1;endSize=12;startArrow=block;startFill=1;startSize=12;jumpStyle=arc;jumpSize=8" parent="1" source="11" target="15" edge="1">
+                <mxCell id="28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=1;endArrow=block;endFill=1;endSize=12;startArrow=block;startFill=1;startSize=12;jumpStyle=arc;jumpSize=8" parent="1" source="11" target="15" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="744" y="512"/>
@@ -198,7 +198,7 @@
                 <mxCell id="84" value="Sorify Playwright&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#B2FFB7;strokeColor=light-dark(#507750, #939fb3);strokeWidth=2;fontColor=#1E293B;fontSize=18;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;fontStyle=1;gradientColor=#99FFB4;" vertex="1" parent="1">
                     <mxGeometry x="552" y="564" width="328" height="136" as="geometry"/>
                 </mxCell>
-                <mxCell id="85" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=2;endArrow=classicThin;endFill=1;endSize=12;dashed=1;dashPattern=6 4;jumpStyle=arc;jumpSize=8;flowAnimation=1;startArrow=classicThin;startFill=1;" edge="1" parent="1">
+                <mxCell id="85" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=2;endArrow=classicThin;endFill=1;endSize=12;dashed=1;dashPattern=6 4;jumpStyle=arc;jumpSize=8;flowAnimation=1;startArrow=classicThin;startFill=1;" edge="1" parent="1" target="13">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="544" y="456"/>
@@ -228,8 +228,29 @@
                 <mxCell id="93" value="HYBRID APPROACH" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;fontStyle=1" vertex="1" connectable="0" parent="1">
                     <mxGeometry x="816" y="472" as="geometry"/>
                 </mxCell>
-                <mxCell id="95" value="AI AGENTIC&lt;div&gt;RECURSIVE&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;fontStyle=1" vertex="1" connectable="0" parent="1">
-                    <mxGeometry x="392" y="368" as="geometry"/>
+                <mxCell id="95" value="&lt;div&gt;FULL&lt;/div&gt;AI AGENTIC" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;fontStyle=1" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="456" y="408" as="geometry"/>
+                </mxCell>
+                <mxCell id="98" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=2;endArrow=block;endFill=1;endSize=12;startArrow=block;startFill=1;startSize=12;jumpStyle=arc;jumpSize=8;flowAnimation=1;" edge="1" parent="1" target="84">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="640" y="520"/>
+                            <mxPoint x="704" y="520"/>
+                        </Array>
+                        <mxPoint x="640" y="368" as="sourcePoint"/>
+                        <mxPoint x="896" y="576" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="99" value="RECORDINGS" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" vertex="1" connectable="0" parent="98">
+                    <mxGeometry x="0.5" relative="1" as="geometry">
+                        <mxPoint x="-143" y="-20" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="100" value="RUN / DEBUG&lt;div&gt;UPDATE/ SCHEDULE&lt;/div&gt;&lt;div&gt;NOTIFY / MANAGE&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="664" y="488" as="geometry"/>
+                </mxCell>
+                <mxCell id="101" value="&lt;div&gt;FULL&lt;/div&gt;AI AGENTIC" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;fontStyle=1" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="680" y="408" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
