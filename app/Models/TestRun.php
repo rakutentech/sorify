@@ -36,6 +36,18 @@ class TestRun extends Model
         return $this->hasManyThrough(Screenshot::class, TestResult::class);
     }
 
+    /**
+     * A run counts as successful only when it finished with no failures
+     * and no errors — a run aborted by a failing pre-run integration also
+     * has zero failure counts, so the status check keeps those out.
+     */
+    public function isSuccessful(): bool
+    {
+        return $this->status === 'completed'
+            && (int) $this->failed_count === 0
+            && (int) $this->error_count === 0;
+    }
+
     public function getPassRateAttribute(): float
     {
         if ($this->total_tests === 0) {

@@ -27,7 +27,7 @@ class TestRunController extends Controller
             return back()->withErrors(['run' => $e->getMessage()]);
         }
 
-        return redirect(route('runs.show', $run, absolute: false));
+        return back();
     }
 
     public function show(TestRun $run): Response
