@@ -4,6 +4,9 @@
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
+                <mxCell id="82" value="" style="rounded=0;arcSize=8;html=1;whiteSpace=wrap;fillColor=none;strokeColor=light-dark(#000000, #56a2e8);strokeWidth=1;fontColor=default;fontSize=17;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=top;align=center;fontStyle=1;spacingTop=12;labelBackgroundColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="16" y="32" width="1384" height="744" as="geometry"/>
+                </mxCell>
                 <mxCell id="2" value="Product Knowledge" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#FBF7F4;strokeColor=#D9C4B8;strokeWidth=1;fontColor=#1E293B;fontSize=14;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=10" parent="1" vertex="1">
                     <mxGeometry x="40" y="112" width="280" height="288" as="geometry"/>
                 </mxCell>
@@ -110,16 +113,16 @@
                     <mxGeometry x="472" y="292" width="296" height="32" as="geometry"/>
                 </mxCell>
                 <mxCell id="13" value="Local Playwright&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#F5F5F5;strokeColor=#4F5D75;strokeWidth=2;fontColor=#1E293B;fontSize=18;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;fontStyle=1" parent="1" vertex="1">
-                    <mxGeometry x="456" y="568" width="328" height="136" as="geometry"/>
+                    <mxGeometry x="208" y="564" width="328" height="136" as="geometry"/>
                 </mxCell>
                 <mxCell id="14" value="Run / debug locally" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#4F5D75;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" parent="1" vertex="1">
-                    <mxGeometry x="472" y="644" width="296" height="32" as="geometry"/>
+                    <mxGeometry x="216" y="644" width="296" height="32" as="geometry"/>
                 </mxCell>
-                <mxCell id="15" value="Chrome Extension&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=default;strokeColor=#4F5D75;strokeWidth=2;fontColor=#1E293B;fontSize=18;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;fontStyle=1" parent="1" vertex="1">
+                <mxCell id="15" value="Chrome Extension&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=default;strokeColor=#4F5D75;strokeWidth=2;fontColor=#1E293B;fontSize=18;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;fontStyle=1;dashed=1;dashPattern=1 2;" parent="1" vertex="1">
                     <mxGeometry x="904" y="568" width="344" height="136" as="geometry"/>
                 </mxCell>
-                <mxCell id="16" value="Tester records actions" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#4F5D75;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" parent="1" vertex="1">
-                    <mxGeometry x="920" y="644" width="312" height="32" as="geometry"/>
+                <mxCell id="16" value="Automater actions recorder" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#4F5D75;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" parent="1" vertex="1">
+                    <mxGeometry x="925" y="644" width="312" height="32" as="geometry"/>
                 </mxCell>
                 <mxCell id="17" value="Clicks / Inputs / Cookies&lt;br&gt;Scroll / Hover / Any events" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#7A8399;fontSize=12;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" parent="1" vertex="1">
                     <mxGeometry x="704" y="516" width="272" height="48" as="geometry"/>
@@ -149,29 +152,17 @@
                         <mxPoint x="14" y="-20" as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=2;endArrow=classicThin;endFill=1;endSize=12;dashed=1;dashPattern=6 4;jumpStyle=arc;jumpSize=8;flowAnimation=1;startArrow=classicThin;startFill=1;" parent="1" source="11" target="13" edge="1">
+                <mxCell id="24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=2;endArrow=block;endFill=1;endSize=12;jumpStyle=arc;jumpSize=8" parent="1" source="13" target="11" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
-                            <mxPoint x="536" y="464"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="23" value="RUN / DEBUG" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="22" vertex="1" connectable="0">
-                    <mxGeometry x="0.5" relative="1" as="geometry">
-                        <mxPoint x="-46" as="offset"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=2;endArrow=open;endFill=0;endSize=12;jumpStyle=arc;jumpSize=8" parent="1" source="13" target="11" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <Array as="points">
-                            <mxPoint x="696" y="464"/>
-                            <mxPoint x="640" y="464"/>
+                            <mxPoint x="472" y="480"/>
+                            <mxPoint x="568" y="480"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="25" value="RESULTS" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="24" vertex="1" connectable="0">
                     <mxGeometry x="0.5" relative="1" as="geometry">
-                        <mxPoint x="32" y="14" as="offset"/>
+                        <mxPoint x="-24" y="53" as="offset"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=2;endArrow=block;endFill=1;endSize=12;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;jumpStyle=arc;jumpSize=8;flowAnimation=1;startArrow=block;startFill=1;" parent="1" source="15" target="10" edge="1">
@@ -192,23 +183,53 @@
                 </mxCell>
                 <mxCell id="29" value="RECORDINGS" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="28" vertex="1" connectable="0">
                     <mxGeometry x="0.5" relative="1" as="geometry">
-                        <mxPoint y="-20" as="offset"/>
+                        <mxPoint x="-143" y="-20" as="offset"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="37" value="" style="dashed=0;outlineConnect=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.weblogos.chrome" vertex="1" parent="1">
-                    <mxGeometry x="928" y="616" width="56" height="55" as="geometry"/>
-                </mxCell>
-                <mxCell id="38" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/general/Load_Test.svg;" vertex="1" parent="1">
-                    <mxGeometry x="472" y="605" width="68" height="66" as="geometry"/>
+                    <mxGeometry x="928" y="611" width="56" height="55" as="geometry"/>
                 </mxCell>
                 <mxCell id="39" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.pc;" vertex="1" parent="1">
                     <mxGeometry x="472" y="208" width="56" height="46" as="geometry"/>
                 </mxCell>
-                <mxCell id="82" value="" style="rounded=0;arcSize=8;html=1;whiteSpace=wrap;fillColor=none;strokeColor=light-dark(#000000, #56a2e8);strokeWidth=1;fontColor=default;fontSize=17;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=top;align=center;fontStyle=1;spacingTop=12;labelBackgroundColor=none;" vertex="1" parent="1">
-                    <mxGeometry x="16" y="32" width="1384" height="744" as="geometry"/>
-                </mxCell>
                 <mxCell id="83" value="How it works" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#BF0000;fontSize=28;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=left;verticalAlign=top;fontStyle=1" vertex="1" parent="1">
                     <mxGeometry x="48" y="48" width="400" height="56" as="geometry"/>
+                </mxCell>
+                <mxCell id="84" value="Sorify Playwright&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#B2FFB7;strokeColor=light-dark(#507750, #939fb3);strokeWidth=2;fontColor=#1E293B;fontSize=18;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=middle;align=center;fontStyle=1;gradientColor=#99FFB4;" vertex="1" parent="1">
+                    <mxGeometry x="552" y="564" width="328" height="136" as="geometry"/>
+                </mxCell>
+                <mxCell id="85" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=2;endArrow=classicThin;endFill=1;endSize=12;dashed=1;dashPattern=6 4;jumpStyle=arc;jumpSize=8;flowAnimation=1;startArrow=classicThin;startFill=1;" edge="1" parent="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="544" y="456"/>
+                            <mxPoint x="380" y="456"/>
+                        </Array>
+                        <mxPoint x="544" y="368" as="sourcePoint"/>
+                        <mxPoint x="380" y="572" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="86" value="RUN / DEBUG" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" vertex="1" connectable="0" parent="85">
+                    <mxGeometry x="0.5" relative="1" as="geometry">
+                        <mxPoint x="-46" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="87" value="Run / debug / &lt;b&gt;update&lt;/b&gt;&amp;nbsp;to remotely" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#4F5D75;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" vertex="1" parent="1">
+                    <mxGeometry x="568" y="633" width="296" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="89" value="EPHEMERAL RUNNERS" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#4F5D75;fontSize=13;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" vertex="1" parent="1">
+                    <mxGeometry x="568" y="660" width="296" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="90" value="" style="editableCssRules=.*;html=1;shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnY9Imh0dHBzOi8vdmVjdGEuaW8vbmFubyIgd2lkdGg9IjI3MS44OTgxMDE4MDY2NDA2IiBoZWlnaHQ9IjQyMy4wMDQwMjgzMjAzMTI1IiB2aWV3Qm94PSIwLjAwMDQ2MTI3MDM2MzMwMjkwMTQgMCAyNzEuODk4MTAxODA2NjQwNiA0MjMuMDA0MDI4MzIwMzEyNSI+JiN4YTsJPHN0eWxlIHR5cGU9InRleHQvY3NzIj4mI3hhOwkuc3Qwe2ZpbGw6IzQyODVmNDtmaWxsLXJ1bGU6ZXZlbm9kZH0mI3hhOwk8L3N0eWxlPiYjeGE7CTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xOTcuMzc4IDE0NC43NzRhMy4xMSAzLjExIDAgMCAxIDMuMTA1IDIuOTM0bC4wMDUuMTc3djE3LjEwN2EzLjExIDMuMTEgMCAwIDEtMi45MzQgMy4xMDVsLS4xNzcuMDA1aC0xMi40NDF2MzAuNjQ5YzAgMS4yMjcuMjk3IDIuNDM1Ljg2MiAzLjUyMmwuMTYxLjI5MyA4My44OTUgMTQ0LjI2MmExNS4yNiAxNS4yNiAwIDAgMSAuMTgyIDE0LjkzNmwtLjE4Mi4zMjQtMzAuNDMxIDUzLjI4NmExNS4yNiAxNS4yNiAwIDAgMS0xMi44NjEgNy42MjZsLS4zNTUuMDA0SDQ1LjY5MmExNS4yNiAxNS4yNiAwIDAgMS0xMy4wMzUtNy4zMjRsLS4xODEtLjMwNS0zMC40MzEtNTMuMjg2YTE1LjI2IDE1LjI2IDAgMCAxLS4xODItMTQuOTM2bC4xODItLjMyNCA4My42NzQtMTQ0LjI2MmMuNjIxLTEuMDc3IDEuMTYtMi4yODkgMS4yMzQtMy41MjhsLjAwOS0uMjg3di0zMC42NDlINzQuNTJjLTEuNjU4IDAtMy4wMTQtMS4yOTktMy4xMDUtMi45MzRsLS4wMDUtLjE3NnYtMTcuMTA3YTMuMTEgMy4xMSAwIDAgMSAyLjkzNC0zLjEwNWwuMTc2LS4wMDV6bS0zNS43NjkgMjMuMzI3aC01MS4zMnYzNS40MDVjMCAyLjUzMS0uNjI4IDUuMDE4LTEuODI2IDcuMjQybC0uMjE3LjM5TDI4LjAzMyAzNTAuOWE3LjYzIDcuNjMgMCAwIDAtLjEzOSA3LjM3NWwuMTQxLjI1NSAyMC43NDEgMzUuOTIxYTcuNjMgNy42MyAwIDAgMCA2LjMyNyAzLjgxbC4yODEuMDA1aDI1LjU3MmwtMjIuNjA1LTM5LjE1M2MtMS4zMTQtMi4yNzYtMS4zNjEtNS4wNjItLjE0MS03LjM3NWwuMTQxLS4yNTUgMTkuNjc5LTM0LjA4NmgxNDYuNjA2TDIxMi45ODggMjk3LjFoLTU0LjI1OWwtOC44MjEtMTUuMjc4aDU0LjMxMmwtMTYuMzMzLTI4LjQ2aC01NC43OGwtOC44MjEtMTUuMjc4aDU0LjgzM2wtMTUuNDY1LTI2Ljk0NmExNS4yNyAxNS4yNyAwIDAgMS0yLjAzOS03LjE4NWwtLjAwNy0uNDQ2em03Mi44NDQgMTY2LjQwMWwtNTQuMTgxLjAwMSA4LjgyMSAxNS41NTJoNTQuMjg1ek0xMDQuOTIxIDc5Ljc5NWM4LjQyNyAwIDE1LjI1OSA2LjgzMyAxNS4yNTkgMTUuMjYxcy02LjgzMiAxNS4yNTktMTUuMjU5IDE1LjI1OS0xNS4yNTktNi44MzItMTUuMjU5LTE1LjI1OSA2LjgzMi0xNS4yNjEgMTUuMjU5LTE1LjI2MXptNTcuNTc1LTMyLjc0M2MxMi42NDIgMCAyMi44OSAxMC4yNDcgMjIuODkgMjIuODg5cy0xMC4yNDkgMjIuODg5LTIyLjg5IDIyLjg4OS0yMi44ODktMTAuMjQ5LTIyLjg4OS0yMi44ODkgMTAuMjQ3LTIyLjg4OSAyMi44ODktMjIuODg5ek0xMjcuODEgMGM4LjQyNyAwIDE1LjI2MSA2LjgzMyAxNS4yNjEgMTUuMjYxUzEzNi4yMzcgMzAuNTIgMTI3LjgxIDMwLjUycy0xNS4yNTktNi44MzItMTUuMjU5LTE1LjI1OVMxMTkuMzg0IDAgMTI3LjgxIDB6Ii8+JiN4YTs8L3N2Zz4=;" vertex="1" parent="1">
+                    <mxGeometry x="232.4" y="608" width="31.2" height="48" as="geometry"/>
+                </mxCell>
+                <mxCell id="91" value="" style="editableCssRules=.*;html=1;shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnY9Imh0dHBzOi8vdmVjdGEuaW8vbmFubyIgd2lkdGg9IjI3MS44OTgxMDE4MDY2NDA2IiBoZWlnaHQ9IjQyMy4wMDQwMjgzMjAzMTI1IiB2aWV3Qm94PSIwLjAwMDQ2MTI3MDM2MzMwMjkwMTQgMCAyNzEuODk4MTAxODA2NjQwNiA0MjMuMDA0MDI4MzIwMzEyNSI+JiN4YTsJPHN0eWxlIHR5cGU9InRleHQvY3NzIj4mI3hhOwkuc3Qwe2ZpbGw6IzQyODVmNDtmaWxsLXJ1bGU6ZXZlbm9kZH0mI3hhOwk8L3N0eWxlPiYjeGE7CTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xOTcuMzc4IDE0NC43NzRhMy4xMSAzLjExIDAgMCAxIDMuMTA1IDIuOTM0bC4wMDUuMTc3djE3LjEwN2EzLjExIDMuMTEgMCAwIDEtMi45MzQgMy4xMDVsLS4xNzcuMDA1aC0xMi40NDF2MzAuNjQ5YzAgMS4yMjcuMjk3IDIuNDM1Ljg2MiAzLjUyMmwuMTYxLjI5MyA4My44OTUgMTQ0LjI2MmExNS4yNiAxNS4yNiAwIDAgMSAuMTgyIDE0LjkzNmwtLjE4Mi4zMjQtMzAuNDMxIDUzLjI4NmExNS4yNiAxNS4yNiAwIDAgMS0xMi44NjEgNy42MjZsLS4zNTUuMDA0SDQ1LjY5MmExNS4yNiAxNS4yNiAwIDAgMS0xMy4wMzUtNy4zMjRsLS4xODEtLjMwNS0zMC40MzEtNTMuMjg2YTE1LjI2IDE1LjI2IDAgMCAxLS4xODItMTQuOTM2bC4xODItLjMyNCA4My42NzQtMTQ0LjI2MmMuNjIxLTEuMDc3IDEuMTYtMi4yODkgMS4yMzQtMy41MjhsLjAwOS0uMjg3di0zMC42NDlINzQuNTJjLTEuNjU4IDAtMy4wMTQtMS4yOTktMy4xMDUtMi45MzRsLS4wMDUtLjE3NnYtMTcuMTA3YTMuMTEgMy4xMSAwIDAgMSAyLjkzNC0zLjEwNWwuMTc2LS4wMDV6bS0zNS43NjkgMjMuMzI3aC01MS4zMnYzNS40MDVjMCAyLjUzMS0uNjI4IDUuMDE4LTEuODI2IDcuMjQybC0uMjE3LjM5TDI4LjAzMyAzNTAuOWE3LjYzIDcuNjMgMCAwIDAtLjEzOSA3LjM3NWwuMTQxLjI1NSAyMC43NDEgMzUuOTIxYTcuNjMgNy42MyAwIDAgMCA2LjMyNyAzLjgxbC4yODEuMDA1aDI1LjU3MmwtMjIuNjA1LTM5LjE1M2MtMS4zMTQtMi4yNzYtMS4zNjEtNS4wNjItLjE0MS03LjM3NWwuMTQxLS4yNTUgMTkuNjc5LTM0LjA4NmgxNDYuNjA2TDIxMi45ODggMjk3LjFoLTU0LjI1OWwtOC44MjEtMTUuMjc4aDU0LjMxMmwtMTYuMzMzLTI4LjQ2aC01NC43OGwtOC44MjEtMTUuMjc4aDU0LjgzM2wtMTUuNDY1LTI2Ljk0NmExNS4yNyAxNS4yNyAwIDAgMS0yLjAzOS03LjE4NWwtLjAwNy0uNDQ2em03Mi44NDQgMTY2LjQwMWwtNTQuMTgxLjAwMSA4LjgyMSAxNS41NTJoNTQuMjg1ek0xMDQuOTIxIDc5Ljc5NWM4LjQyNyAwIDE1LjI1OSA2LjgzMyAxNS4yNTkgMTUuMjYxcy02LjgzMiAxNS4yNTktMTUuMjU5IDE1LjI1OS0xNS4yNTktNi44MzItMTUuMjU5LTE1LjI1OSA2LjgzMi0xNS4yNjEgMTUuMjU5LTE1LjI2MXptNTcuNTc1LTMyLjc0M2MxMi42NDIgMCAyMi44OSAxMC4yNDcgMjIuODkgMjIuODg5cy0xMC4yNDkgMjIuODg5LTIyLjg5IDIyLjg4OS0yMi44ODktMTAuMjQ5LTIyLjg4OS0yMi44ODkgMTAuMjQ3LTIyLjg4OSAyMi44ODktMjIuODg5ek0xMjcuODEgMGM4LjQyNyAwIDE1LjI2MSA2LjgzMyAxNS4yNjEgMTUuMjYxUzEzNi4yMzcgMzAuNTIgMTI3LjgxIDMwLjUycy0xNS4yNTktNi44MzItMTUuMjU5LTE1LjI1OVMxMTkuMzg0IDAgMTI3LjgxIDB6Ii8+JiN4YTs8L3N2Zz4=;" vertex="1" parent="1">
+                    <mxGeometry x="568" y="608" width="31.2" height="48" as="geometry"/>
+                </mxCell>
+                <mxCell id="93" value="HYBRID APPROACH" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;fontStyle=1" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="816" y="472" as="geometry"/>
+                </mxCell>
+                <mxCell id="95" value="AI AGENTIC&lt;div&gt;RECURSIVE&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;fontStyle=1" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="392" y="368" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
