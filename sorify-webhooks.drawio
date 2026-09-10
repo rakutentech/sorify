@@ -1,0 +1,151 @@
+<mxfile host="65bd71144e">
+    <diagram name="Page-1" id="0">
+        <mxGraphModel dx="1530" dy="1153" grid="1" gridSize="8" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1440" pageHeight="792" background="#FFFFFF" math="1" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="41" value="" style="rounded=0;arcSize=8;html=1;whiteSpace=wrap;fillColor=none;strokeColor=light-dark(#000000, #56a2e8);strokeWidth=1;fontColor=default;fontSize=17;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=top;align=center;fontStyle=1;spacingTop=12;labelBackgroundColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="56" y="32" width="1384" height="744" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="SORIFY" style="rounded=0;arcSize=12;html=1;whiteSpace=wrap;fillColor=#F8F9FA;strokeColor=#868E96;strokeWidth=1;fontColor=#1E293B;fontSize=14;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=10;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="560" y="132" width="376" height="480" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Webhook API" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#E9ECEF;strokeColor=#495057;strokeWidth=2;fontColor=#1E293B;fontSize=17;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=top;align=center;fontStyle=1;spacingTop=16" parent="2" vertex="1">
+                    <mxGeometry x="24" y="64" width="328" height="112" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Run Engine" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#96F2D7;strokeColor=#2F9E44;strokeWidth=3;fontColor=#1E293B;fontSize=17;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=top;align=center;fontStyle=1;spacingTop=16;glass=0;shadow=1;" parent="2" vertex="1">
+                    <mxGeometry x="24" y="344" width="328" height="112" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="executes runs / fires hooks" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#2B5A3C;fontSize=12;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" parent="2" vertex="1">
+                    <mxGeometry x="49" y="400" width="296" height="24" as="geometry"/>
+                </mxCell>
+                <mxCell id="39" value="" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.emr_engine;" vertex="1" parent="2">
+                    <mxGeometry x="32" y="365" width="78" height="59" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="" style="aspect=fixed;sketch=0;html=1;dashed=0;whitespace=wrap;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#2875E2;strokeColor=#ffffff;points=[[0.005,0.63,0],[0.1,0.2,0],[0.9,0.2,0],[0.5,0,0],[0.995,0.63,0],[0.72,0.99,0],[0.5,1,0],[0.28,0.99,0]];shape=mxgraph.kubernetes.icon2;kubernetesLabel=1;prIcon=api" vertex="1" parent="2">
+                    <mxGeometry x="44" y="88" width="58.33" height="56" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="Sorify Integrations" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#BF0000;fontSize=28;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=left;verticalAlign=top;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="88" y="52" width="400" height="56" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="01 / SORIFY WEBHOOK" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#BF0000;fontSize=14;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=left;verticalAlign=top;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="88" y="128" width="240" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="02 / HTTP WEBHOOK" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#BF0000;fontSize=14;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=left;verticalAlign=top;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="1112" y="128" width="240" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="03 / GH ACTION WEBHOOK" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#BF0000;fontSize=14;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=left;verticalAlign=top;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="1112" y="480" width="260" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Communication" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#D0EBFF;strokeColor=#1971C2;strokeWidth=2;fontColor=#1E293B;fontSize=17;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=top;align=center;fontStyle=1;spacingTop=12" parent="1" vertex="1">
+                    <mxGeometry x="88" y="180" width="280" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="CI / cron / chat / scripts&lt;br&gt;MS Teams / email" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#495057;fontSize=12;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" parent="1" vertex="1">
+                    <mxGeometry x="104" y="236" width="248" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="POST /sorify/webhooks/{token}/trigger&lt;br&gt;GET&amp;nbsp; /sorify/webhooks/{token}/runs/{run}/status" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#1E1E1E;strokeColor=#0B0B0B;strokeWidth=1;fontColor=#FFEC99;fontSize=12;fontFamily=Courier New;verticalAlign=middle;align=left;spacingLeft=16" parent="1" vertex="1">
+                    <mxGeometry x="88" y="340" width="400" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="per-suite token auth&lt;br&gt;up to 5 webhooks" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#495057;fontSize=12;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" parent="1" vertex="1">
+                    <mxGeometry x="600" y="244" width="296" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="HTTP Endpoint" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#D0EBFF;strokeColor=#1971C2;strokeWidth=2;fontColor=#1E293B;fontSize=17;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=top;align=center;fontStyle=1;spacingTop=16" parent="1" vertex="1">
+                    <mxGeometry x="1112" y="180" width="280" height="112" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="Any URL / JSON payload&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;color: rgb(105, 105, 105);&quot;&gt;Encrypted storage&lt;/font&gt;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#495057;fontSize=12;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" parent="1" vertex="1">
+                    <mxGeometry x="1128" y="234" width="248" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="{&lt;br&gt;&amp;nbsp; &quot;event&quot;: &quot;run.started&quot;,&lt;br&gt;&amp;nbsp; &quot;suite&quot;: &quot;checkout&quot;,&lt;br&gt;&amp;nbsp; &quot;run_id&quot;: 812&lt;br&gt;}" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#1E1E1E;strokeColor=#0B0B0B;strokeWidth=1;fontColor=#69DB7C;fontSize=12;fontFamily=Courier New;verticalAlign=middle;align=left;spacingLeft=16" parent="1" vertex="1">
+                    <mxGeometry x="1112" y="332" width="280" height="112" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="GitHub Actions" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#D0EBFF;strokeColor=#1971C2;strokeWidth=2;fontColor=#1E293B;fontSize=17;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;verticalAlign=top;align=center;fontStyle=1;spacingTop=16;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="1112" y="524" width="280" height="112" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="via GitHub App" style="text;html=1;whiteSpace=wrap;labelBackgroundColor=none;fillColor=none;strokeColor=none;strokeWidth=0;fontColor=#6E6E6E;fontSize=12;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;align=center;verticalAlign=top" parent="1" vertex="1">
+                    <mxGeometry x="1128" y="572" width="248" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="on: workflow_dispatch&lt;br&gt;inputs: run_id / suite / phase" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#1E1E1E;strokeColor=#0B0B0B;strokeWidth=1;fontColor=#69DB7C;fontSize=12;fontFamily=Courier New;verticalAlign=middle;align=left;spacingLeft=16" parent="1" vertex="1">
+                    <mxGeometry x="1112" y="668" width="280" height="72" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=2;endArrow=block;endFill=1;endSize=12;exitX=1;exitY=0.475;exitDx=0;exitDy=0;entryX=0;entryY=0.3661;entryDx=0;entryDy=0;jumpStyle=arc;jumpSize=8;flowAnimation=1;" parent="1" source="7" target="10" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="TRIGGER RUN" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="20" vertex="1" connectable="0">
+                    <mxGeometry x="0.5" relative="1" as="geometry">
+                        <mxPoint y="-16" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=2;endArrow=block;endFill=1;endSize=12;exitX=0;exitY=0.6339;exitDx=0;exitDy=0;entryX=1;entryY=0.725;entryDx=0;entryDy=0;dashed=1;dashPattern=6 4;jumpStyle=arc;jumpSize=8" parent="1" source="10" target="7" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="STATUS" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="22" vertex="1" connectable="0">
+                    <mxGeometry x="0.5" relative="1" as="geometry">
+                        <mxPoint y="16" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1E293B;strokeWidth=2;endArrow=open;endFill=0;endSize=12;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;jumpStyle=arc;jumpSize=8" parent="1" source="10" target="12" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="RUN" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="24" vertex="1" connectable="0">
+                    <mxGeometry x="0.5" relative="1" as="geometry">
+                        <mxPoint x="20" y="-46" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=2;endArrow=blockThin;endFill=1;endSize=12;jumpStyle=arc;jumpSize=8;flowAnimation=1;startArrow=block;startFill=1;" parent="1" source="12" target="14" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="968" y="484"/>
+                            <mxPoint x="968" y="217"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="27" value="PRE-RUN" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="26" vertex="1" connectable="0">
+                    <mxGeometry x="0.8" relative="1" as="geometry">
+                        <mxPoint x="-40" y="-16" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=1;endArrow=block;endFill=1;endSize=12;dashed=1;jumpStyle=arc;jumpSize=8" parent="1" source="12" target="14" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1000" y="508"/>
+                            <mxPoint x="1000" y="254"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="29" value="POST-RUN" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="28" vertex="1" connectable="0">
+                    <mxGeometry x="0.8" relative="1" as="geometry">
+                        <mxPoint x="-19" y="14" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=2;endArrow=block;endFill=1;endSize=12;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.0714;entryDx=0;entryDy=0;jumpStyle=arc;jumpSize=8;flowAnimation=1;startArrow=block;startFill=1;" parent="1" source="12" target="17" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="PRE-RUN" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="30" vertex="1" connectable="0">
+                    <mxGeometry x="0.5" relative="1" as="geometry">
+                        <mxPoint x="-22" y="-16" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="32" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1971C2;strokeWidth=1;endArrow=block;endFill=1;endSize=12;exitX=1;exitY=0.7009;exitDx=0;exitDy=0;entryX=0;entryY=0.2723;entryDx=0;entryDy=0;dashed=1;dashPattern=6 4;jumpStyle=arc;jumpSize=8" parent="1" source="12" target="17" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="POST-RUN" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#64748B;fontFamily=Inter, Roboto, system-ui, -apple-system, sans-serif;" parent="32" vertex="1" connectable="0">
+                    <mxGeometry x="0.5" relative="1" as="geometry">
+                        <mxPoint x="-22" y="16" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="34" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.chat;" vertex="1" parent="1">
+                    <mxGeometry x="108.8" y="196" width="32" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="" style="editableCssRules=.*;html=1;shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnY9Imh0dHBzOi8vdmVjdGEuaW8vbmFubyIgd2lkdGg9IjM2MC4zMDM3NjY4NjA4MzYzIiBoZWlnaHQ9IjM3OC4wNTExNTgwNzc0MDg4IiB2aWV3Qm94PSItMC4wMDAxNjI0MjExNDM2MTM3NTU3IC0wLjAwMDEwMDAwNTk0OTIwNzExNTkyIDk1LjMzMDI2MTIzMDQ2ODc1IDEwMC4wMjYxMDAxNTg2OTE0Ij4mI3hhOzxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+JiN4YTsJLnN0MHtmaWxsOiM0Mjg1ZjQ7fSYjeGE7CS5zdDF7ZmlsbDojYWVjYmZhO30mI3hhOwkuc3Qye2ZpbGw6IzY2OWRmNjt9JiN4YTs8L3N0eWxlPiYjeGE7CTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik03OS45NzEgNzcuNzE1bC03LjM1OSA3LjQ4OCA4LjYzOSA4LjQ5IDcuMzU5LTcuNDg4em0tNjUuMDk2LjA2MWwtOC42NDEgOC40OTIgNy4zNjEgNy40ODggOC42MzktOC40OXoiLz4mI3hhOwk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNNzkuNTUzLjIyMWE1LjI1IDUuMjUgMCAwIDAtMy42NiA4Ljk4NEw4Ni4zODkgMTkuNThhNS4yNSA1LjI1IDAgMCAwIDguOTQxLTMuNzY1IDUuMjUgNS4yNSAwIDAgMC0xLjU2LTMuNzA0TDgzLjI3NSAxLjczOEE1LjI1IDUuMjUgMCAwIDAgNzkuNTUzLjIyMXpNMTUuOTE2IDBhNS4yNSA1LjI1IDAgMCAwLTMuNzIzIDEuNTE2TDEuNjk5IDExLjg5MWE1LjI1IDUuMjUgMCAwIDAtLjA0MyA3LjQyNCA1LjI1IDUuMjUgMCAwIDAgNy40MjQuMDQzTDE5LjU3NiA4Ljk4MkE1LjI1IDUuMjUgMCAwIDAgMTUuOTE2IDB6Ii8+JiN4YTsJPHBhdGggY2xhc3M9InN0MCIgZD0iTTQ4LjEzOCAyNi4yNGMxMy4zNDcgMCAyNS40MzIgMTEuMTM2IDI1LjMxIDI2LjQ4MSAwIDE1LjExLTEyLjI2NyAyNS42NzMtMjUuMTg5IDI1LjY3My0xMS4xNDkgMC0xOC4zMTctNS4xNzEtMjEuOTYtMTAuNzM4bDIxLjgzOS0xNS4wOTd6Ii8+JiN4YTsJPHBhdGggY2xhc3M9InN0MiIgZD0iTTgxLjI1IDkzLjY5M2w0LjY2NCA0LjU4NmE1LjI1IDUuMjUgMCAxIDAgNy4zNjEtNy40OWwtNC42NjYtNC41ODR6TTYuMjM0IDg2LjI2OEwxLjU3IDkwLjg1MWE1LjI1IDUuMjUgMCAwIDAtLjA2NSA3LjQyNCA1LjI1IDUuMjUgMCAwIDAgNy40MjQuMDY0bDQuNjY2LTQuNTg0ek00Ny4zNzEgNS41NzhDMjEuMzQ5IDUuNTc4LjE0NiAyNi43NzkuMTQ2IDUyLjgwMXMyMS4yMDMgNDcuMjI1IDQ3LjIyNSA0Ny4yMjUgNDcuMjI1LTIxLjIwMyA0Ny4yMjUtNDcuMjI1UzczLjM5MyA1LjU3OCA0Ny4zNzEgNS41Nzh6bTAgMTBhMzcuMTUgMzcuMTUgMCAwIDEgMzcuMjI1IDM3LjIyM2MwIDIwLjYxNy0xNi42MDcgMzcuMjI1LTM3LjIyNSAzNy4yMjVTMTAuMTQ2IDczLjQxOCAxMC4xNDYgNTIuODAxYTM3LjE1IDM3LjE1IDAgMCAxIDM3LjIyNS0zNy4yMjN6Ii8+JiN4YTs8L3N2Zz4=;" vertex="1" parent="1">
+                    <mxGeometry x="106.8" y="228" width="30.4" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.mail;" vertex="1" parent="1">
+                    <mxGeometry x="104" y="268" width="35.2" height="24" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.github_code;pointerEvents=1;" vertex="1" parent="1">
+                    <mxGeometry x="1128" y="554" width="50" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

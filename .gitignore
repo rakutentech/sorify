@@ -41,3 +41,5 @@ docs/node_modules
 mcp/sorify-recorder-mcp/sorify-recorder-mcp
 mcp/sorify-recorder-mcp/dist
 .playwright-mcp
+.drawio-tmp
+.skills-manager
