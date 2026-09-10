@@ -7,12 +7,16 @@ use App\Models\TestResult;
 use App\Models\TestRun;
 use App\Models\TestSuite;
 use App\Support\AppUrl;
+use App\Support\NotificationCooldown;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class TeamsNotificationService
 {
     private const TEST_LIST_LIMIT = 10;
+
+    private const DIGEST_RUN_LIMIT = 15;
 
     private const STATUS_ICONS = [
         'passed' => '✅',
@@ -31,7 +35,21 @@ class TeamsNotificationService
             return;
         }
 
+        if (NotificationCooldown::shouldSuppress($suite, 'teams', $run)) {
+            return;
+        }
+
+        // Results that piled up while the window was open are flushed here —
+        // the fresh stamp below would otherwise hide them from later digests.
+        $heldBack = NotificationCooldown::heldBackRuns($suite, 'teams', $run);
+
+        if ($heldBack->isNotEmpty()) {
+            $this->post($suite, $this->buildDigestPayload($suite, $heldBack), $run, 'digest');
+        }
+
         $this->post($suite, $this->buildStartedPayload($suite, $run), $run, 'start');
+
+        NotificationCooldown::markNotified($suite, 'teams', $run);
     }
 
     public function notifyRunCompleted(TestRun $run): void
@@ -44,9 +62,7 @@ class TeamsNotificationService
 
         // A run aborted by a failing pre-run integration also has zero
         // failure counts — the status check keeps those out of "success".
-        $isSuccess = $run->status === 'completed'
-            && (int) $run->failed_count === 0
-            && (int) $run->error_count === 0;
+        $isSuccess = $run->isSuccessful();
 
         if ($isSuccess && ! $suite->teams_notify_on_success) {
             return;
@@ -56,7 +72,54 @@ class TeamsNotificationService
             return;
         }
 
-        $this->post($suite, $this->buildPayload($suite, $run, $isSuccess), $run, 'completion');
+        if (NotificationCooldown::shouldSuppress($suite, 'teams', $run)) {
+            return;
+        }
+
+        // The run that opened the window always gets its own result message.
+        // Its send must not re-anchor the window (that would swallow runs
+        // already held back), so no digest merge and no fresh stamp here.
+        if (NotificationCooldown::ownsWindow($suite, 'teams', $run)) {
+            $this->post($suite, $this->buildPayload($suite, $run, $isSuccess), $run, 'completion');
+
+            return;
+        }
+
+        // The window expired (or this is the first notification): if runs
+        // were held back while it was open, replace the individual message
+        // with one digest covering all of them.
+        $heldBack = NotificationCooldown::heldBackRuns($suite, 'teams', $run);
+
+        if ($heldBack->isNotEmpty()) {
+            $this->post($suite, $this->buildDigestPayload($suite, $heldBack->concat([$run])), $run, 'digest');
+        } else {
+            $this->post($suite, $this->buildPayload($suite, $run, $isSuccess), $run, 'completion');
+        }
+
+        NotificationCooldown::markNotified($suite, 'teams', $run);
+    }
+
+    /**
+     * Scheduled digest flush: once a cooling-off window has expired, send
+     * the runs it held back so results are delivered even when no further
+     * run ever happens. Re-anchors the window so the next digest can only
+     * come after another full period.
+     */
+    public function flushPendingDigest(TestSuite $suite): void
+    {
+        if (! $suite->teams_webhook_url || NotificationCooldown::windowOpen($suite, 'teams')) {
+            return;
+        }
+
+        $heldBack = NotificationCooldown::heldBackRuns($suite, 'teams');
+
+        if ($heldBack->isEmpty()) {
+            return;
+        }
+
+        $this->post($suite, $this->buildDigestPayload($suite, $heldBack), null, 'digest');
+
+        NotificationCooldown::markNotified($suite, 'teams');
     }
 
     /**
@@ -64,7 +127,7 @@ class TeamsNotificationService
      * the webhook-specific proxy. Failures are logged, never thrown — a
      * notification problem must not fail a test run.
      */
-    private function post(TestSuite $suite, array $payload, TestRun $run, string $kind): void
+    private function post(TestSuite $suite, array $payload, ?TestRun $run, string $kind): void
     {
         try {
             $request = Http::timeout(10);
@@ -78,7 +141,7 @@ class TeamsNotificationService
             if ($response->failed()) {
                 Log::warning('Teams webhook rejected the notification for test run', [
                     'suite_id' => $suite->id,
-                    'run_id' => $run->id,
+                    'run_id' => $run?->id,
                     'kind' => $kind,
                     'status' => $response->status(),
                     'body' => $response->body(),
@@ -87,7 +150,7 @@ class TeamsNotificationService
         } catch (\Throwable $e) {
             Log::warning('Failed to send Teams notification for test run', [
                 'suite_id' => $suite->id,
-                'run_id' => $run->id,
+                'run_id' => $run?->id,
                 'kind' => $kind,
                 'error' => $e->getMessage(),
             ]);
@@ -103,6 +166,34 @@ class TeamsNotificationService
         $suiteUrl = AppUrl::absolute(route('suites.show', $suite, absolute: false));
         $runUrl = $this->absoluteUrl(route('runs.show', $run, absolute: false));
 
+        $body = [
+            [
+                'type' => 'TextBlock',
+                'id' => 'title',
+                'text' => "Sorify — Suite: {$suite->name} — Run started",
+                'size' => 'large',
+                'weight' => 'bolder',
+                'wrap' => true,
+            ],
+            [
+                'type' => 'TextBlock',
+                'text' => "{$run->total_tests} test".($run->total_tests === 1 ? '' : 's').' queued',
+                'wrap' => true,
+                'spacing' => 'small',
+            ],
+            [
+                'type' => 'TextBlock',
+                'text' => "Triggered by: {$this->triggeredBy($run)}",
+                'wrap' => true,
+                'isSubtle' => true,
+                'spacing' => 'none',
+            ],
+        ];
+
+        if ($cooldownNotice = NotificationCooldown::holdNotice($suite, 'teams')) {
+            $body[] = $this->cooldownTextBlock($cooldownNotice);
+        }
+
         return [
             'type' => 'message',
             'attachments' => [[
@@ -112,29 +203,7 @@ class TeamsNotificationService
                     '$schema' => 'http://adaptivecards.io/schemas/adaptive-card.json',
                     'type' => 'AdaptiveCard',
                     'version' => '1.4',
-                    'body' => [
-                        [
-                            'type' => 'TextBlock',
-                            'id' => 'title',
-                            'text' => "Sorify — Suite: {$suite->name} — Run started",
-                            'size' => 'large',
-                            'weight' => 'bolder',
-                            'wrap' => true,
-                        ],
-                        [
-                            'type' => 'TextBlock',
-                            'text' => "{$run->total_tests} test".($run->total_tests === 1 ? '' : 's').' queued',
-                            'wrap' => true,
-                            'spacing' => 'small',
-                        ],
-                        [
-                            'type' => 'TextBlock',
-                            'text' => "Triggered by: {$this->triggeredBy($run)}",
-                            'wrap' => true,
-                            'isSubtle' => true,
-                            'spacing' => 'none',
-                        ],
-                    ],
+                    'body' => $body,
                     'actions' => [
                         ['type' => 'Action.OpenUrl', 'title' => 'View Test Suite', 'url' => $suiteUrl],
                         ['type' => 'Action.OpenUrl', 'title' => 'View Run', 'url' => $runUrl],
@@ -194,6 +263,10 @@ class TeamsNotificationService
             'spacing' => 'none',
         ];
 
+        if ($cooldownNotice = NotificationCooldown::holdNotice($suite, 'teams')) {
+            $body[] = $this->cooldownTextBlock($cooldownNotice);
+        }
+
         array_push($body, ...$this->buildTestsSection($run));
         array_push($body, ...$this->buildScreenshotsSection($run));
 
@@ -218,6 +291,92 @@ class TeamsNotificationService
     }
 
     /**
+     * One card summarizing every run held back by the cooling-off window
+     * (plus the run that just flushed them): aggregate outcome first, then
+     * one line per run linking to its detail page.
+     *
+     * @param  Collection<int, TestRun>  $runs
+     */
+    private function buildDigestPayload(TestSuite $suite, Collection $runs): array
+    {
+        $succeeded = $runs->filter(fn (TestRun $run) => $run->isSuccessful())->count();
+        $failed = $runs->count() - $succeeded;
+        $total = (int) $runs->sum('total_tests');
+        $passed = (int) $runs->sum('passed_count');
+        $suiteUrl = AppUrl::absolute(route('suites.show', $suite, absolute: false));
+
+        $shown = $runs->take(self::DIGEST_RUN_LIMIT);
+        $remaining = $runs->count() - $shown->count();
+
+        $lines = $shown->map(function (TestRun $run) {
+            $icon = $run->isSuccessful() ? '✅' : '❌';
+            $duration = $run->duration_ms ? round($run->duration_ms / 1000, 1).'s' : '—';
+            $runUrl = $this->absoluteUrl(route('runs.show', $run, absolute: false));
+
+            return sprintf(
+                '%s [Run #%d](%s) — %d/%d passed — %s',
+                $icon,
+                $run->id,
+                $runUrl,
+                (int) $run->passed_count,
+                (int) $run->total_tests,
+                $duration,
+            );
+        });
+
+        if ($remaining > 0) {
+            $lines->push('+'.$remaining.' more run'.($remaining === 1 ? '' : 's'));
+        }
+
+        return [
+            'type' => 'message',
+            'attachments' => [[
+                'contentType' => 'application/vnd.microsoft.card.adaptive',
+                'contentUrl' => null,
+                'content' => [
+                    '$schema' => 'http://adaptivecards.io/schemas/adaptive-card.json',
+                    'type' => 'AdaptiveCard',
+                    'version' => '1.4',
+                    'body' => [
+                        [
+                            'type' => 'TextBlock',
+                            'id' => 'title',
+                            'text' => "Sorify — Suite: {$suite->name} — Summary of {$runs->count()} runs",
+                            'size' => 'large',
+                            'weight' => 'bolder',
+                            'wrap' => true,
+                        ],
+                        [
+                            'type' => 'TextBlock',
+                            'text' => "{$succeeded} succeeded  •  {$failed} failed  •  {$passed}/{$total} tests passed",
+                            'wrap' => true,
+                            'spacing' => 'small',
+                        ],
+                        [
+                            'type' => 'TextBlock',
+                            'text' => NotificationCooldown::digestNotice($suite, 'teams'),
+                            'wrap' => true,
+                            'isSubtle' => true,
+                            'spacing' => 'none',
+                        ],
+                        [
+                            'type' => 'TextBlock',
+                            'text' => $lines->implode("\n\n"),
+                            'wrap' => true,
+                            'isSubtle' => true,
+                            'spacing' => 'medium',
+                        ],
+                    ],
+                    'actions' => [
+                        ['type' => 'Action.OpenUrl', 'title' => 'View Test Suite', 'url' => $suiteUrl],
+                    ],
+                    'msteams' => ['width' => 'Full'],
+                ],
+            ]],
+        ];
+    }
+
+    /**
      * Builds an absolute URL from a relative route path.
      *
      * This runs inside a queued job with no active HTTP request, so route()
@@ -229,6 +388,21 @@ class TeamsNotificationService
     private function absoluteUrl(string $path): string
     {
         return AppUrl::absolute($path);
+    }
+
+    /**
+     * Subtle line telling recipients how long the suite's cooling-off
+     * window holds back further notifications.
+     */
+    private function cooldownTextBlock(string $notice): array
+    {
+        return [
+            'type' => 'TextBlock',
+            'text' => $notice,
+            'wrap' => true,
+            'isSubtle' => true,
+            'spacing' => 'none',
+        ];
     }
 
     /**

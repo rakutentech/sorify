@@ -6,6 +6,7 @@ use App\Models\Screenshot;
 use App\Models\TestResult;
 use App\Models\TestRun;
 use App\Support\AppUrl;
+use App\Support\NotificationCooldown;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -58,6 +59,7 @@ class RunCompletedEmail extends Mailable
                 'remainingTests' => max(0, $results->count() - count($tests)),
                 'screenshots' => $screenshots,
                 'remainingScreenshots' => $remainingScreenshots,
+                'cooldownNotice' => NotificationCooldown::holdNotice($this->run->testSuite, 'email'),
             ],
         );
     }

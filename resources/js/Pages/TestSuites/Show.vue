@@ -6,7 +6,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import TestSuiteIntegrations from '@/Components/TestSuiteIntegrations.vue';
-import { Card, Chip, Button, IconButton, TextField, Autocomplete, Modal, Breadcrumb, SuiteName, Avatar, AvatarGroup, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
+import { Card, Chip, Button, IconButton, TextField, Autocomplete, Modal, Breadcrumb, SuiteName, TestName, Avatar, AvatarGroup, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import {
@@ -303,9 +303,11 @@ const localSuiteSettings = reactive({
     teams_notify_on_start: props.suite.teams_notify_on_start ?? false,
     teams_notify_on_success: props.suite.teams_notify_on_success ?? false,
     teams_notify_on_failure: props.suite.teams_notify_on_failure ?? false,
+    teams_notification_cooldown_minutes: props.suite.teams_notification_cooldown_minutes ?? 0,
     email_notify_on_start: props.suite.email_notify_on_start ?? false,
     email_notify_on_success: props.suite.email_notify_on_success ?? false,
     email_notify_on_failure: props.suite.email_notify_on_failure ?? false,
+    email_notification_cooldown_minutes: props.suite.email_notification_cooldown_minutes ?? 0,
 });
 
 watch(() => ({
@@ -318,9 +320,11 @@ watch(() => ({
     teams_notify_on_start: props.suite.teams_notify_on_start,
     teams_notify_on_success: props.suite.teams_notify_on_success,
     teams_notify_on_failure: props.suite.teams_notify_on_failure,
+    teams_notification_cooldown_minutes: props.suite.teams_notification_cooldown_minutes,
     email_notify_on_start: props.suite.email_notify_on_start,
     email_notify_on_success: props.suite.email_notify_on_success,
     email_notify_on_failure: props.suite.email_notify_on_failure,
+    email_notification_cooldown_minutes: props.suite.email_notification_cooldown_minutes,
 }), (s) => {
     localSuiteSettings.playwright_proxy = s.playwright_proxy ?? '';
     localSuiteSettings.proxy_rules = (s.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy }));
@@ -341,9 +345,11 @@ watch(() => ({
     localSuiteSettings.teams_notify_on_start = s.teams_notify_on_start ?? false;
     localSuiteSettings.teams_notify_on_success = s.teams_notify_on_success ?? false;
     localSuiteSettings.teams_notify_on_failure = s.teams_notify_on_failure ?? false;
+    localSuiteSettings.teams_notification_cooldown_minutes = s.teams_notification_cooldown_minutes ?? 0;
     localSuiteSettings.email_notify_on_start = s.email_notify_on_start ?? false;
     localSuiteSettings.email_notify_on_success = s.email_notify_on_success ?? false;
     localSuiteSettings.email_notify_on_failure = s.email_notify_on_failure ?? false;
+    localSuiteSettings.email_notification_cooldown_minutes = s.email_notification_cooldown_minutes ?? 0;
 });
 
 const savingSuiteSetting = ref(false);
@@ -374,6 +380,18 @@ function saveSuiteField(field) {
 // chips render from the server-provided list; the picker filters members
 // down to the ones not yet selected.
 const newEmailRecipientId = ref('');
+
+// Cooling-off window options for Teams / Email notifications (minutes).
+const cooldownOptions = [
+    { value: 0, label: t('testSuiteShow.cooldownDisabled') },
+    { value: 1, label: t('testSuiteShow.cooldownMinutes', { minutes: 1 }) },
+    { value: 3, label: t('testSuiteShow.cooldownMinutes', { minutes: 3 }) },
+    { value: 5, label: t('testSuiteShow.cooldownMinutes', { minutes: 5 }) },
+    { value: 15, label: t('testSuiteShow.cooldownMinutes', { minutes: 15 }) },
+    { value: 30, label: t('testSuiteShow.cooldownMinutes', { minutes: 30 }) },
+    { value: 60, label: t('testSuiteShow.cooldownHours', { hours: 1 }) },
+    { value: 240, label: t('testSuiteShow.cooldownHours', { hours: 4 }) },
+];
 
 const emailRecipientCandidates = computed(() =>
     props.members.filter((m) => !props.emailRecipients.some((r) => r.id === m.id)),
@@ -664,7 +682,6 @@ const settingsSections = computed(() => [
     {
         id: 'suite',
         label: t('testSuiteShow.suiteSettings'),
-        short: t('testSuiteShow.settingsGroupSuite'),
         icon: Settings,
         badges: [
             { label: t('testSuites.badgeProxy'), active: !!(props.suite.proxy_rules?.length || props.suite.playwright_proxy), successActive: true, kind: 'proxy' },
@@ -676,7 +693,6 @@ const settingsSections = computed(() => [
     {
         id: 'run',
         label: t('testSuiteShow.runSettings'),
-        short: t('testSuiteShow.settingsGroupRun'),
         icon: SlidersHorizontal,
         badges: [
             { label: localSettings.browser, active: true, kind: 'browser' },
@@ -690,7 +706,6 @@ const settingsSections = computed(() => [
     {
         id: 'webhook',
         label: t('testSuiteShow.webhookSettingsHeading'),
-        short: t('testSuiteShow.settingsGroupWebhook'),
         icon: Webhook,
         badges: [
             { label: t('testSuites.badgeWebhook'), active: !!props.webhookUrl, kind: 'webhook' },
@@ -1016,6 +1031,8 @@ function runAll() {
         {},
         {
             async: true,
+            preserveState: true,
+            preserveScroll: true,
             onFinish: () => {
                 running.value = false;
                 router.reload({ only: ['tests', 'stats', 'recentRuns'] });
@@ -1034,6 +1051,8 @@ function runTest(testId) {
         { test_ids: [testId] },
         {
             async: true,
+            preserveState: true,
+            preserveScroll: true,
             onFinish: () => {
                 const next = new Set(runningIds.value);
                 next.delete(testId);
@@ -1097,6 +1116,8 @@ function bulkRun() {
         { test_ids: [...selectedIds.value] },
         {
             async: true,
+            preserveState: true,
+            preserveScroll: true,
             onSuccess: () => { selectedIds.value = new Set(); },
             onFinish: () => {
                 bulkRunning.value = false;
@@ -1186,7 +1207,7 @@ function toggleRunsExpanded(testId) {
                 </span>
                 <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
                     <FolderKanban :size="26" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
-                    <SuiteName :name="suite.name" />
+                    <SuiteName :name="suite.name" :id="suite.id" />
                 </h1>
                 <div v-if="suite.description" class="mt-1">
                     <MarkdownRenderer :content="suite.description" density="compact" collapsible :collapsed-lines="10" />
@@ -1251,48 +1272,29 @@ function toggleRunsExpanded(testId) {
             <!-- Settings sidebar (Profile-style section nav) -->
             <aside class="min-w-0 lg:sticky lg:top-6 space-y-4">
                 <Card padding="p-2" variant="outlined">
-                    <ul class="flex lg:flex-col gap-1 overflow-x-auto">
-                        <li v-for="section in sections" :key="section.id" class="flex-1 lg:flex-none">
+                    <ul class="flex lg:flex-col gap-1 lg:gap-3 overflow-x-auto">
+                        <li v-for="section in sections" :key="section.id" class="flex-1 lg:flex-none group/section">
                             <button
                                 type="button"
                                 class="w-full flex items-center gap-2.5 px-3 py-2 rounded-[var(--md-sys-shape-corner-small)] md-label-large transition-colors text-left whitespace-nowrap"
                                 :class="activeSection === section.id
                                     ? 'bg-[color-mix(in_srgb,var(--md-sys-color-primary)_12%,transparent)] text-[var(--md-sys-color-primary)]'
-                                    : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] hover:text-[var(--md-sys-color-on-surface)]'"
+                                    : 'text-[var(--md-sys-color-on-surface-variant)] group-hover/section:bg-[var(--md-sys-color-surface-container-high)] group-hover/section:text-[var(--md-sys-color-on-surface)]'"
                                 @click="selectSettingsSection(section.id)"
                             >
                                 <component :is="section.icon" :size="18" />
                                 <span>{{ section.label }}</span>
                             </button>
+
+                            <!-- Merged settings chips: fixed width, two per row, truncated with full label on hover when overflowing -->
+                            <div
+                                v-if="section.badges?.length"
+                                class="hidden lg:grid lg:grid-cols-2 gap-1 pt-1 pb-1.5 pl-3 pr-1"
+                            >
+                                <SettingBadge v-for="badge in section.badges" :key="badge.kind" v-bind="badge" truncate />
+                            </div>
                         </li>
                     </ul>
-                </Card>
-
-                <!-- Configuration summary (chips preview) -->
-                <Card padding="p-3" variant="outlined">
-                    <div
-                        v-for="(section, index) in settingsSections"
-                        :key="section.id"
-                        :class="index > 0 ? 'mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]' : ''"
-                    >
-                        <button
-                            type="button"
-                            class="w-full text-left mb-1.5 md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors"
-                            @click="selectSettingsSection(section.id)"
-                        >
-                            {{ section.short }}
-                        </button>
-                        <div class="flex flex-wrap gap-1">
-                            <SettingBadge
-                                v-for="badge in section.badges"
-                                :key="badge.label"
-                                :label="badge.label"
-                                :active="badge.active"
-                                :success-active="badge.successActive"
-                                :kind="badge.kind"
-                            />
-                        </div>
-                    </div>
                 </Card>
             </aside>
             <!-- Tests list -->
@@ -1982,6 +1984,21 @@ function toggleRunsExpanded(testId) {
                                     <input type="checkbox" v-model="localSuiteSettings.teams_notify_on_failure" @change="saveSuiteField('teams_notify_on_failure')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnFailure') }}
                                 </label>
                             </div>
+                            <div>
+                                <div class="max-w-sm">
+                                    <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-teams-cooldown-${suite.id}`">{{ t('testSuiteShow.notificationCooldown') }}</label>
+                                    <select
+                                        :id="`suite-teams-cooldown-${suite.id}`"
+                                        v-model.number="localSuiteSettings.teams_notification_cooldown_minutes"
+                                        @change="saveSuiteField('teams_notification_cooldown_minutes')"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        <option v-for="option in cooldownOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+                                    </select>
+                                </div>
+                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('testSuiteShow.notificationCooldownHint') }}</p>
+                            </div>
                         </div>
 
                         <!-- Email notifications -->
@@ -2034,6 +2051,21 @@ function toggleRunsExpanded(testId) {
                                 <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
                                     <input type="checkbox" v-model="localSuiteSettings.email_notify_on_failure" @change="saveSuiteField('email_notify_on_failure')" :disabled="!can.edit || savingSuiteSetting" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:opacity-60" /> {{ t('testSuiteShow.notifyOnFailure') }}
                                 </label>
+                            </div>
+                            <div>
+                                <div class="max-w-sm">
+                                    <label class="block md-label-small text-[var(--md-sys-color-on-surface-variant)] mb-1" :for="`suite-email-cooldown-${suite.id}`">{{ t('testSuiteShow.notificationCooldown') }}</label>
+                                    <select
+                                        :id="`suite-email-cooldown-${suite.id}`"
+                                        v-model.number="localSuiteSettings.email_notification_cooldown_minutes"
+                                        @change="saveSuiteField('email_notification_cooldown_minutes')"
+                                        :disabled="!can.edit || savingSuiteSetting"
+                                        class="w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-1.5 md-body-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        <option v-for="option in cooldownOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+                                    </select>
+                                </div>
+                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('testSuiteShow.notificationCooldownHint') }}</p>
                             </div>
                         </div>
 
@@ -2276,7 +2308,7 @@ function toggleRunsExpanded(testId) {
                                         :title="test.name"
                                         class="md-title-small font-medium text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors truncate min-w-0"
                                     >
-                                        {{ test.name }}
+                                        <TestName :name="test.name" :id="test.id" />
                                     </Link>
                                     <span
                                         v-if="test.status === 'disabled'"
@@ -2454,19 +2486,22 @@ function toggleRunsExpanded(testId) {
                                         <span class="group/title relative min-w-0">
                                             <Link
                                                 :href="`/sorify/runs/${run.id}`"
-                                                class="md-title-small font-medium text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors truncate block"
+                                                class="md-title-small font-medium text-[var(--md-sys-color-on-surface)] truncate block hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
                                             >
-                                                {{ (run.test_names ?? []).join(', ') || t('testSuiteShow.runTitle', { id: run.id }) }}
+                                                <span
+                                                    v-if="(run.tests ?? []).length === 1"
+                                                    class="mr-1.5 inline-block font-normal tracking-wide text-[var(--md-sys-color-on-surface-variant)] opacity-60"
+                                                >#{{ run.tests[0].id }}</span>{{ (run.test_names ?? []).join(', ') || t('testSuiteShow.runTitle', { id: run.id }) }}
                                             </Link>
                                             <div
                                                 v-if="(run.test_names ?? []).length"
                                                 class="pointer-events-none absolute left-0 bottom-full mb-1.5 z-20 hidden group-hover/title:flex flex-col items-start rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-inverse-surface)] text-[var(--md-sys-color-inverse-on-surface)] md-label-small shadow-elevation-1 px-2.5 py-1.5 max-w-xs"
                                             >
                                                 <p
-                                                    v-for="(name, i) in (run.test_names ?? []).slice(0, 5)"
-                                                    :key="i"
+                                                    v-for="test in (run.tests ?? []).slice(0, 5)"
+                                                    :key="test.id"
                                                     class="truncate max-w-full"
-                                                >{{ name }}</p>
+                                                >{{ test.name }} <span class="opacity-60">#{{ test.id }}</span></p>
                                                 <p v-if="(run.test_names ?? []).length > 5" class="opacity-70 mt-0.5">{{ (run.test_names ?? []).length - 5 }} more titles</p>
                                             </div>
                                         </span>
@@ -2487,13 +2522,12 @@ function toggleRunsExpanded(testId) {
                                         >
                                             <User :size="12" />
                                         </div>
-                                        <Link
+                                        <span
                                             v-if="run.total_tests != null"
-                                            :href="`/sorify/runs/${run.id}`"
-                                            class="md-label-small text-[var(--md-ext-color-success)] font-medium hover:underline"
+                                            class="md-label-small text-[var(--md-ext-color-success)] font-medium"
                                         >
                                             {{ t('testSuiteShow.passedOfTotal', { passed: run.passed_count ?? 0, total: run.total_tests }) }}
-                                        </Link>
+                                        </span>
                                         <span v-if="run.failed_count" class="md-label-small text-[var(--md-sys-color-error)] font-medium">
                                             {{ t('testSuiteShow.failed', { count: run.failed_count }) }}
                                         </span>
@@ -2504,8 +2538,8 @@ function toggleRunsExpanded(testId) {
                                     </div>
                                 </div>
                                 <!-- Screenshots floated to the right -->
-                                <div v-if="run.screenshots?.length" class="flex-shrink-0 self-center">
-                                    <ScreenshotThumbs :screenshots="run.screenshots" :limit="3" @open="lightbox.open" />
+                                <div class="flex-shrink-0 self-center flex items-center gap-3">
+                                    <ScreenshotThumbs v-if="run.screenshots?.length" :screenshots="run.screenshots" :limit="3" @open="lightbox.open" />
                                 </div>
                             </div>
                         </div>

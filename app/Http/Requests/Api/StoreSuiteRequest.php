@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use App\Http\Requests\StoreTestSuiteIntegrationRequest;
+use App\Support\NotificationCooldown;
 use App\Support\ScreenshotMode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -69,6 +70,8 @@ class StoreSuiteRequest extends FormRequest
             'email_notify_on_start' => 'nullable|boolean',
             'email_notify_on_success' => 'nullable|boolean',
             'email_notify_on_failure' => 'nullable|boolean',
+            'teams_notification_cooldown_minutes' => ['nullable', 'integer', Rule::in(NotificationCooldown::ALLOWED_MINUTES)],
+            'email_notification_cooldown_minutes' => ['nullable', 'integer', Rule::in(NotificationCooldown::ALLOWED_MINUTES)],
             'email_recipient_ids' => 'nullable|array',
             'email_recipient_ids.*' => 'integer|exists:users,id',
         ];

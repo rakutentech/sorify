@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -39,6 +40,8 @@ class TestSuite extends Model
         'email_notify_on_start',
         'email_notify_on_success',
         'email_notify_on_failure',
+        'teams_notification_cooldown_minutes',
+        'email_notification_cooldown_minutes',
         'duplication_status',
         'duplicated_from_suite_id',
     ];
@@ -55,6 +58,10 @@ class TestSuite extends Model
         'email_notify_on_start' => 'boolean',
         'email_notify_on_success' => 'boolean',
         'email_notify_on_failure' => 'boolean',
+        'teams_notification_cooldown_minutes' => 'integer',
+        'email_notification_cooldown_minutes' => 'integer',
+        'teams_last_notified_at' => 'datetime',
+        'email_last_notified_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -153,6 +160,39 @@ class TestSuite extends Model
     public function isBeingDuplicated(): bool
     {
         return $this->duplication_status === 'pending';
+    }
+
+    /**
+     * Accessors for the per-channel notification cooling-off window
+     * ('teams' or 'email'): configured duration and last-send timestamp.
+     */
+    public function notificationCooldownMinutes(string $channel): int
+    {
+        return (int) ($channel === 'teams'
+            ? $this->teams_notification_cooldown_minutes
+            : $this->email_notification_cooldown_minutes);
+    }
+
+    public function lastNotifiedAtColumn(string $channel): string
+    {
+        return $channel === 'teams' ? 'teams_last_notified_at' : 'email_last_notified_at';
+    }
+
+    public function lastNotifiedAt(string $channel): ?CarbonInterface
+    {
+        return $this->{$this->lastNotifiedAtColumn($channel)};
+    }
+
+    public function lastNotifiedRunIdColumn(string $channel): string
+    {
+        return $channel === 'teams' ? 'teams_last_notified_run_id' : 'email_last_notified_run_id';
+    }
+
+    public function lastNotifiedRunId(string $channel): ?int
+    {
+        $id = $this->{$this->lastNotifiedRunIdColumn($channel)};
+
+        return $id === null ? null : (int) $id;
     }
 
     public function duplicatedFrom(): BelongsTo

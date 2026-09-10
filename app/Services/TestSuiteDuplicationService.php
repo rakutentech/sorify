@@ -42,6 +42,8 @@ class TestSuiteDuplicationService
                 'email_notify_on_start' => $source->email_notify_on_start,
                 'email_notify_on_success' => $source->email_notify_on_success,
                 'email_notify_on_failure' => $source->email_notify_on_failure,
+                'teams_notification_cooldown_minutes' => $source->teams_notification_cooldown_minutes,
+                'email_notification_cooldown_minutes' => $source->email_notification_cooldown_minutes,
                 'created_by' => $user->id,
                 'duplication_status' => 'pending',
                 'duplicated_from_suite_id' => $source->id,
