@@ -158,9 +158,11 @@ const SUITE_FIELD_LABELS = {
     teams_notify_on_start: 'teams_notifications',
     teams_notify_on_success: 'teams_notifications',
     teams_notify_on_failure: 'teams_notifications',
+    teams_notification_cooldown_minutes: 'teams_notifications',
     email_notify_on_start: 'email_notifications',
     email_notify_on_success: 'email_notifications',
     email_notify_on_failure: 'email_notifications',
+    email_notification_cooldown_minutes: 'email_notifications',
 };
 
 const changedFieldLabels = computed(() => {
