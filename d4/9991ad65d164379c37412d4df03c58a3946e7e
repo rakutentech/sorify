@@ -1,0 +1,77 @@
+resources/js/Pages/TestSuites/Review.vue
+  s_f905efb6446b18::t_b13be445ef30a5 91-92
+app/Support/NotificationCooldown.php
+  s_cbc7eb43345cfa::t_f0953d2ec46a1c 63-116
+tests/Feature/NotificationCooldownTest.php
+  s_cbc7eb43345cfa::t_24b9a4d24399d2 9
+  s_cbc7eb43345cfa::t_b894688364db5b 616-784
+app/Mail/RunDigestEmail.php
+  s_cbc7eb43345cfa::t_9ca312693172f1 8
+  s_cbc7eb43345cfa::t_01846ee4fd024c 44
+resources/views/emails/run-started.blade.php
+  s_cbc7eb43345cfa::t_8d751aad3c3123 27-29
+resources/js/locales/en.json
+  s_f905efb6446b18::t_dd372aaf4609ec 169
+resources/js/Components/ui/RunPill.vue
+  s_f905efb6446b18::t_ad2d3939042125 3-4,15
+  s_f905efb6446b18::t_39926adfe734fe 28,30-37
+  s_f905efb6446b18::t_87527378afbd39 16
+resources/js/locales/ms.json
+  s_f905efb6446b18::t_dd372aaf4609ec 169
+resources/js/locales/zh-CN.json
+  s_f905efb6446b18::t_dd372aaf4609ec 169
+app/Mail/RunStartedEmail.php
+  s_cbc7eb43345cfa::t_bb08e6a2e6a0c8 7
+  s_cbc7eb43345cfa::t_4d39b3e813c5aa 37
+resources/js/Pages/TestSuites/Show.vue
+  s_f905efb6446b18::t_03757cce9c9fdc 1038-1039
+  s_f905efb6446b18::t_5358adeb513223 1058-1059
+  s_f905efb6446b18::t_5bd62419409e2b 17
+  s_f905efb6446b18::t_e0def262dbfc9d 1123-1124
+  s_f905efb6446b18::t_51b4aaa48d0a71 2510-2511,2514
+  s_f905efb6446b18::t_fe6f965928b597 2563-2564
+  s_f905efb6446b18::t_c7174dbf591071 2559-2562,2565-2569
+  s_f905efb6446b18::t_bcafe56ec84ac8 2544,2546,2549
+app/Services/TeamsNotificationService.php
+  s_cbc7eb43345cfa::t_020af08eb6bbb2 357
+  s_cbc7eb43345cfa::t_c2e867963eb49b 266-269
+  s_cbc7eb43345cfa::t_5840358281caa2 206
+  s_cbc7eb43345cfa::t_d540d361d0e067 394-407
+  s_cbc7eb43345cfa::t_549023fa273b69 169-196
+  s_cbc7eb43345cfa::t_453537eac86ca1 393
+app/Mail/RunCompletedEmail.php
+  s_cbc7eb43345cfa::t_91b1cab7e49178 9
+  s_cbc7eb43345cfa::t_bd882c73faf382 62
+resources/views/emails/run-digest.blade.php
+  s_cbc7eb43345cfa::t_a3531a9a6b6de8 26
+resources/js/locales/ja.json
+  s_f905efb6446b18::t_dd372aaf4609ec 169
+app/Http/Controllers/TestRunController.php
+  s_f905efb6446b18::t_75964b9f53af82 30
+resources/views/emails/run-completed.blade.php
+  s_cbc7eb43345cfa::t_b450f886d01cfd 31-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d49991ad65d164379c37412d4df03c58a3946e7e",
+  "prompts": {},
+  "sessions": {
+    "s_cbc7eb43345cfa": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f771879a9ffe1BzeP67th4spXe",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_f905efb6446b18": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f771f86b3ffeNwdAfnRyhmfwfv",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
