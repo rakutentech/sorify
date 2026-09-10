@@ -9,6 +9,7 @@ use App\Models\TestSuite;
 use App\Services\ActivityLogger;
 use App\Services\GithubAppAccessService;
 use App\Support\IntegrationPayload;
+use App\Support\NotificationCooldown;
 use App\Support\ScreenshotMode;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Auth;
@@ -81,6 +82,8 @@ class UpdateSuiteTool extends Tool
             'email_notify_on_start' => $schema->boolean()->description('Whether to email recipients when a run starts.'),
             'email_notify_on_success' => $schema->boolean()->description('Whether to email recipients when a run succeeds.'),
             'email_notify_on_failure' => $schema->boolean()->description('Whether to email recipients when a run fails.'),
+            'teams_notification_cooldown_minutes' => $schema->integer()->enum(NotificationCooldown::ALLOWED_MINUTES)->description('Cooling-off period for Teams notifications, in minutes (0, 1, 3, 5, 15, 30, 60, or 240; 0 = off). After a notification is sent, notifications for other runs are held back until the period ends, then one combined summary of the held-back runs is sent automatically. The run that sent the first notification still gets its own messages.'),
+            'email_notification_cooldown_minutes' => $schema->integer()->enum(NotificationCooldown::ALLOWED_MINUTES)->description('Cooling-off period for email notifications, in minutes (0, 1, 3, 5, 15, 30, 60, or 240; 0 = off). After a notification is sent, notifications for other runs are held back until the period ends, then one combined summary of the held-back runs is sent automatically. The run that sent the first notification still gets its own messages.'),
             'email_recipient_ids' => $schema->array()
                 ->items($schema->integer())
                 ->description('User IDs to email run results to. Only suite members are notified — non-member IDs are dropped. Passing this replaces the recipient list; omit to leave it untouched. Nothing is emailed unless at least one notify_on_* flag is checked.'),

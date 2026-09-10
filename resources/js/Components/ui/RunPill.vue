@@ -1,5 +1,7 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
+import { ExternalLink } from '@lucide/vue';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import ScreenshotThumbs from './ScreenshotThumbs.vue';
 
@@ -9,6 +11,8 @@ defineProps({
 });
 
 const emit = defineEmits(['open-lightbox']);
+
+const { t } = useI18n();
 
 function formatDuration(ms) {
     if (!ms && ms !== 0) return '—';
@@ -21,8 +25,16 @@ function formatDuration(ms) {
 <template>
     <span class="inline-flex items-center gap-2">
         <span class="group relative inline-flex items-center gap-1 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-            <Link :href="testId ? `/sorify/runs/${run.run_id}?filter[test_id]=${testId}` : `/sorify/runs/${run.run_id}`" class="text-[var(--md-sys-color-primary)] hover:underline capitalize">{{ run.status }}</Link>
+            <span class="text-[var(--md-sys-color-primary)] capitalize">{{ run.status }}</span>
             <span class="opacity-60">· {{ formatRelativeTime(run.created_at) }}<span v-if="run.duration_ms != null"> ({{ formatDuration(run.duration_ms) }})</span></span>
+            <Link
+                :href="testId ? `/sorify/runs/${run.run_id}?filter[test_id]=${testId}` : `/sorify/runs/${run.run_id}`"
+                :aria-label="t('common.viewRun')"
+                :title="t('common.viewRun')"
+                class="opacity-50 hover:opacity-100 transition-opacity"
+            >
+                <ExternalLink :size="11" />
+            </Link>
             <div class="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col items-center whitespace-nowrap">
                 <div class="px-2.5 py-1.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-inverse-surface)] text-[var(--md-sys-color-inverse-on-surface)] md-label-small shadow-elevation-1">
                     {{ formatDate(run.created_at) }}

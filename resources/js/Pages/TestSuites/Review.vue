@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import CopyButton from '@/Components/CopyButton.vue';
-import { Card, Chip, Button, Breadcrumb, SuiteName, Avatar, RunPill, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
+import { Card, Chip, Button, Breadcrumb, SuiteName, TestName, Avatar, RunPill, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import { ArrowLeft, Search, Play, LoaderCircle, Code, FlaskConical, Gauge, Activity, ChevronRight, FileText, User } from '@lucide/vue';
@@ -88,6 +88,8 @@ function runTest(testId) {
         { test_ids: [testId] },
         {
             async: true,
+            preserveState: true,
+            preserveScroll: true,
             onFinish: () => {
                 const next = new Set(runningIds.value);
                 next.delete(testId);
@@ -251,7 +253,7 @@ const totalLines = computed(() =>
                             :href="`/sorify/suites/${suite.id}/tests/${test.id}`"
                             class="md-title-small text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors truncate"
                         >
-                            {{ test.name }}
+                            <TestName :name="test.name" :id="test.id" />
                         </Link>
                         <span
                             v-if="test.status === 'disabled'"

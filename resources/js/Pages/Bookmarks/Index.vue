@@ -124,7 +124,7 @@ function formatPassRate(rate) {
                                         :href="`/sorify/suites/${suite.id}`"
                                         class="md-body-medium text-[var(--md-sys-color-on-surface)] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
                                     >
-                                        <SuiteName :name="suite.name" :bold="false" />
+                                        <SuiteName :name="suite.name" :id="suite.id" :bold="false" />
                                     </Link>
                                     <p v-if="suite.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5 truncate max-w-xs">{{ suite.description }}</p>
                                     <div class="flex flex-wrap gap-1.5 mt-1.5">

@@ -24,6 +24,9 @@
                                 <strong>{{ $run->total_tests }} test{{ $run->total_tests === 1 ? '' : 's' }} queued</strong>
                             </p>
                             <p style="margin:0;font-size:13px;color:#757575;">Triggered by: {{ $triggeredBy }}</p>
+                            @if ($cooldownNotice)
+                            <p style="margin:8px 0 0;font-size:13px;color:#757575;">{{ $cooldownNotice }}</p>
+                            @endif
                             <p style="margin:12px 0 0;">
                                 <a href="{{ $runUrl }}" style="display:inline-block;padding:8px 16px;background:#b3261e;color:#ffffff;text-decoration:none;border-radius:16px;font-size:13px;">View Run</a>
                                 &nbsp;

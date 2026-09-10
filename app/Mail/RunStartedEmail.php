@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\TestRun;
 use App\Support\AppUrl;
+use App\Support\NotificationCooldown;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -33,6 +34,7 @@ class RunStartedEmail extends Mailable
                 'triggeredBy' => $this->triggeredBy($this->run),
                 'suiteUrl' => AppUrl::absolute(route('suites.show', $this->run->testSuite, absolute: false)),
                 'runUrl' => AppUrl::absolute(route('runs.show', $this->run, absolute: false)),
+                'cooldownNotice' => NotificationCooldown::holdNotice($this->run->testSuite, 'email'),
             ],
         );
     }

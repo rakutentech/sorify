@@ -304,6 +304,12 @@ class TestSuiteController extends Controller
                         ->unique()
                         ->values()
                         ->toArray();
+                    $data['tests'] = $run->testResults
+                        ->filter(fn ($r) => $r->test)
+                        ->map(fn ($r) => ['id' => $r->test->id, 'name' => $r->test->name])
+                        ->unique('id')
+                        ->values()
+                        ->toArray();
                     unset($data['test_results']);
 
                     return $data;

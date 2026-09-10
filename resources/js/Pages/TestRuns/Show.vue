@@ -4,7 +4,7 @@ import { router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, Breadcrumb, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination } from '@/Components/ui';
+import { Card, Chip, Button, Breadcrumb, SuiteName, TestName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import { Activity, RotateCcw, LoaderCircle, ChevronRight, Search, ChevronDown, CircleAlert, X } from '@lucide/vue';
@@ -500,10 +500,10 @@ const failedPct = computed(() => {
                                 class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate min-w-0 max-w-[28rem] hover:text-[var(--md-sys-color-primary)] hover:underline transition-colors"
                                 @click.stop
                             >
-                                {{ result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id }) }}
+                                <TestName :name="result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id })" :id="result.test_id ?? result.test?.id" />
                             </Link>
                             <span v-else class="md-body-medium font-medium text-[var(--md-sys-color-on-surface)] truncate min-w-0 max-w-[28rem]">
-                                {{ result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id }) }}
+                                <TestName :name="result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id })" :id="result.test_id ?? result.test?.id" />
                             </span>
                             <Chip :status="result.status" />
                         </div>
