@@ -12,9 +12,13 @@
   <b>And a bonus</b> Chrome Extension, with MCP<br>
 </p>
 
+※ **Message:** QA is hard. Sorify won't magically write tests. It will help, write, manage, debug tests **magically**.
+
 <p align="center">
   <img src="https://i.imgur.com/xxVw65d.png" alt="Sorify screenshot" width="850" />
 </p>
+
+
 
 ★ **Automate:** Automate browser testing, using claude, codex - with skills, mcp, test runners & dashboard.
 
@@ -44,6 +48,65 @@
 <p align="center">
   <img src="https://i.imgur.com/zoNzjBg.png" alt="Sorify screenshot" width="850"/>
 </p>
+
+## Features
+
+WITH ALL MCP CONTROLS - SUPPORTED
+
+
+```
+▼ Core Testing
+・ AI test generation          ・ Playwright execution
+・ Browser automation          ・ Cross-browser support
+・ Headless mode               ・ Scheduled runs
+・ Cron scheduling             ・ Run history
+・ Run cancellation            ・ Status polling
+・ Test logs                   ・ Pass-rate analytics
+
+▼ Test Management
+・ Suite management            ・ Test case management
+・ Bulk test creation          ・ Bulk test deletion
+・ Suite duplication           ・ Test duplication
+・ Code version history        ・ Version restore
+・ Test enable / disable       ・ Search and filters
+・ Suite bookmarks             ・ Dashboard analytics
+
+▼ Sessions and Data
+・ Cookie injection            ・ Pre-authenticated sessions
+・ Storage state upload        ・ Suite variables
+・ Proxy routing               ・ Per-domain proxies
+・ Timeout configuration       ・ History retention
+
+▼ Access Control
+・ User management             ・ Role-based permissions
+・ Per-suite members           ・ Suite sharing
+
+▼ Notifications
+・ Teams notifications         ・ Email notifications
+・ Inline screenshot emails    ・ Notification cooldown
+・ Digest summaries
+
+▼ Integrations
+・ CI webhook trigger          ・ Bi-directional webhooks
+・ Webhook concurrency guard   ・ Webhook token regeneration
+・ GitHub Actions dispatch     ・ HTTP request hooks
+・ Pre-run hooks               ・ Post-run hooks
+・ GitHub App login
+
+▼ AI and Agents
+・ MCP server                  ・ Low-token consumption
+・ Claude plugins              ・ Codex plugins
+・ AI healing                  ・ Failure investigation
+・ Gateway live lookups
+
+▼ Recorder
+・ Chrome extension            ・ Session recording
+・ Recorded test generation
+
+▼ Deployment
+・ Self hosting                ・ Ephemeral mode
+・ Docker deployment           ・ Admin panel
+```
 
 ## Feature Matrix
 
