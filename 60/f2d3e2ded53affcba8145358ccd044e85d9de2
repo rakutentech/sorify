@@ -1,0 +1,31 @@
+API.md
+  h_f44dfe84a46cdf 5-8,14-16,29-31,37-39,43-45
+  s_41a9d7c4e54b80::t_fd8b44103efb41 1-4,9-13,17-28,32-36,40-42,46-150
+README.md
+  s_41a9d7c4e54b80::t_b1b2069e8dc087 113-114,138
+  s_41a9d7c4e54b80::t_76731b8c270630 315
+  s_41a9d7c4e54b80::t_fb614dc33f2e81 313-314,316
+  s_41a9d7c4e54b80::t_c6282276d866ad 115-137
+  s_41a9d7c4e54b80::t_41252c7a7e4aae 71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "60f2d3e2ded53affcba8145358ccd044e85d9de2",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_41a9d7c4e54b80": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f6fbc319cffeRwxF6oJfpmv27S",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
