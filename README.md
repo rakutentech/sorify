@@ -68,7 +68,7 @@ WITH ALL MCP CONTROLS - SUPPORTED
 ・ Bulk test creation          ・ Bulk test deletion
 ・ Suite duplication           ・ Test duplication
 ・ Code version history        ・ Version restore
-・ Test enable / disable       ・ Search and filters
+・ Test enable/disable       ・ Search and filters
 ・ Suite bookmarks             ・ Dashboard analytics
 
 ▼ Sessions and Data
@@ -110,28 +110,32 @@ WITH ALL MCP CONTROLS - SUPPORTED
 
 ## Feature Matrix
 
-| Feature | MCP | Dashboard | CI Webhook |
-| :--- | :-: | :-: | :-: |
-| Suites: list / get / create / update / delete / duplicate | ✅ | ✅ | - |
-| Suite schedule: update / delete | ✅ | ✅ | - |
-| Suite cookies: upload | ✅ | ✅ | - |
-| Suite integrations: GitHub Action / HTTP request (configure pre/post run hooks) | ✅ | ✅ | - |
-| Suite bookmarks: list / toggle | ✅ | ✅ | - |
-| Suite members: list / add / update / remove | ✅ | ✅ | - |
-| Tests: list / get / create / update / update code / delete / duplicate | ✅ | ✅ | - |
-| Tests: bulk-create / bulk-delete | ✅ | ✅ | - |
-| Tests: toggle enabled / disabled | ✅ | ✅ | - |
-| Runs: trigger / list / get / cancel / delete | ✅ | ✅ | - |
-| Runs: status | ✅ | ✅ | ✅ |
-| Runs: logs | ✅ | ✅ | - |
-| Screenshots: list / get | ✅ | ✅ | - |
-| Recorder: chrome extension events | ✅ | - | - |
-| Suite webhook token: regenerate | - | ✅ | - |
-| Test code-version: restore | - | ✅ | - |
-| Login / register / logout / password reset | - | ✅ | - |
-| Profile: update name / password | - | ✅ | - |
-| Dashboard analytics (stats, recent runs) | - | ✅ | - |
-| Admin: manage users (create, list, role, delete, reset password) | - | ✅ | - |
+```
+▼ Feature Matrix
+
+                                                                            MCP      Dashboard   CI Webhook     API
+                                                                        ------------------------------------------------
+・ Suites: list/get/create/update/delete/duplicate                           ○           ○           —           ○
+・ Suite schedule: update/delete                                             ○           ○           —           ○
+・ Suite cookies: upload                                                     ○           ○           —           ○
+・ Suite integrations: GitHub Action/HTTP request (pre/post run hooks)       ○           ○           —           ○
+・ Suite bookmarks: list/toggle                                              ○           ○           —           ○
+・ Suite members: list/add/update/remove                                     ○           ○           —           ○
+・ Tests: list/get/create/update/update code/delete/duplicate                ○           ○           —           ○
+・ Tests: bulk-create/bulk-delete                                            ○           ○           —           ○
+・ Tests: toggle enabled/disabled                                            ○           ○           —           ○
+・ Runs: trigger/list/get/cancel/delete                                      ○           ○           —           ○
+・ Runs: status                                                              ○           ○           ○           ○
+・ Runs: logs                                                                ○           ○           —           ○
+・ Screenshots: list/get                                                     ○           ○           —           ○
+・ Recorder: chrome extension events                                         ○           —           —           —
+・ Suite webhook token: regenerate                                           —           ○           —           ○
+・ Test code-version: restore                                                —           ○           —           ○
+・ Login/register/logout/password reset                                      —           ○           —           ○
+・ Profile: update name/password                                             —           ○           —           ○
+・ Dashboard analytics (stats, recent runs)                                  —           ○           —           —
+・ Admin: manage users (create, list, role, delete, reset password)          —           ○           —           ○
+```
 
 ## AI Usage
 
@@ -305,6 +309,10 @@ jobs:
         run: |
           echo "sorify_run_id=${{ github.event.inputs.sorify_run_id }}"
 ```
+
+## HTTP API Reference
+
+See [API.md](./API.md) for the complete endpoint list and sample curl requests.
 
 ## Owners
 
