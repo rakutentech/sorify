@@ -1,0 +1,31 @@
+resources/js/locales/en.json
+  s_5c5d903fc156c7::t_5f9a7a9f77709d 169
+README.md
+  h_f44dfe84a46cdf 17-20
+  h_f44dfe84a46cdf 15-16,64-69,72-75,77,80-83,86-87,90-91,95-98,102-104,108,112-113,121-142
+resources/js/locales/ja.json
+  s_5c5d903fc156c7::t_5f9a7a9f77709d 169
+resources/js/locales/ms.json
+  s_5c5d903fc156c7::t_5f9a7a9f77709d 169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5cc96a9f25ac47a53d5bf25df4ed8bd2448720aa",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_5c5d903fc156c7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f6a621606ffeU8aqIS2Usq5d6n",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
