@@ -6,7 +6,11 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Autocomplete, Button, ScreenshotLightbox } from '@/Components/ui';
 import ActivityCard from '@/Components/feed/ActivityCard.vue';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
-import { Rss, FilterX, ArrowUp, LoaderCircle } from '@lucide/vue';
+import { formatRelativeTime } from '@/utils/date';
+import {
+    Rss, FilterX, ArrowUp, LoaderCircle, Activity, FolderOpen,
+    FileCode, Users, SlidersHorizontal, ChevronDown,
+} from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -46,15 +50,33 @@ const suiteOptions = computed(() =>
 const userOptions = computed(() =>
     (props.filterOptions.users ?? []).map((u) => ({ id: u.id, name: u.name, email: u.email, avatar_url: u.avatar_url })));
 
-// Activity types grouped for the sidebar, filtered down to the types the
-// server actually sent so stale groups never render empty headers.
-const typeGroups = computed(() => [
+// Activity type → category key. Single source of truth for the sidebar's
+// filter chip groups and the feed's grouped sections.
+const CATEGORY_GROUPS = [
     { key: 'runs', types: ['run_triggered', 'run_completed', 'run_cancelled'] },
     { key: 'suites', types: ['suite_created', 'suite_updated', 'suite_duplicated'] },
     { key: 'tests', types: ['test_created', 'test_updated', 'test_code_updated', 'test_deleted', 'test_status_changed'] },
     { key: 'people', types: ['suite_members_changed', 'user_registered', 'user_created'] },
     { key: 'settings', types: ['schedule_updated', 'variables_updated', 'cookies_updated', 'integration_updated', 'email_recipients_updated'] },
-]
+];
+
+const TYPE_TO_CATEGORY = Object.fromEntries(
+    CATEGORY_GROUPS.flatMap((group) => group.types.map((type) => [type, group.key])),
+);
+
+// Visual identity per category: header icon + accent (tinted icon chip,
+// hairline gradients — accents mirror the ActivityCard TYPE_META palette).
+const CATEGORY_META = {
+    runs:     { icon: Activity,          accent: 'var(--md-sys-color-primary)' },
+    suites:   { icon: FolderOpen,        accent: 'var(--md-sys-color-tertiary)' },
+    tests:    { icon: FileCode,          accent: 'var(--md-sys-color-secondary)' },
+    people:   { icon: Users,             accent: 'var(--md-ext-color-warning)' },
+    settings: { icon: SlidersHorizontal, accent: 'var(--md-ext-color-success)' },
+};
+
+// Sidebar chips, filtered down to the types the server actually sent so
+// stale groups never render empty headers.
+const typeGroups = computed(() => CATEGORY_GROUPS
     .map((group) => ({ ...group, types: group.types.filter((type) => props.filterOptions.types.includes(type)) }))
     .filter((group) => group.types.length > 0));
 
@@ -95,6 +117,18 @@ const page = ref(props.activities.current_page ?? 1);
 const lastPage = ref(props.activities.last_page ?? 1);
 const loadingMore = ref(false);
 
+// Sections of the feed, one per non-empty activity category, ordered by
+// whichever category holds the newest activity. items is newest-first, so
+// a group's first item is also its latest — no extra max() pass needed.
+// Each section carries its CATEGORY_META (icon, accent) for the header.
+const groupedItems = computed(() => CATEGORY_GROUPS
+    .map(({ key }) => {
+        const groupItems = items.value.filter((item) => TYPE_TO_CATEGORY[item.type] === key);
+        return { key, ...CATEGORY_META[key], items: groupItems, latest: groupItems[0] ?? null };
+    })
+    .filter((group) => group.items.length > 0)
+    .sort((a, b) => (b.latest?.id ?? 0) - (a.latest?.id ?? 0)));
+
 watch(() => props.activities, (fresh) => {
     items.value = fresh.data ?? [];
     page.value = fresh.current_page ?? 1;
@@ -125,26 +159,17 @@ async function loadMore() {
         page.value = data.current_page ?? page.value + 1;
         lastPage.value = data.last_page ?? lastPage.value;
     } catch {
-        // network hiccup — the next intersection retry will try again
+        // network hiccup — tapping "Load more" again will retry
     } finally {
         loadingMore.value = false;
     }
 }
 
-const sentinel = ref(null);
-let observer = null;
-
 onMounted(() => {
-    observer = new IntersectionObserver(
-        (entries) => { if (entries[0].isIntersecting) loadMore(); },
-        { rootMargin: '600px 0px' },
-    );
-    if (sentinel.value) observer.observe(sentinel.value);
     maybeStartPolling();
 });
 
 onBeforeUnmount(() => {
-    observer?.disconnect();
     stopPolling();
 });
 
@@ -222,12 +247,16 @@ function showNewActivities() {
     <AppLayout>
         <Head :title="t('feed.title')" />
 
-        <div class="mb-6">
-            <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
-                <Rss :size="26" :style="{ color: 'var(--md-ext-color-success)' }" />
-                {{ t('feed.title') }}
-            </h1>
-            <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('feed.subtitle') }}</p>
+        <div class="mb-8 flex items-center gap-3">
+            <span class="w-11 h-11 rounded-[var(--md-sys-shape-corner-medium)] flex items-center justify-center flex-shrink-0 bg-[color-mix(in_srgb,var(--md-ext-color-success)_14%,transparent)]">
+                <Rss :size="22" :style="{ color: 'var(--md-ext-color-success)' }" />
+            </span>
+            <div class="min-w-0">
+                <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] truncate">
+                    {{ t('feed.title') }}
+                </h1>
+                <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-0.5">{{ t('feed.subtitle') }}</p>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 gap-6 items-start lg:grid-cols-[280px_minmax(0,1fr)]">
@@ -324,37 +353,93 @@ function showNewActivities() {
                 <button
                     v-if="showNewPill"
                     type="button"
-                    class="w-full mb-4 flex items-center justify-center gap-2 py-2 rounded-[var(--md-sys-shape-corner-full)] md-label-large bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] hover:opacity-90 transition-opacity"
+                    class="w-full mb-4 flex items-center justify-center gap-2 py-2 rounded-[var(--md-sys-shape-corner-full)] md-label-large bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] shadow-elevation-1 hover:shadow-elevation-2 hover:opacity-95 active:scale-[0.99] transition-all"
                     @click="showNewActivities"
                 >
                     <ArrowUp :size="14" />
                     {{ t('feed.newActivity') }}
                 </button>
 
-                <div v-if="!items.length" class="rounded-[var(--md-sys-shape-corner-medium)] border border-dashed border-[var(--md-sys-color-outline-variant)] px-5 py-12 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                    <Rss :size="32" class="mx-auto mb-3 opacity-40" />
+                <!-- Empty state -->
+                <div v-if="!items.length" class="rounded-[var(--md-sys-shape-corner-large)] border border-dashed border-[var(--md-sys-color-outline-variant)] px-5 py-16 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                    <span class="w-14 h-14 rounded-[var(--md-sys-shape-corner-full)] mx-auto mb-4 flex items-center justify-center bg-[var(--md-sys-color-surface-container-high)]">
+                        <Rss :size="24" class="opacity-50" />
+                    </span>
                     {{ t('feed.noneYet') }}
                 </div>
 
-                <div v-else class="space-y-3">
-                    <ActivityCard
-                        v-for="activity in items"
-                        :key="activity.id"
-                        :activity="activity"
-                        :live-run="liveRunFor(activity)"
-                        @open-lightbox="lightbox.open"
-                    />
+                <!-- Grouped sections, newest activity first -->
+                <div v-else class="space-y-10">
+                    <section v-for="group in groupedItems" :key="group.key">
+                        <!-- Sticky glassy header: icon chip, category, count,
+                             fading hairline, latest activity time -->
+                        <div class="sticky top-0 z-10 -mx-2 px-2 py-2.5 mb-4 bg-[color-mix(in_srgb,var(--md-sys-color-surface)_85%,transparent)] backdrop-blur-md">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span
+                                    class="w-8 h-8 rounded-[var(--md-sys-shape-corner-small)] flex items-center justify-center flex-shrink-0"
+                                    :style="{
+                                        backgroundColor: `color-mix(in srgb, ${group.accent} 14%, transparent)`,
+                                        color: group.accent,
+                                    }"
+                                >
+                                    <component :is="group.icon" :size="16" />
+                                </span>
+                                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] truncate">
+                                    {{ t(`feed.filterGroups.${group.key}`) }}
+                                </h2>
+                                <span class="flex-shrink-0 px-2 py-0.5 rounded-[var(--md-sys-shape-corner-full)] md-label-small bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)]">
+                                    {{ group.items.length }}
+                                </span>
+                                <div class="flex-1 min-w-4 h-px bg-gradient-to-r from-[var(--md-sys-color-outline-variant)] to-transparent" />
+                                <span
+                                    class="md-label-small text-[var(--md-sys-color-on-surface-variant)] whitespace-nowrap flex-shrink-0 flex items-center gap-1.5"
+                                    :title="t('feed.latestActivity')"
+                                >
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                        :style="{ backgroundColor: group.accent }"
+                                    />
+                                    {{ t('feed.latestActivity') }} · {{ formatRelativeTime(group.latest.created_at) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Cards, staggered entrance; new items animate in as
+                             load-more merges them (keyed diff keeps the rest) -->
+                        <div class="space-y-3">
+                            <div
+                                v-for="(activity, index) in group.items"
+                                :key="activity.id"
+                                class="animate-fade-slide-in"
+                                :style="{ animationDelay: `${Math.min(index, 10) * 30}ms` }"
+                            >
+                                <ActivityCard
+                                    :activity="activity"
+                                    :live-run="liveRunFor(activity)"
+                                    @open-lightbox="lightbox.open"
+                                />
+                            </div>
+                        </div>
+                    </section>
                 </div>
 
-                <!-- Infinite scroll sentinel -->
-                <div v-if="items.length" ref="sentinel" class="py-6 flex items-center justify-center">
+                <!-- Load more / end of feed -->
+                <div v-if="items.length" class="pt-8 flex items-center justify-center gap-3">
                     <span v-if="loadingMore" class="inline-flex items-center gap-2 md-label-medium text-[var(--md-sys-color-on-surface-variant)]">
                         <LoaderCircle :size="16" class="animate-spin" />
                         {{ t('feed.loadingMore') }}
                     </span>
-                    <span v-else-if="page >= lastPage" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">
-                        {{ t('feed.endOfFeed') }}
-                    </span>
+                    <template v-else-if="page >= lastPage">
+                        <div class="flex-1 h-px bg-[var(--md-sys-color-outline-variant)] opacity-40" />
+                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 whitespace-nowrap px-2">
+                            {{ t('feed.endOfFeed') }}
+                        </span>
+                        <div class="flex-1 h-px bg-[var(--md-sys-color-outline-variant)] opacity-40" />
+                    </template>
+                    <Button v-else variant="tonal" @click="loadMore">
+                        <ChevronDown :size="16" />
+                        {{ t('feed.loadMore') }}
+                    </Button>
                 </div>
             </div>
         </div>

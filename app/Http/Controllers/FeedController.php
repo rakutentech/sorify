@@ -23,8 +23,8 @@ class FeedController extends Controller
      * with can_view — the same permission model as the suites/runs lists.
      *
      * Also answers plain JSON (Accept: application/json, no X-Inertia
-     * header) for the feed page's infinite scroll, which appends further
-     * pages client-side without a full Inertia visit.
+     * header) for the feed page's "Load more" button, which appends
+     * further pages client-side without a full Inertia visit.
      */
     public function index(Request $request): Response|JsonResponse
     {

@@ -12,11 +12,17 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
     --animate-shimmer: shimmer 1.5s infinite;
+    --animate-fade-slide-in: fade-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes shimmer {
     0%   { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
+}
+
+@keyframes fade-slide-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── MD3 color tokens ──────────────────────────────────────────────────────── */
