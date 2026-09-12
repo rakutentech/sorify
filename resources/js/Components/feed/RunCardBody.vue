@@ -45,6 +45,11 @@ const screenshots = computed(() => props.run?.screenshots ?? []);
 const triggeredBy = computed(() => props.run?.triggered_by ?? props.activity.payload?.triggered_by ?? null);
 const triggeredByUser = computed(() => props.run?.triggered_by_user ?? null);
 
+// The run's user avatar duplicates the card header's actor avatar when
+// they are the same person — collapse it to the source icon instead.
+const duplicateUser = computed(() =>
+    props.activity.actor?.id != null && triggeredByUser.value?.id === props.activity.actor.id);
+
 function formatDuration(ms) {
     if (ms === null || ms === undefined) return '—';
     if (!ms && ms !== 0) return '—';
@@ -71,7 +76,7 @@ function formatDuration(ms) {
                 <Timer :size="14" />{{ formatDuration(durationMs) }}
             </span>
             <span class="inline-flex items-center gap-1.5 md-label-medium text-[var(--md-sys-color-on-surface-variant)]">
-                <RanBy :triggered-by="triggeredBy" :triggered-by-user="triggeredByUser" />
+                <RanBy :triggered-by="triggeredBy" :triggered-by-user="triggeredByUser" :hide-user="duplicateUser" />
             </span>
         </div>
 

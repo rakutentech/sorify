@@ -8,6 +8,10 @@ const props = defineProps({
     triggeredByUser: { type: Object, default: null },
     ciIp: { type: String, default: null },
     ciUserAgent: { type: String, default: null },
+    // Suppress the user avatar and show the source icon instead — for
+    // contexts where the same user's avatar is already displayed nearby
+    // (e.g. the feed card header already shows the actor).
+    hideUser: { type: Boolean, default: false },
 });
 
 const SOURCE_LABELS = {
@@ -33,7 +37,7 @@ const hasCiInfo = computed(() => props.triggeredBy === 'ci' && (props.ciIp || pr
 
 <template>
     <Avatar
-        v-if="triggeredByUser"
+        v-if="triggeredByUser && !hideUser"
         :name="triggeredByUser.name"
         :email="triggeredByUser.email"
         :avatar-url="triggeredByUser.avatar_url"

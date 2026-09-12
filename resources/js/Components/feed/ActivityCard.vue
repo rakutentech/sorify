@@ -182,8 +182,9 @@ function integrationTypeLabel(type) {
 
 <template>
     <!-- No overflow-hidden on the card: it would clip the avatars' hover
-         tooltips. The accent bar rounds its own left edge instead. -->
-    <Card v-if="meta" variant="outlined" padding="p-0">
+         tooltips. The accent bar rounds its own left edge instead. Hover
+         lifts surface + border (animated by the global color transition). -->
+    <Card v-if="meta" variant="outlined" padding="p-0" class="hover:bg-[var(--md-sys-color-surface-container-low)] hover:border-[var(--md-sys-color-outline)]">
         <div class="flex items-stretch">
             <div class="w-1 flex-shrink-0 rounded-l-[var(--md-sys-shape-corner-medium)]" :style="{ background: meta.accent }" />
 
