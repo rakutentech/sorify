@@ -12,7 +12,12 @@
   <b>And a bonus</b> Chrome Extension, with MCP<br>
 </p>
 
-※ **Message:** QA is hard. Sorify won't magically write tests. It will help, write, manage, debug tests **magically**.
+
+<p align="center">
+<a href="https://trendshift.io/repositories/156992?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-156992" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/156992/daily?language=PHP" alt="rakutentech%2Fsorify | Trendshift" width="250" height="55"/></a>
+</p>
+
+<hr>
 
 <p align="center">
   <img src="https://i.imgur.com/xxVw65d.png" alt="Sorify screenshot" width="850" />
@@ -56,56 +61,56 @@ WITH ALL MCP CONTROLS - SUPPORTED
 
 ```
 ▼ Core Testing
-・ AI test generation          ・ Playwright execution
-・ Browser automation          ・ Cross-browser support
-・ Headless mode               ・ Scheduled runs
-・ Cron scheduling             ・ Run history
-・ Run cancellation            ・ Status polling
-・ Test logs                   ・ Pass-rate analytics
+・ AI test generation        ・ Playwright execution
+・ Browser automation        ・ Cross-browser support
+・ Headless mode             ・ Scheduled runs
+・ Cron scheduling           ・ Run history
+・ Run cancellation          ・ Status polling
+・ Test logs                 ・ Pass-rate analytics
 
 ▼ Test Management
-・ Suite management            ・ Test case management
-・ Bulk test creation          ・ Bulk test deletion
-・ Suite duplication           ・ Test duplication
-・ Code version history        ・ Version restore
+・ Suite management          ・ Test case management
+・ Bulk test creation        ・ Bulk test deletion
+・ Suite duplication         ・ Test duplication
+・ Code version history      ・ Version restore
 ・ Test enable/disable       ・ Search and filters
-・ Suite bookmarks             ・ Dashboard analytics
+・ Suite bookmarks           ・ Dashboard analytics
 
 ▼ Sessions and Data
-・ Cookie injection            ・ Pre-authenticated sessions
-・ Storage state upload        ・ Suite variables
-・ Proxy routing               ・ Per-domain proxies
-・ Timeout configuration       ・ History retention
+・ Cookie injection          ・ Pre-authenticated sessions
+・ Storage state upload      ・ Suite variables
+・ Proxy routing             ・ Per-domain proxies
+・ Timeout configuration     ・ History retention
 
 ▼ Access Control
-・ User management             ・ Role-based permissions
-・ Per-suite members           ・ Suite sharing
+・ User management           ・ Role-based permissions
+・ Per-suite members         ・ Suite sharing
 
 ▼ Notifications
-・ Teams notifications         ・ Email notifications
-・ Inline screenshot emails    ・ Notification cooldown
+・ Teams notifications       ・ Email notifications
+・ Inline screenshot emails  ・ Notification cooldown
 ・ Digest summaries
 
 ▼ Integrations
-・ CI webhook trigger          ・ Bi-directional webhooks
-・ Webhook concurrency guard   ・ Webhook token regeneration
-・ GitHub Actions dispatch     ・ HTTP request hooks
-・ Pre-run hooks               ・ Post-run hooks
+・ CI webhook trigger        ・ Bi-directional webhooks
+・ Webhook concurrency guard ・ Webhook token regeneration
+・ GitHub Actions dispatch   ・ HTTP request hooks
+・ Pre-run hooks             ・ Post-run hooks
 ・ GitHub App login
 
 ▼ AI and Agents
-・ MCP server                  ・ Low-token consumption
-・ Claude plugins              ・ Codex plugins
-・ AI healing                  ・ Failure investigation
+・ MCP server                ・ Low-token consumption
+・ Claude plugins            ・ Codex plugins
+・ AI healing                ・ Failure investigation
 ・ Gateway live lookups
 
 ▼ Recorder
-・ Chrome extension            ・ Session recording
+・ Chrome extension          ・ Session recording
 ・ Recorded test generation
 
 ▼ Deployment
-・ Self hosting                ・ Ephemeral mode
-・ Docker deployment           ・ Admin panel
+・ Self hosting              ・ Ephemeral mode
+・ Docker deployment         ・ Admin panel
 ```
 
 ## Feature Matrix
@@ -113,28 +118,28 @@ WITH ALL MCP CONTROLS - SUPPORTED
 ```
 ▼ Feature Matrix
 
-                                                                            MCP      Dashboard   CI Webhook     API
-                                                                        ------------------------------------------------
-・ Suites: list/get/create/update/delete/duplicate                           ○           ○           —           ○
-・ Suite schedule: update/delete                                             ○           ○           —           ○
-・ Suite cookies: upload                                                     ○           ○           —           ○
-・ Suite integrations: GitHub Action/HTTP request (pre/post run hooks)       ○           ○           —           ○
-・ Suite bookmarks: list/toggle                                              ○           ○           —           ○
-・ Suite members: list/add/update/remove                                     ○           ○           —           ○
-・ Tests: list/get/create/update/update code/delete/duplicate                ○           ○           —           ○
-・ Tests: bulk-create/bulk-delete                                            ○           ○           —           ○
-・ Tests: toggle enabled/disabled                                            ○           ○           —           ○
-・ Runs: trigger/list/get/cancel/delete                                      ○           ○           —           ○
-・ Runs: status                                                              ○           ○           ○           ○
-・ Runs: logs                                                                ○           ○           —           ○
-・ Screenshots: list/get                                                     ○           ○           —           ○
-・ Recorder: chrome extension events                                         ○           —           —           —
-・ Suite webhook token: regenerate                                           —           ○           —           ○
-・ Test code-version: restore                                                —           ○           —           ○
-・ Login/register/logout/password reset                                      —           ○           —           ○
-・ Profile: update name/password                                             —           ○           —           ○
-・ Dashboard analytics (stats, recent runs)                                  —           ○           —           —
-・ Admin: manage users (create, list, role, delete, reset password)          —           ○           —           ○
+                                                                            MCP  Dashboard   Webhook     API
+                                                                        --------------------------------------
+・ Suites: list/get/create/update/delete/duplicate                           ○      ○          —           ○
+・ Suite schedule: update/delete                                             ○      ○          —           ○
+・ Suite cookies: upload                                                     ○      ○          —           ○
+・ Suite integrations: GitHub Action/HTTP request (pre/post run hooks)       ○      ○          —           ○
+・ Suite bookmarks: list/toggle                                              ○      ○          —           ○
+・ Suite members: list/add/update/remove                                     ○      ○          —           ○
+・ Tests: list/get/create/update/update code/delete/duplicate                ○      ○          —           ○
+・ Tests: bulk-create/bulk-delete                                            ○      ○          —           ○
+・ Tests: toggle enabled/disabled                                            ○      ○          —           ○
+・ Runs: trigger/list/get/cancel/delete                                      ○      ○          —           ○
+・ Runs: status                                                              ○      ○          ○           ○
+・ Runs: logs                                                                ○      ○          —           ○
+・ Screenshots: list/get                                                     ○      ○          —           ○
+・ Recorder: chrome extension events                                         ○      —          —           —
+・ Suite webhook token: regenerate                                           —      ○          —           ○
+・ Test code-version: restore                                                —      ○          —           ○
+・ Login/register/logout/password reset                                      —      ○          —           ○
+・ Profile: update name/password                                             —      ○          —           ○
+・ Dashboard analytics (stats, recent runs)                                  —      ○          —           —
+・ Admin: manage users (create, list, role, delete, reset password)          —      ○          —           ○
 ```
 
 ## AI Usage
