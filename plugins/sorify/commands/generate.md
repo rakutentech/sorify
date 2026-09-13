@@ -234,11 +234,17 @@ c1,c2,...,i1-c1,i1-c2,...), then call the `bulk_create_tests` and `trigger_run` 
 ```
 mcp__plugin_sorify_sorify__bulk_create_tests({
   suite_id: {suite_id},
-  tests: dom_tests   // each entry: {name, playwright_code, uploaded_by}
+  tests: dom_tests,   // each entry: {name, playwright_code, uploaded_by}
+  ai_model: {your model name}   // e.g. "claude-sonnet-4-5" — you are the AI author
 })
 
 mcp__plugin_sorify_sorify__trigger_run({ suite_id: {suite_id} })
 ```
+
+**`ai_model` is mandatory here** — you (the AI) wrote this code, so pass your
+actual model name as the top-level `ai_model` argument. Sorify records it as
+the code's author (shown as an AI badge on the dashboard and in the code-version
+history). Never omit it, guess, or use a placeholder value.
 
 The `trigger_run` result's `structuredContent.run_id` is the `run_id`.
 Poll for completion and report results (see Step 7).
@@ -395,7 +401,8 @@ component order c1,c2...,i1-c1,...), then COND (in TC-01,TC-02... order) — add
 ```
 mcp__plugin_sorify_sorify__bulk_create_tests({
   suite_id: {suite_id},
-  tests: dom_tests.concat(cond_tests)   // each entry: {name, playwright_code, uploaded_by}
+  tests: dom_tests.concat(cond_tests),   // each entry: {name, playwright_code, uploaded_by}
+  ai_model: {your model name}   // e.g. "claude-sonnet-4-5" — you are the AI author
 })
 
 mcp__plugin_sorify_sorify__trigger_run({ suite_id: {suite_id} })

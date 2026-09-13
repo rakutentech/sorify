@@ -438,7 +438,8 @@
         "emailRecipientsAdd": "添加收件人",
         "emailRecipientsMembersOnly": "只有套件成员可以被添加为收件人。",
         "scheduleTestsDisabledHint": "已禁用的测试会被跳过,直到重新启用。",
-        "regenerateWebhookNotInvalidated": "不会被立即失效"
+        "regenerateWebhookNotInvalidated": "不会被立即失效",
+        "codeByTooltip": "由此 AI 模型编写的代码"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · 审查",
@@ -709,7 +710,12 @@
         "duplicating": "复制中...",
         "confirmDuplicate": "复制测试“{name}”？将在同一套件中创建副本。",
         "duplicatePromptLabel": "新测试名称（可选）",
-        "duplicatePromptPlaceholder": "登录流程测试 (copy)"
+        "duplicatePromptPlaceholder": "登录流程测试 (copy)",
+        "codeByTooltip": "当前 Playwright 代码的 AI 归属信息",
+        "sourceManual": "手动",
+        "sourceMcp": "MCP / API",
+        "sourceAgent": "我的 AI 助手",
+        "colAiModel": "AI 模型"
     },
     "profile": {
         "title": "个人资料",
@@ -775,7 +781,8 @@
         "showMore": "展开更多",
         "showLess": "收起",
         "sortAscending": "升序排序",
-        "sortDescending": "降序排序"
+        "sortDescending": "降序排序",
+        "close": "关闭"
     },
     "adminGithubApps": {
         "pageTitle": "GitHub 应用 — 管理",
@@ -882,6 +889,92 @@
             "gvisor": "gVisor 运行时",
             "root_daemon": "守护进程连接",
             "smoke": "冒烟运行"
+        }
+    },
+    "agent": {
+        "open": "我的 AI 助手",
+        "chat": {
+            "title": "我的 AI 助手",
+            "model": "模型",
+            "loading": "正在加载对话...",
+            "emptyTitle": "你的 AI QA 助手",
+            "emptyBody": "让助手抓取网站、编写 Playwright 回归测试、触发运行或汇报结果。它以你的权限使用 Sorify 的工具。",
+            "placeholder": "向助手提问...",
+            "send": "发送",
+            "stop": "停止",
+            "back": "返回会话列表",
+            "delete": "删除会话",
+            "confirmDelete": "删除此会话及其消息？",
+            "suggestionCrawl": "抓取 {url} 并为主要流程编写回归测试",
+            "suggestionReview": "审查此套件中的测试并提出改进建议",
+            "suggestionRun": "触发一次运行并总结结果",
+            "modelsError": "无法加载模型列表：{error}",
+            "toolRunning": "运行中...",
+            "toolArguments": "参数",
+            "toolResult": "结果",
+            "openSettings": "AI 助手设置",
+            "mcpHandoff": "通过 MCP 在本地编码助手上继续此会话",
+            "copyPrompt": "复制 MCP 提示词"
+        },
+        "list": {
+            "recent": "最近会话",
+            "newChat": "新会话",
+            "loading": "正在加载会话...",
+            "empty": "还没有会话。开始一个新会话吧！",
+            "noProfiles": "需要先创建助手配置。",
+            "goToProfiles": "在个人资料页创建。"
+        },
+        "newChat": {
+            "profile": "助手配置",
+            "pageIs": "从页面开始：{page} ({url})",
+            "context": "给助手的页面上下文",
+            "contextPlaceholder": "关于当前页面的上下文...",
+            "contextHint": "开始会话前可以编辑。它将作为背景信息发送给助手。",
+            "defaultContext": "用户当前在页面\"{page}\"({url})。",
+            "start": "开始会话",
+            "model": "模型",
+            "modelHint": "从配置的端点获取；之后也可在会话顶部更改。"
+        },
+        "profiles": {
+            "navTitle": "AI 助手",
+            "title": "AI 助手配置",
+            "hint": "AI 助手可用的命名 OpenAI 兼容端点。可以创建多个，例如一个用于 OpenAI，一个用于内部 vLLM。",
+            "add": "添加配置",
+            "newProfile": "新配置",
+            "editProfile": "编辑配置",
+            "name": "名称",
+            "namePlaceholder": "例如：Work OpenAI",
+            "baseUrl": "基础 URL",
+            "baseUrlPlaceholder": "https://api.openai.com 或 http://localhost:11434/v1",
+            "baseUrlHint": "任何兼容 OpenAI 的端点 (OpenAI, Ollama, vLLM, OpenRouter 等)。",
+            "apiToken": "API 令牌",
+            "apiTokenPlaceholder": "sk-...",
+            "tokenConfigured": "令牌已保存 - 留空则保持不变",
+            "apiTokenHint": "加密存储，不会返回给浏览器。",
+            "proxyUrl": "代理 URL",
+            "proxyUrlPlaceholder": "http://proxy.example.com:8080",
+            "proxyUrlHint": "用于访问基础 URL 的可选 HTTP 代理。",
+            "defaultModel": "默认模型",
+            "defaultModelPlaceholder": "例如：gpt-4o",
+            "defaultModelHint": "可选；也可以在会话中选择模型。",
+            "systemPrompt": "附加系统提示词",
+            "systemPromptPlaceholder": "给助手的额外指令...",
+            "systemPromptHint": "使用此配置的会话中附加到内置系统提示词。",
+            "retention": "会话保留期",
+            "retentionDays": "保留 {count} 天",
+            "retentionHint": "过期的轮次每天自动删除。",
+            "testOk": "连接成功 ({latency} ms) - 可用 {count} 个模型。",
+            "testFailed": "连接失败",
+            "save": "保存",
+            "testing": "测试中...",
+            "testConnection": "测试连接",
+            "edit": "编辑",
+            "delete": "删除",
+            "confirmDelete": "删除助手配置\"{name}\"？",
+            "empty": "还没有助手配置。添加一个以开始使用 AI 助手。",
+            "refreshModels": "从端点重新加载模型列表",
+            "notSet": "未设置",
+            "privacyNote": "每个会话都是私密的。对话及其工具活动只有你自己可见——其他套件成员和管理员无法看到。"
         }
     }
 }

@@ -14,6 +14,8 @@ class Test extends Model
         'description',
         'uploaded_by',
         'playwright_code',
+        'code_source',
+        'code_ai_model',
         'status',
         'last_run_at',
         'last_run_status',

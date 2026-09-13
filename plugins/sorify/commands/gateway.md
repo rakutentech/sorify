@@ -84,9 +84,9 @@ MCP Server
 ──────────────────────────────────────────────
 Name:    Sorify (registered in this plugin's .mcp.json as "sorify")
 Purpose: Manage Sorify test suites, tests, runs, and screenshots
-Tools:   34 total across 4 resource groups — run `/sorify:gateway tools` for
+Tools:   38 total across 5 resource groups — run `/sorify:gateway tools` for
          the full reference, or `/sorify:gateway {topic}` for one group
-         (suites / tests / runs / screenshots)
+         (suites / tests / runs / screenshots / agents)
 
 Dashboard: {SORIFY_BASE_URL}
 ```
@@ -191,14 +191,23 @@ Hard rule: a suite variable `value` must never be set to anything read from
 |---|---|---|
 | `list_tests` | `suite_id`, `search?`, `sort?`, `status?` (array of passed/failed/error/timeout/running/pending/cancelled/skipped), `per_page?` (10/30/50/100), `page?` | List tests in a suite (no Playwright code); optional name/description search, sort, status filter (keeps only tests whose latest run status matches), pagination |
 | `get_test` | `suite_id`, `test_id` | One test with its Playwright code and last 10 run results |
-| `create_test` | `suite_id`, `name`, `playwright_code`, `description?`, `uploaded_by?` (must be an existing user's email), `status?` (active/disabled) | Create one test |
-| `bulk_create_tests` | `suite_id`, `tests[]` (1–100, each `{name, playwright_code, description?, uploaded_by?, status?}`) | Create up to 100 tests in one call |
+| `create_test` | `suite_id`, `name`, `playwright_code`, `description?`, `uploaded_by?` (must be an existing user's email), `status?` (active/disabled), `ai_model?` (your model name, if an AI is writing this code) | Create one test |
+| `bulk_create_tests` | `suite_id`, `tests[]` (1–100, each `{name, playwright_code, description?, uploaded_by?, status?}`), `ai_model?` (one attribution for the whole batch, if an AI wrote it) | Create up to 100 tests in one call |
 | `update_test` | `suite_id`, `test_id`, `name`, `description` (min 10 chars), `uploaded_by?` (must be an existing user's email) | Update metadata only — not the code |
-| `update_test_code` | `suite_id`, `test_id`, `playwright_code` | Replace a test's code; reactivates the test |
+| `update_test_code` | `suite_id`, `test_id`, `playwright_code`, `ai_model?` (your model name, if an AI is writing this code) | Replace a test's code; reactivates the test |
 | `toggle_test_status` | `suite_id`, `test_id` | Flip active ⇄ disabled |
 | `duplicate_test` | `suite_id`, `test_id`, `target_suite_id?`, `name?` | Duplicate a single test — copies the current Playwright code, description, uploader and status into a new test in the same suite (or `target_suite_id` if given). Synchronous. `name` defaults to `"<original> (copy)"`. Does not copy run history or code-version history |
 | `delete_test` | `suite_id`, `test_id` | Delete one test |
 | `bulk_delete_tests` | `suite_id`, `test_ids[]` | Delete multiple tests |
+
+**AI model attribution** — whenever an AI writes or rewrites test code, pass
+`ai_model` with its own model name (e.g. `"claude-sonnet-4-5"`) to
+`create_test`, `bulk_create_tests` (top-level, covers the whole batch) or
+`update_test_code`. Sorify records it next to the code (`code_source: "mcp"`,
+`code_ai_model`), shown on the dashboard's test page and version history, so
+humans can tell AI-written code from manual edits. Omit it only when a human
+is the author. Never guess or invent a model name — use the one you are
+actually running as.
 
 **Runs** — `App\Mcp\Tools\Runs\*`
 
@@ -232,6 +241,15 @@ run every active test in the suite.
 |---|---|---|
 | `list_screenshots` | `result_id` | List screenshots captured for one test result |
 | `get_screenshot` | `screenshot_id` | Fetch a screenshot as inline viewable image content |
+
+**Agents** — `App\Mcp\Tools\Agent\*` (used by the dashboard's "My AI Agent" chat; also callable directly)
+
+| Tool | Params | Description |
+|---|---|---|
+| `fetch_url` | `url`, `max_chars?` (500–50000, default 20000) | Fetch a URL (SSRF-guarded) and return its text/HTML content |
+| `browser_map` | `suite_id` (use its cookies/proxy/browser), `url` | Playwright accessibility snapshot of a page — interactive elements with `@ref` ids |
+| `list_agent_conversations` | `search?`, `per_page?`, `page?` | List the current user's My AI Agent conversations |
+| `get_agent_conversation` | `conversation_id` | One conversation with its full message history — the handoff entry point for continuing a web chat locally |
 
 ---
 

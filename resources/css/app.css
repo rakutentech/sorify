@@ -234,3 +234,30 @@ button:disabled,
 [aria-disabled="true"] {
     cursor: not-allowed;
 }
+
+/* ── Slim scrollbar ──────────────────────────────────────────────────────── */
+/* Blends into Material surface tones for side panels and drawers where the
+   default scrollbar is visually loud. Falls back to the native bar where
+   scrollbar-color is unsupported. */
+.slim-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--md-sys-color-outline-variant) transparent;
+}
+
+.slim-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.slim-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.slim-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--md-sys-color-outline-variant);
+    border-radius: var(--md-sys-shape-corner-full);
+}
+
+.slim-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--md-sys-color-on-surface-variant);
+}

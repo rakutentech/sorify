@@ -6,6 +6,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import TestSuiteIntegrations from '@/Components/TestSuiteIntegrations.vue';
+import { clearAgentContext, setAgentContext } from '@/composables/useAgentContext';
 import { Card, Chip, Button, IconButton, TextField, Autocomplete, Modal, Breadcrumb, SuiteName, TestName, Avatar, AvatarGroup, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
@@ -13,7 +14,7 @@ import {
     FolderKanban, Star, Pencil, Copy, LoaderCircle, Trash2, Play,
     Plus, FileText, Search, ChevronRight, CircleHelp, Check, ChevronDown,
     FlaskConical, Activity, Gauge, CircleAlert, Webhook,
-    User, UserCog, Settings, SlidersHorizontal, ArrowUp, ArrowDown, X,
+    User, UserCog, Settings, SlidersHorizontal, ArrowUp, ArrowDown, X, Bot,
 } from '@lucide/vue';
 
 const { t } = useI18n();
@@ -176,11 +177,30 @@ function toggleBookmark() {
     const url = `/sorify/suites/${props.suite.id}/bookmark`;
 
     if (props.isBookmarked) {
-        router.delete(url, options);
+        router.delete(url, {}, options);
     } else {
         router.post(url, {}, options);
     }
 }
+
+// ── AI agent page context ────────────────────────────────────────────────────
+// Tells the agent which suite this page is about (picked up when a new chat
+// is opened from here). Cleared when navigating away.
+setAgentContext(() => ({
+    context: JSON.stringify({
+        page: 'test_suite',
+        suite_id: props.suite.id,
+        suite_name: props.suite.name,
+        base_url: props.suite.base_url,
+        description: props.suite.description ?? null,
+        tests_count: props.stats?.status_counts
+            ? Object.values(props.stats.status_counts).reduce((sum, count) => sum + count, 0)
+            : (props.tests?.data?.length ?? 0),
+        last_run_status: props.recentRuns?.[0]?.status ?? null,
+    }, null, 2),
+}));
+
+onUnmounted(() => clearAgentContext());
 
 function regenerateWebhook() {
     if (props.webhookLimitReached) return;
@@ -2310,6 +2330,14 @@ function toggleRunsExpanded(testId) {
                                     >
                                         <TestName :name="test.name" :id="test.id" />
                                     </Link>
+                                    <span
+                                        v-if="test.code_ai_model"
+                                        class="inline-flex items-center gap-1 md-label-small font-mono px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] flex-shrink-0 max-w-40 truncate"
+                                        :title="t('testSuiteShow.codeByTooltip')"
+                                    >
+                                        <Bot :size="12" class="flex-shrink-0" />
+                                        <span class="truncate">{{ test.code_ai_model }}</span>
+                                    </span>
                                     <span
                                         v-if="test.status === 'disabled'"
                                         class="md-label-small px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] text-[var(--md-ext-color-on-warning-container)] bg-[var(--md-ext-color-warning-container)] flex-shrink-0"
