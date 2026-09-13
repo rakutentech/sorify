@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\GithubAppController as AdminGithubAppController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\AgentConversationController;
+use App\Http\Controllers\AgentProfileController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardNoteController;
@@ -136,6 +138,26 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
     Route::prefix('feed')->name('feed.')->group(function () {
         Route::get('/', [FeedController::class, 'index'])->name('index');
         Route::get('/poll', [FeedController::class, 'poll'])->name('poll');
+    });
+
+    // Per-user AI agent: named endpoint profiles + page-aware conversations
+    Route::prefix('agent')->name('agent.')->group(function () {
+        Route::get('/profiles', [AgentProfileController::class, 'index'])->name('profiles.index');
+        Route::post('/profiles', [AgentProfileController::class, 'store'])->name('profiles.store');
+        Route::put('/profiles/{profile}', [AgentProfileController::class, 'update'])->name('profiles.update');
+        Route::delete('/profiles/{profile}', [AgentProfileController::class, 'destroy'])->name('profiles.destroy');
+        Route::post('/profiles/test-connection', [AgentProfileController::class, 'testConnection'])->middleware('throttle:10,1')->name('profiles.test-connection');
+        Route::get('/models', [AgentProfileController::class, 'models'])->name('models');
+        // POST accepts unsaved credentials (create form) so tokens never ride
+        // in the query string; GET stays for the chat header picker.
+        Route::post('/models', [AgentProfileController::class, 'models'])->middleware('throttle:30,1')->name('models.store');
+
+        Route::get('/conversations', [AgentConversationController::class, 'index'])->name('conversations.index');
+        Route::post('/conversations', [AgentConversationController::class, 'store'])->name('conversations.store');
+        Route::get('/conversations/{conversation}/messages', [AgentConversationController::class, 'messages'])->name('conversations.messages');
+        Route::post('/conversations/{conversation}/chat', [AgentConversationController::class, 'chat'])->middleware('throttle:20,1')->name('conversations.chat');
+        Route::put('/conversations/{conversation}', [AgentConversationController::class, 'update'])->name('conversations.update');
+        Route::delete('/conversations/{conversation}', [AgentConversationController::class, 'destroy'])->name('conversations.destroy');
     });
 
     // Legacy /sorify/runs listing now lives in the feed.

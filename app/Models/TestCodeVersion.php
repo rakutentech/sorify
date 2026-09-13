@@ -11,6 +11,7 @@ class TestCodeVersion extends Model
         'test_id',
         'version_number',
         'playwright_code',
+        'ai_model',
         'source',
         'created_by',
     ];
