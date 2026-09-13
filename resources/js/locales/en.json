@@ -438,7 +438,8 @@
         "emailRecipientsAdd": "Add recipient",
         "emailRecipientsMembersOnly": "Only suite members can be added as recipients.",
         "scheduleTestsDisabledHint": "Disabled tests are skipped until re-enabled.",
-        "regenerateWebhookNotInvalidated": "not invalidated"
+        "regenerateWebhookNotInvalidated": "not invalidated",
+        "codeByTooltip": "Code written by this AI model"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · Review",
@@ -709,7 +710,12 @@
         "duplicating": "Duplicating...",
         "confirmDuplicate": "Duplicate test \"{name}\"? A copy will be created in the same suite.",
         "duplicatePromptLabel": "New test name (optional)",
-        "duplicatePromptPlaceholder": "Login flow test (copy)"
+        "duplicatePromptPlaceholder": "Login flow test (copy)",
+        "codeByTooltip": "AI attribution for the current Playwright code",
+        "sourceManual": "Manual",
+        "sourceMcp": "MCP / API",
+        "sourceAgent": "My AI Agent",
+        "colAiModel": "AI Model"
     },
     "profile": {
         "title": "Profile",
@@ -775,7 +781,8 @@
         "showMore": "Show more",
         "showLess": "Show less",
         "sortAscending": "Sort ascending",
-        "sortDescending": "Sort descending"
+        "sortDescending": "Sort descending",
+        "close": "Close"
     },
     "adminGithubApps": {
         "pageTitle": "GitHub Apps — Admin",
@@ -882,6 +889,92 @@
             "gvisor": "gVisor runtime",
             "root_daemon": "Daemon connection",
             "smoke": "Smoke run"
+        }
+    },
+    "agent": {
+        "open": "My AI Agent",
+        "chat": {
+            "title": "My AI Agent",
+            "model": "Model",
+            "loading": "Loading conversation...",
+            "emptyTitle": "Your AI QA agent",
+            "emptyBody": "Ask the agent to crawl a site, write Playwright regression tests, trigger runs, or report on results. It uses Sorify's tools with your permissions.",
+            "placeholder": "Ask the agent...",
+            "send": "Send",
+            "stop": "Stop",
+            "back": "Back to conversations",
+            "delete": "Delete conversation",
+            "confirmDelete": "Delete this conversation and its messages?",
+            "suggestionCrawl": "Crawl {url} and write regression tests for the main flows",
+            "suggestionReview": "Review the tests in this suite and suggest improvements",
+            "suggestionRun": "Trigger a run and summarize the results",
+            "modelsError": "Could not load the model list: {error}",
+            "toolRunning": "running...",
+            "toolArguments": "Arguments",
+            "toolResult": "Result",
+            "openSettings": "AI Agent settings",
+            "mcpHandoff": "Continue this chat on a local coding agent via MCP",
+            "copyPrompt": "Copy MCP prompt"
+        },
+        "list": {
+            "recent": "Recent conversations",
+            "newChat": "New chat",
+            "loading": "Loading conversations...",
+            "empty": "No conversations yet. Start a new chat!",
+            "noProfiles": "You need an agent profile first.",
+            "goToProfiles": "Create one in your profile page."
+        },
+        "newChat": {
+            "profile": "Agent profile",
+            "pageIs": "Starting from page: {page} ({url})",
+            "context": "Page context for the agent",
+            "contextPlaceholder": "Context the agent receives about the current page...",
+            "contextHint": "You can edit this before starting the chat. It is sent to the agent as background information.",
+            "defaultContext": "The user is on the page \"{page}\" ({url}).",
+            "start": "Start chat",
+            "model": "Model",
+            "modelHint": "Pulled from the profile's endpoint; can also be changed later in the chat header."
+        },
+        "profiles": {
+            "navTitle": "AI Agent",
+            "title": "AI agent profiles",
+            "hint": "Named OpenAI-compatible endpoints the AI agent can use. You can create several, e.g. one for OpenAI and one for an internal vLLM.",
+            "add": "Add profile",
+            "newProfile": "New profile",
+            "editProfile": "Edit profile",
+            "name": "Name",
+            "namePlaceholder": "e.g. Work OpenAI",
+            "baseUrl": "Base URL",
+            "baseUrlPlaceholder": "https://api.openai.com or http://localhost:11434/v1",
+            "baseUrlHint": "Any OpenAI-compatible endpoint (OpenAI, Ollama, vLLM, OpenRouter, ...).",
+            "apiToken": "API token",
+            "apiTokenPlaceholder": "sk-...",
+            "tokenConfigured": "Token saved - leave blank to keep it",
+            "apiTokenHint": "Stored encrypted, never sent back to the browser.",
+            "proxyUrl": "Proxy URL",
+            "proxyUrlPlaceholder": "http://proxy.example.com:8080",
+            "proxyUrlHint": "Optional HTTP proxy used for all requests to the base URL.",
+            "defaultModel": "Default model",
+            "defaultModelPlaceholder": "e.g. gpt-4o",
+            "defaultModelHint": "Optional; the model can also be picked in the chat.",
+            "systemPrompt": "Additional system prompt",
+            "systemPromptPlaceholder": "Extra instructions for the agent...",
+            "systemPromptHint": "Appended to the built-in system prompt for chats using this profile.",
+            "retention": "Chat retention",
+            "retentionDays": "Keep {count} days",
+            "retentionHint": "Older turns are deleted daily.",
+            "testOk": "Connected in {latency} ms - {count} models available.",
+            "testFailed": "Connection failed",
+            "save": "Save",
+            "testing": "Testing...",
+            "testConnection": "Test connection",
+            "edit": "Edit",
+            "delete": "Delete",
+            "confirmDelete": "Delete the agent profile \"{name}\"?",
+            "empty": "No agent profiles yet. Add one to start using the AI agent.",
+            "refreshModels": "Reload model list from the endpoint",
+            "notSet": "Not set",
+            "privacyNote": "Every chat is private. Conversations and their tool activity are visible only to you — never to other suite members or admins."
         }
     }
 }

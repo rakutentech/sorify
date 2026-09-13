@@ -438,7 +438,8 @@
         "emailRecipientsAdd": "Tambah penerima",
         "emailRecipientsMembersOnly": "Hanya ahli suite boleh ditambah sebagai penerima.",
         "scheduleTestsDisabledHint": "Ujian dilumpuhkan dilangkau sehingga diaktifkan semula.",
-        "regenerateWebhookNotInvalidated": "tidak dimansuhkan"
+        "regenerateWebhookNotInvalidated": "tidak dimansuhkan",
+        "codeByTooltip": "Kod ditulis oleh model AI ini"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · Semakan",
@@ -709,7 +710,12 @@
         "duplicating": "Menduplikasi...",
         "confirmDuplicate": "Duplikasi ujian \"{name}\"? Satu salinan akan dicipta dalam set yang sama.",
         "duplicatePromptLabel": "Nama ujian baharu (pilihan)",
-        "duplicatePromptPlaceholder": "Ujian aliran log masuk (copy)"
+        "duplicatePromptPlaceholder": "Ujian aliran log masuk (copy)",
+        "codeByTooltip": "Pentafsiran AI untuk kod Playwright semasa",
+        "sourceManual": "Manual",
+        "sourceMcp": "MCP / API",
+        "sourceAgent": "Ejen AI Saya",
+        "colAiModel": "Model AI"
     },
     "profile": {
         "title": "Profil",
@@ -775,7 +781,8 @@
         "showMore": "Tunjuk lagi",
         "showLess": "Tunjuk kurang",
         "sortAscending": "Isih menaik",
-        "sortDescending": "Isih menurun"
+        "sortDescending": "Isih menurun",
+        "close": "Tutup"
     },
     "adminGithubApps": {
         "pageTitle": "Aplikasi GitHub — Admin",
@@ -882,6 +889,92 @@
             "gvisor": "Runtime gVisor",
             "root_daemon": "Sambungan daemon",
             "smoke": "Ujian smoke"
+        }
+    },
+    "agent": {
+        "open": "Ejen AI Saya",
+        "chat": {
+            "title": "Ejen AI Saya",
+            "model": "Model",
+            "loading": "Memuatkan perbualan...",
+            "emptyTitle": "Ejen QA AI anda",
+            "emptyBody": "Minta ejen merayap laman, menulis ujian regresi Playwright, mencetuskan jalanan, atau melaporkan hasil. Ia menggunakan alat Sorify dengan kebenaran anda.",
+            "placeholder": "Minta ejen...",
+            "send": "Hantar",
+            "stop": "Henti",
+            "back": "Kembali ke senarai perbualan",
+            "delete": "Padam perbualan",
+            "confirmDelete": "Padam perbualan ini dan mesejnya?",
+            "suggestionCrawl": "Rayap {url} dan tulis ujian regresi untuk aliran utama",
+            "suggestionReview": "Semak ujian dalam suite ini dan cadangkan penambahbaikan",
+            "suggestionRun": "Cetuskan jalanan dan ringkaskan hasilnya",
+            "modelsError": "Tidak dapat memuatkan senarai model: {error}",
+            "toolRunning": "berjalan...",
+            "toolArguments": "Argumen",
+            "toolResult": "Hasil",
+            "openSettings": "Tetapan ejen AI",
+            "mcpHandoff": "Teruskan sembang ini pada ejen pengekodan tempatan melalui MCP",
+            "copyPrompt": "Salin prompt MCP"
+        },
+        "list": {
+            "recent": "Perbualan terkini",
+            "newChat": "Sembang baharu",
+            "loading": "Memuatkan perbualan...",
+            "empty": "Tiada perbualan lagi. Mulakan sembang baharu!",
+            "noProfiles": "Anda perlukan profil ejen dahulu.",
+            "goToProfiles": "Cipta satu di halaman profil anda."
+        },
+        "newChat": {
+            "profile": "Profil ejen",
+            "pageIs": "Bermula dari halaman: {page} ({url})",
+            "context": "Konteks halaman untuk ejen",
+            "contextPlaceholder": "Konteks tentang halaman semasa...",
+            "contextHint": "Boleh diedit sebelum memulakan sembang. Ia dihantar kepada ejen sebagai maklumat latar.",
+            "defaultContext": "Pengguna berada di halaman \"{page}\" ({url}).",
+            "start": "Mulakan sembang",
+            "model": "Model",
+            "modelHint": "Diambil dari endpoint profil; boleh juga ditukar kemudian di pengepala sembang."
+        },
+        "profiles": {
+            "navTitle": "Ejen AI",
+            "title": "Profil ejen AI",
+            "hint": "Endpoint serasi OpenAI bernama yang boleh digunakan oleh ejen AI. Anda boleh mencipta beberapa, cth. satu untuk OpenAI dan satu untuk vLLM dalaman.",
+            "add": "Tambah profil",
+            "newProfile": "Profil baharu",
+            "editProfile": "Edit profil",
+            "name": "Nama",
+            "namePlaceholder": "cth. Work OpenAI",
+            "baseUrl": "URL asas",
+            "baseUrlPlaceholder": "https://api.openai.com atau http://localhost:11434/v1",
+            "baseUrlHint": "Mana-mana endpoint serasi OpenAI (OpenAI, Ollama, vLLM, OpenRouter, ...).",
+            "apiToken": "Token API",
+            "apiTokenPlaceholder": "sk-...",
+            "tokenConfigured": "Token disimpan - biarkan kosong untuk mengekalkannya",
+            "apiTokenHint": "Disimpan secara tersulit, tidak dihantar semula ke pelayar.",
+            "proxyUrl": "URL proksi",
+            "proxyUrlPlaceholder": "http://proxy.example.com:8080",
+            "proxyUrlHint": "Proksi HTTP pilihan untuk semua permintaan ke URL asas.",
+            "defaultModel": "Model lalai",
+            "defaultModelPlaceholder": "cth. gpt-4o",
+            "defaultModelHint": "Pilihan; model juga boleh dipilih dalam sembang.",
+            "systemPrompt": "Prompt sistem tambahan",
+            "systemPromptPlaceholder": "Arahan tambahan untuk ejen...",
+            "systemPromptHint": "Dilampirkan pada prompt sistem terbina dalam untuk sembang dengan profil ini.",
+            "retention": "Pengekalan sembang",
+            "retentionDays": "Simpan {count} hari",
+            "retentionHint": "Pusingan lama dipadam setiap hari.",
+            "testOk": "Berjaya disambung dalam {latency} ms - {count} model tersedia.",
+            "testFailed": "Sambungan gagal",
+            "save": "Simpan",
+            "testing": "Menguji...",
+            "testConnection": "Uji sambungan",
+            "edit": "Edit",
+            "delete": "Padam",
+            "confirmDelete": "Padam profil ejen \"{name}\"?",
+            "empty": "Tiada profil ejen lagi. Tambah satu untuk mula menggunakan ejen AI.",
+            "refreshModels": "Muat semula senarai model dari endpoint",
+            "notSet": "Tidak ditetapkan",
+            "privacyNote": "Setiap sembang adalah peribadi. Perbualan dan aktiviti alatnya hanya boleh dilihat oleh anda — bukan ahli suite lain atau pentadbir."
         }
     }
 }

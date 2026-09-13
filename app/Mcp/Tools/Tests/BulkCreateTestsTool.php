@@ -4,9 +4,10 @@ namespace App\Mcp\Tools\Tests;
 
 use App\Http\Requests\Api\BulkStoreTestRequest;
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
+use App\Mcp\Tools\Concerns\ResolvesAiModel;
 use App\Models\TestSuite;
-use App\Services\PlaywrightCodeValidatorService;
 use App\Services\ActivityLogger;
+use App\Services\PlaywrightCodeValidatorService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Mcp\Request;
@@ -17,6 +18,7 @@ use Laravel\Mcp\Server\Tool;
 class BulkCreateTestsTool extends Tool
 {
     use AuthorizesSuiteAccess;
+    use ResolvesAiModel;
 
     protected string $name = 'bulk_create_tests';
 
@@ -40,6 +42,7 @@ class BulkCreateTestsTool extends Tool
                 ->max(100)
                 ->required()
                 ->description('The tests to create.'),
+            'ai_model' => $schema->string()->description('If you are an AI writing these tests, your model name (e.g. "claude-sonnet-4-5"). Recorded as the author of the code — one attribution for the whole batch.'),
         ];
     }
 
@@ -49,6 +52,11 @@ class BulkCreateTestsTool extends Tool
         $this->authorizeSuite('edit', $suite);
 
         $data = $request->validate((new BulkStoreTestRequest)->rules());
+
+        // One attribution for the whole batch: a single call comes from a
+        // single author.
+        $codeSource = $this->codeSourceOf($request);
+        $aiModel = $this->aiModelOf($request, $data['ai_model'] ?? null);
 
         $created = [];
 
@@ -60,13 +68,19 @@ class BulkCreateTestsTool extends Tool
                 'description' => $item['description'] ?? null,
                 'uploaded_by' => $item['uploaded_by'] ?? null,
                 'playwright_code' => $item['playwright_code'],
+                'code_source' => $codeSource,
+                'code_ai_model' => $aiModel,
                 'status' => $item['status'] ?? 'active',
             ]);
 
             $created[] = $test->toArray();
         }
 
-        ActivityLogger::log('test_created', Auth::user(), $suite, null, ['count' => count($created)]);
+        ActivityLogger::log('test_created', Auth::user(), $suite, null, [
+            'count' => count($created),
+            'code_source' => $codeSource,
+            'ai_model' => $aiModel,
+        ]);
 
         return Response::structured(['created' => count($created), 'tests' => $created]);
     }

@@ -57,4 +57,22 @@ return [
             'timeout' => env('SORIFY_HTTP_REQUEST_TIMEOUT', 15),
         ],
     ],
+
+    // Suite AI agent (OpenAI-compatible endpoint configured per user).
+    'agent' => [
+        // Max LLM round-trips (tool-calling steps) per chat turn.
+        'max_steps' => env('SORIFY_AGENT_MAX_STEPS', 25),
+        // Messages replayed to the LLM per request (bounds token cost).
+        'history_replay' => env('SORIFY_AGENT_HISTORY_REPLAY', 50),
+        // Hard per-thread turn cap applied after each turn, regardless of
+        // the user's retention-days setting.
+        'keep_turns' => env('SORIFY_AGENT_KEEP_TURNS', 100),
+        // Seconds for a single LLM request (streamed) when a proxy is set.
+        'request_timeout' => env('SORIFY_AGENT_REQUEST_TIMEOUT', 300),
+        // Upper bound for browser_map runs (also capped by suite timeout).
+        'browser_map_timeout_ms' => env('SORIFY_AGENT_BROWSER_MAP_TIMEOUT_MS', 30000),
+        // Allow fetch_url/browser_map to reach private/reserved IPs (e.g.
+        // internal staging). Off by default — SSRF protection.
+        'allow_private_ips' => env('SORIFY_AGENT_ALLOW_PRIVATE_IPS', false),
+    ],
 ];

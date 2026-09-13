@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AgentProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -27,6 +28,11 @@ class ProfileController extends Controller
                 'has_password' => $user->has_password,
                 'github_id' => $user->github_id,
             ],
+            'agentProfiles' => AgentProfile::query()
+                ->where('user_id', $user->id)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (AgentProfile $profile) => $profile->toSafeArray()),
         ]);
     }
 

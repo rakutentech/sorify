@@ -1,11 +1,12 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, IconButton, SuiteName, AvatarGroup, Pagination, SortableTh, SuiteChips } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { Star, Search, StarOff, FolderKanban, Users, FlaskConical, Activity, Gauge, Clock } from '@lucide/vue';
+import { clearAgentContext, setAgentContext } from '@/composables/useAgentContext';
 
 const { t } = useI18n();
 
@@ -57,6 +58,20 @@ function formatPassRate(rate) {
     if (rate === null || rate === undefined) return '—';
     return `${Math.round(rate)}%`;
 }
+
+// AI agent page context: the bookmarked suites visible on this page.
+setAgentContext(() => ({
+    context: JSON.stringify({
+        page: 'bookmarks',
+        bookmarked_suites: props.suites.data.map(suite => ({
+            suite_id: suite.id,
+            name: suite.name,
+            base_url: suite.base_url ?? null,
+        })),
+    }, null, 2),
+}));
+
+onUnmounted(() => clearAgentContext());
 </script>
 
 <template>

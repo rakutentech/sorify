@@ -18,11 +18,13 @@
 </p>
 
 <hr>
-
 <p align="center">
-  <img src="https://i.imgur.com/xxVw65d.png" alt="Sorify screenshot" width="850" />
+  <img src="https://i.imgur.com/zoNzjBg.png" alt="Sorify screenshot" width="850"/>
 </p>
 
+<p align="center">
+  <img src="https://i.imgur.com/VJ20NP1.png" alt="Sorify screenshot" width="850" />
+</p>
 
 
 ★ **Automate:** Automate browser testing, using claude, codex - with skills, mcp, test runners & dashboard.
@@ -49,9 +51,14 @@
 
 ✴︎ **Agent Plugins:** Claude/Codex plugins included - zero-code test code management.
 
+✴︎ **My AI Agent:** In-dashboard AI agent your own OpenAI-compatible. Page aware chats that can call every Sorify MCP tool, resumable handoffs to local agents.
+
+✴︎ **i18n & 2 modes:** Supports Japanese, Chinese, Malay, with dark mode.
+
 <br>
+
 <p align="center">
-  <img src="https://i.imgur.com/zoNzjBg.png" alt="Sorify screenshot" width="850"/>
+  <img src="https://i.imgur.com/xxVw65d.png" alt="Sorify screenshot" width="850" />
 </p>
 
 ## Features
@@ -101,6 +108,7 @@ WITH ALL MCP CONTROLS - SUPPORTED
 ▼ AI and Agents
 ・ MCP server                ・ Low-token consumption
 ・ Claude plugins            ・ Codex plugins
+・ My AI Agent web chat      ・ Agent chat handoff to MCP
 ・ AI healing                ・ Failure investigation
 ・ Gateway live lookups
 
@@ -261,6 +269,9 @@ cp .env.example .env
 
 composer setup
 php artisan dev
+
+# or the whole stack via docker
+docker-compose up -d
 ```
 
  ## Verify
@@ -396,3 +407,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v1.8** - MCP supports runs. Auto redirect after login page. Support for one time CI webhook and who ran the CI.
 - **v1.9** - Chrome extension memory leak fix. Support pre/post webhooks for multiple connectors.
 - **v2.0** - Ephemeral mode
+- **v2.1** - My AI Agent: in-dashboard agent chat (OpenAI-compatible profiles, page context, MCP handoff) and AI model attribution on test code.
