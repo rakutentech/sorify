@@ -1,0 +1,113 @@
+resources/css/app.css
+  s_7b0de7f712cd4c::t_69f54be02602f2 237-263
+app/Services/Agent/AgentToolAdapter.php
+  s_7b0de7f712cd4c::t_a1cc8e4200f1f8 58,63,79
+  s_7b0de7f712cd4c::t_48678eea5e5032 59-60
+app/Models/Test.php
+  s_7b0de7f712cd4c::t_f0b7c4a5358804 17-18
+resources/js/locales/en.json
+  s_7b0de7f712cd4c::t_decd189cf91e4d 441-442,713-718
+README.md
+  s_7b0de7f712cd4c::t_a6b15f2df963aa 267-269
+  s_7b0de7f712cd4c::t_ce67fe3b8413e3 30-31
+  s_7b0de7f712cd4c::t_d8fc1f06417197 106
+  s_7b0de7f712cd4c::t_534046449d3da7 405
+app/Models/TestCodeVersion.php
+  s_7b0de7f712cd4c::t_2f9240649ef1bf 14
+app/Services/Agent/AgentService.php
+  s_7b0de7f712cd4c::t_1d67db6e40bf71 173-176
+  s_7b0de7f712cd4c::t_e045b7f64cbc1d 171-172
+app/Mcp/Tools/Tests/CreateTestTool.php
+  s_7b0de7f712cd4c::t_8be83cc468ef22 7
+  s_7b0de7f712cd4c::t_48678eea5e5032 10
+  s_7b0de7f712cd4c::t_ef4973aa7b0bac 21,38,56-57,61-65
+app/Http/Requests/Api/StoreApiTestRequest.php
+  s_7b0de7f712cd4c::t_48678eea5e5032 17,19-22
+app/Mcp/Tools/Concerns/ResolvesAiModel.php
+  s_7b0de7f712cd4c::t_cceed69f8d28db 1-15,17-18,41-42
+  s_7b0de7f712cd4c::t_9a8d69a054980f 16,19-40
+app/Mcp/Tools/Tests/BulkCreateTestsTool.php
+  s_7b0de7f712cd4c::t_90575a791b8b10 21,45,56-60,71-72,79-83
+  s_7b0de7f712cd4c::t_e9a2c323431854 7
+  s_7b0de7f712cd4c::t_48678eea5e5032 10
+resources/js/locales/ms.json
+  s_7b0de7f712cd4c::t_decd189cf91e4d 441-442,713-718
+database/migrations/2026_09_13_000002_add_code_ai_attribution_to_tests_and_code_versions.php
+  s_7b0de7f712cd4c::t_6a547bae3378d7 1-37
+resources/js/Pages/Tests/Show.vue
+  s_7b0de7f712cd4c::t_964e09ec2d2ca6 378
+  s_7b0de7f712cd4c::t_be6cb3996aec5b 51-60
+  s_7b0de7f712cd4c::t_8d0d8eac872759 291-302
+  s_7b0de7f712cd4c::t_737220f78537aa 403-408,413
+  s_7b0de7f712cd4c::t_8c17f72762ee4f 12
+app/Services/TestCodeVersionService.php
+  s_7b0de7f712cd4c::t_48678eea5e5032 24,26-28,36-38
+  s_7b0de7f712cd4c::t_e206ac14044888 10-18,46-48
+tests/Feature/TestCodeVersionRestoreTest.php
+  s_7b0de7f712cd4c::t_48678eea5e5032 7,23,25,49
+  s_7b0de7f712cd4c::t_d8e4c508cc2b3c 35-48,50-63
+resources/js/locales/ja.json
+  s_7b0de7f712cd4c::t_decd189cf91e4d 441-442,713-718
+resources/js/Components/Agent/AgentDrawer.vue
+  s_7b0de7f712cd4c::t_08f6964a1b0363 518-519,522,527
+  s_7b0de7f712cd4c::t_2b3ce551750d6b 48-74,79,84-91,99-100
+  s_7b0de7f712cd4c::t_359bcdba46c0fe 120
+  s_7b0de7f712cd4c::t_1024ee6df30311 769
+  s_7b0de7f712cd4c::t_230be1e4ba0500 772
+  s_7b0de7f712cd4c::t_8024f64aac6063 135-149
+  s_7b0de7f712cd4c::t_48ccf9457f0631 41
+  s_7b0de7f712cd4c::t_6ce4f164287fdc 529
+  s_7b0de7f712cd4c::t_ad80ac2ab893bd 583,634,701
+  s_7b0de7f712cd4c::t_70d0a5294fcb77 75-78,80-83,92-98
+  s_7b0de7f712cd4c::t_1b656c87fb19ae 2
+resources/js/Pages/TestSuites/Show.vue
+  s_7b0de7f712cd4c::t_a42ec77cf85c95 17
+  s_7b0de7f712cd4c::t_e65d9906b4833c 2334-2340
+  s_7b0de7f712cd4c::t_827ac5508d904c 2333
+tests/Unit/Mcp/Tools/TestsToolsTest.php
+  s_7b0de7f712cd4c::t_48678eea5e5032 15,132,219-220,254-257,259
+  s_7b0de7f712cd4c::t_a1fc488870838d 30-131,133-146
+plugins/sorify/commands/gateway.md
+  s_7b0de7f712cd4c::t_b899e15043752b 87,89
+  s_7b0de7f712cd4c::t_4e8ff1d671ac5f 245-248,252-253
+  s_7b0de7f712cd4c::t_90eb67f1fc4d0b 203-211
+  s_7b0de7f712cd4c::t_ee4fb8bfece480 194-195,197
+  s_7b0de7f712cd4c::t_1bc813bb7dd9f9 249-251
+resources/js/locales/zh-CN.json
+  s_7b0de7f712cd4c::t_decd189cf91e4d 441-442,713-718
+app/Http/Requests/Api/BulkStoreTestRequest.php
+  s_7b0de7f712cd4c::t_48678eea5e5032 9-12,17-18,20-23
+plugins/sorify/commands/recording.md
+  s_7b0de7f712cd4c::t_30bf8c37f5fa75 180-185
+app/Mcp/Tools/Tests/UpdateTestCodeTool.php
+  s_7b0de7f712cd4c::t_dfec2c23fe1983 6
+  s_7b0de7f712cd4c::t_48678eea5e5032 9
+  s_7b0de7f712cd4c::t_18dec304fdf71c 22,39,49,58-64,66-70
+plugins/sorify/commands/generate.md
+  s_7b0de7f712cd4c::t_b3809d08934336 404-405
+  s_7b0de7f712cd4c::t_4dd8021f2deec2 237-238,244-247
+  s_7b0de7f712cd4c::t_08069b3c5e69fd 248
+tests/Feature/AgentToolAdapterTest.php
+  s_7b0de7f712cd4c::t_beda5198263afc 82,91-140
+resources/js/Layouts/AppLayout.vue
+  s_7b0de7f712cd4c::t_b03429f816da68 2
+  s_7b0de7f712cd4c::t_01d2c1ac9ddb93 23-25,28-38
+  s_7b0de7f712cd4c::t_0e579fd8b856ea 87-90
+  s_7b0de7f712cd4c::t_991971fac91bff 39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "12ac71c4ee88a885699e6817d6a2ca851e2bec63",
+  "prompts": {},
+  "sessions": {
+    "s_7b0de7f712cd4c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f68787627fferMLT83H3HzXwN7",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
