@@ -298,6 +298,35 @@ See [INSTALL.md](./INSTALL.md) for other details, self hosting, ephemeral mode, 
 
 ## GitHub, GHES, GHEC integrations
 
+**Integration 1: Github Actions → Sorify**
+
+Trigger Sorify runs from a workflow using the suite's **CI webhook** (token auth, no session).
+Grab the webhook URL from the suite's settings page, store the token as a secret, then:
+
+```yaml
+on: [push]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Sorify run
+        run: |
+          curl -sf -X POST "$SORIFY_WEBHOOK_URL/trigger" \
+            -H "Content-Type: application/json" \
+            -d '{"test_ids": [12, 34]}'   # omit to run all active tests
+        env:
+          SORIFY_WEBHOOK_URL: ${{ secrets.SORIFY_WEBHOOK_URL }}
+
+      - name: Poll run status
+        run: |
+          curl -sf "$SORIFY_WEBHOOK_URL/runs/{run}/status"
+        env:
+          SORIFY_WEBHOOK_URL: ${{ secrets.SORIFY_WEBHOOK_URL }}
+```
+
+**Integration 2: Sorify → Github Actions** (pre or post)
+
 GitHub Apps are managed under **Admin → GitHub Apps** (dashboard).
 Used for either **login** or triggering **actions** from Sorify.
 
