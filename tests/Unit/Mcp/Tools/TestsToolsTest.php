@@ -12,6 +12,7 @@ use App\Mcp\Tools\Tests\ListTestsTool;
 use App\Mcp\Tools\Tests\ToggleTestStatusTool;
 use App\Mcp\Tools\Tests\UpdateTestCodeTool;
 use App\Mcp\Tools\Tests\UpdateTestTool;
+use App\Models\TestResult;
 use App\Models\TestSuite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,6 +25,123 @@ class TestsToolsTest extends TestCase
     private function suite(): TestSuite
     {
         return TestSuite::create(['name' => 'Suite', 'base_url' => 'https://example.com']);
+    }
+
+    public function test_update_test_code_records_self_reported_ai_model(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+        $test = $suite->tests()->create(['name' => 'A', 'playwright_code' => 'old']);
+
+        SorifyServer::actingAs($user)
+            ->tool(UpdateTestCodeTool::class, [
+                'suite_id' => $suite->id,
+                'test_id' => $test->id,
+                'playwright_code' => 'await page.goto("/new");',
+                'ai_model' => 'claude-sonnet-4-5',
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('tests', [
+            'id' => $test->id,
+            'code_source' => 'mcp',
+            'code_ai_model' => 'claude-sonnet-4-5',
+        ]);
+    }
+
+    public function test_update_test_code_without_ai_model_leaves_attribution_null(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+        $test = $suite->tests()->create(['name' => 'A', 'playwright_code' => 'old']);
+
+        SorifyServer::actingAs($user)
+            ->tool(UpdateTestCodeTool::class, [
+                'suite_id' => $suite->id,
+                'test_id' => $test->id,
+                'playwright_code' => 'await page.goto("/new");',
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('tests', [
+            'id' => $test->id,
+            'code_source' => 'mcp',
+            'code_ai_model' => null,
+        ]);
+    }
+
+    public function test_update_test_code_archives_previous_code_with_its_own_model(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+        $test = $suite->tests()->create([
+            'name' => 'A',
+            'playwright_code' => 'old code',
+            'code_source' => 'agent',
+            'code_ai_model' => 'gpt-4o',
+        ]);
+
+        SorifyServer::actingAs($user)
+            ->tool(UpdateTestCodeTool::class, [
+                'suite_id' => $suite->id,
+                'test_id' => $test->id,
+                'playwright_code' => 'await page.goto("/new");',
+                'ai_model' => 'claude-sonnet-4-5',
+            ])
+            ->assertOk();
+
+        // The archived version carries the model that WROTE it (gpt-4o),
+        // not the model replacing it.
+        $this->assertDatabaseHas('test_code_versions', [
+            'test_id' => $test->id,
+            'playwright_code' => 'old code',
+            'ai_model' => 'gpt-4o',
+        ]);
+
+        $this->assertDatabaseHas('tests', [
+            'id' => $test->id,
+            'code_ai_model' => 'claude-sonnet-4-5',
+        ]);
+    }
+
+    public function test_bulk_create_tests_records_one_ai_model_for_the_batch(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+
+        SorifyServer::actingAs($user)
+            ->tool(BulkCreateTestsTool::class, [
+                'suite_id' => $suite->id,
+                'tests' => [
+                    ['name' => 'Test A', 'playwright_code' => 'await page.goto("/a");'],
+                    ['name' => 'Test B', 'playwright_code' => 'await page.goto("/b");'],
+                ],
+                'ai_model' => 'gpt-4o',
+            ])
+            ->assertOk();
+
+        $this->assertSame(2, $suite->tests()->where('code_ai_model', 'gpt-4o')->where('code_source', 'mcp')->count());
+    }
+
+    public function test_create_test_records_self_reported_ai_model(): void
+    {
+        $user = User::factory()->admin()->create();
+        $suite = $this->suite();
+
+        SorifyServer::actingAs($user)
+            ->tool(CreateTestTool::class, [
+                'suite_id' => $suite->id,
+                'name' => 'AI-written test',
+                'playwright_code' => 'await page.goto("/a");',
+                'ai_model' => 'gpt-4o',
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('tests', [
+            'test_suite_id' => $suite->id,
+            'code_source' => 'mcp',
+            'code_ai_model' => 'gpt-4o',
+        ]);
     }
 
     public function test_create_test_creates_a_test_with_code(): void
@@ -98,8 +216,8 @@ class TestsToolsTest extends TestCase
         $passed = $suite->tests()->create(['name' => 'Passing', 'playwright_code' => 'x', 'status' => 'active']);
         $failed = $suite->tests()->create(['name' => 'Failing', 'playwright_code' => 'x', 'status' => 'active']);
 
-        \App\Models\TestResult::create(['test_run_id' => $run->id, 'test_id' => $passed->id, 'status' => 'passed', 'created_at' => now()]);
-        \App\Models\TestResult::create(['test_run_id' => $run->id, 'test_id' => $failed->id, 'status' => 'failed', 'created_at' => now()]);
+        TestResult::create(['test_run_id' => $run->id, 'test_id' => $passed->id, 'status' => 'passed', 'created_at' => now()]);
+        TestResult::create(['test_run_id' => $run->id, 'test_id' => $failed->id, 'status' => 'failed', 'created_at' => now()]);
 
         SorifyServer::actingAs($user)
             ->tool(ListTestsTool::class, ['suite_id' => $suite->id, 'status' => ['passed']])
@@ -133,12 +251,12 @@ class TestsToolsTest extends TestCase
 
         for ($i = 0; $i < 12; $i++) {
             $run = $suite->testRuns()->create(['status' => 'completed']);
-            \App\Models\TestResult::create([
-                'test_run_id'   => $run->id,
-                'test_id'       => $test->id,
-                'status'        => 'failed',
+            TestResult::create([
+                'test_run_id' => $run->id,
+                'test_id' => $test->id,
+                'status' => 'failed',
                 'error_message' => "boom {$i}",
-                'created_at'    => now()->addSeconds($i),
+                'created_at' => now()->addSeconds($i),
             ]);
         }
 

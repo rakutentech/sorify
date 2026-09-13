@@ -16,6 +16,7 @@
         "laravel/socialite": "^5.30",
         "laravel/tinker": "^3.0",
         "opcodesio/log-viewer": "^3.24",
+        "openai-php/laravel": "^0.20.0",
         "tightenco/ziggy": "^2.6"
     },
     "require-dev": {

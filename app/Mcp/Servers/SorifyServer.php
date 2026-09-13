@@ -2,6 +2,10 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\Agent\BrowserMapTool;
+use App\Mcp\Tools\Agent\FetchUrlTool;
+use App\Mcp\Tools\Agent\GetAgentConversationTool;
+use App\Mcp\Tools\Agent\ListAgentConversationsTool;
 use App\Mcp\Tools\Runs\CancelRunTool;
 use App\Mcp\Tools\Runs\DeleteRunTool;
 use App\Mcp\Tools\Runs\GetRunStatusTool;
@@ -86,5 +90,11 @@ class SorifyServer extends Server
 
         ListScreenshotsTool::class,
         GetScreenshotTool::class,
+
+        FetchUrlTool::class,
+        BrowserMapTool::class,
+
+        ListAgentConversationsTool::class,
+        GetAgentConversationTool::class,
     ];
 }

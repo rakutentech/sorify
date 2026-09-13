@@ -1,28 +1,59 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
+import { useForm, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { computed, ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Avatar } from '@/Components/ui';
-import { UserCircle, Upload, KeyRound, Lock, User, Check } from '@lucide/vue';
+import AgentProfiles from '@/Components/Agent/AgentProfiles.vue';
+import { UserCircle, Upload, KeyRound, Lock, User, Check, Bot } from '@lucide/vue';
 
 const { t } = useI18n();
 
 const props = defineProps({
     user: Object,
+    agentProfiles: { type: Array, default: () => [] },
 });
 
 // Section navigation. Selecting an item shows only its card.
 const sections = computed(() => [
     { id: 'avatar', label: t('profile.avatar'), icon: UserCircle },
     { id: 'account', label: t('profile.account'), icon: User },
+    { id: 'agents', label: t('agent.profiles.navTitle'), icon: Bot },
     { id: 'password', label: hasPassword.value ? t('profile.changePassword') : t('profile.setPassword'), icon: KeyRound },
 ]);
 
-const activeSection = ref('avatar');
+const activeSection = ref(
+    ['avatar', 'account', 'agents', 'password'].includes(new URLSearchParams(window.location.search).get('section'))
+        ? new URLSearchParams(window.location.search).get('section')
+        : 'avatar',
+);
 
 function select(id) {
+    if (activeSection.value === id) return;
+
     activeSection.value = id;
+    syncSectionQueryParam();
+}
+
+// Mirror the open section into the URL query (?section=agents) so it can be
+// deep-linked and shared (the agent drawer's settings button uses this).
+// preserveState keeps form state intact; replace avoids polluting history.
+function syncSectionQueryParam() {
+    const params = new URLSearchParams(window.location.search);
+
+    if (activeSection.value && activeSection.value !== 'avatar') {
+        params.set('section', activeSection.value);
+    } else {
+        params.delete('section');
+    }
+
+    const query = params.toString();
+
+    router.get(
+        window.location.pathname + (query ? `?${query}` : ''),
+        {},
+        { preserveState: true, preserveScroll: true, replace: true },
+    );
 }
 
 function roleOf(user) {
@@ -174,6 +205,11 @@ function removeAvatar() {
                                 </Button>
                             </form>
                         </Card>
+                    </div>
+
+                    <!-- AI Agent Profiles -->
+                    <div v-if="activeSection === 'agents'" data-section="agents">
+                        <AgentProfiles :profiles="agentProfiles" />
                     </div>
 
                     <!-- Change / Set Password -->

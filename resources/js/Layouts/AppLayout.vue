@@ -1,14 +1,15 @@
 <script setup>
-import { computed, ref, onBeforeUnmount } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { usePage, Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
 import { IconButton, Alert, LanguageSwitcher, Avatar } from '@/Components/ui';
 import AdminMenu from '@/Components/AdminMenu.vue';
+import AgentDrawer from '@/Components/Agent/AgentDrawer.vue';
 import {
     Activity, FolderKanban, Star, BookOpen,
     ShieldCheck, ScrollText, ExternalLink, ChevronDown, Sun, Moon,
-    UserCircle, LogOut, CircleCheck, Info, Workflow, Cpu,
+    UserCircle, LogOut, CircleCheck, Info, Workflow, Cpu, Bot,
 } from '@lucide/vue';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
@@ -17,6 +18,24 @@ const page = usePage();
 const flash = computed(() => page.props.flash ?? {});
 const { theme, toggleTheme } = useTheme();
 const user = computed(() => page.props.auth?.user ?? null);
+
+// AI agent drawer — available from every page for signed-in users.
+// Whether it was open is persisted (sessionStorage, written by AgentDrawer)
+// so a page refresh reopens it on the same chat instead of resetting to the
+// conversation list.
+const showAgentDrawer = ref(false);
+
+onMounted(() => {
+    if (!user.value) return;
+
+    try {
+        const saved = JSON.parse(sessionStorage.getItem('sorify_agent_drawer') ?? 'null');
+
+        if (saved?.open) showAgentDrawer.value = true;
+    } catch {
+        // corrupt storage — start fresh
+    }
+});
 
 const navLinks = computed(() => [
     { label: t('nav.feed'), href: '/sorify/feed', icon: Activity, accent: 'var(--md-ext-color-success)' },
@@ -65,7 +84,10 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
 </script>
 
 <template>
-    <div class="min-h-screen bg-[var(--md-sys-color-surface)] text-[var(--md-sys-color-on-surface)] flex flex-col">
+    <div
+        class="min-h-screen bg-[var(--md-sys-color-surface)] text-[var(--md-sys-color-on-surface)] flex flex-col transition-[padding] duration-200 ease-out"
+        :class="showAgentDrawer ? 'lg:pr-[36rem]' : ''"
+    >
         <!-- Top App Bar -->
         <nav class="bg-[var(--md-sys-color-surface-container)] flex-shrink-0">
             <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,6 +139,18 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
 
                     <!-- Right side -->
                     <div class="flex items-center gap-3">
+                        <!-- AI agent -->
+                        <button
+                            v-if="user"
+                            type="button"
+                            class="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors bg-[var(--md-sys-color-tertiary-container)] text-[var(--md-sys-color-on-tertiary-container)] hover:brightness-90 flex-shrink-0"
+                            :title="t('agent.open')"
+                            @click="showAgentDrawer = true"
+                        >
+                            <Bot :size="16" class="flex-shrink-0" />
+                            {{ t('agent.open') }}
+                        </button>
+
                         <!-- User nav -->
                         <div v-if="user" ref="userMenuRef" class="relative">
                             <button
@@ -208,6 +242,16 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
 
                 <AdminMenu v-if="adminLinks.length" :links="adminLinks" />
 
+                <button
+                    v-if="user"
+                    type="button"
+                    class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors flex items-center gap-1.5 flex-shrink-0 bg-[var(--md-sys-color-tertiary-container)] text-[var(--md-sys-color-on-tertiary-container)] hover:brightness-90"
+                    @click="showAgentDrawer = true"
+                >
+                    <Bot :size="16" class="flex-shrink-0" />
+                    {{ t('agent.open') }}
+                </button>
+
                 <LanguageSwitcher />
             </div>
         </nav>
@@ -226,5 +270,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
         <main class="flex-1 min-h-0 max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex flex-col">
             <slot />
         </main>
+
+        <!-- AI agent drawer -->
+        <AgentDrawer :show="showAgentDrawer" @close="showAgentDrawer = false" />
     </div>
 </template>

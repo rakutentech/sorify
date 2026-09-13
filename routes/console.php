@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('sorify:run-scheduled-suites')->everyMinute()->withoutOverlapping();
 Schedule::command('sorify:flush-notification-digests')->everyMinute()->withoutOverlapping();
 Schedule::command('sorify:prune-screenshots')->daily();
+Schedule::command('sorify:prune-agent-chats')->daily();

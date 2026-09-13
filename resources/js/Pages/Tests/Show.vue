@@ -9,7 +9,7 @@ import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
 import { Card, Chip, Button, TextField, Autocomplete, Breadcrumb, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination, MarkdownRenderer } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
-import { FlaskConical, Copy, LoaderCircle, Trash2, Play, CircleAlert, X, ChevronRight, ArrowLeft, ArrowRight, History, Code, Activity } from '@lucide/vue';
+import { FlaskConical, Copy, LoaderCircle, Trash2, Play, CircleAlert, X, ChevronRight, ArrowLeft, ArrowRight, History, Code, Activity, Bot } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -48,6 +48,16 @@ const codeForm = useForm({
 });
 
 const codeEditable = ref(false);
+
+// Attribution of the current code: which surface last wrote it, with the
+// AI model name when known.
+const codeSourceLabel = computed(() => {
+    if (props.test.code_source === 'agent') return t('testShow.sourceAgent');
+    if (props.test.code_source === 'mcp') return t('testShow.sourceMcp');
+    if (props.test.code_source === 'manual') return t('testShow.sourceManual');
+
+    return '';
+});
 const codeSaved = ref(false);
 
 function saveCode() {
@@ -278,6 +288,18 @@ function onHistoryKeydown(e) {
                 <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
                     <Code :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
                     {{ t('testShow.playwrightCode') }}
+                    <span
+                        v-if="test.code_ai_model"
+                        class="inline-flex items-center gap-1 md-label-small font-mono text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]"
+                        :title="t('testShow.codeByTooltip')"
+                    >
+                        <Bot :size="12" class="flex-shrink-0" />
+                        {{ test.code_ai_model }} · {{ codeSourceLabel }}
+                    </span>
+                    <span
+                        v-else-if="test.code_source"
+                        class="md-label-small text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-high)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]"
+                    >{{ codeSourceLabel }}</span>
                 </h2>
                 <div class="flex items-center gap-2">
                     <span v-if="codeSaved" class="md-label-small text-[var(--md-ext-color-success)]">{{ t('testShow.saved') }}</span>
@@ -353,6 +375,7 @@ function onHistoryKeydown(e) {
                         <tr class="bg-[var(--md-sys-color-surface-container-low)]">
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colVersion') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colSource') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colAiModel') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colSavedBy') }}</th>
                             <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colDate') }}</th>
                         </tr>
@@ -377,11 +400,17 @@ function onHistoryKeydown(e) {
                                     </span>
                                 </td>
                                 <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.source }}</td>
+                                <td class="px-5 py-3 md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)]">
+                                    <span v-if="version.ai_model" class="inline-flex items-center gap-1 text-[var(--md-sys-color-on-tertiary-container)]">
+                                        <Bot :size="12" class="flex-shrink-0" />{{ version.ai_model }}
+                                    </span>
+                                    <template v-else>—</template>
+                                </td>
                                 <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.created_by ?? '—' }}</td>
                                 <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(version.created_at) }}</td>
                             </tr>
                             <tr v-if="isVersionExpanded(version.id)">
-                                <td colspan="4" class="px-5 pb-5 bg-[var(--md-sys-color-surface-container-lowest)]">
+                                <td colspan="5" class="px-5 pb-5 bg-[var(--md-sys-color-surface-container-lowest)]">
                                     <div class="flex items-center justify-end gap-2 mt-3 mb-3">
                                         <CopyButton :value="version.playwright_code" :label="t('testShow.copyCode')" />
                                         <Button

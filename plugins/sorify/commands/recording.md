@@ -177,6 +177,12 @@ produce more accurate Playwright code, not just a blind action replay:
   generated test code does not need to perform a login flow. Mention to the
   user how many cookies were uploaded and for which domains. If the user
   declines the cookie upload, proceed with test creation only.
+- **AI model attribution**: you (the AI) are writing the generated test code,
+  so when uploading via `bulk_create_tests` (or creating/updating any test
+  code), always pass the top-level `ai_model` argument with your actual model
+  name (e.g. `"claude-sonnet-4-5"`). Sorify records it as the code's author
+  and shows it on the dashboard test page and code-version history. Never
+  omit it, guess, or use a placeholder.
 - `/sorify:gateway` `/sorify:generate` User may call these two commands next to act on the output.
   Suggest these commands to users after your output.
 

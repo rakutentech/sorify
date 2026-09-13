@@ -438,7 +438,8 @@
         "emailRecipientsAdd": "受信者を追加",
         "emailRecipientsMembersOnly": "受信者として追加できるのはスイートメンバーのみです。",
         "scheduleTestsDisabledHint": "無効なテストは再度有効化されるまでスキップされます。",
-        "regenerateWebhookNotInvalidated": "無効化されず"
+        "regenerateWebhookNotInvalidated": "無効化されず",
+        "codeByTooltip": "このAIモデルが書いたコード"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · レビュー",
@@ -709,7 +710,12 @@
         "duplicating": "複製中...",
         "confirmDuplicate": "テスト「{name}」を複製しますか？同じスイートにコピーが作成されます。",
         "duplicatePromptLabel": "新しいテスト名（任意）",
-        "duplicatePromptPlaceholder": "ログインフローテスト (copy)"
+        "duplicatePromptPlaceholder": "ログインフローテスト (copy)",
+        "codeByTooltip": "現在のPlaywrightコードのAI帰属情報",
+        "sourceManual": "手動",
+        "sourceMcp": "MCP / API",
+        "sourceAgent": "マイAIエージェント",
+        "colAiModel": "AIモデル"
     },
     "profile": {
         "title": "プロフィール",
@@ -775,7 +781,8 @@
         "showMore": "もっと見る",
         "showLess": "折りたたむ",
         "sortAscending": "昇順で並べ替え",
-        "sortDescending": "降順で並べ替え"
+        "sortDescending": "降順で並べ替え",
+        "close": "閉じる"
     },
     "adminGithubApps": {
         "pageTitle": "GitHub アプリ — 管理",
@@ -882,6 +889,92 @@
             "gvisor": "gVisor ランタイム",
             "root_daemon": "デーモン接続",
             "smoke": "スモーク実行"
+        }
+    },
+    "agent": {
+        "open": "マイAIエージェント",
+        "chat": {
+            "title": "マイAIエージェント",
+            "model": "モデル",
+            "loading": "会話を読み込み中...",
+            "emptyTitle": "AI QAエージェント",
+            "emptyBody": "サイトのクロール、Playwright回帰テストの作成、実行のトリガー、結果のレポートなどをエージェントに依頼できます。あなたの権限でSorifyのツールを使用します。",
+            "placeholder": "エージェントに依頼...",
+            "send": "送信",
+            "stop": "停止",
+            "back": "会話一覧に戻る",
+            "delete": "会話を削除",
+            "confirmDelete": "この会話とメッセージを削除しますか？",
+            "suggestionCrawl": "{url} をクロールして主要フローの回帰テストを作成して",
+            "suggestionReview": "このスイートのテストをレビューして改善案を提案して",
+            "suggestionRun": "実行をトリガーして結果をまとめて",
+            "modelsError": "モデル一覧を読み込めませんでした: {error}",
+            "toolRunning": "実行中...",
+            "toolArguments": "引数",
+            "toolResult": "結果",
+            "openSettings": "AIエージェント設定",
+            "mcpHandoff": "MCP経由でローカルのコーディングエージェントにこの会話を続けさせる",
+            "copyPrompt": "MCPプロンプトをコピー"
+        },
+        "list": {
+            "recent": "最近の会話",
+            "newChat": "新しいチャット",
+            "loading": "会話一覧を読み込み中...",
+            "empty": "まだ会話がありません。新しいチャットを始めましょう！",
+            "noProfiles": "まずエージェントプロファイルが必要です。",
+            "goToProfiles": "プロファイルページで作成してください。"
+        },
+        "newChat": {
+            "profile": "エージェントプロファイル",
+            "pageIs": "ページ: {page} ({url}) から開始",
+            "context": "エージェントへのページコンテキスト",
+            "contextPlaceholder": "現在のページに関するコンテキスト...",
+            "contextHint": "チャット開始前に編集できます。エージェントに背景情報として送信されます。",
+            "defaultContext": "ユーザーはページ「{page}」({url}) を表示しています。",
+            "start": "チャットを開始",
+            "model": "モデル",
+            "modelHint": "プロファイルのエンドポイントから取得。チャットヘッダーで後から変更することもできます。"
+        },
+        "profiles": {
+            "navTitle": "AIエージェント",
+            "title": "AIエージェントプロファイル",
+            "hint": "AIエージェントが使用するOpenAI互換エンドポイントです。複数作成できます (例: OpenAI用と社内vLLM用)。",
+            "add": "プロファイルを追加",
+            "newProfile": "新しいプロファイル",
+            "editProfile": "プロファイルを編集",
+            "name": "名前",
+            "namePlaceholder": "例: Work OpenAI",
+            "baseUrl": "ベースURL",
+            "baseUrlPlaceholder": "https://api.openai.com または http://localhost:11434/v1",
+            "baseUrlHint": "OpenAI互換のエンドポイントなら何でも利用できます (OpenAI, Ollama, vLLM, OpenRouter など)。",
+            "apiToken": "APIトークン",
+            "apiTokenPlaceholder": "sk-...",
+            "tokenConfigured": "トークン保存済み - 空欄のままなら変更されません",
+            "apiTokenHint": "暗号化して保存され、ブラウザには返されません。",
+            "proxyUrl": "プロキシURL",
+            "proxyUrlPlaceholder": "http://proxy.example.com:8080",
+            "proxyUrlHint": "ベースURLへのリクエストに使用するHTTPプロキシ (任意)。",
+            "defaultModel": "デフォルトモデル",
+            "defaultModelPlaceholder": "例: gpt-4o",
+            "defaultModelHint": "任意。チャット内でもモデルを選択できます。",
+            "systemPrompt": "追加システムプロンプト",
+            "systemPromptPlaceholder": "エージェントへの追加指示...",
+            "systemPromptHint": "このプロファイルのチャットで内蔵のシステムプロンプトに追記されます。",
+            "retention": "チャット保持期間",
+            "retentionDays": "{count}日間保持",
+            "retentionHint": "期限を過ぎたターンは毎日削除されます。",
+            "testOk": "接続成功 ({latency} ms) - {count} 個のモデルが利用可能。",
+            "testFailed": "接続に失敗しました",
+            "save": "保存",
+            "testing": "テスト中...",
+            "testConnection": "接続テスト",
+            "edit": "編集",
+            "delete": "削除",
+            "confirmDelete": "エージェントプロファイル「{name}」を削除しますか？",
+            "empty": "エージェントプロファイルがまだありません。追加してAIエージェントを使い始めましょう。",
+            "refreshModels": "エンドポイントからモデル一覧を再取得",
+            "notSet": "未設定",
+            "privacyNote": "すべてのチャットは非公開です。会話とそのツール実行の履歴は、あなたにのみ表示されます。他のスイートメンバーや管理者には見えません。"
         }
     }
 }

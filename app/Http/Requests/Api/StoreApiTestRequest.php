@@ -14,11 +14,12 @@ class StoreApiTestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'            => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'playwright_code' => 'required|string|min:10',
-            'description'     => 'nullable|string',
-            'uploaded_by'     => 'nullable|string|max:255|exists:users,email',
-            'status'          => 'nullable|in:active,disabled',
+            'description' => 'nullable|string',
+            'uploaded_by' => 'nullable|string|max:255|exists:users,email',
+            'status' => 'nullable|in:active,disabled',
+            'ai_model' => 'nullable|string|max:255',
         ];
     }
 }

@@ -7,16 +7,25 @@ use App\Models\TestCodeVersion;
 
 class TestCodeVersionService
 {
-    public function updateCode(Test $test, string $newCode, string $source, ?int $userId): Test
+    /**
+     * Replace a test's Playwright code.
+     *
+     * The archived version row keeps the attribution of the code being
+     * replaced (its ai_model = the model that WROTE that code, captured
+     * from the test row before it is overwritten), while the test row
+     * receives the attribution of the incoming code.
+     */
+    public function updateCode(Test $test, string $newCode, string $source, ?int $userId, ?string $aiModel = null): Test
     {
         if ($test->playwright_code !== null && $test->playwright_code !== $newCode) {
             $nextVersion = ($test->codeVersions()->max('version_number') ?? 0) + 1;
 
             $test->codeVersions()->create([
-                'version_number'  => $nextVersion,
+                'version_number' => $nextVersion,
                 'playwright_code' => $test->playwright_code,
-                'source'          => $source,
-                'created_by'      => $userId,
+                'ai_model' => $test->code_ai_model,
+                'source' => $source,
+                'created_by' => $userId,
             ]);
 
             $this->prune($test);
@@ -24,7 +33,9 @@ class TestCodeVersionService
 
         $test->update([
             'playwright_code' => $newCode,
-            'status'          => 'active',
+            'code_source' => $source,
+            'code_ai_model' => $aiModel,
+            'status' => 'active',
         ]);
 
         return $test;
@@ -32,7 +43,9 @@ class TestCodeVersionService
 
     public function restore(Test $test, TestCodeVersion $version, string $source, ?int $userId): Test
     {
-        return $this->updateCode($test, $version->playwright_code, $source, $userId);
+        // Restoring brings back the code AND the attribution of whoever
+        // originally wrote it.
+        return $this->updateCode($test, $version->playwright_code, $source, $userId, $version->ai_model);
     }
 
     private function prune(Test $test): void
