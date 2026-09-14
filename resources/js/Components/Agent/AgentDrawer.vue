@@ -7,6 +7,7 @@ import {
     Send, Settings2, Square, Trash2, X,
 } from '@lucide/vue';
 import ToolCallChip from './ToolCallChip.vue';
+import RunProgressCard from './RunProgressCard.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import { useAgentContext } from '@/composables/useAgentContext';
 import { formatRelativeTime } from '@/utils/date';
@@ -43,7 +44,20 @@ const streaming = ref(false);
 const deletingId = ref(null);
 const scrollContainer = ref(null);
 
+// Chat mode: `agent` (default, full tool-calling) or `ask` (plain chat,
+// no tools — faster, cheaper, zero side effects).
+const mode = ref('agent');
+
+// "Thinking…" state driven by the backend's `step` SSE events, shown
+// while the LLM round-trip is in flight and no text is streaming yet.
+const thinking = ref(false);
+const stepInfo = ref(null);
+
 let abortController = null;
+
+// Run ids already tracked by a progress card in this conversation, so
+// repeated `get_run_status` polls don't spawn duplicate cards.
+const trackedRunIds = new Set();
 
 // ── Session persistence ──────────────────────────────────────────────────────
 // Keep the drawer's state (open + current chat) across page refreshes.
@@ -63,6 +77,7 @@ function persistState() {
         open: props.show,
         view: view.value,
         conversationId: conversation.value?.id ?? null,
+        mode: mode.value,
     };
 
     if (!state.open && !state.conversationId) {
@@ -83,6 +98,10 @@ watch([() => props.show, view, () => conversation.value?.id], () => {
 
 onMounted(() => {
     const saved = readSavedState();
+
+    if (saved.mode === 'ask' || saved.mode === 'agent') {
+        mode.value = saved.mode;
+    }
 
     if (!saved.conversationId) return;
 
@@ -256,6 +275,7 @@ async function createConversation() {
 
     conversation.value = data.conversation;
     messages.value = [];
+    trackedRunIds.clear();
     view.value = 'chat';
 
     // Models were already loaded for the picked profile in the new-chat
@@ -274,6 +294,7 @@ async function openConversation(id) {
         const data = await response.json();
         conversation.value = data.conversation;
         newChatForm.value.profile_id = data.conversation.profile_id;
+        trackedRunIds.clear();
         messages.value = groupMessages(data.messages ?? []);
         view.value = 'chat';
         loadModels(data.conversation.profile_id);
@@ -335,6 +356,7 @@ function groupMessages(rows) {
                     result: null,
                     isError: false,
                 })),
+                runIds: [],
             });
         } else if (row.role === 'tool') {
             const parent = [...grouped].reverse().find(
@@ -345,6 +367,12 @@ function groupMessages(rows) {
             if (parent) {
                 const call = parent.toolCalls.find((c) => c.id === row.tool_call_id);
                 call.result = row.content ?? '';
+
+                // Re-attach run progress cards for runs mentioned in past
+                // turns (e.g. a run triggered earlier in this conversation).
+                const runId = extractRunId(row.name, row.content);
+
+                if (runId !== null) trackRun(runId, parent);
             }
         }
     }
@@ -364,12 +392,38 @@ function safeParse(json) {
     }
 }
 
+/**
+ * Tools whose result is a run payload — used to attach a live progress
+ * card to the message that produced it.
+ */
+const RUN_TOOLS = ['trigger_run', 'get_run_status', 'get_run'];
+
+function extractRunId(name, result) {
+    if (!RUN_TOOLS.includes(name) || typeof result !== 'string') return null;
+
+    try {
+        const parsed = JSON.parse(result);
+        const id = parsed?.run_id;
+
+        return Number.isInteger(id) ? id : null;
+    } catch {
+        return null;
+    }
+}
+
+function trackRun(runId, message) {
+    if (trackedRunIds.has(runId)) return;
+
+    trackedRunIds.add(runId);
+    message.runIds.push(runId);
+}
+
 function currentAssistant() {
     const last = messages.value[messages.value.length - 1];
 
     if (last && last.role === 'assistant' && last.streaming) return last;
 
-    const message = { role: 'assistant', content: '', toolCalls: [], streaming: true };
+    const message = { role: 'assistant', content: '', toolCalls: [], runIds: [], streaming: true };
     messages.value.push(message);
 
     return message;
@@ -377,14 +431,21 @@ function currentAssistant() {
 
 function handleEvent(event, data) {
     if (event === 'delta') {
+        thinking.value = false;
         currentAssistant().content += data.text;
+    } else if (event === 'step') {
+        // A new LLM round-trip is starting — show the thinking state.
+        thinking.value = true;
+        stepInfo.value = data;
     } else if (event === 'tool_start') {
+        thinking.value = false;
         currentAssistant().toolCalls.push({
             id: data.id,
             name: data.name,
             arguments: data.arguments ?? {},
             result: null,
             isError: false,
+            startedAt: Date.now(),
         });
     } else if (event === 'tool_result') {
         const assistant = currentAssistant();
@@ -394,9 +455,15 @@ function handleEvent(event, data) {
             call.result = data.result;
             call.isError = !!data.is_error;
         }
+
+        const runId = extractRunId(data.name, data.result);
+
+        if (runId !== null) trackRun(runId, assistant);
     } else if (event === 'done') {
+        thinking.value = false;
         currentAssistant().streaming = false;
     } else if (event === 'error') {
+        thinking.value = false;
         currentAssistant().streaming = false;
         messages.value.push({ role: 'error', content: data.message, toolCalls: [] });
     }
@@ -412,6 +479,8 @@ async function send() {
     messages.value.push({ role: 'user', content: message, toolCalls: [] });
 
     streaming.value = true;
+    thinking.value = false;
+    stepInfo.value = null;
     abortController = new AbortController();
 
     try {
@@ -422,7 +491,7 @@ async function send() {
                 'Accept': 'text/event-stream',
                 'X-XSRF-TOKEN': csrfToken(),
             },
-            body: JSON.stringify({ message, model: selectedModel.value || null }),
+            body: JSON.stringify({ message, model: selectedModel.value || null, mode: mode.value }),
             signal: abortController.signal,
         });
 
@@ -472,6 +541,7 @@ async function send() {
         }
     } finally {
         streaming.value = false;
+        thinking.value = false;
         abortController = null;
         refreshConversationTitle();
     }
@@ -759,41 +829,84 @@ watch(messages, () => {
                             <div v-if="message.toolCalls.length" class="w-full max-w-[92%] space-y-1.5 mt-1.5">
                                 <ToolCallChip v-for="call in message.toolCalls" :key="call.id" :tool-call="call" />
                             </div>
+                            <div v-if="message.runIds?.length" class="w-full max-w-[92%] space-y-1.5 mt-1.5">
+                                <RunProgressCard v-for="id in message.runIds" :key="id" :run-id="id" />
+                            </div>
                         </div>
                     </template>
+
+                    <!-- Thinking indicator: shown while an LLM round-trip is
+                         in flight and no text is streaming yet -->
+                    <div v-if="streaming && thinking" class="flex items-center gap-2.5 px-1 py-1">
+                        <span class="flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-pulse"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-pulse [animation-delay:150ms]"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-pulse [animation-delay:300ms]"></span>
+                        </span>
+                        <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('agent.chat.thinking') }}</span>
+                        <span v-if="stepInfo?.max_steps" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">
+                            {{ t('agent.chat.stepCount', { step: stepInfo.step, max: stepInfo.max_steps }) }}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Input -->
-                <div class="flex items-end gap-2 px-4 py-3 border-t border-[var(--md-sys-color-outline-variant)] flex-shrink-0">
-                    <textarea
-                        ref="inputEl"
-                        v-model="input"
-                        rows="1"
-                        class="flex-1 md-body-medium bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-extra-large)] px-3.5 py-3 outline-none focus:ring-2 ring-[var(--md-sys-color-primary)] resize-none min-h-[3rem] max-h-40 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-                        :placeholder="t('agent.chat.placeholder')"
-                        :disabled="streaming"
-                        @keydown.enter.exact.prevent="send"
-                    />
-                    <button
-                        v-if="streaming"
-                        class="p-2.5 rounded-full bg-[var(--md-sys-color-error-container)] text-[var(--md-sys-color-on-error-container)] transition-colors"
-                        :title="t('agent.chat.stop')"
-                        @click="stop"
-                    >
-                        <Square :size="16" />
-                    </button>
-                    <button
-                        v-else
-                        class="p-2.5 rounded-full transition-colors"
-                        :class="input.trim() === ''
-                            ? 'bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface-variant)] cursor-default'
-                            : 'bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)]'"
-                        :disabled="input.trim() === ''"
-                        :title="t('agent.chat.send')"
-                        @click="send"
-                    >
-                        <Send :size="16" />
-                    </button>
+                <div class="border-t border-[var(--md-sys-color-outline-variant)] flex-shrink-0">
+                    <!-- Ask / Agent mode toggle -->
+                    <div class="flex items-center gap-1 px-4 pt-2.5">
+                        <button
+                            class="md-label-small px-2.5 py-1 rounded-full transition-colors"
+                            :class="mode === 'ask'
+                                ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)]'
+                                : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-highest)]'"
+                            :title="t('agent.chat.modeAskTitle')"
+                            @click="mode = 'ask'"
+                        >
+                            {{ t('agent.chat.modeAsk') }}
+                        </button>
+                        <button
+                            class="md-label-small px-2.5 py-1 rounded-full transition-colors"
+                            :class="mode === 'agent'
+                                ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)]'
+                                : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-highest)]'"
+                            :title="t('agent.chat.modeAgentTitle')"
+                            @click="mode = 'agent'"
+                        >
+                            {{ t('agent.chat.modeAgent') }}
+                        </button>
+                    </div>
+
+                    <div class="flex items-end gap-2 px-4 py-3">
+                        <textarea
+                            ref="inputEl"
+                            v-model="input"
+                            rows="1"
+                            class="flex-1 md-body-medium bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-extra-large)] px-3.5 py-3 outline-none focus:ring-2 ring-[var(--md-sys-color-primary)] resize-none min-h-[3rem] max-h-40 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                            :placeholder="t('agent.chat.placeholder')"
+                            :disabled="streaming"
+                            @keydown.enter.exact.prevent="send"
+                        />
+                        <button
+                            v-if="streaming"
+                            class="p-2.5 rounded-full bg-[var(--md-sys-color-error-container)] text-[var(--md-sys-color-on-error-container)] transition-colors"
+                            :title="t('agent.chat.stop')"
+                            @click="stop"
+                        >
+                            <Square :size="16" />
+                        </button>
+                        <button
+                            v-else
+                            class="p-2.5 rounded-full transition-colors"
+                            :class="input.trim() === ''
+                                ? 'bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface-variant)] cursor-default'
+                                : 'bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)]'"
+                            :disabled="input.trim() === ''"
+                            :title="t('agent.chat.send')"
+                            @click="send"
+                        >
+                            <Send :size="16" />
+                        </button>
+                    </div>
                 </div>
             </template>
         </div>

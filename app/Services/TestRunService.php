@@ -259,6 +259,9 @@ class TestRunService
     {
         return [
             'status' => $run->status,
+            // Why the run is pending (e.g. waiting for pre-run integrations)
+            // or failed (e.g. a pre-run integration failed).
+            'status_note' => $run->status_note,
             'passed_count' => $run->passed_count,
             'failed_count' => $run->failed_count,
             'error_count' => $run->error_count,
