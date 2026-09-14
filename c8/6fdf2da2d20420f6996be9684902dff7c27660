@@ -1,0 +1,32 @@
+resources/js/Components/Agent/ToolCallChip.vue
+  h_f44dfe84a46cdf 2,6,14-15,18,23-54,80-86,88,91,93,101
+resources/js/Components/Agent/RunProgressCard.vue
+  h_f44dfe84a46cdf 1-163
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 917-969
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 917-969
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 25-27,38,79,81,97-106,109-115,247-254,256,259-260
+app/Services/TestRunService.php
+  h_f44dfe84a46cdf 262-264
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 917-969
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 917-969
+app/Http/Controllers/AgentConversationController.php
+  h_f44dfe84a46cdf 139,156-162
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 10,47-55,58-61,80,102-105,278,297,359,370-375,395-420,426,434,436-439,441,448,458-461,463,466,482-483,494,544,832-834,837-850,854-909
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c86fdf2da2d20420f6996be9684902dff7c27660",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
