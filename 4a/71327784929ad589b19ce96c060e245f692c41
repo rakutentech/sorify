@@ -1,0 +1,14 @@
+app/Http/Controllers/AgentConversationController.php
+  h_f44dfe84a46cdf 14-21,167-173,176
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4a71327784929ad589b19ce96c060e245f692c41",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
