@@ -22,6 +22,9 @@ use Throwable;
  * chatting user) and yielded as `tool_start` / `tool_result` events. The
  * loop repeats until the LLM produces a plain-text answer or the step budget
  * is exhausted.
+ *
+ * In `ask` mode no tools are sent, so the LLM answers in a single
+ * round-trip — plain chat, no side effects.
  */
 class AgentService
 {
@@ -32,7 +35,7 @@ class AgentService
     /**
      * Run one agent turn, yielding SSE events.
      */
-    public function chat(AgentConversation $conversation, string $message, ?string $model): Generator
+    public function chat(AgentConversation $conversation, string $message, ?string $model, string $mode = 'agent'): Generator
     {
         $profile = $conversation->profile;
 
@@ -73,8 +76,9 @@ class AgentService
             ['role' => 'user', 'content' => $message],
         ];
 
-        $toolDefinitions = $this->tools->definitions();
+        $toolDefinitions = $mode === 'ask' ? [] : $this->tools->definitions();
         $stepsLeft = (int) config('sorify.agent.max_steps', 25);
+        $step = 0;
 
         try {
             $client = $this->buildClient($profile);
@@ -90,11 +94,25 @@ class AgentService
                     return;
                 }
 
-                $stream = $client->chat()->createStreamed([
+                // Signal the client that the LLM round-trip is starting, so
+                // the UI can show a "thinking" state with the step count.
+                $step++;
+
+                yield ['event' => 'step', 'data' => [
+                    'step' => $step,
+                    'max_steps' => $mode === 'agent' ? $this->maxSteps() : null,
+                ]];
+
+                $payload = [
                     'model' => $model,
                     'messages' => $messages,
-                    'tools' => $toolDefinitions,
-                ]);
+                ];
+
+                if ($toolDefinitions !== []) {
+                    $payload['tools'] = $toolDefinitions;
+                }
+
+                $stream = $client->chat()->createStreamed($payload);
 
                 $content = '';
                 $toolCalls = [];
@@ -226,13 +244,19 @@ class AgentService
             ->withBaseUri(AgentProfile::normalizeBaseUrl($profile->base_url))
             ->withApiKey($profile->api_token);
 
+        // Always bound the HTTP call — without this, a stalled endpoint
+        // would hang the SSE chat stream forever (connect cap + a total
+        // request cap drawn from config). The proxy is additive.
+        $options = [
+            'connect_timeout' => 10,
+            'timeout' => (int) config('sorify.agent.request_timeout', 300),
+        ];
+
         if ($profile->proxy_url) {
-            $factory->withHttpClient(new GuzzleClient([
-                'proxy' => $profile->proxy_url,
-                'connect_timeout' => 10,
-                'timeout' => (int) config('sorify.agent.request_timeout', 300),
-            ]));
+            $options['proxy'] = $profile->proxy_url;
         }
+
+        $factory->withHttpClient(new GuzzleClient($options));
 
         return $factory->make();
     }

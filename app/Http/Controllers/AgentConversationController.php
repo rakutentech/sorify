@@ -136,6 +136,7 @@ class AgentConversationController extends Controller
         $validated = $request->validate([
             'message' => ['required', 'string', 'min:1', 'max:8000'],
             'model' => ['nullable', 'string', 'max:255'],
+            'mode' => ['nullable', 'string', 'in:ask,agent'],
         ]);
 
         $profile = $conversation->profile;
@@ -152,7 +153,13 @@ class AgentConversationController extends Controller
         }
 
         return response()->stream(function () use ($conversation, $validated, $model) {
-            foreach ($this->agent->chat($conversation, $validated['message'], $model) as $event) {
+            // A turn can legitimately run for minutes (up to max_steps LLM
+            // round-trips plus tool executions like browser_map), so lift
+            // the php.ini max_execution_time for this streamed response —
+            // otherwise a 30s default kills the stream mid-turn.
+            set_time_limit(0);
+
+            foreach ($this->agent->chat($conversation, $validated['message'], $model, $validated['mode'] ?? 'agent') as $event) {
                 if (connection_aborted()) {
                     break;
                 }
