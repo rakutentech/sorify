@@ -78,6 +78,8 @@ count against the VM: ~1 worker per 2 cores is a comfortable rule of thumb.
 
 - Fully self hosted, no telemetry
 - What your AI does in yolo mode is your responsibility
+- Claude Code and Codex plugin installation and MCP authentication are documented
+  in [plugins/sorify/README.md](plugins/sorify/README.md)
 - Files and folders on your system, that this system creates/requires
   - `~/.sorify`: your credentials
   - `~/.sorify-bin/`: chrome extension mcp

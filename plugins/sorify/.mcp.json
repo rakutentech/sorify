@@ -1,10 +1,13 @@
 {
-  "sorify": {
-    "type": "http",
-    "url": "${SORIFY_URL}/mcp",
-    "headersHelper": "${CLAUDE_PLUGIN_ROOT}/scripts/mcp-auth-headers.sh"
-  },
-  "sorify-recorder": {
-    "command": "${HOME}/.sorify-bin/sorify-recorder-mcp"
+  "mcpServers": {
+    "sorify": {
+      "type": "http",
+      "url": "${SORIFY_URL}/mcp",
+      "headersHelper": "${CLAUDE_PLUGIN_ROOT}/scripts/mcp-auth-headers.sh",
+      "http_headers_helper": "${PLUGIN_ROOT}/scripts/mcp-auth-headers.sh"
+    },
+    "sorify-recorder": {
+      "command": "${HOME}/.sorify-bin/sorify-recorder-mcp"
+    }
   }
 }
