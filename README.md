@@ -152,10 +152,46 @@ WITH ALL MCP CONTROLS - SUPPORTED
 
 ## AI Usage
 
-```
+### Claude Code
+
+```sh
 claude /plugin marketplace add https://github.com/rakutentech/sorify.git
-codex plugin marketplace add https://github.com/rakutentech/sorify.git
 ```
+
+Install `sorify` from that marketplace in Claude Code, then start a new
+session. The existing `/sorify:gateway`, `/sorify:generate`, and
+`/sorify:recording` commands remain available.
+
+### Codex
+
+```sh
+codex plugin marketplace add https://github.com/rakutentech/sorify.git
+codex plugin add sorify@sorify
+```
+
+Create `~/.sorify` with `SORIFY_URL`, `SORIFY_USERNAME`, and
+`SORIFY_PASSWORD`, then invoke the `$sorify:sorify-setup` skill once. It registers the
+Sorify MCP server and adds the bundled `http_headers_helper` to Codex's user
+configuration without copying the password into that configuration. Restart
+Codex and start a new thread afterward.
+
+Use the Codex skills `$sorify:sorify-gateway`, `$sorify:sorify-generate`,
+`$sorify:sorify-recording`, and `$sorify:sorify-update`, or describe the task
+naturally. The Codex-only `$sorify:sorify-setup` skill is not loaded by Claude
+Code. For a local checkout, the
+setup script can also be run directly:
+
+```sh
+plugins/sorify/scripts/setup-codex.sh
+```
+
+Verify the connection with:
+
+```sh
+codex mcp get sorify
+```
+
+The output should show a non-empty `http_headers_helper`.
 
 <p align="center">
   <img src="./sorify.svg" width="850" alt="Sorify workflow"/>
@@ -236,8 +272,11 @@ curl -fsSL https://raw.githubusercontent.com/rakutentech/sorify/master/mcp/insta
 
 **♢  3.** Start the recorder
 
-Sorify recorder should start automatically, when you launch claude/codex.
-You can check using `/mcp` → `plugin:sorify:sorify-recorder`
+Sorify recorder should start automatically when you launch Claude Code or
+Codex. In Claude Code, check `/mcp` for
+`plugin:sorify:sorify-recorder`. In Codex, start a new thread after installing
+the plugin and invoke `$sorify:sorify-recording`; it reports if the recorder MCP
+server or binary is unavailable.
 
 **If not**, then start the listener at:
 
@@ -258,6 +297,8 @@ You can check using `/mcp` → `plugin:sorify:sorify-recorder`
 ```sh
 /sorify:recording latest
 ```
+
+In Codex, use `$sorify:sorify-recording` and ask for the latest recording instead.
 
 # Quick Start
 
