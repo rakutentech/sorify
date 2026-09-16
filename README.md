@@ -155,6 +155,13 @@ WITH ALL MCP CONTROLS - SUPPORTED
 ### Claude Code
 
 ```sh
+$ cat ~/.sorify
+SORIFY_URL=http://localhost:8000/sorify
+SORIFY_USERNAME=admin@sorify.local
+SORIFY_PASSWORD=changeme
+```
+
+```sh
 claude /plugin marketplace add https://github.com/rakutentech/sorify.git
 ```
 
@@ -169,29 +176,20 @@ codex plugin marketplace add https://github.com/rakutentech/sorify.git
 codex plugin add sorify@sorify
 ```
 
-Create `~/.sorify` with `SORIFY_URL`, `SORIFY_USERNAME`, and
-`SORIFY_PASSWORD`, then invoke the `$sorify:sorify-setup` skill once. It registers the
-Sorify MCP server and adds the bundled `http_headers_helper` to Codex's user
-configuration without copying the password into that configuration. Restart
-Codex and start a new thread afterward.
+**Codex:** Invoke the `$sorify:sorify-setup` skill once.
 
-Use the Codex skills `$sorify:sorify-gateway`, `$sorify:sorify-generate`,
-`$sorify:sorify-recording`, and `$sorify:sorify-update`, or describe the task
-naturally. The Codex-only `$sorify:sorify-setup` skill is not loaded by Claude
-Code. For a local checkout, the
-setup script can also be run directly:
+Use the Codex skills
 
 ```sh
-plugins/sorify/scripts/setup-codex.sh
+$sorify:sorify-gateway
+$sorify:sorify-generate
+$sorify:sorify-recording
+$sorify:sorify-update
 ```
-
-Verify the connection with:
 
 ```sh
 codex mcp get sorify
 ```
-
-The output should show a non-empty `http_headers_helper`.
 
 <p align="center">
   <img src="./sorify.svg" width="850" alt="Sorify workflow"/>
@@ -199,13 +197,6 @@ The output should show a non-empty `http_headers_helper`.
 
 ### SKILL 1 - Sorify MCP
 
-
-```sh
-╰─$ cat ~/.sorify
-SORIFY_URL=http://localhost:8000/sorify
-SORIFY_USERNAME=admin@sorify.local
-SORIFY_PASSWORD=changeme
-```
 
 ```sh
 /sorify:gateway Create a test suite called "Awesome App"
@@ -229,17 +220,10 @@ SORIFY_PASSWORD=changeme
 /sorify:generate Scan my code and generate tests for <github.com/your/repo>
 
 # Tests from source code (path)
-/sorify:generate Scan my code and generate tests for </path/to/your/source>
+/sorify:generate Scan my code and generate tests for </path/to/your/source>, ref </path/to/your/docs>
 
 # Tests from url (remote)
 /sorify:generate Crawl site and generate tests for https://rakuten.co.jp
-
-# Tests from url (local)
-/sorify:generate Crawl site and generate tests for http://localhost:3000/my-awesome-app
-
-# Tests from requirements
-/sorify:generate Read requirements here <link to docs> <path to docs> <raw paste>
-<you got the idea...>
 ```
 
 #### OR SKILL BYO - Bring your own QA Skills
