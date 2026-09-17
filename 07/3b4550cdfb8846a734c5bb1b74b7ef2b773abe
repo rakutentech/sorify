@@ -1,0 +1,25 @@
+README.md
+  s_44bf862bd7b84b::t_57398d6f99939d 303-327
+  h_f44dfe84a46cdf 301-302,328-329
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "073b4550cdfb8846a734c5bb1b74b7ef2b773abe",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_44bf862bd7b84b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f63d19bc3ffe8y6K3zMoPq9af3",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

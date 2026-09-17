@@ -1,0 +1,219 @@
+resources/js/locales/ms.json
+  s_47453fa5c06219::t_a845046cb20f52 297
+  s_47453fa5c06219::t_03207dccccff0f 296,298-300
+  s_f905efb6446b18::t_dd372aaf4609ec 169
+app/Http/Controllers/TestSuiteController.php
+  s_61d14e515bdd9b::t_83f617e39749b7 307-312
+resources/js/Pages/TestRuns/Show.vue
+  s_61d14e515bdd9b::t_9d9fe40dd86856 7
+  s_61d14e515bdd9b::t_a59279e0adc846 503,506
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  s_47453fa5c06219::t_a845046cb20f52 85-86
+  s_47453fa5c06219::t_f813920e6d2b4a 12
+routes/console.php
+  s_47453fa5c06219::t_85651280565abf 12
+resources/js/locales/ja.json
+  s_47453fa5c06219::t_a845046cb20f52 297
+  s_47453fa5c06219::t_03207dccccff0f 296,298-300
+  s_f905efb6446b18::t_dd372aaf4609ec 169
+app/Services/TestSuiteDuplicationService.php
+  s_47453fa5c06219::t_26a5bfeb9623f6 45-46
+app/Http/Requests/StoreTestSuiteRequest.php
+  s_47453fa5c06219::t_202aacd973471f 5
+  s_47453fa5c06219::t_2d1ca1afc6c0a8 70-71
+app/Services/EmailNotificationService.php
+  s_47453fa5c06219::t_d75c3bd63167c9 27,37-44,47,70-85,100
+  s_47453fa5c06219::t_9275d8ca98c9ce 86-87,104-114,121-129
+  s_47453fa5c06219::t_f6182d43bb9ef4 12
+  s_47453fa5c06219::t_9a23d0f80e486d 6,11,28-30,46,60,88-98
+  s_47453fa5c06219::t_5f513ad5c32f37 99
+  s_47453fa5c06219::t_aad375aabaf9c5 101-103
+  s_47453fa5c06219::t_90e131f87797b2 149,155-156
+resources/js/Pages/Bookmarks/Index.vue
+  s_61d14e515bdd9b::t_4cacdb1ed19548 127
+database/migrations/2026_09_09_000001_add_notification_cooldown_to_test_suites_table.php
+  s_47453fa5c06219::t_3bd14a4d0a1cf3 1-30
+resources/js/Components/ui/TestName.vue
+  s_61d14e515bdd9b::t_46c405715a939d 9,12
+  s_61d14e515bdd9b::t_35e161c6b7b920 11
+  s_61d14e515bdd9b::t_0dc3072d9f7c2a 1-8,10,13
+resources/js/locales/zh-CN.json
+  s_47453fa5c06219::t_03207dccccff0f 296,298-300
+  s_f905efb6446b18::t_dd372aaf4609ec 169
+  s_47453fa5c06219::t_a845046cb20f52 297
+resources/js/Pages/TestSuites/Review.vue
+  s_f905efb6446b18::t_b13be445ef30a5 91-92
+  s_61d14e515bdd9b::t_f93231db6e95cc 256
+  s_61d14e515bdd9b::t_00141e1b4aed49 8
+app/Mail/RunDigestEmail.php
+  s_47453fa5c06219::t_d9e90dfb63fffb 1-7,9-43,45-76
+  s_cbc7eb43345cfa::t_9ca312693172f1 8
+  s_cbc7eb43345cfa::t_01846ee4fd024c 44
+resources/js/Components/ui/SuiteName.vue
+  s_61d14e515bdd9b::t_07d652d9ba079f 4,11,13,16
+  s_61d14e515bdd9b::t_4a54aacf40a291 12,15
+  s_61d14e515bdd9b::t_ad50b10f58c104 14
+resources/js/Components/ui/index.js
+  s_61d14e515bdd9b::t_d47a3c0c6185c6 11
+resources/js/Components/ui/RunPill.vue
+  s_f905efb6446b18::t_87527378afbd39 16
+  s_f905efb6446b18::t_ad2d3939042125 3-4,15
+  s_f905efb6446b18::t_39926adfe734fe 28,30-37
+resources/views/emails/run-completed.blade.php
+  s_cbc7eb43345cfa::t_b450f886d01cfd 31-33
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  s_47453fa5c06219::t_a793baa563ae6a 11
+  s_47453fa5c06219::t_a845046cb20f52 83-84
+resources/js/Components/ui/SettingBadge.vue
+  s_61d14e515bdd9b::t_3f5634b5396e20 10
+  s_61d14e515bdd9b::t_eff12eacf0c498 44,48,58,62
+  s_61d14e515bdd9b::t_063cf40aa6ac10 2,20-38,49,61,63-69
+app/Http/Requests/Api/StoreSuiteRequest.php
+  s_47453fa5c06219::t_534a1a4d553b6a 6
+  s_47453fa5c06219::t_d71a54a27171c7 73-74
+tests/Feature/NotificationCooldownTest.php
+  s_47453fa5c06219::t_5b4a92d1a4a538 356,360
+  s_47453fa5c06219::t_00e119363015d1 6
+  s_47453fa5c06219::t_e01613ba96c7d9 157
+  s_47453fa5c06219::t_06890a552835d9 27,30,39-51
+  s_47453fa5c06219::t_e316ae3e3f781a 31
+  s_47453fa5c06219::t_04642a9ee4541e 350
+  s_cbc7eb43345cfa::t_24b9a4d24399d2 9
+  s_47453fa5c06219::t_1c55454aa1dd8c 1-5,7-8,10-13,15-26,28-29,38,52-156,158-293,517-596,603-608,610-615,785
+  s_cbc7eb43345cfa::t_b894688364db5b 616-784
+  s_47453fa5c06219::t_29ce838cdba4b8 391
+  s_47453fa5c06219::t_77251d68645ef9 362
+  s_47453fa5c06219::t_f6b817ec202866 14,609
+  s_47453fa5c06219::t_f0e740dbe302cb 294-349,351-355,357-359,361,363-390,392-420
+  s_47453fa5c06219::t_34130af98703be 421-516
+  s_47453fa5c06219::t_a9c52063a6cb9c 597-602
+  s_47453fa5c06219::t_b2173d71b74b84 32-37
+app/Mail/RunCompletedEmail.php
+  s_cbc7eb43345cfa::t_bd882c73faf382 62
+  s_cbc7eb43345cfa::t_91b1cab7e49178 9
+resources/js/locales/en.json
+  s_47453fa5c06219::t_03207dccccff0f 296,298-300
+  s_47453fa5c06219::t_a845046cb20f52 297
+  s_f905efb6446b18::t_dd372aaf4609ec 169
+app/Services/TeamsNotificationService.php
+  s_47453fa5c06219::t_79b0ddfb57c756 97,100,294-356,358-378
+  s_6c5bf42679d8ef::t_6b34ba27c41ce6 98,101-102,293
+  s_47453fa5c06219::t_7b97514d2e64e0 38-49,52,75-83,99
+  s_cbc7eb43345cfa::t_c2e867963eb49b 266-269
+  s_47453fa5c06219::t_ff850cdee970e9 103-122,130,144,153
+  s_47453fa5c06219::t_79be4656b661f2 10-11,19-20,51,65,84-96
+  s_cbc7eb43345cfa::t_549023fa273b69 169-196
+  s_cbc7eb43345cfa::t_453537eac86ca1 393
+  s_cbc7eb43345cfa::t_020af08eb6bbb2 357
+  s_cbc7eb43345cfa::t_5840358281caa2 206
+  s_cbc7eb43345cfa::t_d540d361d0e067 394-407
+app/Support/NotificationCooldown.php
+  s_47453fa5c06219::t_79017f665d9e4f 26
+  s_47453fa5c06219::t_f6182d43bb9ef4 6
+  s_47453fa5c06219::t_05bafc26002291 5,11-12,15-19,41,48-52,54-58,60,131-132,134,140-141,160-161,169
+  s_47453fa5c06219::t_468e5314e35d7d 1-4,7-10,13-14,20-25,27,33-40,59,61-62,117-120,124,126-130,135-139,142-144,146-159,162-167,170-173
+  s_47453fa5c06219::t_63fd5d2abe1775 28-32,42-47,53,121-123,125,133,145,168
+  s_cbc7eb43345cfa::t_f0953d2ec46a1c 63-116
+app/Mail/RunStartedEmail.php
+  s_cbc7eb43345cfa::t_4d39b3e813c5aa 37
+  s_cbc7eb43345cfa::t_bb08e6a2e6a0c8 7
+app/Models/TestSuite.php
+  s_47453fa5c06219::t_ed2886d23dc484 165-180,182-185
+  s_47453fa5c06219::t_8901d38d096827 61-64
+  s_47453fa5c06219::t_f6182d43bb9ef4 5,181
+  s_47453fa5c06219::t_8e5e99124903dd 43-44
+  s_47453fa5c06219::t_84660e2d86e1d1 186-197
+app/Http/Controllers/TestRunController.php
+  s_f905efb6446b18::t_75964b9f53af82 30
+resources/js/Components/feed/ActivityCard.vue
+  s_47453fa5c06219::t_4eb3b7421fdb65 161,165
+database/migrations/2026_09_09_000002_add_notification_cooldown_run_ids_to_test_suites_table.php
+  s_47453fa5c06219::t_046a100ad52343 1-25
+resources/js/Pages/TestSuites/Index.vue
+  s_61d14e515bdd9b::t_15b26341cf277e 204
+app/Console/Commands/FlushNotificationDigests.php
+  s_47453fa5c06219::t_d0eec44a33ba24 1-67
+resources/views/emails/run-digest.blade.php
+  s_47453fa5c06219::t_16e068258e7f82 1-25,27-64
+  s_cbc7eb43345cfa::t_a3531a9a6b6de8 26
+resources/js/Pages/TestSuites/Show.vue
+  s_47453fa5c06219::t_f3ea95a5bb06d6 387-388
+  s_f905efb6446b18::t_03757cce9c9fdc 1034-1035
+  s_61d14e515bdd9b::t_a031824916bc34 1276,1282
+  s_47453fa5c06219::t_d33be8c06208d5 2055-2067
+  s_f905efb6446b18::t_bcafe56ec84ac8 2525,2527,2530
+  s_61d14e515bdd9b::t_2a30b12359dea9 2504
+  s_61d14e515bdd9b::t_72ad552fa0e6b3 1288,1290-1291,1293,1295
+  s_61d14e515bdd9b::t_a500138fee7845 1292
+  s_61d14e515bdd9b::t_ffae8e41114a6e 9
+  s_47453fa5c06219::t_41071d6e9d3cde 1987-1999
+  s_f905efb6446b18::t_e0def262dbfc9d 1119-1120
+  s_f905efb6446b18::t_5358adeb513223 1054-1055
+  s_61d14e515bdd9b::t_2da1aeeb7aa62c 2493
+  s_61d14e515bdd9b::t_6d66f6904bbe07 1210
+  s_61d14e515bdd9b::t_5e9553c4819a48 1275
+  s_47453fa5c06219::t_8c7b7aaf0d6870 2068-2069
+  s_47453fa5c06219::t_813857ca3f0d9e 323,327
+  s_47453fa5c06219::t_40247b013037d9 2000-2001
+  s_47453fa5c06219::t_ba8880fad9bdfd 348,352
+  s_47453fa5c06219::t_97b2d9249baa53 384-386,389-395
+  s_61d14e515bdd9b::t_654416312b5964 2311
+  s_61d14e515bdd9b::t_cf0fbd34d9b8ef 1289,1294
+  s_61d14e515bdd9b::t_d87abdad768d7a 2492,2501-2502
+  s_47453fa5c06219::t_841fcdf49e085f 306,310
+  s_61d14e515bdd9b::t_2bccc7cb1fa7c8 2489
+  s_61d14e515bdd9b::t_a7b1315f9e7baa 2491,2494
+  s_f905efb6446b18::t_c7174dbf591071 2541-2542
+app/Models/TestRun.php
+  s_47453fa5c06219::t_5a7742e7926147 39-50
+resources/views/emails/run-started.blade.php
+  s_cbc7eb43345cfa::t_8d751aad3c3123 27-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a4c604a779a51a1cc1a99ec936c025fb9abfb712",
+  "prompts": {},
+  "sessions": {
+    "s_47453fa5c06219": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7a4b4443ffeGJZx3JUJqn5R50",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_61d14e515bdd9b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7399a55dffeGj0A7QJzEm6oSE",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_6c5bf42679d8ef": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7a33c756ffejG6m58aDWeGKY7",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_cbc7eb43345cfa": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f771879a9ffe1BzeP67th4spXe",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    },
+    "s_f905efb6446b18": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f771f86b3ffeNwdAfnRyhmfwfv",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

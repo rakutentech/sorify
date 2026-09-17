@@ -1,0 +1,296 @@
+app/Http/Controllers/AgentConversationController.php
+  s_7b0de7f712cd4c::t_3cc1c35ebf31c1 1-194
+app/Mcp/Tools/Agent/GetAgentConversationTool.php
+  s_7b0de7f712cd4c::t_3c2f302fc15c41 1-65
+tests/Feature/UrlGuardTest.php
+  s_7b0de7f712cd4c::t_38ecbbbb4fbc0c 1-65
+app/Models/Test.php
+  s_7b0de7f712cd4c::t_f0b7c4a5358804 17-18
+app/Mcp/Servers/SorifyServer.php
+  s_7b0de7f712cd4c::t_a85074fa52e709 7-8
+  s_7b0de7f712cd4c::t_cb9eeb7e35a266 96-98
+  s_7b0de7f712cd4c::t_2e7593d2e6e0e6 93-95
+  s_7b0de7f712cd4c::t_fdbd6695dbc6f2 5-6
+resources/js/Pages/Bookmarks/Index.vue
+  s_7b0de7f712cd4c::t_220668b3455a13 61-74
+  s_7b0de7f712cd4c::t_c5ec00cc40e6d8 2,9
+routes/console.php
+  s_7b0de7f712cd4c::t_0810abfb9128b7 14
+composer.json
+  s_7b0de7f712cd4c::t_7d9a1fcbf72edb 19
+README.md
+  s_7b0de7f712cd4c::t_d8fc1f06417197 111
+  s_7b0de7f712cd4c::t_534046449d3da7 410
+  s_7b0de7f712cd4c::t_a6b15f2df963aa 272-274
+  h_f44dfe84a46cdf 22,25-27,54-56,59,61
+  h_f44dfe84a46cdf 57
+resources/js/Pages/Tests/Show.vue
+  s_7b0de7f712cd4c::t_964e09ec2d2ca6 378
+  s_7b0de7f712cd4c::t_be6cb3996aec5b 51-60
+  s_7b0de7f712cd4c::t_737220f78537aa 403-408,413
+  s_7b0de7f712cd4c::t_8c17f72762ee4f 12
+  s_7b0de7f712cd4c::t_8d0d8eac872759 291-302
+app/Services/Agent/UrlGuard.php
+  s_7b0de7f712cd4c::t_26e2f33534bdb7 1-17,24-80,83-116,118-139
+  s_7b0de7f712cd4c::t_7811b4885204f2 82
+  s_7b0de7f712cd4c::t_09b95261496c36 81
+  s_7b0de7f712cd4c::t_e93a082c83eabd 20-23
+  s_7b0de7f712cd4c::t_b8df2f661d2b3b 117
+  s_7b0de7f712cd4c::t_e15e2f70a5da81 18-19
+app/Http/Requests/Api/StoreApiTestRequest.php
+  s_7b0de7f712cd4c::t_48678eea5e5032 17,19-22
+app/Mcp/Tools/Agent/BrowserMapTool.php
+  s_7b0de7f712cd4c::t_297c1e046a9393 1-46
+app/Mcp/Tools/Agent/FetchUrlTool.php
+  s_7b0de7f712cd4c::t_7811b4885204f2 71
+  s_7b0de7f712cd4c::t_8717a356a4f85c 1-70,72-114
+app/Models/AgentConversation.php
+  s_7b0de7f712cd4c::t_8f495198b3bbbc 39
+  s_7b0de7f712cd4c::t_955872968235d3 1-38,40-41
+resources/js/Pages/TestSuites/Show.vue
+  s_7b0de7f712cd4c::t_827ac5508d904c 2333
+  s_7b0de7f712cd4c::t_e65d9906b4833c 2334-2340
+  s_7b0de7f712cd4c::t_c57f4d4c351492 186-203
+  s_7b0de7f712cd4c::t_e543e05ed794cb 204
+  s_7b0de7f712cd4c::t_a42ec77cf85c95 17
+  s_7b0de7f712cd4c::t_5a0663b6387219 9
+  s_7b0de7f712cd4c::t_24ff0e67ca8885 180
+sorify.drawio
+  h_f44dfe84a46cdf 3,7,13,16,19,22,25,28,34,37,40,43-44,46,49,52,55,60,65,70,73,78,83,88,91,96,101,106,109-115,121,127,152,179,195-196,198,201,204,207,217,222,225,228,231,234,237,240,250,255,258,261-270
+  h_f44dfe84a46cdf 271
+app/Http/Controllers/AgentProfileController.php
+  s_7b0de7f712cd4c::t_c956dfe8391c5c 8
+  s_7b0de7f712cd4c::t_811eee28ac465d 1-7,9-152,160-166,169-171,177-182,184-185,187-188,194-195,197-211
+  s_7b0de7f712cd4c::t_2af6e42a4478fb 153-159,167-168,172-176,183,186,189-193,196
+app/Mcp/Tools/Concerns/ResolvesAiModel.php
+  s_7b0de7f712cd4c::t_9a8d69a054980f 16,19-40
+  s_7b0de7f712cd4c::t_cceed69f8d28db 1-15,17-18,41-42
+app/Services/Agent/AgentToolAdapter.php
+  s_7b0de7f712cd4c::t_d4aff44bbeb4a5 65-72
+  s_7b0de7f712cd4c::t_a1cc8e4200f1f8 58,63,79
+  s_7b0de7f712cd4c::t_4cc428c0dd4ff3 123-125,128,130,134,136
+  s_7b0de7f712cd4c::t_a4e7df0cb4e22b 17-19,30-34
+  s_7b0de7f712cd4c::t_d5da59777e071d 96,98,100-117
+  s_7b0de7f712cd4c::t_e1da7b88f54bb4 84-85
+  s_7b0de7f712cd4c::t_4cc8805e0ba3a0 81-83
+  s_7b0de7f712cd4c::t_a4482ea779e34a 1-16,20-29,35-57,61-62,64,73-78,80,86-95,97,99,118-122,126-127,129,131-133,135,137-165
+  s_7b0de7f712cd4c::t_48678eea5e5032 59-60
+app/Services/TestCodeVersionService.php
+  s_7b0de7f712cd4c::t_48678eea5e5032 24,26-28,36-38
+  s_7b0de7f712cd4c::t_e206ac14044888 10-18,46-48
+config/sorify.php
+  s_7b0de7f712cd4c::t_d2146a9c276d72 60-77
+app/Console/Commands/PruneAgentChats.php
+  s_7b0de7f712cd4c::t_b3aca74f60484d 1-4,6,8-13,15-19,26,31,33-37,41-48
+  s_7b0de7f712cd4c::t_5d18e0080c6c3b 5,7,14,20-25,27-30,32,38-40
+database/migrations/2026_09_13_000001_create_agent_profiles_and_conversations_table.php
+  s_7b0de7f712cd4c::t_e9b1be5c156f42 52
+  s_7b0de7f712cd4c::t_08e37cbd8d20a4 58
+  s_7b0de7f712cd4c::t_63f8974743f65f 1-51,53-57,59-77
+resources/js/Components/Agent/AgentDrawer.vue
+  s_7b0de7f712cd4c::t_543d11b39bd61e 691-700
+  s_7b0de7f712cd4c::t_1024ee6df30311 769
+  s_7b0de7f712cd4c::t_64d381d02d49ee 5-6,8,11,23-33,37-39,43,101-105,124,133-134,150-161,164-165,167-168,170-171,175-180,182,189-190,195-203,205-207,214,223-259,268-269,272,275-276,278-302,304,306-312,315,380,382,398,400,405,409,418,476,484-486,488,490,492-493,496,499-501,533-540,542-544,556-560,562,580-582,584-603,605-625,627-630,632-633,635-639,641,643-652,664-686,689,709,713-725,727
+  s_7b0de7f712cd4c::t_7d79cdf58cc85f 106-119,121-122
+  s_7b0de7f712cd4c::t_107ae7a49bda25 408,410
+  s_7b0de7f712cd4c::t_08f6964a1b0363 518-519,522,527
+  s_7b0de7f712cd4c::t_6ce4f164287fdc 529
+  s_7b0de7f712cd4c::t_79f70134630e9c 604,640
+  s_7b0de7f712cd4c::t_bba77bbb890312 1,4,9,14-22,34-36,40,42,44-47,123,125-132,162-163,166,173-174,181,183-188,191-194,204,266-267,270-271,273-274,277,303,305,313-314,316-379,381,383-397,399,401-404,406-407,411-417,419-475,477-483,487,489,491,494-495,497-498,502-517,520-521,523-526,528,530-532,541,545-555,561,563,573-579,631,642,687-688,690,702-708,710-712,726,728-735,752-768,770-771,773-801
+  s_7b0de7f712cd4c::t_56e06602a328f9 260-265
+  s_7b0de7f712cd4c::t_230be1e4ba0500 772
+  s_7b0de7f712cd4c::t_48ccf9457f0631 41
+  s_7b0de7f712cd4c::t_1b656c87fb19ae 2
+  s_7b0de7f712cd4c::t_7631de7d343c59 10
+  s_7b0de7f712cd4c::t_58380d1618bd77 736-751
+  s_7b0de7f712cd4c::t_b6db7194e968fb 169,172
+  s_7b0de7f712cd4c::t_2b3ce551750d6b 48-74,79,84-91,99-100
+  s_7b0de7f712cd4c::t_2c0b57cfd43d44 653-663
+  s_7b0de7f712cd4c::t_89bceb7c30893f 564-572
+  s_7b0de7f712cd4c::t_8024f64aac6063 135-149
+  s_7b0de7f712cd4c::t_359bcdba46c0fe 120
+  s_7b0de7f712cd4c::t_70d0a5294fcb77 75-78,80-83,92-98
+  s_7b0de7f712cd4c::t_21de2e818bfad0 626
+  s_7b0de7f712cd4c::t_d8ca6c9f5ea8dd 3,7,12-13
+  s_7b0de7f712cd4c::t_ad80ac2ab893bd 583,634,701
+  s_7b0de7f712cd4c::t_a9bcec635d8686 208-213,215-222
+tests/Unit/Mcp/Tools/TestsToolsTest.php
+  s_7b0de7f712cd4c::t_48678eea5e5032 15,132,219-220,254-257,259
+  s_7b0de7f712cd4c::t_a1fc488870838d 30-131,133-146
+resources/js/composables/useAgentContext.js
+  s_7b0de7f712cd4c::t_dc4f83a028bf21 1-14,19,21-37,41-47
+  s_7b0de7f712cd4c::t_e669e2521ac108 15-18,20
+  s_7b0de7f712cd4c::t_88a1fd3a3a73cd 38-40
+app/Models/TestCodeVersion.php
+  s_7b0de7f712cd4c::t_2f9240649ef1bf 14
+tests/Unit/Mcp/Tools/AgentConversationsToolsTest.php
+  s_7b0de7f712cd4c::t_7b4d42f1effac4 1-39,41-57,61-104,109-120,123-124
+  s_7b0de7f712cd4c::t_5c472991cc1f49 40,58-60,105-108,121-122
+resources/js/Components/Agent/AgentProfiles.vue
+  s_7b0de7f712cd4c::t_9b9d42288b9a64 204-209
+  s_7b0de7f712cd4c::t_33420c70ebe593 323-343,345
+  s_7b0de7f712cd4c::t_4da9ee6909e876 33-35,37-52,62-102
+  s_7b0de7f712cd4c::t_64fd8100db2292 259-263
+  s_7b0de7f712cd4c::t_bdf620bc644939 238
+  s_7b0de7f712cd4c::t_4c4863f10210bb 194-196
+  s_7b0de7f712cd4c::t_664794bea21c39 6
+  s_7b0de7f712cd4c::t_582b7d85fae668 107,118,121-125,130
+  s_7b0de7f712cd4c::t_b099d21124e885 1-2,4-5,7-32,36,53-61,103-106,108-117,119-120,126-129,131-193,197-203,210-237,239-258,264-322,344,346-442
+  s_7b0de7f712cd4c::t_422b68dd5d8f6d 3
+resources/js/Pages/Profile/Show.vue
+  s_7b0de7f712cd4c::t_f8275ed448b0cd 25-29
+  s_7b0de7f712cd4c::t_8eb2db5423cc06 2
+  s_7b0de7f712cd4c::t_28e8bee917e541 7-8,14,21
+  s_7b0de7f712cd4c::t_5acdda8ad4e6c7 32-33,35-56
+  s_7b0de7f712cd4c::t_56971f58861400 210-214
+app/Mcp/Tools/Tests/UpdateTestCodeTool.php
+  s_7b0de7f712cd4c::t_dfec2c23fe1983 6
+  s_7b0de7f712cd4c::t_48678eea5e5032 9
+  s_7b0de7f712cd4c::t_18dec304fdf71c 22,39,49,58-64,66-70
+tests/Feature/TestCodeVersionRestoreTest.php
+  s_7b0de7f712cd4c::t_d8e4c508cc2b3c 35-48,50-63
+  s_7b0de7f712cd4c::t_48678eea5e5032 7,23,25,49
+plugins/sorify/commands/generate.md
+  s_7b0de7f712cd4c::t_08069b3c5e69fd 248
+  s_7b0de7f712cd4c::t_b3809d08934336 404-405
+  s_7b0de7f712cd4c::t_4dd8021f2deec2 237-238,244-247
+tests/Feature/AgentConversationTest.php
+  s_7b0de7f712cd4c::t_059217b0091129 1-193
+composer.lock
+  s_7b0de7f712cd4c::t_a6a5bc7d9ac755 7,3223-3402,3522-3656
+app/Http/Controllers/ProfileController.php
+  s_7b0de7f712cd4c::t_891f1dad15ed56 5,31-35
+routes/web.php
+  s_7b0de7f712cd4c::t_71d6abcdfad3ef 144,161-162
+  s_7b0de7f712cd4c::t_95eefa7c57ea80 151-153
+  s_7b0de7f712cd4c::t_faf49e183252ad 143,145-150,154-160
+  s_7b0de7f712cd4c::t_dace4d1502cfd1 6-7
+tests/Feature/AgentProfileTest.php
+  s_7b0de7f712cd4c::t_20c49ef816b5a9 172
+  s_7b0de7f712cd4c::t_cfe0497ab9af3d 1-7,9-154,212-227
+  s_7b0de7f712cd4c::t_7625e746159558 155-171,173-211
+  s_7b0de7f712cd4c::t_88b9e13c0c2802 8
+app/Mcp/Tools/Tests/BulkCreateTestsTool.php
+  s_7b0de7f712cd4c::t_e9a2c323431854 7
+  s_7b0de7f712cd4c::t_90575a791b8b10 21,45,56-60,71-72,79-83
+  s_7b0de7f712cd4c::t_48678eea5e5032 10
+plugins/sorify/commands/recording.md
+  s_7b0de7f712cd4c::t_30bf8c37f5fa75 180-185
+app/Mcp/Tools/Agent/ListAgentConversationsTool.php
+  s_7b0de7f712cd4c::t_5f7aa767c5f4d0 1-73
+resources/js/locales/zh-CN.json
+  s_7b0de7f712cd4c::t_27b1598d4b0538 784-785,893-894,896,898-904,908-913,918,947-956,960-961,964-969
+  s_7b0de7f712cd4c::t_55ebc2e70b9ea1 897,915-917
+  s_7b0de7f712cd4c::t_9c1a2e9c81e06c 905-907,919-933,937-946,957-959,962-963,970-973
+  s_7b0de7f712cd4c::t_fa06a14182cd68 895
+  s_7b0de7f712cd4c::t_53d72476993b92 978
+  s_7b0de7f712cd4c::t_52d41fcdc194cb 976-977
+  s_7b0de7f712cd4c::t_decd189cf91e4d 441-442,713-718
+  s_7b0de7f712cd4c::t_25e17a5c9ecfbb 914
+  s_7b0de7f712cd4c::t_ab2f958197379e 974-975
+  s_7b0de7f712cd4c::t_7e2397f2c7d662 934-936
+app/Services/Agent/AgentBrowserService.php
+  s_7b0de7f712cd4c::t_2d6a20ca59cc3d 163
+  s_7b0de7f712cd4c::t_8c79a94a4d742f 1-162,164-237
+app/Models/AgentProfile.php
+  s_7b0de7f712cd4c::t_6c2a2fad3f5364 1-88
+app/Http/Requests/Api/BulkStoreTestRequest.php
+  s_7b0de7f712cd4c::t_48678eea5e5032 9-12,17-18,20-23
+resources/js/locales/ms.json
+  s_7b0de7f712cd4c::t_e25282de8fb7c8 978
+  s_7b0de7f712cd4c::t_9c1a2e9c81e06c 905-907,919-933,937-946,957-959,962,970-973
+  s_7b0de7f712cd4c::t_55ebc2e70b9ea1 897,915-917
+  s_7b0de7f712cd4c::t_25e17a5c9ecfbb 914
+  s_7b0de7f712cd4c::t_52d41fcdc194cb 976-977
+  s_7b0de7f712cd4c::t_decd189cf91e4d 441-442,713-718
+  s_7b0de7f712cd4c::t_7e2397f2c7d662 934-936
+  s_7b0de7f712cd4c::t_27b1598d4b0538 784-785,893-894,896,898-904,908-913,918,947-956,960-961,963-969
+  s_7b0de7f712cd4c::t_ab2f958197379e 974-975
+  s_7b0de7f712cd4c::t_fa06a14182cd68 895
+app/Services/Agent/AgentService.php
+  s_7b0de7f712cd4c::t_c2e75edfd11a91 1-4,6,8-13,16,25-34,36,46-54,56-63,69-70,73-79,81-83,85-87,90-139,141-142,145-148,150-170,177-188,190-208,215-217,220-222,224-225,228,230,232-242,244-246,248,254,258-261,263-269,272-282,284-287,289-314,316-322,324-329,335,337-338,340-343,345-357,359-367
+  s_7b0de7f712cd4c::t_517391f5bacd9c 5,7,14-15,17-24,35,37-45,55,64-68,71-72,80,84,88-89,140,143-144,149,189,209-214,218-219,223,226-227,229,231,243,247,249-253,255-257,270-271,283,288,315,323,330-334,336,339,344,358
+  s_7b0de7f712cd4c::t_1d67db6e40bf71 173-176
+  s_7b0de7f712cd4c::t_f97512ca4a13b4 262
+  s_7b0de7f712cd4c::t_e045b7f64cbc1d 171-172
+app/Mcp/Tools/Tests/CreateTestTool.php
+  s_7b0de7f712cd4c::t_ef4973aa7b0bac 21,38,56-57,61-65
+  s_7b0de7f712cd4c::t_48678eea5e5032 10
+  s_7b0de7f712cd4c::t_8be83cc468ef22 7
+resources/js/locales/en.json
+  s_7b0de7f712cd4c::t_ab2f958197379e 974-975
+  s_7b0de7f712cd4c::t_decd189cf91e4d 441-442,713-718
+  s_7b0de7f712cd4c::t_55ebc2e70b9ea1 897,915-917
+  s_7b0de7f712cd4c::t_27b1598d4b0538 784-785,893-894,896,898-904,908-913,918,947-956,960-961,963-969
+  s_7b0de7f712cd4c::t_52d41fcdc194cb 976-977
+  s_7b0de7f712cd4c::t_25e17a5c9ecfbb 914
+  s_7b0de7f712cd4c::t_c8abc568465af2 978
+  s_7b0de7f712cd4c::t_9c1a2e9c81e06c 905-907,919-933,937-946,957-959,962,970-973
+  s_7b0de7f712cd4c::t_7e2397f2c7d662 934-936
+  s_7b0de7f712cd4c::t_fa06a14182cd68 895
+tests/Feature/AgentToolAdapterTest.php
+  s_7b0de7f712cd4c::t_76931ed4a18dff 81,84,86,88-89
+  s_7b0de7f712cd4c::t_a63ab5622fce16 1-80,83,85,87,90,141
+  s_7b0de7f712cd4c::t_beda5198263afc 82,91-140
+plugins/sorify/commands/gateway.md
+  s_7b0de7f712cd4c::t_90eb67f1fc4d0b 203-211
+  s_7b0de7f712cd4c::t_1bc813bb7dd9f9 249-251
+  s_7b0de7f712cd4c::t_4e8ff1d671ac5f 245-248,252-253
+  s_7b0de7f712cd4c::t_ee4fb8bfece480 194-195,197
+  s_7b0de7f712cd4c::t_b899e15043752b 87,89
+app/Models/AgentMessage.php
+  s_7b0de7f712cd4c::t_430e939e1a709b 12,27,29
+  s_7b0de7f712cd4c::t_495ab2ac52527d 1-11,13-26,28,30-59
+resources/css/app.css
+  s_7b0de7f712cd4c::t_69f54be02602f2 237-263
+resources/js/Components/Agent/ToolCallChip.vue
+  s_7b0de7f712cd4c::t_5943ddc31bf6aa 1-72
+resources/js/locales/ja.json
+  s_7b0de7f712cd4c::t_55ebc2e70b9ea1 897,915-917
+  s_7b0de7f712cd4c::t_ab2f958197379e 974-975
+  s_7b0de7f712cd4c::t_7e2397f2c7d662 934-936
+  s_7b0de7f712cd4c::t_fa06a14182cd68 895
+  s_7b0de7f712cd4c::t_b7a6322383807b 978
+  s_7b0de7f712cd4c::t_9c1a2e9c81e06c 905-907,919-933,937-946,957-959,962,970-973
+  s_7b0de7f712cd4c::t_27b1598d4b0538 784-785,893-894,896,898-904,908-913,918,947-956,960-961,963-969
+  s_7b0de7f712cd4c::t_25e17a5c9ecfbb 914
+  s_7b0de7f712cd4c::t_52d41fcdc194cb 976-977
+  s_7b0de7f712cd4c::t_decd189cf91e4d 441-442,713-718
+database/migrations/2026_09_13_000002_add_code_ai_attribution_to_tests_and_code_versions.php
+  s_7b0de7f712cd4c::t_6a547bae3378d7 1-37
+resources/js/Layouts/AppLayout.vue
+  s_7b0de7f712cd4c::t_01d2c1ac9ddb93 23-25,28-38
+  s_7b0de7f712cd4c::t_991971fac91bff 39
+  s_7b0de7f712cd4c::t_377c4f45a98a24 245,247-248,251-253
+  s_7b0de7f712cd4c::t_88843ee241fa02 27
+  s_7b0de7f712cd4c::t_b03429f816da68 2
+  s_7b0de7f712cd4c::t_0e579fd8b856ea 87-90
+  s_7b0de7f712cd4c::t_960607a7b1b132 143,145-147,150-152
+  s_7b0de7f712cd4c::t_7946514acc02a9 246,249-250,254
+  s_7b0de7f712cd4c::t_db9bcee1089413 273-275
+  s_7b0de7f712cd4c::t_daadfa915298d2 142,144,148-149,153
+  s_7b0de7f712cd4c::t_7db3a7773635e7 8,12,22,26
+sorify.svg
+  h_f44dfe84a46cdf 1,5,121-125
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "9c58d3255d026480d9b3642223182aad00eb9556",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_7b0de7f712cd4c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f68787627fferMLT83H3HzXwN7",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

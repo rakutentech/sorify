@@ -1,0 +1,58 @@
+resources/js/Components/ui/SettingBadge.vue
+  s_61d14e515bdd9b::t_3f5634b5396e20 10
+  s_61d14e515bdd9b::t_eff12eacf0c498 44,48,58,62
+  s_61d14e515bdd9b::t_063cf40aa6ac10 2,20-38,49,61,63-69
+resources/js/Pages/TestRuns/Show.vue
+  s_61d14e515bdd9b::t_a59279e0adc846 503,506
+  s_61d14e515bdd9b::t_9d9fe40dd86856 7
+resources/js/Pages/TestSuites/Review.vue
+  s_61d14e515bdd9b::t_f93231db6e95cc 256
+  s_61d14e515bdd9b::t_00141e1b4aed49 8
+resources/js/Pages/Bookmarks/Index.vue
+  s_61d14e515bdd9b::t_4cacdb1ed19548 127
+app/Http/Controllers/TestSuiteController.php
+  s_61d14e515bdd9b::t_83f617e39749b7 307-312
+resources/js/Components/ui/SuiteName.vue
+  s_61d14e515bdd9b::t_07d652d9ba079f 4,11,13,16
+  s_61d14e515bdd9b::t_4a54aacf40a291 12,15
+  s_61d14e515bdd9b::t_ad50b10f58c104 14
+resources/js/Components/ui/index.js
+  s_61d14e515bdd9b::t_d47a3c0c6185c6 11
+resources/js/Components/ui/TestName.vue
+  s_61d14e515bdd9b::t_46c405715a939d 9,12
+  s_61d14e515bdd9b::t_0dc3072d9f7c2a 1-8,10,13
+  s_61d14e515bdd9b::t_35e161c6b7b920 11
+resources/js/Pages/TestSuites/Show.vue
+  s_61d14e515bdd9b::t_a7b1315f9e7baa 2491,2494
+  s_61d14e515bdd9b::t_a031824916bc34 1276,1282
+  s_61d14e515bdd9b::t_a500138fee7845 1292
+  s_61d14e515bdd9b::t_d87abdad768d7a 2492,2501-2502
+  s_61d14e515bdd9b::t_2a30b12359dea9 2504
+  s_61d14e515bdd9b::t_72ad552fa0e6b3 1288,1290-1291,1293,1295
+  s_61d14e515bdd9b::t_0898b1dbbeadc1 2540
+  s_61d14e515bdd9b::t_2da1aeeb7aa62c 2493
+  s_61d14e515bdd9b::t_ffae8e41114a6e 9
+  s_61d14e515bdd9b::t_6d66f6904bbe07 1210
+  s_61d14e515bdd9b::t_5e9553c4819a48 1275
+  s_61d14e515bdd9b::t_654416312b5964 2311
+  s_61d14e515bdd9b::t_cf0fbd34d9b8ef 1289,1294
+  s_61d14e515bdd9b::t_2bccc7cb1fa7c8 2487-2489,2495
+resources/js/Pages/TestSuites/Index.vue
+  s_61d14e515bdd9b::t_15b26341cf277e 204
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6b185bdf4c9b875a9f04dd3772f901cdc892859b",
+  "prompts": {},
+  "sessions": {
+    "s_61d14e515bdd9b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f7399a55dffeGj0A7QJzEm6oSE",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

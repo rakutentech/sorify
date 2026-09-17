@@ -1,0 +1,59 @@
+resources/css/app.css
+  s_5c5d903fc156c7::t_c0a14d973566b7 26-27
+  s_5c5d903fc156c7::t_c5991c4c589b2e 15,23-25
+resources/js/locales/ja.json
+  s_5c5d903fc156c7::t_faa78bd70c00d9 504-505
+  s_5c5d903fc156c7::t_5f9a7a9f77709d 169
+resources/js/Components/ui/RanBy.vue
+  s_5c5d903fc156c7::t_4c5b8372deb553 40
+  s_5c5d903fc156c7::t_f5aa20134ea921 11-14
+resources/js/locales/ms.json
+  s_5c5d903fc156c7::t_195fc7c44a5b20 504-505
+  s_5c5d903fc156c7::t_5f9a7a9f77709d 169
+app/Http/Controllers/FeedController.php
+  s_5c5d903fc156c7::t_d52d52559cbd60 26-27
+README.md
+  h_f44dfe84a46cdf 15-20,64-69,72-75,77,80-83,86-87,90-91,95-98,102-104,108,112-113,121-142
+resources/js/locales/zh-CN.json
+  s_5c5d903fc156c7::t_5f9a7a9f77709d 504
+  s_5c5d903fc156c7::t_d2388ca296140c 505
+resources/js/Pages/Feed/Index.vue
+  s_5c5d903fc156c7::t_8503cce85bcf43 53-55,61-66,77-79
+  s_5c5d903fc156c7::t_da276d8d5f4d17 356,363-367,371-372,374-389,393-404,407-408,410-411,413-421,427,432-440
+  s_5c5d903fc156c7::t_4c2409647f861e 10-13
+  s_5c5d903fc156c7::t_b0b6f2b8d397b4 120-122,124-126,128-131,162
+  s_5c5d903fc156c7::t_e2fa1a16407c93 123,127
+  s_5c5d903fc156c7::t_ea961889bc122f 9
+  s_5c5d903fc156c7::t_74e2417109ac73 67-76
+  s_5c5d903fc156c7::t_28bbbefe298a69 373,390-392,405-406,409,412,422-423,426,441-442
+  s_5c5d903fc156c7::t_154b6308333996 250-259
+resources/js/Components/feed/ActivityCard.vue
+  s_5c5d903fc156c7::t_019b80aca2e5eb 185-187
+resources/js/locales/en.json
+  s_5c5d903fc156c7::t_5f9a7a9f77709d 169
+  s_5c5d903fc156c7::t_8fc19c71d9d3b8 504-505
+resources/js/Components/feed/RunCardBody.vue
+  s_5c5d903fc156c7::t_ef47ee49cd93b0 79
+  s_5c5d903fc156c7::t_a5d0bd74525829 48-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5c7377a82bb6e8aa7f5b19ee7184ddc7d6332410",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_5c5d903fc156c7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f6a621606ffeU8aqIS2Usq5d6n",
+        "model": "GLM-5.3-Coding"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
