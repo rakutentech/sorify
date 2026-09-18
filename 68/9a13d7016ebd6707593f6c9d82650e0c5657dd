@@ -1,0 +1,24 @@
+app/Jobs/RunAgentTurnJob.php
+  h_f44dfe84a46cdf 7,83-90
+resources/js/Pages/Admin/AgentRuns/Index.vue
+  h_f44dfe84a46cdf 142-151,158-159,167
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 796-798
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 796-798
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 796-798
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 796-798
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "689a13d7016ebd6707593f6c9d82650e0c5657dd",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}

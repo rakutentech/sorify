@@ -1,0 +1,131 @@
+.gitignore
+  h_f44dfe84a46cdf 46
+README.md
+  h_f44dfe84a46cdf 157-161,163,179,181,184-187,223
+  h_f44dfe84a46cdf 155-156,164,166-174,176-178,180,182-183,188-191,259-263,285-286
+.claude-plugin/marketplace.json
+  h_f44dfe84a46cdf 3-5,11-16
+INSTALL.md
+  h_f44dfe84a46cdf 81-82
+app/Http/Controllers/Admin/AgentRunController.php
+  h_f44dfe84a46cdf 1-88
+app/Http/Controllers/Admin/UserController.php
+  h_f44dfe84a46cdf 6,20-22,32-33,78-90
+app/Http/Controllers/AgentConversationController.php
+  h_f44dfe84a46cdf 5-6,8,10,26-30,62-63,115-116,125-126,147-149,156-159,161,164,170,186-202,215,236-351,364-375,382-390
+app/Http/Controllers/AgentProfileController.php
+  h_f44dfe84a46cdf 22-23,42,85-86,141-149
+app/Http/Middleware/HandleInertiaRequests.php
+  h_f44dfe84a46cdf 5,39-40,44-54
+app/Jobs/RunAgentTurnJob.php
+  h_f44dfe84a46cdf 1-114
+app/Models/AgentConversation.php
+  h_f44dfe84a46cdf 18-19,26-27,45-49
+app/Models/AgentProfile.php
+  h_f44dfe84a46cdf 15
+app/Models/AgentTurn.php
+  h_f44dfe84a46cdf 1-62
+app/Models/AgentTurnEvent.php
+  h_f44dfe84a46cdf 1-36
+app/Models/User.php
+  h_f44dfe84a46cdf 18,44
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 8-9,13-14,37-43,48-51,53,71-82,90,97-133,136,141-142,149-162,164,173-184,191,203,311-316,330,336-398,422-506,545-548,552,558,627-631,638-647,649
+config/sorify.php
+  h_f44dfe84a46cdf 63-65,73-77
+database/migrations/2026_09_17_000001_add_night_mode_to_agent_conversations.php
+  h_f44dfe84a46cdf 1-45
+database/migrations/2026_09_17_000003_add_agent_disabled_to_users.php
+  h_f44dfe84a46cdf 1-25
+database/migrations/2026_09_17_000004_create_agent_turns_table.php
+  h_f44dfe84a46cdf 1-35
+database/migrations/2026_09_17_000005_remove_max_steps_from_agent_profiles.php
+  h_f44dfe84a46cdf 1-28
+package-lock.json
+  h_f44dfe84a46cdf 14,28-40,87-131,166-182,316-327,885-1143,1151-1160,1339-1352,1388-1396,1422-1430,1437-1950,1969-1974,2082-2087,2098-2128,2149-2178,2223-2228,2490-2495,2517-2562,2581-2592,2655-2670,2718-2723,2757-2774,2785-2790,2841-2846,2884-2892,2919-2927,2935-2947
+package.json
+  h_f44dfe84a46cdf 23
+plugins/sorify/.claude-plugin/plugin.json
+  h_f44dfe84a46cdf 3
+plugins/sorify/.codex-plugin/plugin.json
+  h_f44dfe84a46cdf 1-34
+plugins/sorify/.mcp.json
+  h_f44dfe84a46cdf 2-11
+plugins/sorify/README.md
+  h_f44dfe84a46cdf 3,32-77
+plugins/sorify/scripts/mcp-auth-headers.sh
+  h_f44dfe84a46cdf 9-31
+plugins/sorify/scripts/setup-codex.sh
+  h_f44dfe84a46cdf 1-88
+plugins/sorify/skills/shared/README.md
+  h_f44dfe84a46cdf 1-10
+plugins/sorify/skills/shared/SKILL.md
+  h_f44dfe84a46cdf 1-19
+plugins/sorify/skills/sorify-gateway/SKILL.md
+  h_f44dfe84a46cdf 1-18
+plugins/sorify/skills/sorify-generate/SKILL.md
+  h_f44dfe84a46cdf 1-42
+plugins/sorify/skills/sorify-recording/SKILL.md
+  h_f44dfe84a46cdf 1-23
+plugins/sorify/skills/sorify-setup/SKILL.md
+  h_f44dfe84a46cdf 1-35
+plugins/sorify/skills/sorify-update/SKILL.md
+  h_f44dfe84a46cdf 1-45
+plugins/sorify/tests/test-codex-setup.sh
+  h_f44dfe84a46cdf 1-51
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 3,6-7,13,46,58-82,148-153,252-253,292-293,313-318,344-358,387-408,515,520,522-526,529,552-553,557-558,565-661,665,673,681,684,696-700,702,704,706,708-709,717-718,724-768,791,797-851,927-935,939-952,954,981-985,987-988,1002-1009,1083-1090,1166-1169,1177-1178,1199-1235
+resources/js/Components/Agent/AiButton.vue
+  h_f44dfe84a46cdf 1-65
+resources/js/Components/ui/Card.vue
+  h_f44dfe84a46cdf 5,12
+resources/js/Components/ui/MarkdownRenderer.vue
+  h_f44dfe84a46cdf 6,73-81,98-121,133-186,207-214,219-227
+resources/js/Layouts/AppLayout.vue
+  h_f44dfe84a46cdf 2,6,29-36,59
+resources/js/Pages/Admin/AgentRuns/Index.vue
+  h_f44dfe84a46cdf 1-164
+resources/js/Pages/Admin/Users/Index.vue
+  h_f44dfe84a46cdf 9,85-98,140,163-193,214
+resources/js/Pages/Profile/Show.vue
+  h_f44dfe84a46cdf 2,8,12-16,217-223
+resources/js/Pages/TestRuns/Show.vue
+  h_f44dfe84a46cdf 10-11,39-63,542-547
+resources/js/Pages/TestSuites/Review.vue
+  h_f44dfe84a46cdf 11-12,43-71,275-279,330-334,400-408
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 10-11,207-231,2434-2441
+resources/js/Pages/Tests/Show.vue
+  h_f44dfe84a46cdf 12-13,54-85,316-325,327-328,331-340,342-400,405,566-650
+resources/js/composables/useAgentDrawer.js
+  h_f44dfe84a46cdf 1-34
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 17-18,33,233,467-468,658,756,758-761,787-802,806,920-932,954,957,962-968,1022-1026
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 17-18,33,233,467-468,658,756,758-761,787-802,806,920-932,954,957,962-968,1022-1026
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 17-18,33,233,467-468,658,756,758-761,787-802,806,920-932,954,957,962-968,1022-1026
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 17-18,33,233,467-468,658,756,758-761,787-802,806,920-932,954,957,962-968,1022-1026
+routes/web.php
+  h_f44dfe84a46cdf 3,159,163,199-203
+tests/Feature/AdminAgentRunsTest.php
+  h_f44dfe84a46cdf 1-212
+tests/Feature/AgentConversationTest.php
+  h_f44dfe84a46cdf 154-163,187-213
+tests/Feature/AgentDisableTest.php
+  h_f44dfe84a46cdf 1-145
+tests/Feature/AgentNightModeTest.php
+  h_f44dfe84a46cdf 1-299
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "43606cb4efb65972cd4cf96ab2189428f74993e1",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
