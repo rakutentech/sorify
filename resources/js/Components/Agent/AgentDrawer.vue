@@ -1,15 +1,16 @@
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import {
-    ArrowLeft, Bot, CircleAlert, MessageSquarePlus, MessagesSquare,
+    ArrowLeft, Bot, CircleAlert, Gauge, LoaderCircle, MessageSquarePlus, MessagesSquare,
     Send, Settings2, Square, Trash2, X,
 } from '@lucide/vue';
 import ToolCallChip from './ToolCallChip.vue';
 import RunProgressCard from './RunProgressCard.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import { useAgentContext } from '@/composables/useAgentContext';
+import { useAgentDrawer } from '@/composables/useAgentDrawer.js';
 import { formatRelativeTime } from '@/utils/date';
 import { MarkdownRenderer } from '@/Components/ui';
 
@@ -42,16 +43,40 @@ const input = ref('');
 const inputEl = ref(null);
 const streaming = ref(false);
 const deletingId = ref(null);
+const deletingAll = ref(false);
 const scrollContainer = ref(null);
 
-// Chat mode: `agent` (default, full tool-calling) or `ask` (plain chat,
-// no tools — faster, cheaper, zero side effects).
-const mode = ref('agent');
+// Agent mode: the per-conversation toggle for the full agent — tools,
+// background execution bounded by the selected max run time. Off means
+// plain Ask mode (no tools, quick answers). While an agent-mode turn is
+// in flight, `backgroundTurn` shows the "running in the background" badge.
+const agentMode = ref(false);
+const agentMaxRun = ref(10);
+const backgroundTurn = ref(false);
+
+// Max run times offered, in minutes (must match the backend validation).
+const AGENT_MAX_RUN_OPTIONS = [5, 10, 15, 30, 60];
 
 // "Thinking…" state driven by the backend's `step` SSE events, shown
 // while the LLM round-trip is in flight and no text is streaming yet.
 const thinking = ref(false);
+const stopping = ref(false);
 const stepInfo = ref(null);
+
+// Set while the backend waits out a provider rate limit before retrying
+// (data: { seconds, attempt, max_attempts }) — cleared on any progress.
+const waitingInfo = ref(null);
+
+// Per-turn step budget (LLM tool-calling round-trips), picked in the chat
+// box and sent with each request (must match the backend validation).
+// Remembered across chats and page loads.
+const MAX_STEPS_OPTIONS = [10, 25, 50, 100, 200, 500, 1000];
+
+const maxSteps = ref(Number(localStorage.getItem('agent.max_steps')) || 100);
+
+if (!MAX_STEPS_OPTIONS.includes(maxSteps.value)) maxSteps.value = 100;
+
+watch(maxSteps, (value) => localStorage.setItem('agent.max_steps', String(value)));
 
 let abortController = null;
 
@@ -77,7 +102,6 @@ function persistState() {
         open: props.show,
         view: view.value,
         conversationId: conversation.value?.id ?? null,
-        mode: mode.value,
     };
 
     if (!state.open && !state.conversationId) {
@@ -100,7 +124,8 @@ onMounted(() => {
     const saved = readSavedState();
 
     if (saved.mode === 'ask' || saved.mode === 'agent') {
-        mode.value = saved.mode;
+        // Legacy sessions stored the removed per-message Ask/Agent toggle.
+        sessionStorage.removeItem(STORAGE_KEY);
     }
 
     if (!saved.conversationId) return;
@@ -118,6 +143,12 @@ onMounted(() => {
 });
 
 const { agentContext } = useAgentContext();
+const { request: drawerRequest } = useAgentDrawer();
+
+// Admin kill-switch: agents disabled for this account — block starting or
+// continuing chats (the backend rejects these calls too).
+const page = usePage();
+const adminDisabled = computed(() => page.props.auth?.user?.agent_disabled === true);
 
 const selectedProfile = computed(() =>
     profiles.value.find((profile) => profile.id === newChatForm.value.profile_id));
@@ -216,6 +247,8 @@ async function loadModels(profileId) {
 
 // ── Conversation lifecycle ────────────────────────────────────────────────────
 function startNewChat() {
+    if (adminDisabled.value) return;
+
     if (profiles.value.length === 0) {
         view.value = 'new';
 
@@ -253,7 +286,9 @@ function defaultContextText() {
     return t('agent.newChat.defaultContext', { page: ctx.pageName, url: ctx.pageUrl });
 }
 
-async function createConversation() {
+async function createConversation(options = {}) {
+    if (adminDisabled.value) return;
+
     const ctx = agentContext.value;
 
     const response = await fetch('/sorify/agent/conversations', {
@@ -268,15 +303,26 @@ async function createConversation() {
             page_url: ctx.pageUrl,
             page_name: ctx.pageName,
             context: newChatForm.value.context,
+            agent_mode: options.agentMode === true,
         }),
     });
 
     const data = await response.json();
 
+    if (!response.ok || !data.conversation) {
+        view.value = 'new';
+
+        return;
+    }
+
     conversation.value = data.conversation;
     messages.value = [];
     trackedRunIds.clear();
     view.value = 'chat';
+
+    // Sync the mode toggle with what the server stored — chats started
+    // from the AI buttons are created in agent mode.
+    agentMode.value = !!data.conversation.agent_mode;
 
     // Models were already loaded for the picked profile in the new-chat
     // form (with the chosen model) — only fetch if that failed or was skipped.
@@ -298,6 +344,30 @@ async function openConversation(id) {
         messages.value = groupMessages(data.messages ?? []);
         view.value = 'chat';
         loadModels(data.conversation.profile_id);
+
+        agentMode.value = !!data.conversation.agent_mode;
+        agentMaxRun.value = data.conversation.agent_max_run_minutes ?? 10;
+
+        // A turn is still running in the background —
+        // pick up its event stream where it left off. Only while the
+        // drawer is actually open: the stream is a long-lived SSE
+        // request, and holding one while the drawer is closed would pin
+        // a web worker (the whole dev server, if it runs a single
+        // worker) for the whole turn. Re-opening the conversation picks
+        // the stream back up.
+        const active = data.conversation.active_turn;
+
+        if (active && props.show) {
+            streaming.value = true;
+            backgroundTurn.value = agentMode.value;
+            // A stop was already requested before the re-attach — show
+            // "stopping" instead of "thinking" while the job ends the
+            // turn at its next cancellation check.
+            stopping.value = active.cancel_requested === true;
+            thinking.value = !stopping.value;
+            abortController = new AbortController();
+            followTurn(active.turn_id, active.last_seq);
+        }
     } finally {
         loadingChat.value = false;
     }
@@ -326,8 +396,30 @@ async function deleteConversation(id) {
     }
 }
 
+async function deleteAllConversations() {
+    if (conversations.value.length === 0) return;
+    if (! confirm(t('agent.list.confirmDeleteAll', { count: conversations.value.length }))) return;
+
+    deletingAll.value = true;
+
+    try {
+        await fetch('/sorify/agent/conversations', {
+            method: 'DELETE',
+            headers: { Accept: 'application/json', 'X-XSRF-TOKEN': csrfToken() },
+        });
+
+        conversation.value = null;
+        messages.value = [];
+        conversations.value = [];
+
+        loadConversations();
+    } finally {
+        deletingAll.value = false;
+    }
+}
+
 function backToList() {
-    if (streaming.value) stop();
+    if (streaming.value) detach();
 
     view.value = 'list';
     loadConversations();
@@ -432,13 +524,21 @@ function currentAssistant() {
 function handleEvent(event, data) {
     if (event === 'delta') {
         thinking.value = false;
+        waitingInfo.value = null;
         currentAssistant().content += data.text;
     } else if (event === 'step') {
         // A new LLM round-trip is starting — show the thinking state.
         thinking.value = true;
+        waitingInfo.value = null;
         stepInfo.value = data;
+    } else if (event === 'waiting') {
+        // The provider rate-limited us; the backend is backing off and
+        // will retry — show why the turn is paused instead of failing.
+        thinking.value = true;
+        waitingInfo.value = data;
     } else if (event === 'tool_start') {
         thinking.value = false;
+        waitingInfo.value = null;
         currentAssistant().toolCalls.push({
             id: data.id,
             name: data.name,
@@ -461,26 +561,131 @@ function handleEvent(event, data) {
         if (runId !== null) trackRun(runId, assistant);
     } else if (event === 'done') {
         thinking.value = false;
+        waitingInfo.value = null;
+        stopping.value = false;
+        backgroundTurn.value = false;
         currentAssistant().streaming = false;
     } else if (event === 'error') {
         thinking.value = false;
+        waitingInfo.value = null;
+        stopping.value = false;
+        backgroundTurn.value = false;
         currentAssistant().streaming = false;
         messages.value.push({ role: 'error', content: data.message, toolCalls: [] });
     }
 }
 
 // ── Chat streaming ───────────────────────────────────────────────────────────
+/**
+ * Read one SSE response, dispatching each event block to onEvent.
+ * Returns whether a terminal event (`done` / `error`) was seen and the
+ * last `id:` seq observed, so callers can reconnect with `after=seq`.
+ */
+async function readSseStream(response, onEvent) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let terminal = false;
+    let lastSeq = 0;
+
+    while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        let boundary;
+        while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+            const block = buffer.slice(0, boundary);
+            buffer = buffer.slice(boundary + 2);
+
+            let event = 'message';
+            let payload = '';
+
+            for (const line of block.split('\n')) {
+                if (line.startsWith('event: ')) {
+                    event = line.slice(7).trim();
+                } else if (line.startsWith('data: ')) {
+                    payload += line.slice(6);
+                } else if (line.startsWith('id: ')) {
+                    const seq = parseInt(line.slice(4), 10);
+
+                    if (Number.isFinite(seq)) lastSeq = seq;
+                }
+            }
+
+            if (payload !== '') {
+                onEvent(event, JSON.parse(payload));
+
+                if (event === 'done' || event === 'error') terminal = true;
+            }
+        }
+    }
+
+    return { terminal, lastSeq };
+}
+
+/**
+ * Follow a turn's persisted events. The server closes the stream at
+ * its wall-clock cap while the turn itself keeps running in the job —
+ * so unless a terminal event was seen, reconnect with the last seq and
+ * keep following.
+ */
+async function followTurn(turnId, after) {
+    let cursor = after;
+
+    while (true) {
+        if (abortController?.signal.aborted) return;
+
+        let response;
+
+        try {
+            response = await fetch(`/sorify/agent/conversations/${conversation.value.id}/turns/${turnId}/events?after=${cursor}`, {
+                headers: { Accept: 'text/event-stream' },
+                signal: abortController?.signal,
+            });
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                messages.value.push({ role: 'error', content: error.message, toolCalls: [] });
+            }
+
+            return;
+        }
+
+        if (!response.ok || !response.body) {
+            const text = await response.text();
+
+            messages.value.push({ role: 'error', content: text || `Request failed (${response.status})`, toolCalls: [] });
+
+            return;
+        }
+
+        const { terminal, lastSeq } = await readSseStream(response, handleEvent);
+
+        if (terminal || abortController?.signal.aborted) return;
+
+        // The server-side stream cap hit while the turn still runs in the
+        // background — resume from where it left off.
+        cursor = lastSeq || cursor;
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+}
+
 async function send() {
     const message = input.value.trim();
 
-    if (message === '' || streaming.value || !conversation.value) return;
+    if (message === '' || streaming.value || !conversation.value || adminDisabled.value) return;
 
     input.value = '';
     messages.value.push({ role: 'user', content: message, toolCalls: [] });
 
     streaming.value = true;
     thinking.value = false;
+    stopping.value = false;
     stepInfo.value = null;
+    waitingInfo.value = null;
     abortController = new AbortController();
 
     try {
@@ -488,10 +693,10 @@ async function send() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'text/event-stream',
+                'Accept': 'application/json',
                 'X-XSRF-TOKEN': csrfToken(),
             },
-            body: JSON.stringify({ message, model: selectedModel.value || null, mode: mode.value }),
+            body: JSON.stringify({ message, model: selectedModel.value || null, max_steps: maxSteps.value }),
             signal: abortController.signal,
         });
 
@@ -503,38 +708,17 @@ async function send() {
             return;
         }
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
+        // The turn runs in a background job — the client
+        // alike — and the client follows its persisted events. The
+        // follow stream heartbeats while the job works, so long LLM
+        // round-trips and tool runs can't idle the connection out (a
+        // direct in-request stream goes quiet during them and dies).
+        backgroundTurn.value = agentMode.value;
+        thinking.value = true;
 
-        while (true) {
-            const { done, value } = await reader.read();
+        const data = await response.json();
 
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-
-            let boundary;
-            while ((boundary = buffer.indexOf('\n\n')) !== -1) {
-                const block = buffer.slice(0, boundary);
-                buffer = buffer.slice(boundary + 2);
-
-                let event = 'message';
-                let payload = '';
-
-                for (const line of block.split('\n')) {
-                    if (line.startsWith('event: ')) {
-                        event = line.slice(7).trim();
-                    } else if (line.startsWith('data: ')) {
-                        payload += line.slice(6);
-                    }
-                }
-
-                if (payload !== '') {
-                    handleEvent(event, JSON.parse(payload));
-                }
-            }
-        }
+        await followTurn(data.turn_id, 0);
     } catch (error) {
         if (error.name !== 'AbortError') {
             messages.value.push({ role: 'error', content: error.message, toolCalls: [] });
@@ -542,13 +726,111 @@ async function send() {
     } finally {
         streaming.value = false;
         thinking.value = false;
+        waitingInfo.value = null;
+        backgroundTurn.value = false;
         abortController = null;
         refreshConversationTitle();
     }
 }
 
-function stop() {
+// ── Agent mode ─────────────────────────────────────────────────────────────────
+/**
+ * Toggle Agent mode for this conversation (off by default). When on,
+ * turns run with the full tool set in a background job bounded by the
+ * selected max run time, and keep going even if this window is closed.
+ * Off means plain Ask mode — quick, tool-free answers.
+ */
+async function toggleAgentMode() {
+    if (!conversation.value || streaming.value) return;
+
+    agentMode.value = !agentMode.value;
+
+    try {
+        await fetch(`/sorify/agent/conversations/${conversation.value.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-XSRF-TOKEN': csrfToken(),
+            },
+            body: JSON.stringify({ agent_mode: agentMode.value }),
+        });
+    } catch {
+        agentMode.value = !agentMode.value;
+    }
+}
+
+/** Persist the selected max run time (minutes) for agent-mode turns. */
+async function saveAgentMaxRun() {
+    if (!conversation.value) return;
+
+    try {
+        await fetch(`/sorify/agent/conversations/${conversation.value.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-XSRF-TOKEN': csrfToken(),
+            },
+            body: JSON.stringify({ agent_max_run_minutes: agentMaxRun.value }),
+        });
+    } catch {
+        // Keep the local value; the next successful save will resync.
+    }
+}
+
+/**
+ * Detach from the running turn without stopping it: abort the stream /
+ * event follow and settle the in-flight bubble. Used when the drawer
+ * closes or the user navigates back to the conversation list — a
+ * agent-mode turn must survive that and keep running in the queue.
+ */
+function detach() {
     abortController?.abort();
+    stopping.value = false;
+    finalizeInflightAssistant();
+}
+
+/**
+ * The user clicked Stop: detach AND ask the server to stop the turn
+ * itself (an in-flight job, even in the middle of a tool
+ * run) — aborting the fetch alone leaves the turn running server-side.
+ */
+async function stop() {
+    abortController?.abort();
+
+    // Flip the indicator right away — the server ends the turn at its
+    // next cancellation check (within ~1s while streaming, at the next
+    // step boundary during a tool run).
+    stopping.value = true;
+    thinking.value = false;
+    waitingInfo.value = null;
+
+    if (conversation.value) {
+        try {
+            await fetch(`/sorify/agent/conversations/${conversation.value.id}/cancel-turn`, {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'X-XSRF-TOKEN': csrfToken() },
+            });
+        } catch {
+            // Fire-and-forget: the abort above already reset the UI.
+        }
+    }
+
+    finalizeInflightAssistant();
+}
+
+/**
+ * Mark the in-flight assistant bubble as finished — after an abort or a
+ * cut-off stream, no terminal event arrives to clear its streaming
+ * state, so it would look like it is still generating.
+ */
+function finalizeInflightAssistant() {
+    const last = messages.value[messages.value.length - 1];
+
+    if (last?.role === 'assistant' && last.streaming) {
+        last.streaming = false;
+    }
 }
 
 /** Pull the latest title after a turn (it is derived from the first message). */
@@ -569,9 +851,68 @@ watch(() => props.show, (show) => {
         view.value = 'list';
         loadConversations();
         loadProfiles();
+        applyDrawerRequest();
     } else {
-        stop();
+        detach();
     }
+});
+
+// A page (an "AI explain error" / "AI explain code" / "AI update
+// description" button) asked to open the drawer and start a chat with a
+// given context and message. The chat is started right away — the
+// conversation is created and the message sent without showing the
+// new-chat form. AppLayout opens the drawer on the same request;
+// applyDrawerRequest() is idempotent per request id so whichever watcher
+// runs last wins cleanly.
+let appliedRequestId = 0;
+
+async function applyDrawerRequest() {
+    const request = drawerRequest.value;
+
+    if (!request || request.id === appliedRequestId || !props.show || adminDisabled.value) return;
+
+    appliedRequestId = request.id;
+
+    newChatForm.value.context = request.context ?? defaultContextText();
+
+    // Profiles may still be loading (the drawer was opened by this very
+    // request) — wait for them so a profile can be picked automatically.
+    if (profiles.value.length === 0) {
+        await loadProfiles();
+    }
+
+    // No profile configured (or creating the conversation failed) — fall
+    // back to the new-chat view, which carries the setup hint.
+    if (profiles.value.length === 0) {
+        view.value = 'new';
+
+        return;
+    }
+
+    if (!newChatForm.value.profile_id) {
+        newChatForm.value.profile_id = profiles.value[0].id;
+    }
+
+    // The AI buttons ("explain error", "explain code", …) imply real
+    // agent work — tools, multi-step — so the conversation they start is
+    // always created in agent mode.
+    await createConversation({ agentMode: true });
+
+    // Conversation started — send the message straight away. Falls back to
+    // a pre-filled input when creating it failed, so nothing is lost.
+    if (request.message && view.value !== 'new') {
+        if (conversation.value && !streaming.value) {
+            input.value = request.message;
+            await send();
+        }
+    } else if (request.message) {
+        input.value = request.message;
+        nextTick(autoResizeInput);
+    }
+}
+
+watch(drawerRequest, () => {
+    if (props.show) applyDrawerRequest();
 });
 
 watch(messages, () => {
@@ -649,11 +990,34 @@ watch(messages, () => {
                 </button>
             </div>
 
+            <!-- Admin kill-switch: agents disabled for this account -->
+            <div
+                v-if="adminDisabled"
+                class="flex items-start gap-2.5 px-4 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-ext-color-warning-container)] text-[var(--md-ext-color-on-warning-container)] flex-shrink-0"
+            >
+                <CircleAlert :size="16" class="flex-shrink-0 mt-0.5" />
+                <p class="md-body-small">{{ t('agent.disabledByAdmin') }}</p>
+            </div>
+
             <!-- Conversations list -->
             <div v-if="view === 'list'" class="flex-1 overflow-y-auto slim-scrollbar min-h-0 px-4 py-4">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="md-label-large text-[var(--md-sys-color-on-surface-variant)]">{{ t('agent.list.recent') }}</span>
+                    <span class="md-label-large text-[var(--md-sys-color-on-surface-variant)] flex items-center gap-2.5">
+                        {{ t('agent.list.recent') }}
+                        <button
+                            v-if="!adminDisabled && conversations.length > 0"
+                            class="inline-flex items-center gap-1 md-label-small px-2 py-0.5 rounded-[var(--md-sys-shape-corner-full)] text-[var(--md-sys-color-error)] hover:bg-[var(--md-sys-color-error-container)] hover:text-[var(--md-sys-color-on-error-container)] transition-colors disabled:opacity-50"
+                            :disabled="deletingAll || deletingId !== null"
+                            :title="t('agent.list.deleteAllTitle')"
+                            @click="deleteAllConversations"
+                        >
+                            <LoaderCircle v-if="deletingAll" :size="12" class="animate-spin" />
+                            <Trash2 v-else :size="12" />
+                            {{ t('agent.list.deleteAll') }}
+                        </button>
+                    </span>
                     <button
+                        v-if="!adminDisabled"
                         class="inline-flex items-center gap-1.5 md-label-large px-3 py-1.5 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] hover:opacity-90 transition-opacity"
                         @click="startNewChat"
                     >
@@ -680,9 +1044,14 @@ watch(messages, () => {
                 </div>
 
                 <ul v-else class="space-y-1.5">
-                    <li v-for="item in conversations" :key="item.id">
+                    <li
+                        v-for="item in conversations"
+                        :key="item.id"
+                        class="group/conversation flex items-center gap-1 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-highest)] hover:bg-[var(--md-sys-color-surface-container)] transition-colors"
+                    >
                         <button
-                            class="w-full text-left rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-highest)] hover:bg-[var(--md-sys-color-surface-container)] px-4 py-3 transition-colors"
+                            class="flex-1 min-w-0 text-left px-4 py-3"
+                            :title="item.title"
                             @click="openConversation(item.id)"
                         >
                             <div class="flex items-center gap-2">
@@ -695,6 +1064,14 @@ watch(messages, () => {
                             <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] truncate">
                                 {{ item.page_name ? `${item.page_name} · ` : '' }}{{ formatRelativeTime(item.updated_at) }}
                             </p>
+                        </button>
+                        <button
+                            class="p-2 mr-2 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-error-container)] hover:text-[var(--md-sys-color-on-error-container)] transition-colors flex-shrink-0"
+                            :title="t('agent.list.deleteOne')"
+                            @click.stop="deleteConversation(item.id)"
+                        >
+                            <LoaderCircle v-if="deletingId === item.id" :size="14" class="animate-spin" />
+                            <Trash2 v-else :size="14" />
                         </button>
                     </li>
                 </ul>
@@ -760,15 +1137,25 @@ watch(messages, () => {
             <template v-else>
                 <div
                     v-if="conversation && mcpHandoffPrompt"
-                    class="flex items-center gap-2.5 px-4 py-2 border-b border-[var(--md-sys-color-outline-variant)] flex-shrink-0"
+                    class="px-4 py-2 border-b border-[var(--md-sys-color-outline-variant)] flex-shrink-0"
                 >
-                    <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)] truncate flex-1" :title="mcpHandoffPrompt">
-                        {{ t('agent.chat.mcpHandoff') }}
-                    </span>
-                    <CopyButton :value="mcpHandoffPrompt" :label="t('agent.chat.copyPrompt')" />
+                    <CopyButton
+                        :value="mcpHandoffPrompt"
+                        :label="t('agent.chat.copyPrompt')"
+                        :title="mcpHandoffPrompt"
+                        class="w-full justify-center"
+                    />
                 </div>
 
                 <div ref="scrollContainer" class="flex-1 overflow-y-auto slim-scrollbar min-h-0 px-4 py-4 space-y-3">
+                    <p
+                        v-if="backgroundTurn"
+                        class="md-label-small inline-flex items-center gap-1.5 text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] rounded-[var(--md-sys-shape-corner-full)] px-3 py-1"
+                    >
+                        <Bot :size="12" />
+                        {{ t('agent.chat.agentRunning', { minutes: agentMaxRun }) }}
+                    </p>
+
                     <p
                         v-if="modelsError && models.length === 0"
                         class="md-body-small text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-highest)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5"
@@ -843,8 +1230,11 @@ watch(messages, () => {
                             <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-pulse [animation-delay:150ms]"></span>
                             <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-pulse [animation-delay:300ms]"></span>
                         </span>
-                        <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('agent.chat.thinking') }}</span>
-                        <span v-if="stepInfo?.max_steps" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">
+                        <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ stopping ? t('agent.chat.stopping') : t('agent.chat.thinking') }}</span>
+                        <span v-if="waitingInfo && !stopping" class="md-body-small text-[var(--md-sys-color-error)]">
+                            {{ t('agent.chat.rateLimitedWait', { seconds: waitingInfo.seconds, attempt: waitingInfo.attempt, max: waitingInfo.max_attempts }) }}
+                        </span>
+                        <span v-else-if="stepInfo?.max_steps && !stopping" class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">
                             {{ t('agent.chat.stepCount', { step: stepInfo.step, max: stepInfo.max_steps }) }}
                         </span>
                     </div>
@@ -852,28 +1242,45 @@ watch(messages, () => {
 
                 <!-- Input -->
                 <div class="border-t border-[var(--md-sys-color-outline-variant)] flex-shrink-0">
-                    <!-- Ask / Agent mode toggle -->
-                    <div class="flex items-center gap-1 px-4 pt-2.5">
+                    <!-- Agent mode toggle + step / max-run-time options -->
+                    <div class="flex items-center gap-1 px-4 pt-2.5 flex-wrap">
                         <button
-                            class="md-label-small px-2.5 py-1 rounded-full transition-colors"
-                            :class="mode === 'ask'
-                                ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)]'
+                            class="md-label-small inline-flex items-center gap-1 px-2.5 py-1 rounded-full transition-colors disabled:opacity-50"
+                            :class="agentMode
+                                ? 'bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)]'
                                 : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-highest)]'"
-                            :title="t('agent.chat.modeAskTitle')"
-                            @click="mode = 'ask'"
+                            :title="t('agent.chat.agentModeTitle')"
+                            :disabled="streaming"
+                            @click="toggleAgentMode"
                         >
-                            {{ t('agent.chat.modeAsk') }}
+                            <Bot :size="12" />
+                            {{ t('agent.chat.agentMode') }}
                         </button>
-                        <button
-                            class="md-label-small px-2.5 py-1 rounded-full transition-colors"
-                            :class="mode === 'agent'
-                                ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)]'
-                                : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-highest)]'"
-                            :title="t('agent.chat.modeAgentTitle')"
-                            @click="mode = 'agent'"
-                        >
-                            {{ t('agent.chat.modeAgent') }}
-                        </button>
+                        <label class="inline-flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]" :title="t('agent.chat.maxStepsTitle')">
+                            <Gauge :size="12" />
+                            <select
+                                v-model="maxSteps"
+                                class="bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-full)] px-2 py-0.5 outline-none focus:ring-2 ring-[var(--md-sys-color-primary)] disabled:opacity-50"
+                                :disabled="streaming"
+                            >
+                                <option v-for="steps in MAX_STEPS_OPTIONS" :key="steps" :value="steps">
+                                    {{ t('agent.chat.maxSteps', { count: steps }) }}
+                                </option>
+                            </select>
+                        </label>
+                        <label v-if="agentMode" class="inline-flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                            <select
+                                v-model="agentMaxRun"
+                                class="bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-full)] px-2 py-0.5 outline-none focus:ring-2 ring-[var(--md-sys-color-primary)] disabled:opacity-50"
+                                :title="t('agent.chat.maxRunTitle')"
+                                :disabled="streaming"
+                                @change="saveAgentMaxRun"
+                            >
+                                <option v-for="minutes in AGENT_MAX_RUN_OPTIONS" :key="minutes" :value="minutes">
+                                    {{ t('agent.chat.maxRun', { minutes }) }}
+                                </option>
+                            </select>
+                        </label>
                     </div>
 
                     <div class="flex items-end gap-2 px-4 py-3">
@@ -888,8 +1295,9 @@ watch(messages, () => {
                         />
                         <button
                             v-if="streaming"
-                            class="p-2.5 rounded-full bg-[var(--md-sys-color-error-container)] text-[var(--md-sys-color-on-error-container)] transition-colors"
+                            class="p-2.5 rounded-full bg-[var(--md-sys-color-error-container)] text-[var(--md-sys-color-on-error-container)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             :title="t('agent.chat.stop')"
+                            :disabled="stopping"
                             @click="stop"
                         >
                             <Square :size="16" />

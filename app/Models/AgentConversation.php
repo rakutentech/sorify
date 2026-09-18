@@ -15,12 +15,16 @@ class AgentConversation extends Model
         'page_url',
         'page_name',
         'context',
+        'agent_mode',
+        'agent_max_run_minutes',
     ];
 
     protected function casts(): array
     {
         return [
             'updated_at' => 'datetime',
+            'agent_mode' => 'boolean',
+            'agent_max_run_minutes' => 'integer',
         ];
     }
 
@@ -37,5 +41,10 @@ class AgentConversation extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(AgentMessage::class, 'conversation_id')->orderBy('id');
+    }
+
+    public function turnEvents(): HasMany
+    {
+        return $this->hasMany(AgentTurnEvent::class, 'conversation_id')->orderBy('seq');
     }
 }

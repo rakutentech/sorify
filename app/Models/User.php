@@ -15,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'avatar', 'email', 'password', 'is_admin', 'is_view_only', 'locale', 'github_id', 'github_app_id', 'github_token', 'github_refresh_token'])]
+#[Fillable(['name', 'avatar', 'email', 'password', 'is_admin', 'is_view_only', 'locale', 'github_id', 'github_app_id', 'github_token', 'github_refresh_token', 'agent_disabled'])]
 #[Hidden(['password', 'remember_token', 'github_token', 'github_refresh_token'])]
 class User extends Authenticatable
 {
@@ -41,6 +41,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'is_view_only' => 'boolean',
+            'agent_disabled' => 'boolean',
             'last_login_at' => 'datetime',
         ];
     }

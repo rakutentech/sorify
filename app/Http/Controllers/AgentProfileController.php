@@ -19,6 +19,8 @@ class AgentProfileController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $this->rejectWhenDisabled($request);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'base_url' => ['required', 'string', 'max:2048'],
@@ -37,6 +39,7 @@ class AgentProfileController extends Controller
     public function update(Request $request, AgentProfile $profile): JsonResponse
     {
         $this->authorizeProfile($request, $profile);
+        $this->rejectWhenDisabled($request);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
@@ -79,6 +82,8 @@ class AgentProfileController extends Controller
      */
     public function testConnection(Request $request): JsonResponse
     {
+        $this->rejectWhenDisabled($request);
+
         $credentials = $this->credentials($request);
 
         if ($credentials === null) {
@@ -131,6 +136,15 @@ class AgentProfileController extends Controller
         if ($profile->user_id !== $request->user()->id) {
             abort(403);
         }
+    }
+
+    /**
+     * Admin kill-switch: agents disabled for this user — no creating or
+     * editing profiles, no connection tests.
+     */
+    private function rejectWhenDisabled(Request $request): void
+    {
+        abort_if($request->user()?->agent_disabled, 403, 'AI agents have been disabled for your account by an administrator.');
     }
 
     /**

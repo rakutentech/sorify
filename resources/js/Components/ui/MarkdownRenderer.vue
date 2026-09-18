@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUpdated, watch, nextTick } from 'vue';
 import { Marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { useI18n } from 'vue-i18n';
+import { useTheme } from '@/composables/useTheme.js';
 
 const { t } = useI18n();
 
@@ -69,6 +70,15 @@ function createMarked(density) {
             return `<a class="text-[var(--md-sys-color-primary)] hover:underline" href="${href}" target="_blank" rel="noopener noreferrer">${inner}</a>`;
         },
         code({ text, lang }) {
+            // Mermaid fenced blocks render as a diagram placeholder div; the
+            // source rides along base64-encoded in data-source (base64 is pure
+            // alphanumeric, so it can never trip DOMPurify's SAFE_FOR_XML
+            // attribute filter, which strips values containing "-->") and is
+            // turned into SVG after mount (mermaid is lazy-loaded — it is a
+            // heavy dependency).
+            if (lang === 'mermaid') {
+                return `<div class="mermaid-diagram bg-[var(--md-sys-color-surface-container-high)] p-3 rounded-[var(--md-sys-shape-corner-small)] overflow-x-auto mb-3 [&>svg]:max-w-full [&>svg]:h-auto" data-source="${encodeSource(text)}"></div>`;
+            }
             const langCls = lang ? ` language-${lang}` : '';
             return `<pre class="bg-[var(--md-sys-color-surface-container-high)] p-3 rounded-[var(--md-sys-shape-corner-small)] overflow-x-auto mb-3"><code class="font-mono text-sm bg-transparent p-0${langCls}">${text}</code></pre>`;
         },
@@ -85,6 +95,30 @@ function createMarked(density) {
     return marked;
 }
 
+// Escapes diagram source for safe embedding in a double-quoted attribute.
+function escapeAttr(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+// Unicode-safe base64 helpers. The base64 alphabet cannot contain "-->", so
+// the encoded source always survives DOMPurify's SAFE_FOR_XML attribute filter.
+function encodeSource(text) {
+    const bytes = new TextEncoder().encode(String(text));
+    let binary = '';
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return btoa(binary);
+}
+
+function decodeSource(encoded) {
+    const binary = atob(encoded);
+    const bytes = Uint8Array.from(binary, (ch) => ch.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+}
+
 const rendered = computed(() => {
     const md = createMarked(props.density);
     // DOMPurify sanitizes the rendered HTML — strips <script>, on* handlers,
@@ -95,6 +129,60 @@ const rendered = computed(() => {
         FORBID_ATTR: ['style'],
     });
 });
+
+// ── Mermaid diagram rendering ────────────────────────────────────────────────
+// Placeholder <div class="mermaid-diagram"> elements emitted by the markdown
+// renderer are replaced with SVGs after mount. Mermaid is dynamically imported
+// so pages without diagrams never pay for the ~1MB bundle.
+const { theme } = useTheme();
+
+let mermaidLib = null;       // cached dynamic import
+let mermaidTheme = null;     // theme mermaid was last initialized with
+let mermaidSeq = 0;          // unique SVG id counter
+
+async function renderDiagrams() {
+    const host = contentRef.value;
+    if (!host) return;
+
+    const isDark = theme.value === 'dark';
+    const themeChanged = isDark !== mermaidTheme;
+    let blocks = [...host.querySelectorAll('.mermaid-diagram')];
+    if (!themeChanged) {
+        blocks = blocks.filter((el) => !el.dataset.done);
+    }
+    if (blocks.length === 0) return;
+
+    mermaidLib ??= (await import('mermaid')).default;
+    if (themeChanged || mermaidTheme === null) {
+        mermaidLib.initialize({
+            startOnLoad: false,
+            // 'strict' escapes HTML in labels — output is safe to embed.
+            securityLevel: 'strict',
+            theme: isDark ? 'dark' : 'default',
+        });
+        mermaidTheme = isDark;
+    }
+
+    for (const el of blocks) {
+        el.dataset.done = 'true'; // avoid duplicate concurrent renders
+        const source = decodeSource(el.dataset.source ?? '');
+        try {
+            const { svg } = await mermaidLib.render(`mermaid-svg-${++mermaidSeq}`, source);
+            // Mermaid's SVG carries its own internal <style> for fonts/colors,
+            // so this pass keeps style tags (unlike the markdown pass above).
+            // securityLevel 'strict' already escaped label content.
+            el.innerHTML = DOMPurify.sanitize(svg);
+        } catch (e) {
+            el.dataset.done = 'error';
+            el.innerHTML =
+                `<pre class="bg-[var(--md-sys-color-surface-container-highest)] p-3 rounded-[var(--md-sys-shape-corner-small)] overflow-x-auto"><code class="font-mono text-sm bg-transparent p-0">${escapeAttr(source)}</code></pre>` +
+                `<p class="md-label-small text-[var(--md-sys-color-error)] mt-1">${t('common.mermaidError')}</p>`;
+        }
+    }
+
+    // Diagrams change the content height — re-check the collapse threshold.
+    nextTick(checkCollapse);
+}
 
 // ── Collapsible logic ────────────────────────────────────────────────────────
 const expanded = ref(false);
@@ -116,13 +204,27 @@ function checkCollapse() {
     needsCollapse.value = fullHeight > collapsedMaxHeight.value + 24;
 }
 
-onMounted(() => nextTick(checkCollapse));
-onUpdated(() => nextTick(checkCollapse));
+onMounted(() => nextTick(() => {
+    checkCollapse();
+    renderDiagrams();
+}));
+onUpdated(() => nextTick(() => {
+    checkCollapse();
+    renderDiagrams();
+}));
 
 watch(() => props.content, () => {
     expanded.value = false;
     needsCollapse.value = false;
-    nextTick(checkCollapse);
+    nextTick(() => {
+        checkCollapse();
+        renderDiagrams();
+    });
+});
+
+// Re-render diagrams (with the new theme) when dark/light mode is toggled.
+watch(theme, () => {
+    nextTick(renderDiagrams);
 });
 
 function toggleExpand() {

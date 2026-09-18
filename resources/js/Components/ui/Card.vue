@@ -2,13 +2,14 @@
 defineProps({
     variant: { type: String, default: 'filled' }, // filled | outlined | elevated | plain
     padding: { type: String, default: 'p-5' },
+    square: { type: Boolean, default: false }, // drop the card's rounded corners
 });
 </script>
 
 <template>
     <div
-        class="rounded-[var(--md-sys-shape-corner-medium)]"
         :class="[
+            square ? 'rounded-none' : 'rounded-[var(--md-sys-shape-corner-medium)]',
             padding,
             {
                 'bg-[var(--md-sys-color-surface-container-low)]': variant === 'filled',

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AgentRunController;
 use App\Http\Controllers\Admin\GithubAppController as AdminGithubAppController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
@@ -155,9 +156,12 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
         Route::get('/conversations', [AgentConversationController::class, 'index'])->name('conversations.index');
         Route::post('/conversations', [AgentConversationController::class, 'store'])->name('conversations.store');
         Route::get('/conversations/{conversation}/messages', [AgentConversationController::class, 'messages'])->name('conversations.messages');
+        Route::get('/conversations/{conversation}/turns/{turnId}/events', [AgentConversationController::class, 'turnEvents'])->name('conversations.turn-events');
         Route::post('/conversations/{conversation}/chat', [AgentConversationController::class, 'chat'])->middleware('throttle:20,1')->name('conversations.chat');
+        Route::post('/conversations/{conversation}/cancel-turn', [AgentConversationController::class, 'cancelTurn'])->name('conversations.cancel-turn');
         Route::put('/conversations/{conversation}', [AgentConversationController::class, 'update'])->name('conversations.update');
         Route::delete('/conversations/{conversation}', [AgentConversationController::class, 'destroy'])->name('conversations.destroy');
+        Route::delete('/conversations', [AgentConversationController::class, 'destroyAll'])->name('conversations.destroy-all');
     });
 
     // Legacy /sorify/runs listing now lives in the feed.
@@ -192,6 +196,11 @@ Route::prefix('sorify/admin')->middleware(['auth', 'admin'])->name('admin.')->gr
     Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
+
+    // Running AI agent turns: live view + stop.
+    Route::get('/agent-runs', [AgentRunController::class, 'index'])->name('agent-runs.index');
+    Route::get('/agent-runs/list', [AgentRunController::class, 'list'])->name('agent-runs.list');
+    Route::post('/agent-runs/{turn}/stop', [AgentRunController::class, 'stop'])->name('agent-runs.stop');
 
     Route::get('/github-apps', [AdminGithubAppController::class, 'index'])->name('github-apps.index');
     Route::post('/github-apps', [AdminGithubAppController::class, 'store'])->name('github-apps.store');
