@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\RunAgentTurnJob;
 use App\Models\AgentConversation;
 use App\Models\AgentMessage;
 use App\Models\AgentProfile;
+use App\Models\AgentTurn;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class AgentConversationTest extends TestCase
@@ -73,6 +76,24 @@ class AgentConversationTest extends TestCase
         $this->assertSame('/sorify/suites/12', $conversation->page_url);
         $this->assertSame('User is viewing suite 12 (Checkout flow).', $conversation->context);
         $this->assertSame($this->profile->id, $conversation->agent_profile_id);
+    }
+
+    public function test_store_creates_conversation_in_agent_mode(): void
+    {
+        // The AI buttons ("explain error", "explain code", …) start chats
+        // that imply real agent work — the conversation is created with
+        // agent mode on so tools are available from the first turn.
+        $response = $this->actingAs($this->user)->postJson('/sorify/agent/conversations', [
+            'profile_id' => $this->profile->id,
+            'agent_mode' => true,
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('conversation.agent_mode', true);
+
+        $conversation = AgentConversation::findOrFail($response->json('conversation.id'));
+
+        $this->assertTrue((bool) $conversation->agent_mode);
     }
 
     public function test_store_rejects_foreign_profile(): void
@@ -151,6 +172,40 @@ class AgentConversationTest extends TestCase
         $response->assertStatus(400);
     }
 
+    public function test_chat_in_ask_mode_dispatches_job_and_returns_turn_id(): void
+    {
+        Queue::fake();
+
+        $conversation = AgentConversation::create($this->conversationAttributes());
+
+        $response = $this->actingAs($this->user)->postJson("/sorify/agent/conversations/{$conversation->id}/chat", [
+            'message' => 'hello',
+            'max_steps' => 25,
+        ]);
+
+        $response->assertStatus(202);
+
+        $turnId = $response->json('turn_id');
+
+        $this->assertSame('user', AgentMessage::query()->findOrFail($turnId)->role);
+
+        // Agent mode off means Ask mode — same job, just without tools.
+        Queue::assertPushed(RunAgentTurnJob::class, fn (RunAgentTurnJob $job) => $job->turnId === $turnId
+            && $job->conversationId === $conversation->id
+            && $job->mode === 'ask'
+            && $job->maxSteps === 25);
+    }
+
+    public function test_chat_rejects_a_max_steps_outside_the_offered_options(): void
+    {
+        $conversation = AgentConversation::create($this->conversationAttributes());
+
+        $this->actingAs($this->user)->postJson("/sorify/agent/conversations/{$conversation->id}/chat", [
+            'message' => 'hello',
+            'max_steps' => 33,
+        ])->assertStatus(422)->assertJsonValidationErrors(['max_steps']);
+    }
+
     public function test_destroy_deletes_conversation_and_messages(): void
     {
         $conversation = AgentConversation::create($this->conversationAttributes());
@@ -174,10 +229,109 @@ class AgentConversationTest extends TestCase
         $this->assertSame(0, AgentMessage::count());
     }
 
+    public function test_destroy_all_deletes_only_my_conversations(): void
+    {
+        $mine = AgentConversation::create($this->conversationAttributes(['title' => 'Mine']));
+
+        $other = User::factory()->create();
+
+        $theirs = AgentConversation::create([
+            'user_id' => $other->id,
+            'title' => 'Theirs',
+        ]);
+
+        AgentMessage::create([
+            'turn_id' => 1,
+            'conversation_id' => $mine->id,
+            'role' => 'user',
+            'content' => 'hello',
+        ]);
+
+        $response = $this->actingAs($this->user)->deleteJson('/sorify/agent/conversations');
+
+        $response->assertOk()->assertJsonPath('deleted', 1);
+
+        $this->assertNull($mine->fresh());
+        $this->assertSame(0, AgentMessage::count());
+        $this->assertNotNull($theirs->fresh());
+    }
+
     /**
      * @param  array<string, mixed>  $overrides
      * @return array<string, mixed>
      */
+    public function test_cancel_turn_flags_running_turns_of_the_conversation(): void
+    {
+        $conversation = AgentConversation::create($this->conversationAttributes());
+
+        $running = AgentTurn::create([
+            'id' => 21,
+            'conversation_id' => $conversation->id,
+            'user_id' => $this->user->id,
+            'mode' => 'ask',
+            'started_at' => now()->subMinute(),
+        ]);
+
+        $finished = AgentTurn::create([
+            'id' => 22,
+            'conversation_id' => $conversation->id,
+            'user_id' => $this->user->id,
+            'mode' => 'agent',
+            'started_at' => now()->subMinutes(10),
+            'finished_at' => now()->subMinutes(9),
+        ]);
+
+        // A running turn in another conversation must not be touched.
+        $otherTurn = AgentTurn::create([
+            'id' => 23,
+            'conversation_id' => AgentConversation::create($this->conversationAttributes(['title' => 'Other']))->id,
+            'user_id' => $this->user->id,
+            'mode' => 'agent',
+            'started_at' => now()->subMinute(),
+        ]);
+
+        $this->actingAs($this->user)->postJson("/sorify/agent/conversations/{$conversation->id}/cancel-turn")
+            ->assertOk()
+            ->assertJsonPath('ok', true);
+
+        $this->assertNotNull($running->fresh()->cancel_requested_at);
+        $this->assertNull($finished->fresh()->cancel_requested_at);
+        $this->assertNull($otherTurn->fresh()->cancel_requested_at);
+    }
+
+    public function test_cancel_turn_closes_a_stale_turn_immediately(): void
+    {
+        $conversation = AgentConversation::create($this->conversationAttributes());
+
+        // No activity for 20 minutes — the worker died without closing it.
+        $turn = AgentTurn::create([
+            'id' => 24,
+            'conversation_id' => $conversation->id,
+            'user_id' => $this->user->id,
+            'mode' => 'agent',
+            'started_at' => now()->subMinutes(25),
+            'last_activity_at' => now()->subMinutes(20),
+        ]);
+
+        $this->actingAs($this->user)->postJson("/sorify/agent/conversations/{$conversation->id}/cancel-turn")
+            ->assertOk();
+
+        $fresh = $turn->fresh();
+
+        $this->assertNotNull($fresh->cancel_requested_at);
+        $this->assertNotNull($fresh->finished_at);
+    }
+
+    public function test_cancel_turn_is_private_per_user(): void
+    {
+        $conversation = AgentConversation::create($this->conversationAttributes());
+
+        $other = User::factory()->create();
+
+        $this->actingAs($other)->postJson("/sorify/agent/conversations/{$conversation->id}/cancel-turn")
+            ->assertForbidden();
+    }
+
     private function conversationAttributes(array $overrides = []): array
     {
         return [

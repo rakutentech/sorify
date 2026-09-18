@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AgentProfile;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,15 +36,22 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user() ? [
-                    'id' => $request->user()->id,
-                    'name' => $request->user()->name,
-                    'email' => $request->user()->email,
-                    'avatar_url' => $request->user()->avatar_url,
-                    'is_admin' => $request->user()->is_admin,
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar_url' => $user->avatar_url,
+                    'is_admin' => $user->is_admin,
+                    // AI-agent availability: whether the user has at least
+                    // one agent profile configured, and whether an admin has
+                    // disabled agents for them (drives the AI buttons).
+                    'has_agent_profile' => AgentProfile::query()->where('user_id', $user->id)->exists(),
+                    'agent_disabled' => (bool) $user->agent_disabled,
                 ] : null,
             ],
             'locale' => app()->getLocale(),

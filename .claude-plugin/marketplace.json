@@ -1,11 +1,19 @@
 {
   "name": "sorify",
+  "interface": {
+    "displayName": "Sorify"
+  },
   "owner": { "name": "sorify" },
   "plugins": [
     {
       "name": "sorify",
       "source": "./plugins/sorify",
-      "description": "Automated E2E test generation for Sorify — explore a URL, generate Playwright test code, upload to Sorify, and run tests."
+      "description": "Automated E2E test generation for Sorify — explore a URL, generate Playwright test code, upload to Sorify, and run tests.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
     }
   ]
 }

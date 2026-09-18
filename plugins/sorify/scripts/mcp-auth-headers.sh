@@ -6,8 +6,29 @@ if [ ! -f ~/.sorify ]; then
   exit 1
 fi
 
-USERNAME=$(grep "^SORIFY_USERNAME" ~/.sorify | cut -d= -f2)
-PASSWORD=$(grep "^SORIFY_PASSWORD" ~/.sorify | cut -d= -f2)
+read_credential() {
+  local key="$1"
+  local line
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    if [[ "$line" == "$key="* ]]; then
+      printf '%s' "${line#*=}"
+      return 0
+    fi
+  done < "$HOME/.sorify"
+
+  return 1
+}
+
+if ! USERNAME=$(read_credential SORIFY_USERNAME); then
+  echo "Error: SORIFY_USERNAME is missing from ~/.sorify." >&2
+  exit 1
+fi
+
+if ! PASSWORD=$(read_credential SORIFY_PASSWORD); then
+  echo "Error: SORIFY_PASSWORD is missing from ~/.sorify." >&2
+  exit 1
+fi
 
 TOKEN=$(printf '%s:%s' "$USERNAME" "$PASSWORD" | base64)
 

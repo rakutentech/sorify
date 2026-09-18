@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AgentProfile;
 use App\Models\User;
 use App\Services\ActivityLogger;
+use App\Services\AdminNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -14,8 +16,13 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
+    public function __construct(private readonly AdminNotificationService $adminNotifications) {}
+
     public function index(): Response
     {
+        // Users that have at least one agent profile configured (one query).
+        $usersWithProfiles = AgentProfile::query()->pluck('user_id')->unique()->flip();
+
         $users = User::orderBy('name')->get()->map(fn (User $u) => [
             'id' => $u->id,
             'name' => $u->name,
@@ -25,6 +32,8 @@ class UserController extends Controller
             'is_view_only' => $u->is_view_only,
             'created_at' => $u->created_at,
             'last_login_at' => $u->last_login_at,
+            'agent_disabled' => (bool) $u->agent_disabled,
+            'has_agent_profile' => $usersWithProfiles->has($u->id),
         ]);
 
         return Inertia::render('Admin/Users/Index', ['users' => $users]);
@@ -49,6 +58,8 @@ class UserController extends Controller
 
         ActivityLogger::log('user_created', $request->user(), null, $user, ['user_name' => $user->name]);
 
+        $this->adminNotifications->notifyNewUser($user, 'admin', $request->user()->name);
+
         return back()->with('flash.success', 'User created successfully.');
     }
 
@@ -67,6 +78,19 @@ class UserController extends Controller
     {
         if ($user->id === auth()->id()) {
             return back()->withErrors(['user' => 'You cannot change your own role.']);
+        }
+
+        // Agent allow/deny toggle from the users table's switch.
+        if ($request->has('agent_disabled')) {
+            $data = $request->validate([
+                'agent_disabled' => ['required', 'boolean'],
+            ]);
+
+            $user->update(['agent_disabled' => $data['agent_disabled']]);
+
+            return back()->with('flash.success', $data['agent_disabled']
+                ? 'AI agent disabled for this user.'
+                : 'AI agent enabled for this user.');
         }
 
         $data = $request->validate([
