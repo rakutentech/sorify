@@ -1,0 +1,32 @@
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 1140,1142-1147
+resources/js/Components/Agent/GatewayPromptButton.vue
+  h_f44dfe84a46cdf 1-52
+resources/js/Pages/TestRuns/Show.vue
+  h_f44dfe84a46cdf 12,65-75,560-566
+resources/js/Pages/TestSuites/Review.vue
+  h_f44dfe84a46cdf 13,73-84,420-425
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 12,192-193,203-206,210-219,245-258,1289-1294,2467-2480
+resources/js/Pages/Tests/Show.vue
+  h_f44dfe84a46cdf 14,87-92,332-335,363
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 925,927-930,935-936
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 925,927-930,935-936
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 925,927-930,935-936
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 925,927-930,935-936
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "835736664693c5aed4384963f6d68b7976b1eaba",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
