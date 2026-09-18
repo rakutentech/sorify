@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('viewLogViewer', fn (User $user) => $user->is_admin);
 
-        DevCommands::artisan('queue:listen --queue=sorify,default --tries=1 --timeout=0', 'queue');
+        DevCommands::artisan('queue:listen --queue=sorify,default,agent --tries=1 --timeout=0', 'queue');
         DevCommands::artisan('schedule:work', 'scheduler');
     }
 }
