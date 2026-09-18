@@ -6,7 +6,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Modal, Tooltip, SortableTh } from '@/Components/ui';
 import CopyableSecret from '@/Components/CopyableSecret.vue';
 import { formatDate, formatRelativeTime } from '@/utils/date';
-import { ShieldCheck, UserPlus, Users, Mail, KeyRound, Trash2, Calendar, User, Clock } from '@lucide/vue';
+import { ShieldCheck, UserPlus, Users, Mail, KeyRound, Trash2, Calendar, User, Clock, Bot } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -82,6 +82,20 @@ function changeRole(user, event) {
     router.put(`/sorify/admin/users/${user.id}`, { role: event.target.value });
 }
 
+// AI agent allow/deny for a user (the switch in the AI Agent column).
+function toggleAgent(user) {
+    router.put(
+        `/sorify/admin/users/${user.id}`,
+        { agent_disabled: !user.agent_disabled },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                user.agent_disabled = !user.agent_disabled;
+            },
+        },
+    );
+}
+
 function roleOf(user) {
     if (user.is_admin) return 'admin';
     if (user.is_view_only) return 'viewer';
@@ -123,6 +137,7 @@ watch(
                             <SortableTh field="role" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><ShieldCheck :size="13" />{{ t('adminUsers.colRole') }}</SortableTh>
                             <SortableTh field="created_at" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Calendar :size="13" />{{ t('adminUsers.colJoined') }}</SortableTh>
                             <SortableTh field="last_login_at" :current-sort="sort" :current-dir="sortDir" @sort="setSort"><Clock :size="13" />{{ t('adminUsers.colLastActive') }}</SortableTh>
+                            <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider"><Bot :size="13" class="inline -mt-0.5" />{{ t('adminUsers.colAiAgent') }}</th>
                             <th class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('adminUsers.colActions') }}</th>
                         </tr>
                     </thead>
@@ -145,6 +160,37 @@ watch(
                             </td>
                             <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]"><Tooltip :text="formatDate(user.created_at)">{{ formatRelativeTime(user.created_at) }}</Tooltip></td>
                             <td class="px-4 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]"><Tooltip :text="user.last_login_at ? formatDate(user.last_login_at) : ''">{{ user.last_login_at ? formatRelativeTime(user.last_login_at) : t('adminUsers.never') }}</Tooltip></td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-2.5">
+                                    <!-- Configured state -->
+                                    <span
+                                        class="inline-flex items-center gap-1 md-label-small"
+                                        :class="user.has_agent_profile ? 'text-[var(--md-ext-color-success)]' : 'text-[var(--md-sys-color-on-surface-variant)] opacity-70'"
+                                        :title="user.has_agent_profile ? t('adminUsers.agentConfigured') : t('adminUsers.agentNotConfigured')"
+                                    >
+                                        <Bot :size="13" />
+                                        {{ user.has_agent_profile ? t('adminUsers.agentConfigured') : t('adminUsers.agentNotConfigured') }}
+                                    </span>
+
+                                    <!-- Allow / deny switch -->
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        :aria-checked="!user.agent_disabled"
+                                        :title="user.agent_disabled ? t('adminUsers.agentEnableHint') : t('adminUsers.agentDisableHint')"
+                                        class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-[var(--md-sys-shape-corner-full)] transition-colors"
+                                        :class="user.agent_disabled
+                                            ? 'bg-[var(--md-sys-color-surface-container-highest)]'
+                                            : 'bg-[var(--md-sys-color-primary)]'"
+                                        @click="toggleAgent(user)"
+                                    >
+                                        <span
+                                            class="pointer-events-none inline-block h-4 w-4 mt-0.5 ml-0.5 rounded-[var(--md-sys-shape-corner-full)] bg-white shadow transition-transform"
+                                            :class="user.agent_disabled ? 'translate-x-0' : 'translate-x-4'"
+                                        />
+                                    </button>
+                                </div>
+                            </td>
                             <td class="px-4 py-3 space-x-3">
                                 <button
                                     @click="resetPassword(user)"
@@ -165,7 +211,7 @@ watch(
                             </td>
                         </tr>
                         <tr v-if="!users.length">
-                            <td colspan="6" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                            <td colspan="7" class="px-4 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
                                 <Users :size="32" class="mx-auto mb-3 opacity-40" />
                                 {{ t('adminUsers.noUsersFound') }}
                             </td>

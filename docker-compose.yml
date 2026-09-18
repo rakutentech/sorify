@@ -66,13 +66,31 @@ services:
     deploy:
       replicas: 3
     # --timeout is only the default for jobs without their own timeout();
-    # RunSingleTestJob overrides it. DB_QUEUE_RETRY_AFTER must exceed the
-    # largest possible job timeout: (600s timeout_ms + 10) * (1 + 3 max
-    # retries) + 30 = 2470s, else a still-running job is re-released to the
-    # queue and double-executed.
-    command: ["php", "artisan", "queue:work", "--queue=sorify,default", "--tries=1", "--timeout=600", "--sleep=3"]
+    # RunSingleTestJob overrides it. `agent` is listed last as a fallback:
+    # these workers only pull agent turns when the test queues are empty,
+    # so tests never starve and agent turns still run if the dedicated
+    # agent workers are all down.
+    command: ["php", "artisan", "queue:work", "--queue=sorify,default,agent", "--tries=1", "--timeout=600", "--sleep=3"]
     environment:
-      - DB_QUEUE_RETRY_AFTER=2520
+      # Must exceed the largest possible job timeout these workers can
+      # pick up: the agent job's 3720s (60 min max run + 120s headroom),
+      # else a still-running job is re-released and double-executed.
+      # (600s timeout_ms + 10) * (1 + 3 max retries) + 30 = 2470s for
+      # tests also fits under this.
+      - DB_QUEUE_RETRY_AFTER=3800
+
+  # Dedicated workers for AI agent turns (RunAgentTurnJob): agent turns run
+  # up to an hour and must not sit behind test executions, and vice versa.
+  agent-queue:
+    <<: *app-image
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+    # --timeout is the default for jobs without their own timeout(); the
+    # agent job overrides it with max run minutes * 60 + 120 (≤ 3720s).
+    command: ["php", "artisan", "queue:work", "--queue=agent", "--tries=1", "--timeout=3720", "--sleep=3"]
+    environment:
+      - DB_QUEUE_RETRY_AFTER=3800
 
   scheduler:
     <<: *app-image

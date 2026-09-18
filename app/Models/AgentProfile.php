@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class AgentProfile extends Model
 {
-    public const RETENTION_DAYS = [7, 30, 90, 365];
+    public const RETENTION_DAYS = [7, 14, 30, 90, 365];
 
     protected $fillable = [
         'user_id',

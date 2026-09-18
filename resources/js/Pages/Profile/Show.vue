@@ -1,13 +1,18 @@
 <script setup>
-import { useForm, router } from '@inertiajs/vue3';
+import { useForm, router, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { computed, ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Avatar } from '@/Components/ui';
 import AgentProfiles from '@/Components/Agent/AgentProfiles.vue';
-import { UserCircle, Upload, KeyRound, Lock, User, Check, Bot } from '@lucide/vue';
+import { UserCircle, Upload, KeyRound, Lock, User, Check, Bot, CircleAlert } from '@lucide/vue';
 
 const { t } = useI18n();
+
+const page = usePage();
+
+// Admin kill-switch: agents disabled for this account.
+const adminAgentDisabled = computed(() => page.props.auth?.user?.agent_disabled === true);
 
 const props = defineProps({
     user: Object,
@@ -209,6 +214,13 @@ function removeAvatar() {
 
                     <!-- AI Agent Profiles -->
                     <div v-if="activeSection === 'agents'" data-section="agents">
+                        <div
+                            v-if="adminAgentDisabled"
+                            class="flex items-start gap-2.5 rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-ext-color-warning-container)] text-[var(--md-ext-color-on-warning-container)] px-4 py-3 mb-4"
+                        >
+                            <CircleAlert :size="16" class="flex-shrink-0 mt-0.5" />
+                            <p class="md-body-small">{{ t('agent.disabledByAdmin') }}</p>
+                        </div>
                         <AgentProfiles :profiles="agentProfiles" />
                     </div>
 
