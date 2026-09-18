@@ -7,6 +7,9 @@ import CopyableSecret from '@/Components/CopyableSecret.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import TestSuiteIntegrations from '@/Components/TestSuiteIntegrations.vue';
 import { clearAgentContext, setAgentContext } from '@/composables/useAgentContext';
+import { openAgentDrawer } from '@/composables/useAgentDrawer.js';
+import AiButton from '@/Components/Agent/AiButton.vue';
+import GatewayPromptButton from '@/Components/Agent/GatewayPromptButton.vue';
 import { Card, Chip, Button, IconButton, TextField, Autocomplete, Modal, Breadcrumb, SuiteName, TestName, Avatar, AvatarGroup, SettingBadge, RunPill, ScreenshotThumbs, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
@@ -186,8 +189,8 @@ function toggleBookmark() {
 // ── AI agent page context ────────────────────────────────────────────────────
 // Tells the agent which suite this page is about (picked up when a new chat
 // is opened from here). Cleared when navigating away.
-setAgentContext(() => ({
-    context: JSON.stringify({
+function suiteContextJson() {
+    return JSON.stringify({
         page: 'test_suite',
         suite_id: props.suite.id,
         suite_name: props.suite.name,
@@ -197,10 +200,61 @@ setAgentContext(() => ({
             ? Object.values(props.stats.status_counts).reduce((sum, count) => sum + count, 0)
             : (props.tests?.data?.length ?? 0),
         last_run_status: props.recentRuns?.[0]?.status ?? null,
-    }, null, 2),
-}));
+    }, null, 2);
+}
+
+setAgentContext(() => ({ context: suiteContextJson() }));
 
 onUnmounted(() => clearAgentContext());
+
+// ── AI about this suite ──────────────────────────────────────────────────────
+// Opens the agent drawer on a new chat with this suite's context and an
+// overview prompt, sent straight away.
+function aboutSuite() {
+    openAgentDrawer({
+        context: suiteContextJson(),
+        message: t('agent.prompts.aboutSuite', { name: props.suite.name }),
+    });
+}
+
+// ── AI explain error ─────────────────────────────────────────────────────────
+// Opens the agent drawer and starts a chat with the failed test's context
+// and prompt, sent straight away.
+const ERROR_STATUSES = ['failed', 'error', 'timeout'];
+
+function explainTestError(test) {
+    const lastRun = test.recent_runs?.[0] ?? null;
+
+    openAgentDrawer({
+        context: JSON.stringify({
+            page: 'test_suite',
+            suite_id: props.suite.id,
+            suite_name: props.suite.name,
+            test_id: test.id,
+            test_name: test.name,
+            last_run: lastRun ? {
+                run_id: lastRun.run_id,
+                status: lastRun.status,
+                error_message: lastRun.error_message,
+            } : null,
+        }, null, 2),
+        message: t('agent.prompts.explainError', { name: test.name }),
+    });
+}
+
+// Gateway copy button: the same prompt explainTestError sends to the
+// in-app agent, copied as a /sorify:gateway command for a local coding
+// agent. The test's page URL is included so the local agent can look it
+// up through its Sorify tools.
+function explainErrorPrompt(test) {
+    return t('agent.prompts.explainError', { name: test.name });
+}
+
+function gatewayTestUrl(testId) {
+    return `${window.location.origin}/sorify/suites/${props.suite.id}/tests/${testId}`;
+}
+
+const gatewaySuiteUrl = computed(() => `${window.location.origin}/sorify/suites/${props.suite.id}`);
 
 function regenerateWebhook() {
     if (props.webhookLimitReached) return;
@@ -690,11 +744,13 @@ watch(() => ({
 // One settings section is visible at a time; clicking the active nav item
 // (or the panel's close button) deselects it. The open panel is reflected
 // in the URL (?settings=webhook) so refreshes and shared links reopen it.
-const SETTINGS_SECTION_IDS = ['tests', 'suite', 'run', 'webhook'];
+const SETTINGS_SECTION_IDS = ['tests', 'suite', 'run', 'webhook', 'users'];
+
+const requestedSection = new URLSearchParams(window.location.search).get('settings');
 
 const activeSection = ref(
-    SETTINGS_SECTION_IDS.includes(new URLSearchParams(window.location.search).get('settings'))
-        ? new URLSearchParams(window.location.search).get('settings')
+    SETTINGS_SECTION_IDS.includes(requestedSection) && (requestedSection !== 'users' || props.can.manageUsers)
+        ? requestedSection
         : 'tests',
 );
 
@@ -735,6 +791,13 @@ const settingsSections = computed(() => [
             { label: t('testSuites.badgeHttp'), active: !!(props.suite.integrations && props.suite.integrations.some(i => i.type === 'http_request')), kind: 'http' },
         ],
     },
+    ...(props.can.manageUsers
+        ? [{
+            id: 'users',
+            label: t('testSuiteShow.manageUsers'),
+            icon: UserCog,
+        }]
+        : []),
 ]);
 
 // Nav order: Tests first (default), then the settings sections.
@@ -793,6 +856,7 @@ function loadScheduleTests() {
 
 watch(activeSection, (section) => {
     if (section === 'suite') loadScheduleTests();
+    if (section === 'users') newMemberForm.reset();
 });
 if (activeSection.value === 'suite') loadScheduleTests();
 
@@ -883,8 +947,7 @@ function updateSuiteSetting(field) {
     );
 }
 
-// Manage Users modal
-const showManageUsersModal = ref(false);
+// Manage users settings panel
 const newMemberForm = useForm({
     user_id: '',
     can_view: true,
@@ -892,11 +955,6 @@ const newMemberForm = useForm({
     can_delete: false,
     can_run: false,
 });
-
-function openManageUsersModal() {
-    newMemberForm.reset();
-    showManageUsersModal.value = true;
-}
 
 const selectedCandidateIsViewOnly = computed(() => {
     const candidate = props.candidates.find(c => c.id === newMemberForm.user_id);
@@ -1197,41 +1255,22 @@ function toggleRunsExpanded(testId) {
         <!-- Suite header -->
         <div class="flex items-start justify-between mb-6">
             <div>
-                <Breadcrumb class="mb-1" :crumbs="[
-                    { label: t('testSuites.title'), href: '/sorify/suites' },
-                    { label: suite.name, suite: true },
-                ]">
-                    <template #crumb="{ crumb }">
-                        <SuiteName v-if="crumb.suite" :name="crumb.label" />
-                        <template v-else>{{ crumb.label }}</template>
-                    </template>
-                </Breadcrumb>
-                <span class="inline-flex items-center gap-3 mb-1.5">
-                    <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ t('testSuiteShow.badge') }}</span>
-                    <span v-if="suite.created_by" class="flex items-center gap-1.5">
-                        <Avatar :name="suite.created_by.name" :email="suite.created_by.email" :avatar-url="suite.created_by.avatar_url" />
-                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.createdBy', { name: suite.created_by.name }) }}</span>
-                    </span>
-                    <span class="flex items-center gap-1.5">
-                        <AvatarGroup :users="suite.members ?? []" :suite-id="suite.id" :max="20" />
-                        <Button
-                            v-if="can.manageUsers"
-                            variant="tonal"
-                            size="sm"
-                            @click="openManageUsersModal"
-                        >
-                            <template #leading><UserCog :size="14" /></template>
-                            {{ t('testSuiteShow.manageUsers') }}
-                        </Button>
-                    </span>
-                </span>
+                <div class="flex items-center gap-3 mb-1.5">
+                    <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] flex-shrink-0">{{ t('testSuiteShow.badge') }}</span>
+                    <Breadcrumb :crumbs="[
+                        { label: t('testSuites.title'), href: '/sorify/suites' },
+                        { label: suite.name, suite: true },
+                    ]">
+                        <template #crumb="{ crumb }">
+                            <SuiteName v-if="crumb.suite" :name="crumb.label" />
+                            <template v-else>{{ crumb.label }}</template>
+                        </template>
+                    </Breadcrumb>
+                </div>
                 <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
                     <FolderKanban :size="26" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
                     <SuiteName :name="suite.name" :id="suite.id" />
                 </h1>
-                <div v-if="suite.description" class="mt-1">
-                    <MarkdownRenderer :content="suite.description" density="compact" collapsible :collapsed-lines="10" />
-                </div>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0 ml-4">
                 <IconButton
@@ -1291,6 +1330,12 @@ function toggleRunsExpanded(testId) {
         <div class="grid grid-cols-1 gap-6 items-start lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_minmax(280px,340px)]">
             <!-- Settings sidebar (Profile-style section nav) -->
             <aside class="min-w-0 lg:sticky lg:top-6 space-y-4">
+                <!-- Suite description -->
+                <Card v-if="suite.description" padding="p-3" variant="outlined">
+                    <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.descriptionLabel') }}</p>
+                    <MarkdownRenderer :content="suite.description" density="compact" collapsible :collapsed-lines="10" />
+                </Card>
+
                 <Card padding="p-2" variant="outlined">
                     <ul class="flex lg:flex-col gap-1 lg:gap-3 overflow-x-auto">
                         <li v-for="section in sections" :key="section.id" class="flex-1 lg:flex-none group/section">
@@ -1315,6 +1360,20 @@ function toggleRunsExpanded(testId) {
                             </div>
                         </li>
                     </ul>
+
+                    <!-- Members: creator + people in this suite -->
+                    <div class="hidden lg:block pt-3 mt-1 border-t border-[var(--md-sys-color-outline-variant)] pl-3 pr-1">
+                        <div v-if="suite.created_by" class="mb-3">
+                            <p class="md-label-small font-bold text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.createdBy') }}</p>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <Avatar :name="suite.created_by.name" :email="suite.created_by.email" :avatar-url="suite.created_by.avatar_url" />
+                            </div>
+                        </div>
+                        <div>
+                            <p class="md-label-small font-bold text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.peopleInSuite') }}</p>
+                            <AvatarGroup :users="suite.members ?? []" :suite-id="suite.id" :max="20" />
+                        </div>
+                    </div>
                 </Card>
             </aside>
             <!-- Tests list -->
@@ -2097,6 +2156,103 @@ function toggleRunsExpanded(testId) {
                 </Card>
             </div>
 
+            <!-- Manage users settings panel -->
+            <div v-if="activeSection === 'users'" data-settings-panel="users">
+                <Card padding="p-0" class="!bg-[var(--md-sys-color-surface-container-lowest)]">
+                    <div class="flex items-center justify-between gap-3 px-5 h-[56px] border-b border-[var(--md-sys-color-outline-variant)]">
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
+                            <UserCog :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
+                            {{ t('testSuiteShow.manageUsersModalTitle') }}
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <IconButton variant="standard" :label="t('testSuiteShow.closeSettings')" @click="selectSettingsSection('tests')">
+                                <X :size="16" />
+                            </IconButton>
+                        </div>
+                    </div>
+                    <div class="px-5 py-4 space-y-4">
+                        <p v-if="newMemberForm.errors.member" class="text-[var(--md-sys-color-error)] md-body-small">{{ newMemberForm.errors.member }}</p>
+
+                        <form v-if="candidates.length" @submit.prevent="submitAddMember" class="space-y-3 pb-4 border-b border-[var(--md-sys-color-outline-variant)]">
+                            <Autocomplete
+                                v-model="newMemberForm.user_id"
+                                :options="candidates"
+                                value-key="id"
+                                :emit-on-input="false"
+                                :label="t('testSuiteShow.addUser')"
+                                :placeholder="t('testSuiteShow.searchNameOrEmail')"
+                                :error="newMemberForm.errors.user_id"
+                                class="w-full"
+                            >
+                                <template #trailing>
+                                    <Button type="submit" variant="filled" size="sm" :disabled="newMemberForm.processing">{{ t('testSuiteShow.add') }}</Button>
+                                </template>
+                            </Autocomplete>
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="newMemberForm.can_view" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> {{ t('testSuiteShow.view') }}
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="newMemberForm.can_edit" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> {{ t('testSuiteShow.editPerm') }}
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="newMemberForm.can_delete" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> {{ t('testSuiteShow.deletePerm') }}
+                                </label>
+                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
+                                    <input type="checkbox" v-model="newMemberForm.can_run" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> {{ t('testSuiteShow.runPerm') }}
+                                </label>
+                            </div>
+                        </form>
+                        <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)] pb-4 border-b border-[var(--md-sys-color-outline-variant)]">{{ t('testSuiteShow.allUsersHaveAccess') }}</p>
+
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-left border-b border-[var(--md-sys-color-outline-variant)]">
+                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuiteShow.colUser') }}</th>
+                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider text-center">{{ t('testSuiteShow.colView') }}</th>
+                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider text-center">{{ t('testSuiteShow.colEdit') }}</th>
+                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider text-center">{{ t('testSuiteShow.colDelete') }}</th>
+                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider text-center">{{ t('testSuiteShow.colRun') }}</th>
+                                    <th class="pb-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
+                                <tr v-for="member in members" :key="member.id">
+                                    <td class="py-2 md-body-medium text-[var(--md-sys-color-on-surface)]">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <Avatar :name="member.name" :email="member.email" :avatar-url="member.avatar_url" />
+                                            <span class="min-w-0">
+                                                <span class="truncate block">{{ member.name }}</span>
+                                                <span v-if="member.is_view_only" class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.viewOnly') }}</span>
+                                                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] truncate">{{ member.email }}</p>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="py-2 text-center">
+                                        <input type="checkbox" v-model="member.can_view" @change="updateMemberPrivilege(member, 'can_view')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer" />
+                                    </td>
+                                    <td class="py-2 text-center">
+                                        <input type="checkbox" v-model="member.can_edit" :disabled="member.is_view_only" :title="member.is_view_only ? t('testSuiteShow.viewOnlyEditTitle') : null" @change="updateMemberPrivilege(member, 'can_edit')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" />
+                                    </td>
+                                    <td class="py-2 text-center">
+                                        <input type="checkbox" v-model="member.can_delete" :disabled="member.is_view_only" :title="member.is_view_only ? t('testSuiteShow.viewOnlyDeleteTitle') : null" @change="updateMemberPrivilege(member, 'can_delete')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" />
+                                    </td>
+                                    <td class="py-2 text-center">
+                                        <input type="checkbox" v-model="member.can_run" :disabled="member.is_view_only" :title="member.is_view_only ? t('testSuiteShow.viewOnlyRunTitle') : null" @change="updateMemberPrivilege(member, 'can_run')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" />
+                                    </td>
+                                    <td class="py-2 text-right">
+                                        <button @click="removeMember(member)" class="md-label-small text-[var(--md-sys-color-error)] hover:underline">{{ t('testSuiteShow.removeMember') }}</button>
+                                    </td>
+                                </tr>
+                                <tr v-if="!members.length">
+                                    <td colspan="6" class="py-4 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.noUsersAdded') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </Card>
+            </div>
+
             <template v-if="activeSection === 'tests'">
                 <!-- Tests toolbar: search / sort / status filter -->
                 <div class="flex items-center gap-3 flex-wrap">
@@ -2404,6 +2560,21 @@ function toggleRunsExpanded(testId) {
                                     {{ runningIds.has(test.id) ? '...' : t('testSuiteShow.runShort') }}
                                 </button>
 
+                                <!-- AI explain error + gateway copy prompt
+                                     (failed / errored rows only, same row) -->
+                                <div v-if="ERROR_STATUSES.includes(test.current_status)" class="flex items-center gap-1.5">
+                                    <AiButton
+                                        :label="t('agent.buttons.explainError')"
+                                        size="xs"
+                                        @click="explainTestError(test)"
+                                    />
+                                    <GatewayPromptButton
+                                        :message="explainErrorPrompt(test)"
+                                        :url="gatewayTestUrl(test.id)"
+                                        size="xs"
+                                    />
+                                </div>
+
                                 <!-- Created / Updated timestamps (subtle, hover for absolute date) -->
                                 <div v-if="test.updated_at || test.created_at" class="flex items-center gap-1.5">
                                     <span v-if="test.updated_at" class="relative group/tip">
@@ -2464,6 +2635,14 @@ function toggleRunsExpanded(testId) {
             </div>
 
             <div class="space-y-6 min-w-0 lg:col-start-2 xl:col-start-auto">
+                <!-- AI about this suite + gateway copy prompt. Sized to match
+                     the tests toolbar height in the main column, so the
+                     Recent runs card below aligns with the tests table. -->
+                <div class="flex items-center gap-1.5 flex-wrap min-h-[38px]">
+                    <AiButton :label="t('agent.buttons.aboutSuite')" @click="aboutSuite" />
+                    <GatewayPromptButton :message="t('agent.prompts.aboutSuite', { name: suite.name })" :url="gatewaySuiteUrl" />
+                </div>
+
                 <!-- Recent runs -->
                 <Card padding="p-0">
                     <div class="px-5 py-4 min-h-[60px] flex items-center border-b border-[var(--md-sys-color-outline-variant)]">
@@ -2588,93 +2767,6 @@ function toggleRunsExpanded(testId) {
                             </Button>
                         </div>
                     </form>
-        </Modal>
-
-        <!-- Manage Users Modal -->
-        <Modal :show="showManageUsersModal" :title="t('testSuiteShow.manageUsersModalTitle')" max-width="max-w-2xl" @close="showManageUsersModal = false">
-                    <div class="px-6 py-5 space-y-4">
-                        <p v-if="newMemberForm.errors.member" class="text-[var(--md-sys-color-error)] md-body-small">{{ newMemberForm.errors.member }}</p>
-
-                        <form v-if="candidates.length" @submit.prevent="submitAddMember" class="space-y-3 pb-4 border-b border-[var(--md-sys-color-outline-variant)]">
-                            <Autocomplete
-                                v-model="newMemberForm.user_id"
-                                :options="candidates"
-                                value-key="id"
-                                :emit-on-input="false"
-                                :label="t('testSuiteShow.addUser')"
-                                :placeholder="t('testSuiteShow.searchNameOrEmail')"
-                                :error="newMemberForm.errors.user_id"
-                                class="w-full"
-                            >
-                                <template #trailing>
-                                    <Button type="submit" variant="filled" size="sm" :disabled="newMemberForm.processing">{{ t('testSuiteShow.add') }}</Button>
-                                </template>
-                            </Autocomplete>
-                            <div class="flex items-center gap-4">
-                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                    <input type="checkbox" v-model="newMemberForm.can_view" class="w-4 h-4 accent-[var(--md-sys-color-primary)]" /> {{ t('testSuiteShow.view') }}
-                                </label>
-                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                    <input type="checkbox" v-model="newMemberForm.can_edit" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> {{ t('testSuiteShow.editPerm') }}
-                                </label>
-                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                    <input type="checkbox" v-model="newMemberForm.can_delete" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> {{ t('testSuiteShow.deletePerm') }}
-                                </label>
-                                <label class="flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                                    <input type="checkbox" v-model="newMemberForm.can_run" :disabled="selectedCandidateIsViewOnly" class="w-4 h-4 accent-[var(--md-sys-color-primary)] disabled:opacity-40" /> {{ t('testSuiteShow.runPerm') }}
-                                </label>
-                            </div>
-                        </form>
-                        <p v-else class="md-body-small text-[var(--md-sys-color-on-surface-variant)] pb-4 border-b border-[var(--md-sys-color-outline-variant)]">{{ t('testSuiteShow.allUsersHaveAccess') }}</p>
-
-                        <table class="w-full">
-                            <thead>
-                                <tr class="text-left border-b border-[var(--md-sys-color-outline-variant)]">
-                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testSuiteShow.colUser') }}</th>
-                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider text-center">{{ t('testSuiteShow.colView') }}</th>
-                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider text-center">{{ t('testSuiteShow.colEdit') }}</th>
-                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider text-center">{{ t('testSuiteShow.colDelete') }}</th>
-                                    <th class="pb-2 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider text-center">{{ t('testSuiteShow.colRun') }}</th>
-                                    <th class="pb-2"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
-                                <tr v-for="member in members" :key="member.id">
-                                    <td class="py-2 md-body-medium text-[var(--md-sys-color-on-surface)]">
-                                        <div class="flex items-center gap-2.5 min-w-0">
-                                            <Avatar :name="member.name" :email="member.email" :avatar-url="member.avatar_url" />
-                                            <span class="min-w-0">
-                                                <span class="truncate block">{{ member.name }}</span>
-                                                <span v-if="member.is_view_only" class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.viewOnly') }}</span>
-                                                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] truncate">{{ member.email }}</p>
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="py-2 text-center">
-                                        <input type="checkbox" v-model="member.can_view" @change="updateMemberPrivilege(member, 'can_view')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer" />
-                                    </td>
-                                    <td class="py-2 text-center">
-                                        <input type="checkbox" v-model="member.can_edit" :disabled="member.is_view_only" :title="member.is_view_only ? t('testSuiteShow.viewOnlyEditTitle') : null" @change="updateMemberPrivilege(member, 'can_edit')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" />
-                                    </td>
-                                    <td class="py-2 text-center">
-                                        <input type="checkbox" v-model="member.can_delete" :disabled="member.is_view_only" :title="member.is_view_only ? t('testSuiteShow.viewOnlyDeleteTitle') : null" @change="updateMemberPrivilege(member, 'can_delete')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" />
-                                    </td>
-                                    <td class="py-2 text-center">
-                                        <input type="checkbox" v-model="member.can_run" :disabled="member.is_view_only" :title="member.is_view_only ? t('testSuiteShow.viewOnlyRunTitle') : null" @change="updateMemberPrivilege(member, 'can_run')" class="w-4 h-4 accent-[var(--md-sys-color-primary)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" />
-                                    </td>
-                                    <td class="py-2 text-right">
-                                        <button @click="removeMember(member)" class="md-label-small text-[var(--md-sys-color-error)] hover:underline">{{ t('testSuiteShow.removeMember') }}</button>
-                                    </td>
-                                </tr>
-                                <tr v-if="!members.length">
-                                    <td colspan="6" class="py-4 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.noUsersAdded') }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <template #footer>
-                        <Button variant="text" @click="showManageUsersModal = false">{{ t('testSuiteShow.close') }}</Button>
-                    </template>
         </Modal>
 
         <!-- New Test Modal -->

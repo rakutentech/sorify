@@ -9,6 +9,9 @@ import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
 import { Card, Chip, Button, TextField, Autocomplete, Breadcrumb, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination, MarkdownRenderer } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+import { openAgentDrawer } from '@/composables/useAgentDrawer.js';
+import AiButton from '@/Components/Agent/AiButton.vue';
+import GatewayPromptButton from '@/Components/Agent/GatewayPromptButton.vue';
 import { FlaskConical, Copy, LoaderCircle, Trash2, Play, CircleAlert, X, ChevronRight, ArrowLeft, ArrowRight, History, Code, Activity, Bot } from '@lucide/vue';
 
 const { t } = useI18n();
@@ -48,6 +51,44 @@ const codeForm = useForm({
 });
 
 const codeEditable = ref(false);
+
+// ── AI actions ───────────────────────────────────────────────────────────────
+// The drawer's context block is capped server-side (8000 chars), so the
+// code is included truncated; the agent can fetch the full test through
+// its tools when it needs more.
+function aiCodeContext() {
+    const code = codeForm.playwright_code ?? '';
+
+    return JSON.stringify({
+        page: 'test_detail',
+        suite_id: props.suite.id,
+        suite_name: props.suite.name,
+        test_id: props.test.id,
+        test_name: props.test.name,
+        description: props.test.description ?? null,
+        playwright_code: code.length > 6000 ? `${code.slice(0, 6000)}\n… (truncated)` : code,
+    }, null, 2);
+}
+
+function explainCode() {
+    openAgentDrawer({
+        context: aiCodeContext(),
+        message: t('agent.prompts.explainCode', { name: props.test.name }),
+    });
+}
+
+function updateDescription() {
+    openAgentDrawer({
+        context: aiCodeContext(),
+        message: t('agent.prompts.updateDescription', { name: props.test.name }),
+    });
+}
+
+// Gateway copy button: the same prompts the AI buttons send to the
+// in-app agent, but copied as a /sorify:gateway command for a local
+// coding agent. This test's page is included so the local agent can
+// look everything up through its Sorify tools.
+const gatewayTestUrl = computed(() => `${window.location.origin}/sorify/suites/${props.suite.id}/tests/${props.test.id}`);
 
 // Attribution of the current code: which surface last wrote it, with the
 // AI model name when known.
@@ -195,23 +236,23 @@ function onHistoryKeydown(e) {
         <!-- Test header -->
         <div class="flex items-start justify-between mb-6">
             <div class="flex-1 min-w-0">
-                <Breadcrumb class="mb-1" :crumbs="[
-                    { label: t('testSuites.title'), href: '/sorify/suites' },
-                    { label: suite.name, href: `/sorify/suites/${suite.id}`, suite: true },
-                    { label: test.name },
-                ]">
-                    <template #crumb="{ crumb }">
-                        <SuiteName v-if="crumb.suite" :name="crumb.label" />
-                        <template v-else>{{ crumb.label }}</template>
-                    </template>
-                </Breadcrumb>
+                <div class="flex items-center gap-3 mb-1.5">
+                    <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] flex-shrink-0">{{ t('testShow.testCase') }}</span>
+                    <Breadcrumb :crumbs="[
+                        { label: t('testSuites.title'), href: '/sorify/suites' },
+                        { label: suite.name, href: `/sorify/suites/${suite.id}`, suite: true },
+                        { label: test.name },
+                    ]">
+                        <template #crumb="{ crumb }">
+                            <SuiteName v-if="crumb.suite" :name="crumb.label" />
+                            <template v-else>{{ crumb.label }}</template>
+                        </template>
+                    </Breadcrumb>
+                </div>
                 <template v-if="!editMode">
-                    <span class="inline-flex items-center gap-3 mb-1.5">
-                        <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-ext-color-on-success-container)] bg-[var(--md-ext-color-success-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ t('testShow.testCase') }}</span>
-                        <span v-if="test.uploaded_by" class="flex items-center gap-1.5">
-                            <Avatar :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" :avatar-url="uploader(test.uploaded_by).avatar_url" />
-                            <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testShow.uploadedBy', { name: uploader(test.uploaded_by).name }) }}</span>
-                        </span>
+                    <span v-if="test.uploaded_by" class="inline-flex items-center gap-1.5 mb-1.5">
+                        <Avatar :name="uploader(test.uploaded_by).name" :email="uploader(test.uploaded_by).email" :avatar-url="uploader(test.uploaded_by).avatar_url" />
+                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testShow.uploadedBy', { name: uploader(test.uploaded_by).name }) }}</span>
                     </span>
                     <div class="flex items-center gap-3 flex-wrap">
                         <h1 class="md-headline-small text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
@@ -219,9 +260,6 @@ function onHistoryKeydown(e) {
                             {{ test.name }}
                         </h1>
                         <Chip v-if="test.status" :status="test.status" />
-                    </div>
-                    <div v-if="test.description" class="mt-1">
-                        <MarkdownRenderer :content="test.description" density="compact" collapsible :collapsed-lines="10" />
                     </div>
                 </template>
 
@@ -282,163 +320,100 @@ function onHistoryKeydown(e) {
             </button>
         </div>
 
-        <!-- Code editor section -->
-        <Card padding="p-0" class="mb-6">
-            <div class="flex items-center justify-between px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)]">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
-                    <Code :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
-                    {{ t('testShow.playwrightCode') }}
-                    <span
-                        v-if="test.code_ai_model"
-                        class="inline-flex items-center gap-1 md-label-small font-mono text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]"
-                        :title="t('testShow.codeByTooltip')"
-                    >
-                        <Bot :size="12" class="flex-shrink-0" />
-                        {{ test.code_ai_model }} · {{ codeSourceLabel }}
-                    </span>
-                    <span
-                        v-else-if="test.code_source"
-                        class="md-label-small text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-high)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]"
-                    >{{ codeSourceLabel }}</span>
-                </h2>
-                <div class="flex items-center gap-2">
-                    <span v-if="codeSaved" class="md-label-small text-[var(--md-ext-color-success)]">{{ t('testShow.saved') }}</span>
-                    <CopyButton v-if="codeForm.playwright_code" :value="codeForm.playwright_code" :label="t('testShow.copyCode')" />
-                    <template v-if="!codeEditable">
-                        <Button variant="tonal" size="sm" @click="codeEditable = true">{{ t('testShow.edit') }}</Button>
-                    </template>
-                    <template v-else>
-                        <Button variant="filled" size="sm" @click="saveCode" :disabled="codeForm.processing">
-                            {{ codeForm.processing ? t('testShow.saving') : t('testShow.saveCode') }}
-                        </Button>
-                        <Button variant="text" size="sm" @click="codeEditable = false">{{ t('testShow.cancel') }}
-                        </Button>
-                    </template>
+        <!-- Description (left) + Playwright code (right) — review-page layout.
+             Square corners: the header/columns run flush to the card's
+             edges without clipping. -->
+        <Card padding="p-0" class="mb-6 overflow-hidden" square>
+            <div class="grid grid-cols-1 lg:grid-cols-5">
+                <!-- Left: description, always fully expanded. -->
+                <div class="lg:col-span-2 px-5 py-4 border-b lg:border-b-0 lg:border-r border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)] min-w-0">
+                    <div class="flex items-center justify-between gap-2 mb-1.5">
+                        <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testShow.description') }}</p>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            <AiButton :label="t('agent.buttons.updateDescription')" size="xs" @click="updateDescription" />
+                            <GatewayPromptButton :message="t('agent.prompts.updateDescription', { name: test.name })" :url="gatewayTestUrl" size="xs" />
+                        </div>
+                    </div>
+                    <MarkdownRenderer v-if="test.description" :content="test.description" density="compact" />
+                    <p v-else class="md-body-small italic text-[var(--md-sys-color-on-surface-variant)]">{{ t('testShow.noDescription') }}</p>
                 </div>
-            </div>
 
-            <!-- Suite variables available in this test's scope -->
-            <div v-if="(suite.variables ?? []).length" class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
-                <div class="flex items-center gap-2 mb-2 flex-wrap">
-                    <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testShow.suiteVariables') }}</p>
-                    <code class="md-label-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">variables.KEY</code>
-                    <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ t('testShow.variablesHint') }}</span>
-                </div>
-                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mb-2">
-                    {{ t('testShow.variablesManageCaption') }}
-                    <Link :href="`/sorify/suites/${suite.id}`" class="text-[var(--md-sys-color-primary)] hover:underline">{{ t('testSuiteShow.suiteSettings') }}</Link>.
-                </p>
-                <div class="flex flex-wrap gap-1.5">
-                    <div
-                        v-for="variable in suite.variables"
-                        :key="variable.key"
-                        class="flex items-center gap-1.5 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-extra-small)] px-2 py-1"
-                        :title="variable.value ? `${variable.key} = ${variable.value}` : variable.key"
-                    >
-                        <code class="md-label-small font-mono font-semibold text-[var(--md-sys-color-primary)]">{{ variable.key }}</code>
-                        <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">=</span>
-                        <code class="md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)] max-w-[12rem] truncate">{{ variable.value || '∅' }}</code>
+                <!-- Right: Playwright code editor -->
+                <div class="lg:col-span-3 min-w-0">
+                    <div class="flex items-center justify-between px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)]">
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
+                            <Code :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
+                            {{ t('testShow.playwrightCode') }}
+                            <span
+                                v-if="test.code_ai_model"
+                                class="inline-flex items-center gap-1 md-label-small font-mono text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]"
+                                :title="t('testShow.codeByTooltip')"
+                            >
+                                <Bot :size="12" class="flex-shrink-0" />
+                                {{ test.code_ai_model }} · {{ codeSourceLabel }}
+                            </span>
+                            <span
+                                v-else-if="test.code_source"
+                                class="md-label-small text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-high)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]"
+                            >{{ codeSourceLabel }}</span>
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <span v-if="codeSaved" class="md-label-small text-[var(--md-ext-color-success)]">{{ t('testShow.saved') }}</span>
+                            <AiButton :label="t('agent.buttons.explainCode')" size="xs" @click="explainCode" />
+                            <GatewayPromptButton :message="t('agent.prompts.explainCode', { name: test.name })" :url="gatewayTestUrl" size="xs" />
+                            <CopyButton v-if="codeForm.playwright_code" :value="codeForm.playwright_code" :label="t('testShow.copyCode')" />
+                            <template v-if="!codeEditable">
+                                <Button variant="tonal" size="sm" @click="codeEditable = true">{{ t('testShow.edit') }}</Button>
+                            </template>
+                            <template v-else>
+                                <Button variant="filled" size="sm" @click="saveCode" :disabled="codeForm.processing">
+                                    {{ codeForm.processing ? t('testShow.saving') : t('testShow.saveCode') }}
+                                </Button>
+                                <Button variant="text" size="sm" @click="codeEditable = false">{{ t('testShow.cancel') }}
+                                </Button>
+                            </template>
+                        </div>
+                    </div>
+        
+                    <!-- Suite variables available in this test's scope -->
+                    <div v-if="(suite.variables ?? []).length" class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testShow.suiteVariables') }}</p>
+                            <code class="md-label-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">variables.KEY</code>
+                            <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ t('testShow.variablesHint') }}</span>
+                        </div>
+                        <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mb-2">
+                            {{ t('testShow.variablesManageCaption') }}
+                            <Link :href="`/sorify/suites/${suite.id}`" class="text-[var(--md-sys-color-primary)] hover:underline">{{ t('testSuiteShow.suiteSettings') }}</Link>.
+                        </p>
+                        <div class="flex flex-wrap gap-1.5">
+                            <div
+                                v-for="variable in suite.variables"
+                                :key="variable.key"
+                                class="flex items-center gap-1.5 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-extra-small)] px-2 py-1"
+                                :title="variable.value ? `${variable.key} = ${variable.value}` : variable.key"
+                            >
+                                <code class="md-label-small font-mono font-semibold text-[var(--md-sys-color-primary)]">{{ variable.key }}</code>
+                                <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">=</span>
+                                <code class="md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)] max-w-[12rem] truncate">{{ variable.value || '∅' }}</code>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="p-1">
+                        <TestCodeEditor
+                            v-model:code="codeForm.playwright_code"
+                            :editable="codeEditable"
+                            :variables="suite.variables ?? []"
+                        />
+                        <p v-if="codeForm.errors.playwright_code" class="text-[var(--md-sys-color-error)] md-body-small px-4 pt-2">{{ codeForm.errors.playwright_code }}</p>
                     </div>
                 </div>
             </div>
-
-            <div class="p-1">
-                <TestCodeEditor
-                    v-model:code="codeForm.playwright_code"
-                    :editable="codeEditable"
-                    :variables="suite.variables ?? []"
-                />
-                <p v-if="codeForm.errors.playwright_code" class="text-[var(--md-sys-color-error)] md-body-small px-4 pt-2">{{ codeForm.errors.playwright_code }}</p>
-            </div>
-        </Card>
-
-        <!-- Version history -->
-        <Card padding="p-0" class="mb-6">
-            <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
-                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
-                    <History :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
-                    {{ t('testShow.versionHistory') }}
-                </h2>
-                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5">
-                    {{ t('testShow.versionRetentionCaption', { count: codeVersionRetention }) }}
-                </p>
-            </div>
-
-            <div v-if="!codeVersions.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-                <History :size="32" class="mx-auto mb-3 opacity-40" />
-                {{ t('testShow.noVersionsYet') }}
-            </div>
-
-            <div v-else class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-[var(--md-sys-color-surface-container-low)]">
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colVersion') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colSource') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colAiModel') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colSavedBy') }}</th>
-                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colDate') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
-                        <template v-for="version in codeVersions.data" :key="version.id">
-                            <tr
-                                class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors cursor-pointer"
-                                :class="{ 'bg-[var(--md-sys-color-surface-container-low)]': isVersionExpanded(version.id) }"
-                                @click="toggleVersion(version.id)"
-                            >
-                                <td class="px-5 py-3">
-                                    <span class="inline-flex items-center gap-2">
-                                        <ChevronRight
-                                            :size="14"
-                                            class="text-[var(--md-sys-color-on-surface-variant)] transition-transform"
-                                            :class="{ 'rotate-90': isVersionExpanded(version.id) }"
-                                        />
-                                        <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">
-                                            v{{ version.version_number }}
-                                        </span>
-                                    </span>
-                                </td>
-                                <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.source }}</td>
-                                <td class="px-5 py-3 md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)]">
-                                    <span v-if="version.ai_model" class="inline-flex items-center gap-1 text-[var(--md-sys-color-on-tertiary-container)]">
-                                        <Bot :size="12" class="flex-shrink-0" />{{ version.ai_model }}
-                                    </span>
-                                    <template v-else>—</template>
-                                </td>
-                                <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.created_by ?? '—' }}</td>
-                                <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(version.created_at) }}</td>
-                            </tr>
-                            <tr v-if="isVersionExpanded(version.id)">
-                                <td colspan="5" class="px-5 pb-5 bg-[var(--md-sys-color-surface-container-lowest)]">
-                                    <div class="flex items-center justify-end gap-2 mt-3 mb-3">
-                                        <CopyButton :value="version.playwright_code" :label="t('testShow.copyCode')" />
-                                        <Button
-                                            variant="tonal"
-                                            size="sm"
-                                            @click="restoreVersion(version)"
-                                            :disabled="restoringVersionId === version.id"
-                                        >
-                                            {{ restoringVersionId === version.id ? t('testShow.restoring') : t('testShow.restoreVersion') }}
-                                        </Button>
-                                    </div>
-                                    <TestCodeEditor :code="version.playwright_code" :editable="false" />
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-
-            <Pagination
-                v-if="codeVersions.data.length"
-                :paginator="codeVersions"
-                :label="t('testShow.showingVersions', { from: codeVersions.from ?? 0, to: codeVersions.to ?? 0, total: codeVersions.total })"
-            />
         </Card>
 
         <!-- Run history -->
-        <Card padding="p-0">
+        <Card padding="p-0" class="mb-6">
             <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
                 <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
                     <Activity :size="18" :style="{ color: 'var(--md-ext-color-success)' }" />
@@ -597,6 +572,91 @@ function onHistoryKeydown(e) {
                     {{ t('testShow.noAdditionalDetails') }}
                 </div>
             </div>
+        </Card>
+
+        <!-- Version history -->
+        <Card padding="p-0">
+            <div class="px-5 py-4 border-b border-[var(--md-sys-color-outline-variant)]">
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
+                    <History :size="18" :style="{ color: 'var(--md-sys-color-tertiary)' }" />
+                    {{ t('testShow.versionHistory') }}
+                </h2>
+                <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] mt-0.5">
+                    {{ t('testShow.versionRetentionCaption', { count: codeVersionRetention }) }}
+                </p>
+            </div>
+
+            <div v-if="!codeVersions.data.length" class="px-5 py-8 text-center md-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                <History :size="32" class="mx-auto mb-3 opacity-40" />
+                {{ t('testShow.noVersionsYet') }}
+            </div>
+
+            <div v-else class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-[var(--md-sys-color-surface-container-low)]">
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colVersion') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colSource') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colAiModel') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colSavedBy') }}</th>
+                            <th class="text-left px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-wider">{{ t('testShow.colDate') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--md-sys-color-outline-variant)]">
+                        <template v-for="version in codeVersions.data" :key="version.id">
+                            <tr
+                                class="hover:bg-[var(--md-sys-color-surface-container-low)] transition-colors cursor-pointer"
+                                :class="{ 'bg-[var(--md-sys-color-surface-container-low)]': isVersionExpanded(version.id) }"
+                                @click="toggleVersion(version.id)"
+                            >
+                                <td class="px-5 py-3">
+                                    <span class="inline-flex items-center gap-2">
+                                        <ChevronRight
+                                            :size="14"
+                                            class="text-[var(--md-sys-color-on-surface-variant)] transition-transform"
+                                            :class="{ 'rotate-90': isVersionExpanded(version.id) }"
+                                        />
+                                        <span class="inline-block md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-primary-container)] bg-[var(--md-sys-color-primary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">
+                                            v{{ version.version_number }}
+                                        </span>
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.source }}</td>
+                                <td class="px-5 py-3 md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)]">
+                                    <span v-if="version.ai_model" class="inline-flex items-center gap-1 text-[var(--md-sys-color-on-tertiary-container)]">
+                                        <Bot :size="12" class="flex-shrink-0" />{{ version.ai_model }}
+                                    </span>
+                                    <template v-else>—</template>
+                                </td>
+                                <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ version.created_by ?? '—' }}</td>
+                                <td class="px-5 py-3 md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ formatDate(version.created_at) }}</td>
+                            </tr>
+                            <tr v-if="isVersionExpanded(version.id)">
+                                <td colspan="5" class="px-5 pb-5 bg-[var(--md-sys-color-surface-container-lowest)]">
+                                    <div class="flex items-center justify-end gap-2 mt-3 mb-3">
+                                        <CopyButton :value="version.playwright_code" :label="t('testShow.copyCode')" />
+                                        <Button
+                                            variant="tonal"
+                                            size="sm"
+                                            @click="restoreVersion(version)"
+                                            :disabled="restoringVersionId === version.id"
+                                        >
+                                            {{ restoringVersionId === version.id ? t('testShow.restoring') : t('testShow.restoreVersion') }}
+                                        </Button>
+                                    </div>
+                                    <TestCodeEditor :code="version.playwright_code" :editable="false" />
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <Pagination
+                v-if="codeVersions.data.length"
+                :paginator="codeVersions"
+                :label="t('testShow.showingVersions', { from: codeVersions.from ?? 0, to: codeVersions.to ?? 0, total: codeVersions.total })"
+            />
         </Card>
 
         <!-- Run history screenshot lightbox -->

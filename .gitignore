@@ -43,3 +43,4 @@ mcp/sorify-recorder-mcp/dist
 .playwright-mcp
 .drawio-tmp
 .skills-manager
+.playwright-cli/

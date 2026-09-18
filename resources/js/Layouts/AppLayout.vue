@@ -1,8 +1,9 @@
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { usePage, Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
+import { useAgentDrawer } from '@/composables/useAgentDrawer.js';
 import { IconButton, Alert, LanguageSwitcher, Avatar } from '@/Components/ui';
 import AdminMenu from '@/Components/AdminMenu.vue';
 import AgentDrawer from '@/Components/Agent/AgentDrawer.vue';
@@ -24,6 +25,14 @@ const user = computed(() => page.props.auth?.user ?? null);
 // so a page refresh reopens it on the same chat instead of resetting to the
 // conversation list.
 const showAgentDrawer = ref(false);
+
+// A page (e.g. an "AI explain error" button) asked to open the drawer with
+// a prefilled prompt — open it; AgentDrawer picks up the request itself.
+const { request: agentDrawerRequest } = useAgentDrawer();
+
+watch(agentDrawerRequest, (request) => {
+    if (request) showAgentDrawer.value = true;
+});
 
 onMounted(() => {
     if (!user.value) return;
@@ -47,6 +56,7 @@ const docsLink = computed(() => ({ label: t('nav.docs'), href: 'https://github.c
 
 const adminLinks = computed(() => user.value?.is_admin ? [
     { label: t('nav.users'), href: '/sorify/admin/users', icon: ShieldCheck, accent: 'var(--md-sys-color-error)' },
+    { label: t('nav.agentRuns'), href: '/sorify/admin/agent-runs', icon: Bot, accent: 'var(--md-sys-color-primary)' },
     { label: t('nav.githubApps'), href: '/sorify/admin/github-apps', icon: Workflow, accent: 'var(--md-sys-color-error)' },
     { label: t('nav.system'), href: '/sorify/admin/system', icon: Cpu, accent: 'var(--md-sys-color-error)' },
     { label: t('nav.logs'), href: '/sorify/log-viewer', external: true, newTab: true, icon: ScrollText, accent: 'var(--md-sys-color-on-surface-variant)' },

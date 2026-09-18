@@ -152,9 +152,43 @@ WITH ALL MCP CONTROLS - SUPPORTED
 
 ## AI Usage
 
+### Claude Code
+
+```sh
+$ cat ~/.sorify
+SORIFY_URL=http://localhost:8000/sorify
+SORIFY_USERNAME=admin@sorify.local
+SORIFY_PASSWORD=changeme
 ```
+
+```sh
 claude /plugin marketplace add https://github.com/rakutentech/sorify.git
+```
+
+Install `sorify` from that marketplace in Claude Code, then start a new
+session. The existing `/sorify:gateway`, `/sorify:generate`, and
+`/sorify:recording` commands remain available.
+
+### Codex
+
+```sh
 codex plugin marketplace add https://github.com/rakutentech/sorify.git
+codex plugin add sorify@sorify
+```
+
+**Codex:** Invoke the `$sorify:sorify-setup` skill once.
+
+Use the Codex skills
+
+```sh
+$sorify:sorify-gateway
+$sorify:sorify-generate
+$sorify:sorify-recording
+$sorify:sorify-update
+```
+
+```sh
+codex mcp get sorify
 ```
 
 <p align="center">
@@ -163,13 +197,6 @@ codex plugin marketplace add https://github.com/rakutentech/sorify.git
 
 ### SKILL 1 - Sorify MCP
 
-
-```sh
-╰─$ cat ~/.sorify
-SORIFY_URL=http://localhost:8000/sorify
-SORIFY_USERNAME=admin@sorify.local
-SORIFY_PASSWORD=changeme
-```
 
 ```sh
 /sorify:gateway Create a test suite called "Awesome App"
@@ -193,17 +220,10 @@ SORIFY_PASSWORD=changeme
 /sorify:generate Scan my code and generate tests for <github.com/your/repo>
 
 # Tests from source code (path)
-/sorify:generate Scan my code and generate tests for </path/to/your/source>
+/sorify:generate Scan my code and generate tests for </path/to/your/source>, ref </path/to/your/docs>
 
 # Tests from url (remote)
 /sorify:generate Crawl site and generate tests for https://rakuten.co.jp
-
-# Tests from url (local)
-/sorify:generate Crawl site and generate tests for http://localhost:3000/my-awesome-app
-
-# Tests from requirements
-/sorify:generate Read requirements here <link to docs> <path to docs> <raw paste>
-<you got the idea...>
 ```
 
 #### OR SKILL BYO - Bring your own QA Skills
@@ -236,8 +256,11 @@ curl -fsSL https://raw.githubusercontent.com/rakutentech/sorify/master/mcp/insta
 
 **♢  3.** Start the recorder
 
-Sorify recorder should start automatically, when you launch claude/codex.
-You can check using `/mcp` → `plugin:sorify:sorify-recorder`
+Sorify recorder should start automatically when you launch Claude Code or
+Codex. In Claude Code, check `/mcp` for
+`plugin:sorify:sorify-recorder`. In Codex, start a new thread after installing
+the plugin and invoke `$sorify:sorify-recording`; it reports if the recorder MCP
+server or binary is unavailable.
 
 **If not**, then start the listener at:
 
@@ -258,6 +281,8 @@ You can check using `/mcp` → `plugin:sorify:sorify-recorder`
 ```sh
 /sorify:recording latest
 ```
+
+In Codex, use `$sorify:sorify-recording` and ask for the latest recording instead.
 
 # Quick Start
 

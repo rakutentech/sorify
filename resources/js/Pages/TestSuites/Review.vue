@@ -8,6 +8,9 @@ import CopyButton from '@/Components/CopyButton.vue';
 import { Card, Chip, Button, Breadcrumb, SuiteName, TestName, Avatar, RunPill, ScreenshotLightbox, MarkdownRenderer } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+import { openAgentDrawer } from '@/composables/useAgentDrawer.js';
+import AiButton from '@/Components/Agent/AiButton.vue';
+import GatewayPromptButton from '@/Components/Agent/GatewayPromptButton.vue';
 import { ArrowLeft, Search, Play, LoaderCircle, Code, FlaskConical, Gauge, Activity, ChevronRight, FileText, User } from '@lucide/vue';
 
 const { t } = useI18n();
@@ -37,6 +40,47 @@ function reloadTests(overrides = {}) {
 }
 
 const debouncedTestSearch = debounce(() => reloadTests({ page: 1 }), 350);
+
+// ── AI explain code ─────────────────────────────────────────────────────────
+// Opens the agent drawer on a new chat with this test's code (and its last
+// error, when the latest run failed) pre-filled as context.
+function explainCode(test) {
+    const code = test.playwright_code ?? '';
+    const lastRun = test.recent_runs?.[0] ?? null;
+
+    openAgentDrawer({
+        context: JSON.stringify({
+            page: 'suite_review',
+            suite_id: props.suite.id,
+            suite_name: props.suite.name,
+            test_id: test.id,
+            test_name: test.name,
+            description: test.description ?? null,
+            last_run: lastRun ? {
+                run_id: lastRun.run_id,
+                status: lastRun.status,
+                error_message: lastRun.error_message,
+            } : null,
+            // The drawer's context block is capped server-side (8000 chars),
+            // so long code is truncated; the agent can fetch the full test
+            // through its tools when it needs more.
+            playwright_code: code.length > 6000 ? `${code.slice(0, 6000)}\n… (truncated)` : code,
+        }, null, 2),
+        message: t('agent.prompts.explainCode', { name: test.name }),
+    });
+}
+
+// Gateway copy button: the same prompt explainCode sends to the in-app
+// agent, copied as a /sorify:gateway command for a local coding agent.
+// The test's page URL is included so the local agent can look it up
+// through its Sorify tools.
+function explainCodePrompt(test) {
+    return t('agent.prompts.explainCode', { name: test.name });
+}
+
+function gatewayTestUrl(testId) {
+    return `${window.location.origin}/sorify/suites/${props.suite.id}/tests/${testId}`;
+}
 
 function onSearchInput() {
     debouncedTestSearch();
@@ -241,8 +285,11 @@ const totalLines = computed(() =>
                 padding="p-0"
                 :class="['overflow-visible', test.status === 'disabled' ? 'opacity-70' : '']"
             >
-                <!-- Card header: chip + index + name + status + actions -->
-                <div class="flex items-center justify-between gap-3 px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-low)] flex-wrap">
+                <!-- Card header: chip + index + name + status + actions.
+                     Rounded top corners match the card (the card itself is
+                     overflow-visible for tooltips, so its square-cornered
+                     children would otherwise poke past the rounded border). -->
+                <div class="flex items-center justify-between gap-3 px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-low)] flex-wrap rounded-t-[var(--md-sys-shape-corner-medium)]">
                     <div class="flex items-center gap-2.5 min-w-0 flex-1">
                         <Chip
                             :status="test.current_status || 'never_ran'"
@@ -293,8 +340,11 @@ const totalLines = computed(() =>
 
                 <!-- Two-column review body -->
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-0">
-                    <!-- Left: metadata, runs, screenshots -->
-                    <div class="lg:col-span-2 px-5 py-4 space-y-4 border-b lg:border-b-0 lg:border-r border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
+                    <!-- Left: metadata, runs, screenshots. Bottom-left corner
+                         rounded to match the card (card is overflow-visible,
+                         so this column's square bg would poke past the
+                         border on the two-column layout). -->
+                    <div class="lg:col-span-2 px-5 py-4 space-y-4 border-b lg:border-b-0 lg:border-r border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)] lg:rounded-bl-[var(--md-sys-shape-corner-medium)]">
                         <!-- Description -->
                         <div v-if="test.description">
                             <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteReview.description') }}</p>
@@ -360,7 +410,21 @@ const totalLines = computed(() =>
                                 <Code :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
                                 <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteReview.playwrightCode') }}</span>
                             </div>
-                            <CopyButton v-if="test.playwright_code" :value="test.playwright_code" :label="t('testSuiteReview.copyCode')" />
+                            <div class="flex items-center gap-2">
+                                <AiButton
+                                    v-if="test.playwright_code"
+                                    :label="t('agent.buttons.explainCode')"
+                                    size="xs"
+                                    @click="explainCode(test)"
+                                />
+                                <GatewayPromptButton
+                                    v-if="test.playwright_code"
+                                    :message="explainCodePrompt(test)"
+                                    :url="gatewayTestUrl(test.id)"
+                                    size="xs"
+                                />
+                                <CopyButton v-if="test.playwright_code" :value="test.playwright_code" :label="t('testSuiteReview.copyCode')" />
+                            </div>
                         </div>
                         <TestCodeEditor
                             v-if="test.playwright_code"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GithubApp;
 use App\Models\User;
 use App\Services\ActivityLogger;
+use App\Services\AdminNotificationService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,8 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
+    public function __construct(private readonly AdminNotificationService $adminNotifications) {}
+
     public function showLogin(): Response|RedirectResponse
     {
         if (Auth::check()) {
@@ -89,6 +92,8 @@ class AuthController extends Controller
         ]);
 
         ActivityLogger::log('user_registered', $user, null, $user);
+
+        $this->adminNotifications->notifyNewUser($user, 'registered');
 
         Auth::login($user);
 
@@ -258,6 +263,8 @@ class AuthController extends Controller
             $user->forceFill(['email_verified_at' => now()])->save();
 
             ActivityLogger::log('user_registered', $user, null, $user);
+
+            $this->adminNotifications->notifyNewUser($user, 'github');
         }
 
         Auth::login($user, true);

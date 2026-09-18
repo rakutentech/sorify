@@ -7,6 +7,9 @@ import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
 import { Card, Chip, Button, Breadcrumb, SuiteName, TestName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination } from '@/Components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
+import { openAgentDrawer } from '@/composables/useAgentDrawer.js';
+import AiButton from '@/Components/Agent/AiButton.vue';
+import GatewayPromptButton from '@/Components/Agent/GatewayPromptButton.vue';
 import { Activity, RotateCcw, LoaderCircle, ChevronRight, Search, ChevronDown, CircleAlert, X } from '@lucide/vue';
 
 const { t } = useI18n();
@@ -33,6 +36,42 @@ const SOURCE_LABELS = {
     manual: 'Manual',
 };
 const sourceLabel = computed(() => SOURCE_LABELS[props.run.triggered_by] ?? 'Manual');
+
+// ── AI explain error ─────────────────────────────────────────────────────────
+// Opens the agent drawer on a new chat with the failed result's context.
+const ERROR_STATUSES = ['failed', 'error', 'timeout'];
+
+function explainResultError(result) {
+    openAgentDrawer({
+        context: JSON.stringify({
+            page: 'test_run',
+            run_id: props.run.id,
+            run_status: props.run.status,
+            suite_id: props.run.suite?.id ?? null,
+            suite_name: props.run.suite?.name ?? null,
+            test_id: result.test_id ?? result.test?.id ?? null,
+            test_name: result.test?.name ?? result.test_name ?? null,
+            result: {
+                status: result.status,
+                duration_ms: result.duration_ms ?? null,
+                error_message: result.error_message ?? null,
+                screenshot_count: result.screenshots?.length ?? 0,
+            },
+        }, null, 2),
+        message: t('agent.prompts.explainError', { name: result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id }) }),
+    });
+}
+
+// Same details as explainResultError, but as props for the gateway copy
+// button — the user pastes the prompt into a local coding agent instead
+// of using the in-app one.
+function resultGatewayPrompt(result) {
+    return t('agent.prompts.explainError', { name: result.test?.name ?? result.test_name ?? t('testRunShow.testFallbackName', { id: result.id }) });
+}
+
+// Recomputed per run: re-running redirects this same component to a new
+// run URL without remounting (see the refresh watch below).
+const runUrl = computed(() => `${window.location.origin}/sorify/runs/${props.run.id}`);
 
 function stopRefresh() {
     if (refreshTimer) {
@@ -267,23 +306,25 @@ const failedPct = computed(() => {
         <Head :title="t('testRunShow.runNumber', { id: run.id })" />
 
         <!-- Breadcrumb -->
-        <Breadcrumb :crumbs="[
-            { label: t('testSuites.title'), href: '/sorify/suites' },
-            { label: run.suite?.name, href: run.suite ? `/sorify/suites/${run.suite.id}` : null, suite: true },
-            { label: t('testRunShow.runNumber', { id: run.id }) },
-        ]">
-            <template #crumb="{ crumb }">
-                <SuiteName v-if="crumb.suite" :name="crumb.label" />
-                <template v-else>{{ crumb.label }}</template>
-            </template>
-        </Breadcrumb>
+        <div class="flex items-center gap-3 mb-1.5">
+            <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] flex-shrink-0">{{ t('testRunShow.testRun') }}</span>
+            <Breadcrumb :crumbs="[
+                { label: t('testSuites.title'), href: '/sorify/suites' },
+                { label: run.suite?.name, href: run.suite ? `/sorify/suites/${run.suite.id}` : null, suite: true },
+                { label: t('testRunShow.runNumber', { id: run.id }) },
+            ]">
+                <template #crumb="{ crumb }">
+                    <SuiteName v-if="crumb.suite" :name="crumb.label" />
+                    <template v-else>{{ crumb.label }}</template>
+                </template>
+            </Breadcrumb>
+        </div>
 
         <!-- Run header -->
         <Card variant="plain" class="mb-6">
             <div class="flex items-start justify-between flex-wrap gap-4">
                 <div>
-                    <span class="inline-flex items-center gap-3 mb-1.5">
-                        <span class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ t('testRunShow.testRun') }}</span>
+                    <span v-if="run.triggered_by_user || run.triggered_by" class="inline-flex items-center gap-3 mb-1.5">
                         <span v-if="run.triggered_by_user" class="flex items-center gap-1.5">
                             <Avatar :name="run.triggered_by_user.name" :email="run.triggered_by_user.email" :avatar-url="run.triggered_by_user.avatar_url" />
                             <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.triggeredBy', { name: run.triggered_by_user.name }) }}</span>
@@ -512,6 +553,19 @@ const failedPct = computed(() => {
                             <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">
                                 {{ formatDuration(result.duration_ms) }}
                             </span>
+                            <AiButton
+                                v-if="ERROR_STATUSES.includes(result.status)"
+                                :label="t('agent.buttons.explainError')"
+                                size="xs"
+                                @click.stop="explainResultError(result)"
+                            />
+                            <GatewayPromptButton
+                                v-if="ERROR_STATUSES.includes(result.status)"
+                                :message="resultGatewayPrompt(result)"
+                                :url="runUrl"
+                                size="xs"
+                                @click.stop
+                            />
                         </div>
                     </div>
 

@@ -1,0 +1,34 @@
+{
+  "name": "sorify",
+  "version": "0.1.0+codex.20260914071634",
+  "description": "Generate, upload, and run Playwright E2E tests in Sorify.",
+  "author": {
+    "name": "Rakuten Technology"
+  },
+  "repository": "https://github.com/rakutentech/sorify",
+  "license": "MIT",
+  "keywords": [
+    "playwright",
+    "e2e",
+    "testing",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Sorify",
+    "shortDescription": "Generate and run Playwright E2E tests",
+    "longDescription": "Explore web services, generate Playwright tests, upload them to Sorify, and inspect run results.",
+    "developerName": "Rakuten Technology",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Generate Playwright tests for this service with Sorify.",
+      "Show my latest Sorify test runs.",
+      "Create a Sorify test from my latest browser recording."
+    ]
+  }
+}
