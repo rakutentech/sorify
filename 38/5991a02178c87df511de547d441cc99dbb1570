@@ -1,0 +1,38 @@
+app/Http/Controllers/SearchController.php
+  h_f44dfe84a46cdf 1-127
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 876-883
+resources/js/Components/Agent/ToolCallSummary.vue
+  h_f44dfe84a46cdf 117,128,145
+resources/js/Components/CommandPalette.vue
+  h_f44dfe84a46cdf 1-380
+resources/js/Layouts/AppLayout.vue
+  h_f44dfe84a46cdf 7,11,13,39-54,170-181,295-304,326-328
+resources/js/composables/useAgentDrawer.js
+  h_f44dfe84a46cdf 22-23,25
+resources/js/composables/useCommandPalette.js
+  h_f44dfe84a46cdf 1-26
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 2-19
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 2-19
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 2-19
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 2-19
+routes/web.php
+  h_f44dfe84a46cdf 14,139-141
+tests/Feature/SearchTest.php
+  h_f44dfe84a46cdf 1-155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "385991a02178c87df511de547d441cc99dbb1570",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
