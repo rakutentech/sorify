@@ -1,0 +1,38 @@
+resources/js/Components/CommandPalette.vue
+  h_f44dfe84a46cdf 1-380
+resources/js/Layouts/AppLayout.vue
+  h_f44dfe84a46cdf 7,11,13,39-54,170-181,295-304,326-328
+app/Http/Controllers/SearchController.php
+  h_f44dfe84a46cdf 1-127
+routes/web.php
+  h_f44dfe84a46cdf 14,139-141
+resources/js/Components/Agent/ToolCallSummary.vue
+  h_f44dfe84a46cdf 1-153
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 2-19,979-983
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 2-19,979-983
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 10,876-883,1224-1228
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 2-19,979-983
+tests/Feature/SearchTest.php
+  h_f44dfe84a46cdf 1-155
+resources/js/composables/useCommandPalette.js
+  h_f44dfe84a46cdf 1-26
+resources/js/composables/useAgentDrawer.js
+  h_f44dfe84a46cdf 22-23,25
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 2-19,979-983
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "49294d7f32c141358ec97781fe76eeb3cdf4cd9c",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
