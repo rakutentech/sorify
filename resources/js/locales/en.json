@@ -1,4 +1,22 @@
 {
+    "commandPalette": {
+        "title": "Search",
+        "placeholder": "Search suites, tests, runs, chats...",
+        "noResults": "No results",
+        "noResultsFor": "No results for \"{query}\"",
+        "searching": "Searching...",
+        "untitledConversation": "Untitled conversation",
+        "trigger": "Search (Ctrl/Cmd+K)",
+        "hintNavigate": "navigate",
+        "hintOpen": "open",
+        "groups": {
+            "navigation": "Navigation",
+            "suites": "Test suites",
+            "tests": "Tests",
+            "runs": "Runs",
+            "conversations": "AI chats"
+        }
+    },
     "nav": {
         "dashboard": "Dashboard",
         "feed": "Feed",
@@ -958,6 +976,11 @@
             "toolRunning": "running...",
             "toolArguments": "Arguments",
             "toolResult": "Result",
+            "toolSummaryRan": "Ran {count} tools",
+            "toolSummaryRunning": "Running {tool}...",
+            "toolSummaryFailed": "{count} failed",
+            "toolSummaryExpand": "Show tool calls",
+            "toolSummaryCollapse": "Hide tool calls",
             "openSettings": "AI Agent settings",
             "copyPrompt": "Copy Prompt to resume in terminal",
             "thinking": "Thinking...",

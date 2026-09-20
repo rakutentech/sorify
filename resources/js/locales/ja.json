@@ -1,4 +1,22 @@
 {
+    "commandPalette": {
+        "title": "検索",
+        "placeholder": "スイート、テスト、実行、チャットを検索...",
+        "noResults": "結果はありません",
+        "noResultsFor": "\"{query}\" の結果はありません",
+        "searching": "検索中...",
+        "untitledConversation": "無題の会話",
+        "trigger": "検索（Ctrl/Cmd+K）",
+        "hintNavigate": "移動",
+        "hintOpen": "開く",
+        "groups": {
+            "navigation": "ナビゲーション",
+            "suites": "テストスイート",
+            "tests": "テスト",
+            "runs": "実行",
+            "conversations": "AIチャット"
+        }
+    },
     "nav": {
         "dashboard": "ダッシュボード",
         "feed": "フィード",
@@ -958,6 +976,11 @@
             "toolRunning": "実行中...",
             "toolArguments": "引数",
             "toolResult": "結果",
+            "toolSummaryRan": "{count} 個のツールを実行",
+            "toolSummaryRunning": "{tool} を実行中...",
+            "toolSummaryFailed": "{count} 件失敗",
+            "toolSummaryExpand": "ツール呼び出しを表示",
+            "toolSummaryCollapse": "ツール呼び出しを隠す",
             "openSettings": "AIエージェント設定",
             "copyPrompt": "ターミナルで再開するためのプロンプトをコピー",
             "thinking": "考え中...",

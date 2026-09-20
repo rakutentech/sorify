@@ -19,8 +19,10 @@ let nextId = 0;
 
 /**
  * Open the agent drawer and start a chat with a given context and message.
+ * Passing `conversationId` instead opens an existing conversation (used by
+ * the command palette's search results).
  *
- * @param {{ context?: string, message?: string }} payload
+ * @param {{ context?: string, message?: string, conversationId?: number }} payload
  */
 export function openAgentDrawer(payload = {}) {
     request.value = { id: ++nextId, ...payload };
