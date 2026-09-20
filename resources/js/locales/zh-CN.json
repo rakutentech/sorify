@@ -1,4 +1,22 @@
 {
+    "commandPalette": {
+        "title": "搜索",
+        "placeholder": "搜索套件、测试、运行、聊天...",
+        "noResults": "无结果",
+        "noResultsFor": "没有找到“{query}”的结果",
+        "searching": "搜索中...",
+        "untitledConversation": "未命名会话",
+        "trigger": "搜索（Ctrl/Cmd+K）",
+        "hintNavigate": "导航",
+        "hintOpen": "打开",
+        "groups": {
+            "navigation": "导航",
+            "suites": "测试套件",
+            "tests": "测试",
+            "runs": "运行",
+            "conversations": "AI 聊天"
+        }
+    },
     "nav": {
         "dashboard": "仪表板",
         "feed": "动态",
@@ -958,6 +976,11 @@
             "toolRunning": "运行中...",
             "toolArguments": "参数",
             "toolResult": "结果",
+            "toolSummaryRan": "执行了 {count} 个工具",
+            "toolSummaryRunning": "正在运行 {tool}...",
+            "toolSummaryFailed": "{count} 个失败",
+            "toolSummaryExpand": "显示工具调用",
+            "toolSummaryCollapse": "隐藏工具调用",
             "openSettings": "AI 助手设置",
             "copyPrompt": "复制提示词以在终端中继续",
             "thinking": "思考中...",

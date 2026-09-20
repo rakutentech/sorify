@@ -11,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardNoteController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ScreenshotController;
 use App\Http\Controllers\SuiteBookmarkController;
 use App\Http\Controllers\TestController;
@@ -134,6 +135,9 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
     });
 
     Route::get('/bookmarks', [SuiteBookmarkController::class, 'index'])->name('bookmarks.index');
+
+    // Global search for the command palette (Cmd/Ctrl+K).
+    Route::get('/search', SearchController::class)->middleware('throttle:60,1')->name('search');
 
     // GitHub-style activity feed: runs, suite/test changes, new users, …
     Route::prefix('feed')->name('feed.')->group(function () {

@@ -4,11 +4,13 @@ import { usePage, Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme.js';
 import { useAgentDrawer } from '@/composables/useAgentDrawer.js';
+import { useCommandPalette } from '@/composables/useCommandPalette.js';
 import { IconButton, Alert, LanguageSwitcher, Avatar } from '@/Components/ui';
 import AdminMenu from '@/Components/AdminMenu.vue';
 import AgentDrawer from '@/Components/Agent/AgentDrawer.vue';
+import CommandPalette from '@/Components/CommandPalette.vue';
 import {
-    Activity, FolderKanban, Star, BookOpen,
+    Activity, FolderKanban, Star, BookOpen, Search,
     ShieldCheck, ScrollText, ExternalLink, ChevronDown, Sun, Moon,
     UserCircle, LogOut, CircleCheck, Info, Workflow, Cpu, Bot,
 } from '@lucide/vue';
@@ -33,6 +35,22 @@ const { request: agentDrawerRequest } = useAgentDrawer();
 watch(agentDrawerRequest, (request) => {
     if (request) showAgentDrawer.value = true;
 });
+
+// Command palette (Cmd/Ctrl+K) — mounted once, available on every page.
+const { toggleCommandPalette } = useCommandPalette();
+
+// Platform hint for the trigger button's kbd label.
+const isMac = /Mac|iPhone|iPad/.test(navigator.userAgent);
+
+function onGlobalKeydown(event) {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        toggleCommandPalette();
+    }
+}
+
+onMounted(() => window.addEventListener('keydown', onGlobalKeydown));
+onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKeydown));
 
 onMounted(() => {
     if (!user.value) return;
@@ -149,6 +167,18 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
 
                     <!-- Right side -->
                     <div class="flex items-center gap-3">
+                        <!-- Command palette -->
+                        <button
+                            v-if="user"
+                            type="button"
+                            class="hidden md:flex items-center gap-2.5 px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] hover:brightness-90"
+                            :title="t('commandPalette.trigger')"
+                            @click="toggleCommandPalette()"
+                        >
+                            <Search :size="16" class="flex-shrink-0" />
+                            <kbd class="text-base font-medium px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] bg-[var(--md-sys-color-surface-container-highest)]">{{ isMac ? '⌘K' : 'Ctrl K' }}</kbd>
+                        </button>
+
                         <!-- AI agent -->
                         <button
                             v-if="user"
@@ -262,6 +292,16 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                     {{ t('agent.open') }}
                 </button>
 
+                <button
+                    v-if="user"
+                    type="button"
+                    class="px-3 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap flex-shrink-0 transition-colors text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] flex items-center gap-1.5"
+                    :title="t('commandPalette.trigger')"
+                    @click="toggleCommandPalette()"
+                >
+                    <Search :size="16" class="flex-shrink-0" />
+                </button>
+
                 <LanguageSwitcher />
             </div>
         </nav>
@@ -283,5 +323,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
 
         <!-- AI agent drawer -->
         <AgentDrawer :show="showAgentDrawer" @close="showAgentDrawer = false" />
+
+        <!-- Command palette (Cmd/Ctrl+K) -->
+        <CommandPalette />
     </div>
 </template>

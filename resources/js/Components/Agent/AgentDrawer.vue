@@ -6,8 +6,8 @@ import {
     ArrowLeft, Bot, CircleAlert, Gauge, LoaderCircle, MessageSquarePlus, MessagesSquare,
     Send, Settings2, Square, Trash2, X,
 } from '@lucide/vue';
-import ToolCallChip from './ToolCallChip.vue';
 import RunProgressCard from './RunProgressCard.vue';
+import ToolCallSummary from './ToolCallSummary.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import { useAgentContext } from '@/composables/useAgentContext';
 import { useAgentDrawer } from '@/composables/useAgentDrawer.js';
@@ -873,6 +873,14 @@ async function applyDrawerRequest() {
 
     appliedRequestId = request.id;
 
+    // The command palette asked for an existing conversation — open it
+    // directly instead of starting a new chat.
+    if (request.conversationId) {
+        await openConversation(request.conversationId).catch(() => {});
+
+        return;
+    }
+
     newChatForm.value.context = request.context ?? defaultContextText();
 
     // Profiles may still be loading (the drawer was opened by this very
@@ -1213,9 +1221,11 @@ watch(messages, () => {
                                 <CircleAlert :size="14" class="flex-shrink-0 mt-0.5" />
                                 <span class="whitespace-pre-wrap break-words">{{ message.content }}</span>
                             </div>
-                            <div v-if="message.toolCalls.length" class="w-full max-w-[92%] space-y-1.5 mt-1.5">
-                                <ToolCallChip v-for="call in message.toolCalls" :key="call.id" :tool-call="call" />
-                            </div>
+                            <ToolCallSummary
+                                v-if="message.toolCalls.length"
+                                :tool-calls="message.toolCalls"
+                                class="w-full max-w-[92%] mt-1.5"
+                            />
                             <div v-if="message.runIds?.length" class="w-full max-w-[92%] space-y-1.5 mt-1.5">
                                 <RunProgressCard v-for="id in message.runIds" :key="id" :run-id="id" />
                             </div>

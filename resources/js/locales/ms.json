@@ -1,4 +1,22 @@
 {
+    "commandPalette": {
+        "title": "Cari",
+        "placeholder": "Cari suite, ujian, jalanan, sembang...",
+        "noResults": "Tiada hasil",
+        "noResultsFor": "Tiada hasil untuk \"{query}\"",
+        "searching": "Mencari...",
+        "untitledConversation": "Sembang tanpa tajuk",
+        "trigger": "Cari (Ctrl/Cmd+K)",
+        "hintNavigate": "navigasi",
+        "hintOpen": "buka",
+        "groups": {
+            "navigation": "Navigasi",
+            "suites": "Suite ujian",
+            "tests": "Ujian",
+            "runs": "Jalanan",
+            "conversations": "Sembang AI"
+        }
+    },
     "nav": {
         "dashboard": "Papan Pemuka",
         "feed": "Suapan",
@@ -958,6 +976,11 @@
             "toolRunning": "berjalan...",
             "toolArguments": "Argumen",
             "toolResult": "Hasil",
+            "toolSummaryRan": "Menjalankan {count} alat",
+            "toolSummaryRunning": "Menjalankan {tool}...",
+            "toolSummaryFailed": "{count} gagal",
+            "toolSummaryExpand": "Tunjukkan panggilan alat",
+            "toolSummaryCollapse": "Sembunyikan panggilan alat",
             "openSettings": "Tetapan ejen AI",
             "copyPrompt": "Salin prompt untuk sambung di terminal",
             "thinking": "Berfikir...",
