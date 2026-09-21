@@ -18,12 +18,30 @@
 </p>
 
 <hr>
+
+<p align="center">
+  <b>Solid Harness</b><br>
+</p>
+
 <p align="center">
   <img src="https://i.imgur.com/zoNzjBg.png" alt="Sorify screenshot" width="850"/>
 </p>
 
+
+<p align="center">
+  <b>Pick up from where left off.</b>
+</p>
+
 <p align="center">
   <img src="https://i.imgur.com/VJ20NP1.png" alt="Sorify screenshot" width="850" />
+</p>
+
+<p align="center">
+  <b>Page Aware 24/7 background AI Agents - with MCP sync</b>
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/ckbNf4c.png" alt="Sorify screenshot" width="850" />
 </p>
 
 
@@ -53,7 +71,9 @@
 
 ✴︎ **Agent Plugins:** Claude/Codex plugins included - zero-code test code management.
 
-✴︎ **My AI Agent:** In-dashboard background capable, AI agent your own OpenAI-compatible. Page aware chats that can call every Sorify MCP tool, resumable handoffs to local agents.
+✴︎ **My AI Agent:** In-dashboard background capable, AI agent your own OpenAI-compatible.
+
+✴︎ **MCP:** Page aware chats that can call every Sorify MCP tool, resumable handoffs to local agents.
 
 ✴︎ **i18n & 2 modes:** Supports Japanese, Chinese, Malay, with dark mode.
 
