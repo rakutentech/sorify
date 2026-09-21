@@ -1,0 +1,113 @@
+README.md
+  h_f44dfe84a46cdf 42,79,469
+  h_f44dfe84a46cdf 43
+INSTALL.md
+  h_f44dfe84a46cdf 97-98,108
+Dockerfile
+  h_f44dfe84a46cdf 88
+app/Console/Commands/PruneRuns.php
+  h_f44dfe84a46cdf 1-34
+app/Http/Controllers/CoverageController.php
+  h_f44dfe84a46cdf 1-102
+app/Http/Controllers/TestRunController.php
+  h_f44dfe84a46cdf 16-18,120
+app/Http/Controllers/TestSuiteController.php
+  h_f44dfe84a46cdf 14,26-29,432-435
+app/Http/Requests/Api/StoreSuiteRequest.php
+  h_f44dfe84a46cdf 23-29,72-73
+app/Http/Requests/StoreTestSuiteRequest.php
+  h_f44dfe84a46cdf 22-30,71-72
+app/Jobs/GenerateRunCoverageReportJob.php
+  h_f44dfe84a46cdf 1-154
+app/Mcp/Tools/Runs/DeleteRunTool.php
+  h_f44dfe84a46cdf 7,36
+app/Mcp/Tools/Suites/AddSuiteMemberTool.php
+  h_f44dfe84a46cdf 12
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  h_f44dfe84a46cdf 75-76,129-135
+app/Mcp/Tools/Suites/DuplicateSuiteTool.php
+  h_f44dfe84a46cdf 8
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  h_f44dfe84a46cdf 77-78,132-138
+app/Models/TestRun.php
+  h_f44dfe84a46cdf 15,17,57
+app/Models/TestSuite.php
+  h_f44dfe84a46cdf 34-35,53
+app/Services/CoverageService.php
+  h_f44dfe84a46cdf 1-101
+app/Services/HistoryPruningService.php
+  h_f44dfe84a46cdf 9-12,26
+app/Services/PlaywrightRunnerService.php
+  h_f44dfe84a46cdf 23,39,133-138,140,146-153,282-287
+app/Services/ScreenshotService.php
+  h_f44dfe84a46cdf 7,26-27,37-41,63-74
+app/Services/TestRunService.php
+  h_f44dfe84a46cdf 9,23-59,206-211,220-226,314-319
+config/filesystems.php
+  h_f44dfe84a46cdf 51-53,55-63,93
+config/sorify.php
+  h_f44dfe84a46cdf 5,8
+database/migrations/2026_09_21_000001_add_coverage_settings_to_test_suites_table.php
+  h_f44dfe84a46cdf 1-29
+database/migrations/2026_09_21_000002_add_coverage_summary_to_test_runs_table.php
+  h_f44dfe84a46cdf 1-24
+package-lock.json
+  h_f44dfe84a46cdf 13-14,19,1147-1152,1431-1436,2112-2117,2159-2206,2573-2587,2874-2885,3043-3056
+package.json
+  h_f44dfe84a46cdf 22-23,28
+plugins/sorify/commands/gateway.md
+  h_f44dfe84a46cdf 109-110,176-183,226
+resources/js/Components/ui/SuiteChips.vue
+  h_f44dfe84a46cdf 23
+resources/js/Components/ui/Tooltip.vue
+  h_f44dfe84a46cdf 2,7-14,23-26
+resources/js/Pages/TestRuns/Show.vue
+  h_f44dfe84a46cdf 13,288-307,462-506
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 156,726-727,730-737,745-746,754-755,795,966-998,1948-1995
+resources/js/Pages/Tests/Show.vue
+  h_f44dfe84a46cdf 9,15,37-44,352-353,355-356,358-360,362-366,392-393,395,397,399,401-404,407-416
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 109,463-475,683-691,760-762
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 103,463-475,683-691,760-762
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 103,463-475,683-691,760-762
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 103,463-475,683-691,760-762
+resources/playwright/coverage.cjs
+  h_f44dfe84a46cdf 1-159
+resources/playwright/harness.cjs
+  h_f44dfe84a46cdf 129-153,171-172,192-194,211-241,245,305-319,393-394,424-425
+resources/playwright/runner.cjs
+  h_f44dfe84a46cdf 10,67-70,134
+routes/console.php
+  h_f44dfe84a46cdf 15
+routes/web.php
+  h_f44dfe84a46cdf 10,16,180-184
+tests/Feature/CoverageTest.php
+  h_f44dfe84a46cdf 1-371
+tests/Feature/EphemeralExecutionTest.php
+  h_f44dfe84a46cdf 8,54,120,188,244
+tests/Feature/PruneRunsTest.php
+  h_f44dfe84a46cdf 1-128
+tests/Feature/ScreenshotModeTest.php
+  h_f44dfe84a46cdf 7-8,128
+tests/Feature/SuiteCookiesTest.php
+  h_f44dfe84a46cdf 12-13,442
+tests/Feature/SuiteVariablesTest.php
+  h_f44dfe84a46cdf 11-12,364
+tests/Unit/Mcp/Tools/SuitesToolsTest.php
+  h_f44dfe84a46cdf 5,102-144
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8f6f31498b82d00ddc25d8da2a7d7f1bbadcab7f",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
