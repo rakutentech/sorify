@@ -72,6 +72,8 @@ class CreateSuiteTool extends Tool
                 $schema->boolean(),
                 $schema->string()->enum(ScreenshotMode::ALL),
             ])->description('Screenshot capture mode: "enabled" (default), "on_failure" (screenshots are captured but kept only when a test fails), or "disabled" (never captured, faster runs). A boolean is accepted for backwards compatibility: true = enabled, false = disabled.'),
+            'collect_coverage' => $schema->boolean()->description('Collect JavaScript code coverage while tests run, producing an Istanbul report on each completed run (lines/functions/branches). Chromium only — the browser is forced to chromium for the run. Defaults to false.'),
+            'coverage_url_filter' => $schema->string()->description('Comma-separated simple patterns limiting which scripts are included in the coverage report. "*" matches anything, everything else matches literally (case-insensitive); a script is included when it matches any pattern. Empty or omitted = all scripts. E.g. "example.com/assets/*, cdn.example.com/app.js". JavaScript only — CSS is not measured.'),
             'teams_webhook_url' => $schema->string()->description('MS Teams incoming webhook URL to notify when runs complete.'),
             'teams_webhook_proxy' => $schema->string()->description('HTTP proxy to use when posting to the Teams webhook, if any.'),
             'teams_notify_on_start' => $schema->boolean()->description('Whether to notify Teams when a run starts.'),
@@ -124,7 +126,13 @@ class CreateSuiteTool extends Tool
         // Legacy boolean take_screenshot input is normalized to a mode string
         // before validation; an absent key stays absent (omit = default).
         if ($request->has('take_screenshot')) {
-            $request->merge(['take_screenshot' => ScreenshotMode::normalize($request->input('take_screenshot'))]);
+            $request->merge(['take_screenshot' => ScreenshotMode::normalize($request->get('take_screenshot'))]);
+        }
+
+        // Comma-separated coverage filter: trim each pattern, drop empty ones.
+        if ($request->has('coverage_url_filter')) {
+            $parts = array_filter(array_map('trim', explode(',', (string) $request->get('coverage_url_filter'))));
+            $request->merge(['coverage_url_filter' => $parts ? implode(',', $parts) : null]);
         }
 
         $data = $request->validate((new StoreSuiteRequest)->rules());

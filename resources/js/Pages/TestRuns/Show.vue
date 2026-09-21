@@ -10,7 +10,7 @@ import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import { openAgentDrawer } from '@/composables/useAgentDrawer.js';
 import AiButton from '@/Components/Agent/AiButton.vue';
 import GatewayPromptButton from '@/Components/Agent/GatewayPromptButton.vue';
-import { Activity, RotateCcw, LoaderCircle, ChevronRight, Search, ChevronDown, CircleAlert, X } from '@lucide/vue';
+import { Activity, RotateCcw, LoaderCircle, ChevronRight, Search, ChevronDown, CircleAlert, X, Gauge, FileText } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -285,6 +285,26 @@ const passedCount = computed(() => props.run.passed_count ?? 0);
 const failedCount = computed(() => (props.run.failed_count ?? 0) + (props.run.error_count ?? 0));
 
 const totalTests     = computed(() => props.run.total_tests || 0);
+
+// Coverage percentages for the summary card: lines, functions, branches.
+const coverageMetrics = computed(() => {
+    const s = props.run.coverage_summary;
+    if (!s) return [];
+    return [
+        { key: 'lines', label: t('testRunShow.coverageLines'), pct: Math.round(s.lines?.pct ?? 0) },
+        { key: 'functions', label: t('testRunShow.coverageFunctions'), pct: Math.round(s.functions?.pct ?? 0) },
+        { key: 'branches', label: t('testRunShow.coverageBranches'), pct: Math.round(s.branches?.pct ?? 0) },
+    ];
+});
+// The full HTML report is embedded inline behind a toggle instead of
+// linking out to a separate tab.
+const showReport = ref(false);
+// Bar color tracks coverage quality: high ≥ 80, mid ≥ 50, low below.
+const coverageBarClass = (pct) => ({
+    'bg-[var(--md-ext-color-success)]': pct >= 80,
+    'bg-[var(--md-ext-color-warning)]': pct >= 50 && pct < 80,
+    'bg-[var(--md-sys-color-error)]': pct < 50,
+});
 const completedCount = computed(() => passedCount.value + failedCount.value);
 const runningCount   = computed(() => (isActive.value ? Math.max(0, totalTests.value - completedCount.value) : 0));
 const progressPct    = computed(() => {
@@ -437,6 +457,51 @@ const failedPct = computed(() => {
                 <span class="text-[var(--md-sys-color-error)]">{{ t('testRunShow.failed', { count: failedCount }) }}</span>
                 <span v-if="completedCount < totalTests">{{ t('testRunShow.remainingCount', { count: totalTests - completedCount }) }}</span>
             </div>
+        </Card>
+
+        <!-- Coverage summary (once the merged report has been generated) -->
+        <Card v-if="run.coverage_summary" class="mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <Gauge :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
+                    <span class="md-title-small text-[var(--md-sys-color-on-surface)]">{{ t('testRunShow.coverage') }}</span>
+                    <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.coverageTests', { count: run.coverage_summary.tests ?? 0 }) }}</span>
+                </div>
+                <Button variant="tonal" size="sm" @click="showReport = !showReport">
+                    <FileText :size="14" />
+                    {{ showReport ? t('testRunShow.coverageHideReport') : t('testRunShow.coverageReport') }}
+                </Button>
+            </div>
+
+            <div class="space-y-3.5">
+                <div v-for="metric in coverageMetrics" :key="metric.key">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ metric.label }}</span>
+                        <span class="md-label-medium font-semibold text-[var(--md-sys-color-on-surface)]">{{ metric.pct }}%</span>
+                    </div>
+                    <div class="h-2 bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-full)] overflow-hidden">
+                        <div
+                            class="h-full transition-all duration-500 ease-out"
+                            :class="coverageBarClass(metric.pct)"
+                            :style="{ width: metric.pct + '%' }"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full report embedded inline (same-origin, so the authed
+                 session cookie applies and links between report pages work). -->
+            <div v-if="showReport" class="mt-4">
+                <iframe
+                    :src="`/sorify/runs/${run.id}/coverage/report/index.html`"
+                    :title="t('testRunShow.coverage')"
+                    class="w-full h-[70vh] min-h-[480px] rounded-[var(--md-sys-shape-corner-medium)] border border-[var(--md-sys-color-outline-variant)] bg-white"
+                ></iframe>
+            </div>
+
+            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-3">
+                {{ t('testRunShow.coverageHint') }}
+            </p>
         </Card>
 
         <!-- Results accordion -->

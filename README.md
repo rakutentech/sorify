@@ -39,6 +39,8 @@
 
 ✴︎ **Test Management:** Organize test suites and test cases, run them on demand or on a schedule.
 
+✴︎ **Playwright Code Coverage:** Code coverage support within dashboard.
+
 ✴︎ **Test Runners:** Playwright-powered execution with full run history.
 
 ✴︎ **Notifications:** Get notified when suites finish or fail.
@@ -74,6 +76,7 @@ WITH ALL MCP CONTROLS - SUPPORTED
 ・ Cron scheduling           ・ Run history
 ・ Run cancellation          ・ Status polling
 ・ Test logs                 ・ Pass-rate analytics
+・ Code coverage reports     ・ Bundle URL filter
 
 ▼ Test Management
 ・ Suite management          ・ Test case management
@@ -463,3 +466,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v2.0** - Ephemeral mode
 - **v2.1** - My AI Agent: in-dashboard agent chat (OpenAI-compatible profiles, page context, MCP handoff) and AI model attribution on test code.
 - **v2.2** - Long running agents, admin controlled stale runs, mermaid support on md, AI explain these buttons. Sleaker UI.
+- **v2.3** - Playwright coverage supported.

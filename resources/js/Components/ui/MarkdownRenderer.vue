@@ -136,6 +136,22 @@ const rendered = computed(() => {
 // so pages without diagrams never pay for the ~1MB bundle.
 const { theme } = useTheme();
 
+// Mermaid ≥11 renders node/edge labels as HTML inside <foreignObject>, and
+// most diagram types (flowchart, sequence, journey, timeline, …) do this.
+// DOMPurify's default SVG profile strips <foreignObject> (it is not in the
+// allow-list), and its namespace rules only allow HTML content under MathML
+// annotation-xml — not under SVG foreignObject/desc/title integration points.
+// Without this config every label was silently removed, leaving textless
+// boxes. Tags/attributes stay restricted to DOMPurify's safe defaults
+// (script, event handlers, javascript: URLs etc. are still stripped); we only
+// re-enable the spec-defined HTML integration points. Keys are lowercase
+// because DOMPurify lowercases tag names before the lookup.
+const MERMAID_SANITIZE_CONFIG = {
+    ADD_TAGS: ['foreignObject'],
+    ADD_ATTR: ['requiredFeatures'],
+    HTML_INTEGRATION_POINTS: { foreignobject: true, desc: true, title: true, 'annotation-xml': true },
+};
+
 let mermaidLib = null;       // cached dynamic import
 let mermaidTheme = null;     // theme mermaid was last initialized with
 let mermaidSeq = 0;          // unique SVG id counter
@@ -170,8 +186,9 @@ async function renderDiagrams() {
             const { svg } = await mermaidLib.render(`mermaid-svg-${++mermaidSeq}`, source);
             // Mermaid's SVG carries its own internal <style> for fonts/colors,
             // so this pass keeps style tags (unlike the markdown pass above).
-            // securityLevel 'strict' already escaped label content.
-            el.innerHTML = DOMPurify.sanitize(svg);
+            // securityLevel 'strict' already escaped label content, and
+            // MERMAID_SANITIZE_CONFIG only re-enables foreignObject HTML labels.
+            el.innerHTML = DOMPurify.sanitize(svg, MERMAID_SANITIZE_CONFIG);
         } catch (e) {
             el.dataset.done = 'error';
             el.innerHTML =

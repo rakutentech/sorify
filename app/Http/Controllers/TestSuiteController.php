@@ -11,6 +11,7 @@ use App\Models\TestSuite;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use App\Services\ReportingService;
+use App\Services\TestRunService;
 use App\Services\TestSuiteDuplicationService;
 use App\Support\SuiteSort;
 use App\Support\TestSort;
@@ -22,7 +23,10 @@ class TestSuiteController extends Controller
 {
     private const ERROR_STATUSES = ['failed', 'error', 'timeout'];
 
-    public function __construct(private readonly ReportingService $reporting) {}
+    public function __construct(
+        private readonly ReportingService $reporting,
+        private readonly TestRunService $runs,
+    ) {}
 
     public function index(Request $request): Response
     {
@@ -424,6 +428,10 @@ class TestSuiteController extends Controller
     public function destroy(TestSuite $suite)
     {
         $this->authorize('delete', $suite);
+
+        // Delete the suite's runs with their files first — the DB cascade
+        // drops the rows but would orphan screenshots and coverage artifacts.
+        $this->runs->deleteRunsForSuite($suite);
 
         $suite->delete();
 

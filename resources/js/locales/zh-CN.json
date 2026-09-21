@@ -100,6 +100,7 @@
         "badgeTeams": "Teams",
         "badgeEmail": "邮件",
         "badgeScreenshots": "截图",
+        "badgeCoverage": "覆盖率",
         "badgeScreenshotsOnFailure": "截图（仅失败时）",
         "badgeProxy": "代理",
         "badgeVariables": "变量",
@@ -459,7 +460,19 @@
         "emailRecipientsMembersOnly": "只有套件成员可以被添加为收件人。",
         "scheduleTestsDisabledHint": "已禁用的测试会被跳过,直到重新启用。",
         "regenerateWebhookNotInvalidated": "不会被立即失效",
-        "codeByTooltip": "由此 AI 模型编写的代码"
+        "codeByTooltip": "由此 AI 模型编写的代码",
+        "coverage": "覆盖率",
+        "coverageOn": "收集",
+        "coverageOff": "关闭",
+        "coverageFilter": "Bundle URL 过滤器",
+        "coverageFilterPlaceholder": "例如 example.com/assets/*.js",
+        "coverageFilterHint": "多个模式以逗号分隔；* 匹配任意内容。匹配的 JavaScript 文件会包含在覆盖率报告中；不统计 CSS。",
+        "coverageCollect": "收集",
+        "coverageFilterExampleFile": "单个文件",
+        "coverageFilterExamplePath": "路径下的所有文件",
+        "coverageFilterExampleDomain": "整个域名",
+        "coverageFilterShowExamples": "显示示例",
+        "coverageFilterHideExamples": "隐藏示例"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · 审查",
@@ -667,7 +680,15 @@
         "statusFilterLabel": "状态",
         "statusFilterClear": "清除",
         "filteredByTest": "筛选：{name}",
-        "clearFilter": "清除筛选"
+        "clearFilter": "清除筛选",
+        "coverage": "JavaScript 覆盖率",
+        "coverageTests": "收集自 {count} 个测试",
+        "coverageReport": "查看报告",
+        "coverageLines": "行",
+        "coverageFunctions": "函数",
+        "coverageBranches": "分支",
+        "coverageHint": "覆盖率显示 UI 操作执行了哪些前端代码路径——并不能证明测试断言正确。",
+        "coverageHideReport": "收起报告"
     },
     "testShow": {
         "testCase": "测试用例",
@@ -736,7 +757,9 @@
         "sourceManual": "手动",
         "sourceMcp": "MCP / API",
         "sourceAgent": "我的 AI 助手",
-        "colAiModel": "AI 模型"
+        "colAiModel": "AI 模型",
+        "showAllVariables": "显示全部（{count}）",
+        "showFewerVariables": "收起"
     },
     "profile": {
         "title": "个人资料",

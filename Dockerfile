@@ -85,6 +85,7 @@ RUN npm ci --omit=dev \
 # Seed baseline runtime directories (overlaid by the storage volume at runtime,
 # this just ensures the volume isn't empty/unwritable on first boot)
 RUN mkdir -p \
+        storage/app/coverage \
         storage/app/public \
         storage/app/tmp \
         storage/framework/cache/data \

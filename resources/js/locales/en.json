@@ -106,6 +106,7 @@
         "moreChipsTooltip": "Suite settings",
         "badgeScreenshots": "Screenshots",
         "badgeScreenshotsOnFailure": "Screenshots on failure",
+        "badgeCoverage": "Coverage",
         "badgeProxy": "Proxy",
         "badgeVariables": "Variables",
         "badgeSchedule": "Schedule",
@@ -459,7 +460,19 @@
         "emailRecipientsMembersOnly": "Only suite members can be added as recipients.",
         "scheduleTestsDisabledHint": "Disabled tests are skipped until re-enabled.",
         "regenerateWebhookNotInvalidated": "not invalidated",
-        "codeByTooltip": "Code written by this AI model"
+        "codeByTooltip": "Code written by this AI model",
+        "coverage": "Coverage",
+        "coverageOn": "Collect",
+        "coverageOff": "Off",
+        "coverageFilter": "Bundle URL filter",
+        "coverageFilterPlaceholder": "e.g. example.com/assets/*.js",
+        "coverageFilterHint": "Simple patterns separated by commas; * matches anything. Matching JavaScript files are included in the report; CSS is not measured.",
+        "coverageCollect": "Collect",
+        "coverageFilterExampleFile": "one file",
+        "coverageFilterExamplePath": "all files under a path",
+        "coverageFilterExampleDomain": "the whole domain",
+        "coverageFilterShowExamples": "Show examples",
+        "coverageFilterHideExamples": "Hide examples"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · Review",
@@ -667,7 +680,15 @@
         "statusFilterLabel": "Status",
         "statusFilterClear": "Clear",
         "filteredByTest": "Filtered by: {name}",
-        "clearFilter": "Clear filter"
+        "clearFilter": "Clear filter",
+        "coverage": "JavaScript Coverage",
+        "coverageTests": "collected from {count} tests",
+        "coverageReport": "View report",
+        "coverageLines": "Lines",
+        "coverageFunctions": "Functions",
+        "coverageBranches": "Branches",
+        "coverageHint": "Coverage shows which frontend code paths the UI interactions executed — it does not prove the test assertions were correct.",
+        "coverageHideReport": "Hide report"
     },
     "testShow": {
         "testCase": "Test Case",
@@ -736,7 +757,9 @@
         "sourceManual": "Manual",
         "sourceMcp": "MCP / API",
         "sourceAgent": "My AI Agent",
-        "colAiModel": "AI Model"
+        "colAiModel": "AI Model",
+        "showAllVariables": "Show all ({count})",
+        "showFewerVariables": "Show fewer"
     },
     "profile": {
         "title": "Profile",

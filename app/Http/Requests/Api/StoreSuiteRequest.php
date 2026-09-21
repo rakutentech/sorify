@@ -20,6 +20,13 @@ class StoreSuiteRequest extends FormRequest
         if ($this->has('take_screenshot')) {
             $this->merge(['take_screenshot' => ScreenshotMode::normalize($this->input('take_screenshot'))]);
         }
+
+        // Normalize the comma-separated coverage filter the same way the
+        // dashboard does: trim each pattern, drop empty ones.
+        if ($this->has('coverage_url_filter')) {
+            $parts = array_filter(array_map('trim', explode(',', (string) $this->input('coverage_url_filter'))));
+            $this->merge(['coverage_url_filter' => $parts ? implode(',', $parts) : null]);
+        }
     }
 
     public function rules(): array
@@ -62,6 +69,8 @@ class StoreSuiteRequest extends FormRequest
             'history_retention' => 'nullable|integer|in:3,5,10',
             'timeout_ms' => 'nullable|integer|in:10000,30000,60000,120000,300000,600000',
             'take_screenshot' => ['nullable', 'string', Rule::in(ScreenshotMode::ALL)],
+            'collect_coverage' => 'nullable|boolean',
+            'coverage_url_filter' => 'nullable|string|max:500',
             'teams_webhook_url' => 'nullable|string|max:500|url',
             'teams_webhook_proxy' => 'nullable|string|max:500',
             'teams_notify_on_start' => 'nullable|boolean',

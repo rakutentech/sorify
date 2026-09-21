@@ -6,13 +6,13 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import TestCodeEditor from '@/Components/TestCodeEditor.vue';
 import CopyButton from '@/Components/CopyButton.vue';
 import ScreenshotGallery from '@/Components/ScreenshotGallery.vue';
-import { Card, Chip, Button, TextField, Autocomplete, Breadcrumb, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination, MarkdownRenderer } from '@/Components/ui';
+import { Card, Chip, Button, TextField, Autocomplete, Breadcrumb, SuiteName, RanBy, Avatar, ScreenshotThumbs, ScreenshotLightbox, Pagination, MarkdownRenderer, Tooltip } from '@/Components/ui';
 import { formatDate } from '@/utils/date';
 import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import { openAgentDrawer } from '@/composables/useAgentDrawer.js';
 import AiButton from '@/Components/Agent/AiButton.vue';
 import GatewayPromptButton from '@/Components/Agent/GatewayPromptButton.vue';
-import { FlaskConical, Copy, LoaderCircle, Trash2, Play, CircleAlert, X, ChevronRight, ArrowLeft, ArrowRight, History, Code, Activity, Bot } from '@lucide/vue';
+import { FlaskConical, Copy, LoaderCircle, Trash2, Play, CircleAlert, X, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, ArrowRight, History, Code, Activity, Bot } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -33,6 +33,14 @@ const editForm = useForm({
 });
 
 const editMode = ref(false);
+
+// Suite variable chips: only the first few are shown until expanded.
+const VARIABLE_PREVIEW_COUNT = 6;
+const showAllVariables = ref(false);
+const visibleVariables = computed(() => {
+    const variables = props.suite.variables ?? [];
+    return showAllVariables.value ? variables : variables.slice(0, VARIABLE_PREVIEW_COUNT);
+});
 
 function uploader(email) {
     const user = props.users.find(u => u.email === email);
@@ -341,17 +349,21 @@ function onHistoryKeydown(e) {
                 <!-- Right: Playwright code editor -->
                 <div class="lg:col-span-3 min-w-0">
                     <div class="flex items-center justify-between px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)]">
-                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2">
-                            <Code :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
+                        <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)] flex items-center gap-2 min-w-0">
+                            <Code :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" class="flex-shrink-0" />
                             {{ t('testShow.playwrightCode') }}
-                            <span
+                            <!-- Model badge: truncated to fit; full info on hover (below, into the card body) -->
+                            <Tooltip
                                 v-if="test.code_ai_model"
-                                class="inline-flex items-center gap-1 md-label-small font-mono text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]"
-                                :title="t('testShow.codeByTooltip')"
+                                :text="`${t('testShow.codeByTooltip')}: ${test.code_ai_model} · ${codeSourceLabel}`"
+                                placement="bottom"
+                                class="min-w-0"
                             >
-                                <Bot :size="12" class="flex-shrink-0" />
-                                {{ test.code_ai_model }} · {{ codeSourceLabel }}
-                            </span>
+                                <span class="inline-flex items-center gap-1 min-w-0 max-w-[10rem] md-label-small font-mono text-[var(--md-sys-color-on-tertiary-container)] bg-[var(--md-sys-color-tertiary-container)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">
+                                    <Bot :size="12" class="flex-shrink-0" />
+                                    <span class="truncate">{{ test.code_ai_model }} · {{ codeSourceLabel }}</span>
+                                </span>
+                            </Tooltip>
                             <span
                                 v-else-if="test.code_source"
                                 class="md-label-small text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container-high)] px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]"
@@ -377,27 +389,31 @@ function onHistoryKeydown(e) {
         
                     <!-- Suite variables available in this test's scope -->
                     <div v-if="(suite.variables ?? []).length" class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
-                        <div class="flex items-center gap-2 mb-2 flex-wrap">
-                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testShow.suiteVariables') }}</p>
-                            <code class="md-label-small font-mono bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">variables.KEY</code>
-                            <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ t('testShow.variablesHint') }}</span>
-                        </div>
-                        <p class="md-label-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mb-2">
-                            {{ t('testShow.variablesManageCaption') }}
-                            <Link :href="`/sorify/suites/${suite.id}`" class="text-[var(--md-sys-color-primary)] hover:underline">{{ t('testSuiteShow.suiteSettings') }}</Link>.
-                        </p>
-                        <div class="flex flex-wrap gap-1.5">
+                        <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-2">{{ t('testShow.suiteVariables') }}</p>
+                        <div class="grid grid-cols-2 gap-1.5 mb-1.5">
                             <div
-                                v-for="variable in suite.variables"
+                                v-for="variable in visibleVariables"
                                 :key="variable.key"
-                                class="flex items-center gap-1.5 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-extra-small)] px-2 py-1"
-                                :title="variable.value ? `${variable.key} = ${variable.value}` : variable.key"
+                                class="flex items-center gap-1.5 min-w-0 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-extra-small)] px-2 py-1"
                             >
-                                <code class="md-label-small font-mono font-semibold text-[var(--md-sys-color-primary)]">{{ variable.key }}</code>
+                                <code class="md-label-small font-mono font-semibold text-[var(--md-sys-color-primary)] truncate">{{ variable.key }}</code>
                                 <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">=</span>
-                                <code class="md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)] max-w-[12rem] truncate">{{ variable.value || '∅' }}</code>
+                                <!-- Truncated in the chip; the full key = value shows on hover -->
+                                <Tooltip :text="`${variable.key} = ${variable.value || '∅'}`" class="min-w-0 flex-1">
+                                    <code class="md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)] truncate">{{ variable.value || '∅' }}</code>
+                                </Tooltip>
                             </div>
                         </div>
+                        <button
+                            v-if="(suite.variables ?? []).length > VARIABLE_PREVIEW_COUNT"
+                            @click="showAllVariables = !showAllVariables"
+                            class="inline-flex items-center gap-1 md-label-small text-[var(--md-sys-color-primary)] hover:underline"
+                        >
+                            {{ showAllVariables
+                                ? t('testShow.showFewerVariables')
+                                : t('testShow.showAllVariables', { count: suite.variables.length }) }}
+                            <component :is="showAllVariables ? ChevronUp : ChevronDown" :size="14" />
+                        </button>
                     </div>
         
                     <div class="p-1">

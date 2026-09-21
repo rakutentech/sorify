@@ -7,12 +7,13 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AgentConversationController;
 use App\Http\Controllers\AgentProfileController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardNoteController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ScreenshotController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SuiteBookmarkController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TestRunController;
@@ -176,6 +177,11 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
         Route::get('/{run}/status', [TestRunController::class, 'status'])->name('status');
         Route::post('/{run}/cancel', [TestRunController::class, 'cancel'])->name('cancel');
         Route::delete('/{run}', [TestRunController::class, 'destroy'])->name('destroy');
+
+        Route::get('/{run}/coverage/report/{path?}', [CoverageController::class, 'report'])
+            ->where('path', '.*')
+            ->name('coverage.report');
+        Route::get('/{run}/coverage/lcov', [CoverageController::class, 'lcov'])->name('coverage.lcov');
     });
 
     Route::prefix('results')->name('results.')->group(function () {

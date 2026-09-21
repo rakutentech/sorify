@@ -19,10 +19,13 @@
         "@lucide/vue": "^1.33.0",
         "@vitejs/plugin-vue": "^6.0.7",
         "dompurify": "^3.4.13",
+        "istanbul-lib-coverage": "^3.2.2",
+        "istanbul-reports": "^3.2.0",
         "marked": "^18.0.9",
         "mermaid": "^12.0.0",
         "playwright": "^1.60.0",
         "prismjs": "^1.30.0",
+        "v8-to-istanbul": "^9.3.0",
         "vue": "^3.5.34",
         "vue-i18n": "^9.14.5"
     }
