@@ -153,6 +153,7 @@ const statusUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.rep
 const runUrlTemplate = computed(() => props.webhookUrl ? props.webhookUrl.replace(/\/sorify\/.*$/, '/sorify/runs/{run}') : null);
 
 const showCurlExample = ref(false);
+const showCoverageFilterExamples = ref(false);
 const curlCommand = computed(() => props.webhookUrl
     ? `curl -X POST "${props.webhookUrl}?test_ids=1,2,3"`
     : '');
@@ -722,7 +723,17 @@ const localSettings = reactive({
     take_screenshot: screenshotMode(props.suite.take_screenshot),
     max_retries: props.suite.max_retries ?? 0,
     history_retention: props.suite.history_retention ?? 5,
+    collect_coverage: props.suite.collect_coverage ?? false,
+    coverage_url_filter: props.suite.coverage_url_filter ?? '',
 });
+
+// Example patterns shown under the empty bundle URL filter input. Patterns
+// match anywhere in the script URL (case-insensitive); * matches anything.
+const coverageFilterExamples = computed(() => [
+    { pattern: 'example.com/assets/app.js', label: t('testSuiteShow.coverageFilterExampleFile') },
+    { pattern: 'example.com/assets/*', label: t('testSuiteShow.coverageFilterExamplePath') },
+    { pattern: 'example.com', label: t('testSuiteShow.coverageFilterExampleDomain') },
+]);
 
 watch(() => ({
     browser: props.suite.browser,
@@ -731,6 +742,8 @@ watch(() => ({
     take_screenshot: props.suite.take_screenshot,
     max_retries: props.suite.max_retries,
     history_retention: props.suite.history_retention,
+    collect_coverage: props.suite.collect_coverage,
+    coverage_url_filter: props.suite.coverage_url_filter,
 }), (s) => {
     localSettings.browser = s.browser ?? 'chromium';
     localSettings.headless = s.headless ?? true;
@@ -738,6 +751,8 @@ watch(() => ({
     localSettings.take_screenshot = screenshotMode(s.take_screenshot);
     localSettings.max_retries = s.max_retries ?? 0;
     localSettings.history_retention = s.history_retention ?? 5;
+    localSettings.collect_coverage = s.collect_coverage ?? false;
+    localSettings.coverage_url_filter = s.coverage_url_filter ?? '';
 });
 
 // ── Settings sidebar (Profile-style section nav) ───────────────────────────
@@ -777,6 +792,7 @@ const settingsSections = computed(() => [
             { label: localSettings.take_screenshot === 'on_failure' ? t('testSuiteShow.screenshotsOnFailure') : t('testSuiteShow.screenshots'), active: localSettings.take_screenshot !== 'disabled', kind: 'screenshots' },
             { label: t('testSuiteShow.retriesShort', { value: localSettings.max_retries === 0 ? t('testSuites.noRetries') : `${localSettings.max_retries}×` }), active: !!localSettings.max_retries, kind: 'retries' },
             { label: t('testSuiteShow.keepRunsShort', { count: localSettings.history_retention }), active: true, kind: 'keepRuns' },
+            { label: t('testSuiteShow.coverage'), active: localSettings.collect_coverage, successActive: true, kind: 'coverage' },
         ],
     },
     {
@@ -943,6 +959,39 @@ function updateSuiteSetting(field) {
                 clearTimeout(savedTimer);
                 savedTimer = setTimeout(() => { savedField.value = null; }, 1500);
             },
+        },
+    );
+}
+
+// Coverage collection is Chromium-only (Playwright Coverage API): enabling it
+// also switches the suite's browser to Chromium in the same save.
+function toggleCoverage() {
+    savingSetting.value = true;
+    const wasEnabled = props.suite.collect_coverage ?? false;
+    const wasBrowser = props.suite.browser ?? 'chromium';
+    const payload = { collect_coverage: localSettings.collect_coverage };
+
+    if (localSettings.collect_coverage && wasBrowser !== 'chromium') {
+        localSettings.browser = 'chromium';
+        payload.browser = 'chromium';
+    }
+
+    router.put(
+        `/sorify/suites/${props.suite.id}`,
+        payload,
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                savedField.value = 'collect_coverage';
+                clearTimeout(savedTimer);
+                savedTimer = setTimeout(() => { savedField.value = null; }, 1500);
+            },
+            onError: () => {
+                localSettings.collect_coverage = wasEnabled;
+                localSettings.browser = wasBrowser;
+            },
+            onFinish: () => { savingSetting.value = false; },
         },
     );
 }
@@ -1894,6 +1943,54 @@ function toggleRunsExpanded(testId) {
                                 <option :value="5">{{ t('testSuites.last5Runs') }}</option>
                                 <option :value="10">{{ t('testSuites.last10Runs') }}</option>
                             </select>
+                        </div>
+                        </div>
+
+                        <!-- Coverage category -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container-high)] px-4 py-3">
+                            <p class="sm:col-span-2 md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.coverage') }}</p>
+
+                            <!-- Collect -->
+                            <div class="flex items-center justify-between gap-3">
+                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-coverage-${suite.id}`">{{ t('testSuiteShow.coverageCollect') }}</label>
+                                <select
+                                    :id="`setting-coverage-${suite.id}`"
+                                    v-model="localSettings.collect_coverage"
+                                    @change="toggleCoverage"
+                                    :disabled="!can.edit || savingSetting"
+                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    <option :value="false">{{ t('testSuiteShow.coverageOff') }}</option>
+                                    <option :value="true">{{ t('testSuiteShow.coverageOn') }}</option>
+                                </select>
+                            </div>
+
+                        <!-- Coverage bundle URL filter (only while coverage is on) -->
+                        <div v-if="localSettings.collect_coverage" class="sm:col-span-2">
+                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-coverage-filter-${suite.id}`">{{ t('testSuiteShow.coverageFilter') }}</label>
+                            <input
+                                :id="`setting-coverage-filter-${suite.id}`"
+                                v-model="localSettings.coverage_url_filter"
+                                @change="updateSuiteSetting('coverage_url_filter')"
+                                :disabled="!can.edit || savingSetting"
+                                type="text"
+                                :placeholder="t('testSuiteShow.coverageFilterPlaceholder')"
+                                class="mt-1 w-full bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] px-3 py-1.5 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                            <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-1">{{ t('testSuiteShow.coverageFilterHint') }}</p>
+                            <button
+                                @click="showCoverageFilterExamples = !showCoverageFilterExamples"
+                                class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-1"
+                            >
+                                <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showCoverageFilterExamples }" />
+                                {{ showCoverageFilterExamples ? t('testSuiteShow.coverageFilterHideExamples') : t('testSuiteShow.coverageFilterShowExamples') }}
+                            </button>
+                            <div v-if="showCoverageFilterExamples" class="mt-2 flex flex-col gap-1">
+                                <div v-for="example in coverageFilterExamples" :key="example.pattern" class="flex flex-wrap items-baseline gap-x-2">
+                                    <code class="md-label-small bg-[var(--md-sys-color-surface-container-lowest)] text-[var(--md-sys-color-on-surface)] px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)]">{{ example.pattern }}</code>
+                                    <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ example.label }}</span>
+                                </div>
+                            </div>
                         </div>
                         </div>
                     </div>

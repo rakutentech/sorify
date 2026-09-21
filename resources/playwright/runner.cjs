@@ -7,6 +7,7 @@
  *   node runner.js --spec <path> --output <dir> [--timeout <ms>] [--base-url <url>] [--proxy <url>]
  *     [--proxy-rules <path-to-json-file>] [--variables <path-to-json-file>] [--cookies <path-to-json-file>]
  *     [--browser chromium|firefox|webkit] [--headless true|false] [--screenshot-mode enabled|on_failure|disabled]
+ *     [--coverage] [--coverage-filter <regex>]
  *
  * The legacy [--take-screenshot true|false] flag is still accepted and maps
  * to enabled/disabled; --screenshot-mode takes priority when both are given.
@@ -63,6 +64,10 @@ function parseArgs(argv) {
       args.takeScreenshot = argv[++i] !== 'false';
     } else if (flag === '--screenshot-mode' && argv[i + 1]) {
       args.screenshotMode = argv[++i];
+    } else if (flag === '--coverage') {
+      args.coverage = true;
+    } else if (flag === '--coverage-filter' && argv[i + 1]) {
+      args.coverageFilter = argv[++i];
     }
   }
   return args;
@@ -126,7 +131,7 @@ function finish(result, exitCode) {
     }
 
     // Run the test
-    const result = await runWithHarness(generatedCode, outputDir, baseUrl, timeout, proxy, browser, headless, screenshotMode, proxyRules, variables, cookies);
+    const result = await runWithHarness(generatedCode, outputDir, baseUrl, timeout, proxy, browser, headless, screenshotMode, proxyRules, variables, cookies, !!args.coverage, args.coverageFilter || null);
 
     const exitCode = result.status === 'passed' ? 0 : 1;
     finish(result, exitCode);

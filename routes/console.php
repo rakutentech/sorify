@@ -12,3 +12,4 @@ Schedule::command('sorify:run-scheduled-suites')->everyMinute()->withoutOverlapp
 Schedule::command('sorify:flush-notification-digests')->everyMinute()->withoutOverlapping();
 Schedule::command('sorify:prune-screenshots')->daily();
 Schedule::command('sorify:prune-agent-chats')->daily();
+Schedule::command('sorify:prune-runs')->daily();

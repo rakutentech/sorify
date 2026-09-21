@@ -6,6 +6,7 @@ use App\Events\TestRunCompleted;
 use App\Events\TestRunStarted;
 use App\Exceptions\RunRateLimitExceededException;
 use App\Exceptions\WebhookRunInProgressException;
+use App\Jobs\GenerateRunCoverageReportJob;
 use App\Jobs\RunPreRunIntegrationsJob;
 use App\Jobs\RunSingleTestJob;
 use App\Models\Test;
@@ -19,6 +20,43 @@ use Illuminate\Support\Str;
 
 class TestRunService
 {
+    public function __construct(
+        private readonly ScreenshotService $screenshots,
+        private readonly CoverageService $coverage,
+    ) {}
+
+    /**
+     * Delete a run together with every file it produced (screenshots,
+     * coverage artifacts). Single entry point for web, MCP and pruning.
+     */
+    public function deleteRun(TestRun $run): void
+    {
+        $this->screenshots->deleteRunFiles($run);
+        $this->coverage->deleteRunFiles($run);
+
+        $run->delete();
+    }
+
+    /**
+     * Delete every run of a suite with its files. Used before suite deletion,
+     * where the DB cascade would drop the run rows but orphan the files.
+     */
+    public function deleteRunsForSuite(TestSuite $suite): int
+    {
+        $deleted = 0;
+
+        TestRun::query()
+            ->where('test_suite_id', $suite->id)
+            ->chunkById(100, function ($runs) use (&$deleted): void {
+                foreach ($runs as $run) {
+                    $this->deleteRun($run);
+                    $deleted++;
+                }
+            });
+
+        return $deleted;
+    }
+
     /**
      * @throws RunRateLimitExceededException
      * @throws WebhookRunInProgressException
@@ -165,6 +203,12 @@ class TestRunService
             return;
         }
 
+        // The run is now fully finalized: merge per-test coverage into the
+        // run-level HTML report + lcov.info when the suite collects coverage.
+        if ($run->testSuite->collect_coverage) {
+            GenerateRunCoverageReportJob::dispatch($run->refresh());
+        }
+
         TestRunCompleted::dispatch($run->refresh());
 
         $this->logRunCompleted($run, $status);
@@ -173,13 +217,13 @@ class TestRunService
     private function logRunCompleted(TestRun $run, string $status): void
     {
         ActivityLogger::log('run_completed', $this->resolveActor($run->triggered_by_user_id), $run->testSuite, $run, [
-            'status'        => $status,
-            'triggered_by'  => $run->triggered_by,
-            'total_tests'   => $run->total_tests,
-            'passed_count'  => $run->passed_count,
-            'failed_count'  => $run->failed_count,
-            'error_count'   => $run->error_count,
-            'duration_ms'   => $run->duration_ms,
+            'status' => $status,
+            'triggered_by' => $run->triggered_by,
+            'total_tests' => $run->total_tests,
+            'passed_count' => $run->passed_count,
+            'failed_count' => $run->failed_count,
+            'error_count' => $run->error_count,
+            'duration_ms' => $run->duration_ms,
         ]);
     }
 
@@ -267,6 +311,12 @@ class TestRunService
             'error_count' => $run->error_count,
             'total_tests' => $run->total_tests,
             'duration_ms' => $run->duration_ms,
+            // Present once the run's merged coverage report was generated.
+            'coverage' => $run->coverage_summary ? [
+                'lines' => $run->coverage_summary['lines']['pct'] ?? null,
+                'functions' => $run->coverage_summary['functions']['pct'] ?? null,
+                'branches' => $run->coverage_summary['branches']['pct'] ?? null,
+            ] : null,
         ];
     }
 }

@@ -6,7 +6,10 @@ use App\Models\Test;
 
 class HistoryPruningService
 {
-    public function __construct(private readonly ScreenshotService $screenshotService) {}
+    public function __construct(
+        private readonly ScreenshotService $screenshotService,
+        private readonly CoverageService $coverageService,
+    ) {}
 
     public function pruneTestHistory(Test $test, int $keep): int
     {
@@ -20,6 +23,7 @@ class HistoryPruningService
 
         foreach ($stale as $result) {
             $this->screenshotService->deleteResultFiles($result);
+            $this->coverageService->deleteResultFiles($result);
             $result->delete();
         }
 

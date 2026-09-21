@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Mcp\Tools;
 
+use App\Jobs\PruneSuiteHistoryJob;
 use App\Mcp\Servers\SorifyServer;
 use App\Mcp\Tools\Suites\CreateSuiteTool;
 use App\Mcp\Tools\Suites\DeleteSuiteTool;
 use App\Mcp\Tools\Suites\GetSuiteTool;
 use App\Mcp\Tools\Suites\ListSuitesTool;
 use App\Mcp\Tools\Suites\UpdateSuiteTool;
-use App\Jobs\PruneSuiteHistoryJob;
 use App\Models\TestRun;
 use App\Models\TestSuite;
 use App\Models\User;
@@ -97,6 +97,49 @@ class SuitesToolsTest extends TestCase
             ->assertOk();
 
         $this->assertDatabaseHas('test_suites', ['id' => $suite->id, 'name' => 'Alpha Renamed']);
+    }
+
+    public function test_create_and_update_suite_set_coverage_settings(): void
+    {
+        $user = User::factory()->admin()->create();
+
+        SorifyServer::actingAs($user)
+            ->tool(CreateSuiteTool::class, [
+                'name' => 'Coverage suite',
+                'collect_coverage' => true,
+                'coverage_url_filter' => ' example.com/assets/* , ',
+            ])
+            ->assertOk();
+
+        // The filter is normalized: trimmed, empty parts dropped.
+        $this->assertDatabaseHas('test_suites', [
+            'name' => 'Coverage suite',
+            'collect_coverage' => true,
+            'coverage_url_filter' => 'example.com/assets/*',
+        ]);
+
+        $suite = TestSuite::where('name', 'Coverage suite')->first();
+
+        // Omitted fields are left untouched on update.
+        SorifyServer::actingAs($user)
+            ->tool(UpdateSuiteTool::class, ['suite_id' => $suite->id, 'name' => 'Coverage suite renamed'])
+            ->assertOk();
+
+        $this->assertDatabaseHas('test_suites', [
+            'id' => $suite->id,
+            'name' => 'Coverage suite renamed',
+            'collect_coverage' => true,
+            'coverage_url_filter' => 'example.com/assets/*',
+        ]);
+
+        SorifyServer::actingAs($user)
+            ->tool(UpdateSuiteTool::class, ['suite_id' => $suite->id, 'name' => $suite->name, 'collect_coverage' => false])
+            ->assertOk();
+
+        $this->assertDatabaseHas('test_suites', [
+            'id' => $suite->id,
+            'collect_coverage' => false,
+        ]);
     }
 
     public function test_create_suite_defaults_history_retention_to_five(): void

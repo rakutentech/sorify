@@ -11,12 +11,12 @@
         "firebase/php-jwt": "^7.0",
         "inertiajs/inertia-laravel": "^3.1",
         "laravel/framework": "^13.8",
-        "laravel/mcp": "^0.9.1",
+        "laravel/mcp": "^1.0",
         "laravel/octane": "^2.17",
         "laravel/socialite": "^5.30",
         "laravel/tinker": "^3.0",
         "opcodesio/log-viewer": "^3.24",
-        "openai-php/laravel": "^0.20.0",
+        "openai-php/laravel": "^0.21.0",
         "tightenco/ziggy": "^2.6"
     },
     "require-dev": {
@@ -27,7 +27,7 @@
         "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^12.5.12"
+        "phpunit/phpunit": "^13.3.4"
     },
     "autoload": {
         "psr-4": {

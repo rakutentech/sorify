@@ -20,6 +20,7 @@ class PlaywrightRunnerService
 
     public function __construct(
         private readonly ScreenshotService $screenshotService,
+        private readonly CoverageService $coverageService,
         private readonly DockerExecutor $docker,
     ) {
         $this->runnerScript = config('sorify.runner_script_path');
@@ -35,6 +36,7 @@ class PlaywrightRunnerService
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             if ($result) {
                 $this->screenshotService->deleteResultFiles($result);
+                $this->coverageService->deleteResultFiles($result);
                 $result->delete();
             }
 
@@ -128,12 +130,26 @@ class PlaywrightRunnerService
                 $screenshotMode = 'enabled';
             }
 
+            // Coverage collection is Chromium-only (Playwright Coverage API):
+            // the browser is forced to Chromium whenever it is enabled.
+            $collectCoverage = (bool) ($testRun->testSuite->collect_coverage ?? false);
+            $coverageFilter = $testRun->testSuite->coverage_url_filter ?: null;
+            $browser = $collectCoverage ? 'chromium' : ($testRun->testSuite->browser ?? 'chromium');
+
             $runnerArgs[] = '--browser';
-            $runnerArgs[] = $testRun->testSuite->browser ?? 'chromium';
+            $runnerArgs[] = $browser;
             $runnerArgs[] = '--headless';
             $runnerArgs[] = ($testRun->testSuite->headless ?? true) ? 'true' : 'false';
             $runnerArgs[] = '--screenshot-mode';
             $runnerArgs[] = $screenshotMode;
+
+            if ($collectCoverage) {
+                $runnerArgs[] = '--coverage';
+                if ($coverageFilter) {
+                    $runnerArgs[] = '--coverage-filter';
+                    $runnerArgs[] = $coverageFilter;
+                }
+            }
 
             if ($mode === ExecutionMode::EPHEMERAL) {
                 $paths = [
@@ -262,6 +278,12 @@ class PlaywrightRunnerService
                     $payload['screenshots'],
                     $outDir
                 );
+            }
+
+            // Persist raw per-test coverage before the finally-block removes
+            // the run's temp directory.
+            if ($collectCoverage) {
+                $this->coverageService->storeFromRunOutput($result, $outDir);
             }
         } catch (\Throwable $e) {
             Log::error('Playwright runner error', ['test_id' => $test->id, 'error' => $e->getMessage()]);

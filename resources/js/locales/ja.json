@@ -100,6 +100,7 @@
         "badgeTeams": "Teams",
         "badgeEmail": "メール",
         "badgeScreenshots": "スクリーンショット",
+        "badgeCoverage": "カバレッジ",
         "badgeScreenshotsOnFailure": "スクリーンショット（失敗時のみ）",
         "badgeProxy": "プロキシ",
         "badgeVariables": "変数",
@@ -459,7 +460,19 @@
         "emailRecipientsMembersOnly": "受信者として追加できるのはスイートメンバーのみです。",
         "scheduleTestsDisabledHint": "無効なテストは再度有効化されるまでスキップされます。",
         "regenerateWebhookNotInvalidated": "無効化されず",
-        "codeByTooltip": "このAIモデルが書いたコード"
+        "codeByTooltip": "このAIモデルが書いたコード",
+        "coverage": "カバレッジ",
+        "coverageOn": "収集する",
+        "coverageOff": "オフ",
+        "coverageFilter": "バンドルURLフィルター",
+        "coverageFilterPlaceholder": "例: example.com/assets/*.js",
+        "coverageFilterHint": "カンマ区切りで複数指定できます。*は任意の文字列に一致します。一致したJavaScriptファイルがレポートに含まれます。CSSは計測されません。",
+        "coverageCollect": "収集",
+        "coverageFilterExampleFile": "特定のファイル",
+        "coverageFilterExamplePath": "パス配下のすべてのファイル",
+        "coverageFilterExampleDomain": "ドメイン全体",
+        "coverageFilterShowExamples": "例を表示",
+        "coverageFilterHideExamples": "例を非表示"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · レビュー",
@@ -667,7 +680,15 @@
         "statusFilterLabel": "ステータス",
         "statusFilterClear": "クリア",
         "filteredByTest": "フィルター: {name}",
-        "clearFilter": "フィルターを解除"
+        "clearFilter": "フィルターを解除",
+        "coverage": "JavaScriptカバレッジ",
+        "coverageTests": "{count}件のテストから収集",
+        "coverageReport": "レポートを見る",
+        "coverageLines": "行",
+        "coverageFunctions": "関数",
+        "coverageBranches": "ブランチ",
+        "coverageHint": "カバレッジはUI操作で実行されたフロントエンドのコードパスを示します。テストの検証が正しいことを保証するものではありません。",
+        "coverageHideReport": "レポートを閉じる"
     },
     "testShow": {
         "testCase": "テストケース",
@@ -736,7 +757,9 @@
         "sourceManual": "手動",
         "sourceMcp": "MCP / API",
         "sourceAgent": "マイAIエージェント",
-        "colAiModel": "AIモデル"
+        "colAiModel": "AIモデル",
+        "showAllVariables": "すべて表示（{count}）",
+        "showFewerVariables": "折りたたむ"
     },
     "profile": {
         "title": "プロフィール",

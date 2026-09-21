@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Setting;
 use App\Models\TestSuite;
 use App\Models\User;
+use App\Services\CoverageService;
 use App\Services\DockerExecutor;
 use App\Services\PlaywrightRunnerService;
 use App\Services\ScreenshotService;
@@ -50,7 +51,7 @@ class EphemeralExecutionTest extends TestCase
         $screenshot = $this->mock(ScreenshotService::class);
         $screenshot->shouldIgnoreMissing();
 
-        $service = new PlaywrightRunnerService($screenshot, new DockerExecutor);
+        $service = new PlaywrightRunnerService($screenshot, new CoverageService, new DockerExecutor);
         $result = $service->runSingle($test, $run);
 
         $this->assertSame('error', $result->status);
@@ -116,7 +117,7 @@ JS);
         $screenshot = $this->mock(ScreenshotService::class);
         $screenshot->shouldIgnoreMissing();
 
-        $service = new PlaywrightRunnerService($screenshot, new DockerExecutor);
+        $service = new PlaywrightRunnerService($screenshot, new CoverageService, new DockerExecutor);
 
         try {
             $result = $service->runSingle($test, $run);
@@ -184,7 +185,7 @@ JS);
         $screenshot = $this->mock(ScreenshotService::class);
         $screenshot->shouldIgnoreMissing();
 
-        $service = new PlaywrightRunnerService($screenshot, new DockerExecutor);
+        $service = new PlaywrightRunnerService($screenshot, new CoverageService, new DockerExecutor);
 
         try {
             $result = $service->runSingle($test, $run);
@@ -240,7 +241,7 @@ JS);
         $screenshot = $this->mock(ScreenshotService::class);
         $screenshot->shouldIgnoreMissing();
 
-        $service = new PlaywrightRunnerService($screenshot, new DockerExecutor);
+        $service = new PlaywrightRunnerService($screenshot, new CoverageService, new DockerExecutor);
         $result = $service->runSingle($test, $run);
 
         $this->assertSame('passed', $result->status, 'Stub runner should report passed. stdout: '.$result->stdout);

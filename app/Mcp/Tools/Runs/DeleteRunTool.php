@@ -4,6 +4,7 @@ namespace App\Mcp\Tools\Runs;
 
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestRun;
+use App\Services\TestRunService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -32,7 +33,7 @@ class DeleteRunTool extends Tool
         $run = TestRun::findOrFail($data['run_id']);
         $this->authorizeSuite('delete', $run->testSuite);
 
-        $run->delete();
+        app(TestRunService::class)->deleteRun($run);
 
         return Response::structured(['deleted' => true, 'run_id' => $data['run_id']]);
     }

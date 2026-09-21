@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Screenshot;
 use App\Models\TestResult;
+use App\Models\TestRun;
 use Illuminate\Support\Facades\Storage;
 
 class ScreenshotService
@@ -22,8 +23,8 @@ class ScreenshotService
                 continue;
             }
 
-            $sourcePath = rtrim($tmpOutputDir, '/') . '/' . $filename;
-            $destPath   = $destDir . '/' . $filename;
+            $sourcePath = rtrim($tmpOutputDir, '/').'/'.$filename;
+            $destPath = $destDir.'/'.$filename;
 
             if (file_exists($sourcePath)) {
                 Storage::disk('screenshots')->put(
@@ -33,11 +34,11 @@ class ScreenshotService
 
                 Screenshot::create([
                     'test_result_id' => $result->id,
-                    'filename'       => $filename,
-                    'path'           => $destPath,
-                    'label'          => $payload['label'] ?? null,
-                    'taken_at_ms'    => $payload['taken_at_ms'] ?? 0,
-                    'created_at'     => now(),
+                    'filename' => $filename,
+                    'path' => $destPath,
+                    'label' => $payload['label'] ?? null,
+                    'taken_at_ms' => $payload['taken_at_ms'] ?? 0,
+                    'created_at' => now(),
                 ]);
             }
         }
@@ -57,6 +58,18 @@ class ScreenshotService
         );
 
         Storage::disk('screenshots')->deleteDirectory($dir);
+    }
+
+    /**
+     * Delete every screenshot file recorded for a run. Screenshots live in
+     * {suiteId}/{runId}/{testId}/ directories, so removing the run directory
+     * removes all of the run's tests in one call.
+     */
+    public function deleteRunFiles(TestRun $run): void
+    {
+        Storage::disk('screenshots')->deleteDirectory(
+            $run->test_suite_id.'/'.$run->id
+        );
     }
 
     public function cleanTmpDir(string $dir): void

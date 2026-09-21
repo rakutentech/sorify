@@ -100,6 +100,7 @@
         "badgeTeams": "Teams",
         "badgeEmail": "E-mel",
         "badgeScreenshots": "Tangkap layar",
+        "badgeCoverage": "Liputan",
         "badgeScreenshotsOnFailure": "Tangkap layar semasa gagal",
         "badgeProxy": "Proksi",
         "badgeVariables": "Pemboleh ubah",
@@ -459,7 +460,19 @@
         "emailRecipientsMembersOnly": "Hanya ahli suite boleh ditambah sebagai penerima.",
         "scheduleTestsDisabledHint": "Ujian dilumpuhkan dilangkau sehingga diaktifkan semula.",
         "regenerateWebhookNotInvalidated": "tidak dimansuhkan",
-        "codeByTooltip": "Kod ditulis oleh model AI ini"
+        "codeByTooltip": "Kod ditulis oleh model AI ini",
+        "coverage": "Liputan",
+        "coverageOn": "Kumpul",
+        "coverageOff": "Mati",
+        "coverageFilter": "Penapis URL bundle",
+        "coverageFilterPlaceholder": "cth. example.com/assets/*.js",
+        "coverageFilterHint": "Padanan mudah dipisahkan dengan koma; * memadankan apa sahaja. Fail JavaScript yang sepadan disertakan dalam laporan; CSS tidak diukur.",
+        "coverageCollect": "Kumpul",
+        "coverageFilterExampleFile": "satu fail",
+        "coverageFilterExamplePath": "semua fail dalam laluan",
+        "coverageFilterExampleDomain": "seluruh domain",
+        "coverageFilterShowExamples": "Tunjukkan contoh",
+        "coverageFilterHideExamples": "Sembunyikan contoh"
     },
     "testSuiteReview": {
         "pageTitle": "{name} · Semakan",
@@ -667,7 +680,15 @@
         "statusFilterLabel": "Status",
         "statusFilterClear": "Kosongkan",
         "filteredByTest": "Ditapis oleh: {name}",
-        "clearFilter": "Kosongkan tapisan"
+        "clearFilter": "Kosongkan tapisan",
+        "coverage": "Liputan JavaScript",
+        "coverageTests": "dikumpul daripada {count} ujian",
+        "coverageReport": "Lihat laporan",
+        "coverageLines": "Baris",
+        "coverageFunctions": "Fungsi",
+        "coverageBranches": "Cabang",
+        "coverageHint": "Liputan menunjukkan laluan kod frontend yang dilaksanakan oleh interaksi UI — ia tidak membuktikan pengesahan ujian adalah betul.",
+        "coverageHideReport": "Tutup laporan"
     },
     "testShow": {
         "testCase": "Kes Ujian",
@@ -736,7 +757,9 @@
         "sourceManual": "Manual",
         "sourceMcp": "MCP / API",
         "sourceAgent": "Ejen AI Saya",
-        "colAiModel": "Model AI"
+        "colAiModel": "Model AI",
+        "showAllVariables": "Tunjukkan semua ({count})",
+        "showFewerVariables": "Tunjukkan kurang"
     },
     "profile": {
         "title": "Profil",

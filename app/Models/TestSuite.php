@@ -31,6 +31,8 @@ class TestSuite extends Model
         'timeout_ms',
         'max_retries',
         'take_screenshot',
+        'collect_coverage',
+        'coverage_url_filter',
         'created_by',
         'teams_webhook_url',
         'teams_webhook_proxy',
@@ -48,6 +50,7 @@ class TestSuite extends Model
 
     protected $casts = [
         'headless' => 'boolean',
+        'collect_coverage' => 'boolean',
         'timeout_ms' => 'integer',
         'history_retention' => 'integer',
         'max_retries' => 'integer',

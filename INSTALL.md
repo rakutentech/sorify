@@ -94,6 +94,8 @@ count against the VM: ~1 worker per 2 cores is a comfortable rule of thumb.
   - `~/.sorify`: your credentials
   - `~/.sorify-bin/`: chrome extension mcp
   - `~/.sorify-recordings/`: chrome extension mcp's events recordings
+- Coverage files are stored in `storage/app/coverage/{suiteId}/{runId}/` on the app server and are deleted with their run, either manually or by the `sorify:prune-runs` schedule after `SORIFY_RUN_RETENTION_DAYS` (default 90 days).
+- Docker deployments already handle them, because the `storage_data` volume covers `/app/storage` and the app image installs Node with the coverage npm packages.
 
 **Envs info**
 
@@ -103,6 +105,7 @@ ASSET_URL=https://<your-host>/sorify
 
 # Sorify App related
 SORIFY_SCREENSHOT_RETENTION_DAYS=30
+SORIFY_RUN_RETENTION_DAYS=90
 # Must exceed the longest job timeout. Agent turns run up to 60 min
 # (3720s with headroom), so 3800 is the safe floor — a lower value
 # re-releases a still-running job and it double-executes.

@@ -9,6 +9,8 @@ use App\Mcp\Tools\Suites\UpdateSuiteTool;
 use App\Mcp\Tools\Suites\UploadSuiteCookiesTool;
 use App\Models\TestSuite;
 use App\Models\User;
+use App\Services\CoverageService;
+use App\Services\DockerExecutor;
 use App\Services\PlaywrightRunnerService;
 use App\Services\ScreenshotService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -437,7 +439,7 @@ JS);
         $screenshot = $this->mock(ScreenshotService::class);
         $screenshot->shouldIgnoreMissing();
 
-        $service = new PlaywrightRunnerService($screenshot, new \App\Services\DockerExecutor());
+        $service = new PlaywrightRunnerService($screenshot, new CoverageService, new DockerExecutor);
         $result = $service->runWithRetries($test, $run);
 
         $this->assertSame('passed', $result->status, 'Stub runner should report passed. stdout: '.$result->stdout);

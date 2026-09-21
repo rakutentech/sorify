@@ -13,7 +13,9 @@ use Inertia\Response;
 
 class TestRunController extends Controller
 {
-    public function __construct(private readonly TestRunService $runs) {}
+    public function __construct(
+        private readonly TestRunService $runs,
+    ) {}
 
     public function store(TestSuite $suite)
     {
@@ -115,7 +117,7 @@ class TestRunController extends Controller
     {
         $this->authorize('delete', $run->testSuite);
 
-        $run->delete();
+        $this->runs->deleteRun($run);
 
         return back();
     }

@@ -48,11 +48,19 @@ return [
         ],
 
         'screenshots' => [
-            'driver'     => 'local',
-            'root'       => storage_path('app/screenshots'),
-            'url'        => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/screenshots',
+            'driver' => 'local',
+            'root' => storage_path('app/screenshots'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/screenshots',
             'visibility' => 'public',
-            'throw'      => false,
+            'throw' => false,
+        ],
+
+        // Per-test raw V8 coverage JSON and per-run merged HTML/LCOV reports.
+        // Private (served through authenticated routes, like screenshots).
+        'coverage' => [
+            'driver' => 'local',
+            'root' => storage_path('app/coverage'),
+            'throw' => false,
         ],
 
         's3' => [
@@ -82,7 +90,7 @@ return [
     */
 
     'links' => [
-        public_path('storage')             => storage_path('app/public'),
+        public_path('storage') => storage_path('app/public'),
         public_path('storage/screenshots') => storage_path('app/screenshots'),
     ],
 

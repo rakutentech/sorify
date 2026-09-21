@@ -127,6 +127,31 @@ function startProxyDispatcher (proxyRules, defaultProxy) {
 }
 
 /**
+ * Splits a comma-separated filter string into trimmed, non-empty patterns.
+ * '' (no filters) → [] (everything is kept).
+ */
+function splitCoverageFilters (coverageFilter) {
+    return String(coverageFilter)
+        .split(',')
+        .map((pattern) => pattern.trim())
+        .filter((pattern) => pattern.length > 0)
+}
+
+/**
+ * Converts the user's coverage filter into a RegExp using simple glob-style
+ * semantics: every character is matched literally except `*`, which matches
+ * any run of characters. No regex escaping by the user, ever.
+ *   'example.com/assets/*.js'  → matches all bundle files, nothing else
+ *   'example.com'              → matches any script URL containing that text
+ */
+function coverageFilterToRegex (pattern) {
+    const escaped = pattern
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape every special char…
+        .replace(/\\\*/g, '[\\s\\S]*') // …then turn escaped asterisks into wildcards
+    return new RegExp(escaped, 'i')
+}
+
+/**
  * runWithHarness
  *
  * Executes a generated Playwright test code string inside a controlled browser
@@ -143,6 +168,8 @@ function startProxyDispatcher (proxyRules, defaultProxy) {
  * @param {Array<{domain: string, proxy: string}>} proxyRules  Per-host proxy overrides; `domain` is a regex tested against the hostname
  * @param {Record<string, *>}  variables  Suite-level key/value pairs exposed to the test code as a `variables` object
  * @param {Array<{name: string, value: string, domain?: string, url?: string, path?: string, expires?: number, httpOnly?: boolean, secure?: boolean, sameSite?: 'Strict'|'Lax'|'None'}>}  cookies  Suite-level cookies added to the browser context before any page is created
+ * @param {boolean}     collectCoverage  Collect Chromium JavaScript coverage while the test runs (chromium only)
+ * @param {string|null} coverageFilter  Optional regular expression tested (case-insensitive) against script URLs; only matching scripts are kept
  * @returns {Promise<{
  *   status: 'passed'|'failed'|'error',
  *   duration_ms: number,
@@ -162,7 +189,9 @@ async function runWithHarness (
     screenshotMode = 'enabled',
     proxyRules = [],
     variables = {},
-    cookies = []
+    cookies = [],
+    collectCoverage = false,
+    coverageFilter = null
 ) {
     // Normalize: legacy boolean input (true/false) maps onto enabled/disabled;
     // anything invalid falls back to enabled.
@@ -179,9 +208,41 @@ async function runWithHarness (
     const screenshots = []
     let screenshotCounter = 0
 
+    // Coverage collection (Chromium only — the Playwright Coverage API is not
+    // implemented for Firefox/WebKit). Compilation must be started after the
+    // page exists and stopped before the browser closes; both the success and
+    // failure paths do that via stopCoverageAndWrite() below. `source` is
+    // included in every entry so v8-to-istanbul can convert offline.
+    let coverageActive = false
+    let coverageRegexes = []
+    if (coverageFilter) {
+        coverageRegexes = splitCoverageFilters(coverageFilter).map(coverageFilterToRegex)
+    }
+
+    const stopCoverageAndWrite = async () => {
+        if (!coverageActive || !page) return
+        coverageActive = false
+        try {
+            const entries = await page.coverage.stopJSCoverage()
+            const filtered = coverageRegexes.length > 0
+                ? entries.filter((entry) => coverageRegexes.some((regex) => regex.test(entry.url)))
+                : entries
+            if (filtered.length > 0) {
+                fs.writeFileSync(
+                    path.join(outputDir, 'coverage.json'),
+                    JSON.stringify({ url: baseUrl || null, entries: filtered })
+                )
+            }
+        } catch (err) {
+            // Coverage is a supporting metric — never fail a test over it.
+            console.error(`Coverage collection failed: ${err.message}`)
+        }
+    }
+
     const startTime = Date.now()
 
     let browser = null
+    let page = null
     let dispatcher = null
 
     // Clean shutdown on SIGTERM
@@ -241,7 +302,21 @@ async function runWithHarness (
             await context.addCookies(normalized)
         }
 
-        const page = await context.newPage()
+        page = await context.newPage()
+
+        // Start JS coverage before any user code runs so even the initial
+        // page load's script execution is measured. resetOnNavigation: false
+        // accumulates entries across every navigation the test performs.
+        if (collectCoverage) {
+            if (browserType !== 'chromium') {
+                // The suite setting normally forces Chromium; this guard keeps
+                // the runner honest if that is ever bypassed.
+                console.error('Coverage requested but only Chromium is supported — skipping collection')
+            } else {
+                await page.coverage.startJSCoverage({ resetOnNavigation: false })
+                coverageActive = true
+            }
+        }
 
         // Apply default timeout to the page
         page.setDefaultTimeout(timeout)
@@ -315,6 +390,8 @@ async function runWithHarness (
 
         const duration_ms = Date.now() - startTime
 
+        await stopCoverageAndWrite()
+
         process.removeListener('SIGTERM', sigTermHandler)
         await browser.close()
         if (dispatcher) {
@@ -343,6 +420,8 @@ async function runWithHarness (
         }
     } catch (err) {
         const duration_ms = Date.now() - startTime
+
+        await stopCoverageAndWrite()
 
         process.removeListener('SIGTERM', sigTermHandler)
         if (browser) {

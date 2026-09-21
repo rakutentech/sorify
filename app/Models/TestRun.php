@@ -12,8 +12,9 @@ class TestRun extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'started_at'   => 'datetime',
+        'started_at' => 'datetime',
         'completed_at' => 'datetime',
+        'coverage_summary' => 'array',
     ];
 
     public function testSuite(): BelongsTo
@@ -53,6 +54,7 @@ class TestRun extends Model
         if ($this->total_tests === 0) {
             return 0.0;
         }
+
         return round(($this->passed_count / $this->total_tests) * 100, 1);
     }
 }
