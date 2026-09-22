@@ -2,14 +2,16 @@
 
 <p align="center">
   Next generation AI First - Browser Testing <br>& browser automation platform <br><br>
-  Low Tokens consumption<br>
-  Built for AI Agents - Claude/Codex<br><br>
+  Fully AI controllable - Playwright Management Platform<br>
+  Built for AI Agents - <b>Claude・Codex</b><br><br>
   Built for developers<br>
   Manage entire workspace through MCP<br><br>
   Create powerful <b>browser automations</b><br>
   With scheduler<br><br>
   Bi-directional webhooks integrations<br>
-  <b>And a bonus</b> Chrome Extension, with MCP<br>
+  Chrome Extension, with MCP (for Hybrid lovers)<br><br>
+  24/7 Background Agents<br>
+  <b>Page aware MCP</b><br>
 </p>
 
 
@@ -20,16 +22,28 @@
 <hr>
 
 <p align="center">
-  <b>Solid Harness</b><br>
+  <b>Comprehensive test management</b><br>
+  With Playwright runners on Ephemeral<br>
 </p>
 
 <p align="center">
   <img src="https://i.imgur.com/zoNzjBg.png" alt="Sorify screenshot" width="850"/>
 </p>
 
+<p align="center">
+  <b>Control everything from local harness</b><br>
+  Claude・Codex・OpenCode<br>
+</p>
 
 <p align="center">
-  <b>Pick up from where left off.</b>
+  <img src="https://i.imgur.com/gNvMGcs.png" alt="Sorify screenshot" width="550"/>
+</p>
+
+
+<p align="center">
+  <b>Pick up from where left off</b><br>
+  AI agent on Dashboard itself<br>
+  24/7 background AI Agents<br>
 </p>
 
 <p align="center">
@@ -37,11 +51,22 @@
 </p>
 
 <p align="center">
-  <b>Page Aware 24/7 background AI Agents - with MCP sync</b>
+  <b>Page Aware - with MCP sync</b><br>
+  Same MCP tools that power local harness<br>
+  also on UI
 </p>
 
 <p align="center">
   <img src="https://i.imgur.com/ckbNf4c.png" alt="Sorify screenshot" width="850" />
+</p>
+<p align="center">
+  <b>Admin tools</b><br>
+  User management, oAuth apps<br>
+  Monitor, logs and others
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/87dy5Ov.png" alt="Sorify screenshot" width="850" />
 </p>
 
 
@@ -77,11 +102,11 @@
 
 ✴︎ **i18n & 2 modes:** Supports Japanese, Chinese, Malay, with dark mode.
 
-<br>
+## Quick Start
 
-<p align="center">
-  <img src="https://i.imgur.com/xxVw65d.png" alt="Sorify screenshot" width="850" />
-</p>
+```sh
+docker-compose up
+```
 
 ## Features
 
@@ -281,9 +306,7 @@ curl -fsSL https://raw.githubusercontent.com/rakutentech/sorify/master/mcp/insta
 
 Sorify recorder should start automatically when you launch Claude Code or
 Codex. In Claude Code, check `/mcp` for
-`plugin:sorify:sorify-recorder`. In Codex, start a new thread after installing
-the plugin and invoke `$sorify:sorify-recording`; it reports if the recorder MCP
-server or binary is unavailable.
+`plugin:sorify:sorify-recorder`.
 
 **If not**, then start the listener at:
 
@@ -307,7 +330,7 @@ server or binary is unavailable.
 
 In Codex, use `$sorify:sorify-recording` and ask for the latest recording instead.
 
-# Quick Start
+# Quick Start (from source)
 
 ## Development (local)
 
@@ -317,9 +340,6 @@ cp .env.example .env
 
 composer setup
 php artisan dev
-
-# or the whole stack via docker
-docker-compose up -d
 ```
 
  ## Verify
