@@ -69,6 +69,15 @@
   <img src="https://i.imgur.com/87dy5Ov.png" alt="Sorify screenshot" width="850" />
 </p>
 
+<p align="center">
+  <b>Code coverage</b><br>
+  For frontend assets<br>
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/554KQWp.png" alt="Sorify screenshot" width="850" />
+</p>
+
 
 ★ **Automate:** Automate browser testing, using claude, codex - with skills, mcp, test runners & dashboard.
 
