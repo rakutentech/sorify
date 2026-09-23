@@ -287,24 +287,36 @@ const failedCount = computed(() => (props.run.failed_count ?? 0) + (props.run.er
 const totalTests     = computed(() => props.run.total_tests || 0);
 
 // Coverage percentages for the summary card: lines, functions, branches.
+// Istanbul's summary carries {total, covered, pct} per metric, so the bars can
+// show real counts next to the percentage.
 const coverageMetrics = computed(() => {
     const s = props.run.coverage_summary;
     if (!s) return [];
+    const metric = (key, label) => {
+        const m = s[key];
+        return {
+            key,
+            label,
+            pct: Math.round(m?.pct ?? 0),
+            covered: m?.covered ?? null,
+            total: m?.total ?? null,
+        };
+    };
     return [
-        { key: 'lines', label: t('testRunShow.coverageLines'), pct: Math.round(s.lines?.pct ?? 0) },
-        { key: 'functions', label: t('testRunShow.coverageFunctions'), pct: Math.round(s.functions?.pct ?? 0) },
-        { key: 'branches', label: t('testRunShow.coverageBranches'), pct: Math.round(s.branches?.pct ?? 0) },
+        metric('lines', t('testRunShow.coverageLines')),
+        metric('functions', t('testRunShow.coverageFunctions')),
+        metric('branches', t('testRunShow.coverageBranches')),
     ];
 });
 // The full HTML report is embedded inline behind a toggle instead of
 // linking out to a separate tab.
 const showReport = ref(false);
 // Bar color tracks coverage quality: high ≥ 80, mid ≥ 50, low below.
-const coverageBarClass = (pct) => ({
-    'bg-[var(--md-ext-color-success)]': pct >= 80,
-    'bg-[var(--md-ext-color-warning)]': pct >= 50 && pct < 80,
-    'bg-[var(--md-sys-color-error)]': pct < 50,
-});
+const coverageBarColor = (pct) => {
+    if (pct >= 80) return 'var(--md-ext-color-success)';
+    if (pct >= 50) return 'var(--md-ext-color-warning)';
+    return 'var(--md-sys-color-error)';
+};
 const completedCount = computed(() => passedCount.value + failedCount.value);
 const runningCount   = computed(() => (isActive.value ? Math.max(0, totalTests.value - completedCount.value) : 0));
 const progressPct    = computed(() => {
@@ -443,11 +455,14 @@ const failedPct = computed(() => {
                     class="h-full bg-[var(--md-sys-color-error)] transition-all duration-500 ease-out"
                     :style="{ width: failedPct + '%' }"
                 ></div>
+                <!-- Indeterminate sweep over the not-yet-run portion -->
                 <div
-                    v-if="run.status === 'pending'"
+                    v-if="run.status === 'running' || run.status === 'pending'"
                     class="h-full flex-1 bg-[var(--md-sys-color-surface-container-high)] relative overflow-hidden"
                 >
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-current/20 to-transparent animate-shimmer"></div>
+                    <div
+                        class="absolute inset-y-0 left-0 w-1/3 rounded-[var(--md-sys-shape-corner-full)] bg-[color-mix(in_srgb,var(--md-sys-color-primary)_30%,transparent)] animate-progress-indeterminate"
+                    ></div>
                 </div>
             </div>
 
@@ -473,17 +488,37 @@ const failedPct = computed(() => {
                 </Button>
             </div>
 
-            <div class="space-y-3.5">
+            <div class="space-y-4">
                 <div v-for="metric in coverageMetrics" :key="metric.key">
-                    <div class="flex items-center justify-between mb-1.5">
-                        <span class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ metric.label }}</span>
-                        <span class="md-label-medium font-semibold text-[var(--md-sys-color-on-surface)]">{{ metric.pct }}%</span>
+                    <div class="flex items-center justify-between gap-3 mb-1.5">
+                        <div class="flex items-baseline gap-2 min-w-0">
+                            <span class="md-label-medium font-medium text-[var(--md-sys-color-on-surface)]">{{ metric.label }}</span>
+                            <span v-if="metric.total !== null" class="md-body-small tabular-nums text-[var(--md-sys-color-on-surface-variant)] truncate">
+                                {{ metric.covered.toLocaleString() }} / {{ metric.total.toLocaleString() }}
+                            </span>
+                        </div>
+                        <span
+                            class="md-label-large font-semibold tabular-nums px-2.5 py-0.5 rounded-[var(--md-sys-shape-corner-full)] flex-shrink-0"
+                            :style="{
+                                color: coverageBarColor(metric.pct),
+                                backgroundColor: `color-mix(in srgb, ${coverageBarColor(metric.pct)} 15%, transparent)`,
+                            }"
+                        >{{ metric.pct }}%</span>
                     </div>
-                    <div class="h-2 bg-[var(--md-sys-color-surface-container-high)] rounded-[var(--md-sys-shape-corner-full)] overflow-hidden">
+                    <div
+                        class="relative h-2.5 bg-[var(--md-sys-color-surface-container-highest)] rounded-[var(--md-sys-shape-corner-full)] overflow-hidden"
+                        role="progressbar"
+                        :aria-valuenow="metric.pct"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        :aria-label="metric.label"
+                    >
                         <div
-                            class="h-full transition-all duration-500 ease-out"
-                            :class="coverageBarClass(metric.pct)"
-                            :style="{ width: metric.pct + '%' }"
+                            class="h-full rounded-[var(--md-sys-shape-corner-full)] transition-all duration-700 ease-out"
+                            :style="{
+                                width: metric.pct + '%',
+                                background: `linear-gradient(90deg, color-mix(in srgb, ${coverageBarColor(metric.pct)} 65%, var(--md-sys-color-surface)) 0%, ${coverageBarColor(metric.pct)} 100%)`,
+                            }"
                         ></div>
                     </div>
                 </div>

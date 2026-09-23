@@ -13,11 +13,23 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
     --animate-shimmer: shimmer 1.5s infinite;
     --animate-fade-slide-in: fade-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    --animate-progress-indeterminate: progress-slide 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @keyframes shimmer {
     0%   { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
+}
+
+/* MD3-style indeterminate sweep: the segment (w-1/3 of its track) travels
+   from fully hidden on the left to fully hidden on the right. */
+@keyframes progress-slide {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(300%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-progress-indeterminate { animation: none; }
 }
 
 @keyframes fade-slide-in {
