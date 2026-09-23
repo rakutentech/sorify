@@ -14,6 +14,7 @@ use App\Http\Controllers\FeedController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScreenshotController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SkillController;
 use App\Http\Controllers\SuiteBookmarkController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TestRunController;
@@ -139,6 +140,17 @@ Route::prefix('sorify')->middleware('auth')->group(function () {
 
     // Global search for the command palette (Cmd/Ctrl+K).
     Route::get('/search', SearchController::class)->middleware('throttle:60,1')->name('search');
+
+    // User skills: markdown instruction packs for My AI Agent chats.
+    // Browsing and copying only need auth — no agent profile required.
+    Route::prefix('skills')->name('skills.')->group(function () {
+        Route::get('/browse', [SkillController::class, 'browse'])->name('browse');
+        Route::get('/', [SkillController::class, 'index'])->name('index');
+        Route::post('/', [SkillController::class, 'store'])->name('store');
+        Route::put('/{skill}', [SkillController::class, 'update'])->name('update');
+        Route::delete('/{skill}', [SkillController::class, 'destroy'])->name('destroy');
+        Route::post('/{skill}/copy', [SkillController::class, 'copy'])->name('copy');
+    });
 
     // GitHub-style activity feed: runs, suite/test changes, new users, …
     Route::prefix('feed')->name('feed.')->group(function () {

@@ -7,7 +7,7 @@ import { formatDate, formatRelativeTime } from '@/utils/date';
 import {
     Play, CircleCheck, Ban, FolderPlus, SquarePen, Copy, FilePlus2,
     Pencil, Code, Trash2, CirclePause, UserPlus, LogIn, UserCog,
-    CalendarClock, Braces, Cookie, Workflow,
+    CalendarClock, Braces, Cookie, Workflow, BookMarked, Download,
 } from '@lucide/vue';
 import RunCardBody from './RunCardBody.vue';
 
@@ -39,6 +39,8 @@ const TYPE_META = {
     variables_updated:     { icon: Braces,       accent: 'var(--md-ext-color-warning)' },
     cookies_updated:       { icon: Cookie,       accent: 'var(--md-ext-color-warning)' },
     integration_updated:   { icon: Workflow,     accent: 'var(--md-sys-color-tertiary)' },
+    skill_published:       { icon: BookMarked,   accent: 'var(--md-sys-color-tertiary)' },
+    skill_installed:       { icon: Download,     accent: 'var(--md-ext-color-success)' },
 };
 
 const meta = computed(() => TYPE_META[props.activity.type] ?? null);
@@ -72,6 +74,19 @@ const testUrl = computed(() => {
 
     return subject?.id != null && subject?.suite_id != null
         ? `/sorify/suites/${subject.suite_id}/tests/${subject.id}`
+        : null;
+});
+
+// Where the sentence's object links to. Test objects deep-link into their
+// suite page; a published skill links to the shared Skills page where it
+// can be read and copied.
+const objectUrl = computed(() => {
+    if (isRunType.value) return null;
+
+    if (testUrl.value) return testUrl.value;
+
+    return ['skill_published', 'skill_installed'].includes(props.activity.type)
+        ? '/sorify/skills/browse'
         : null;
 });
 
@@ -114,6 +129,12 @@ const parts = computed(() => {
         integration_updated: () => ({
             verb: t(`feed.actions.integration_${p.action}`, { type: integrationTypeLabel(p.type) }),
             preposition: 'in',
+        }),
+        skill_published: () => ({ verb: t('feed.actions.skill_published'), object: p.name }),
+        skill_installed: () => ({
+            verb: t('feed.actions.skill_installed'),
+            object: p.name,
+            suffix: p.author_name != null ? t('feed.actions.skill_installed_by', { author: p.author_name }) : null,
         }),
     };
 
@@ -219,8 +240,8 @@ function integrationTypeLabel(type) {
                             <span class="font-semibold truncate min-w-0 shrink sm:shrink-0 max-w-[8rem] sm:max-w-[16rem]">{{ actorLabel }}</span>
                             <span class="flex-shrink-0 whitespace-nowrap">{{ parts.verb }}</span>
                             <Link
-                                v-if="parts.object && testUrl"
-                                :href="testUrl"
+                                v-if="parts.object && objectUrl"
+                                :href="objectUrl"
                                 class="font-medium truncate min-w-0 text-[var(--md-sys-color-primary)] hover:underline"
                                 :title="parts.object"
                             >{{ parts.object }}</Link>
@@ -232,6 +253,7 @@ function integrationTypeLabel(type) {
                                 class="text-[var(--md-sys-color-primary)] hover:underline truncate min-w-0"
                                 :title="activity.suite.name"
                             >{{ activity.suite.name }}</Link>
+                            <span v-if="parts.suffix" class="opacity-70 flex-shrink-0 whitespace-nowrap">{{ parts.suffix }}</span>
                         </p>
                     </div>
 

@@ -14,7 +14,8 @@
             "suites": "テストスイート",
             "tests": "テスト",
             "runs": "実行",
-            "conversations": "AIチャット"
+            "conversations": "AIチャット",
+            "skills": "スキル"
         }
     },
     "nav": {
@@ -567,7 +568,9 @@
             "variables_updated": "変数更新",
             "cookies_updated": "Cookie更新",
             "integration_updated": "連携変更",
-            "email_recipients_updated": "メール受信者変更"
+            "email_recipients_updated": "メール受信者変更",
+            "skill_published": "スキル公開",
+            "skill_installed": "スキルインストール"
         },
         "actions": {
             "run_triggered": "が実行を開始",
@@ -598,7 +601,10 @@
             "integration_added": "が{type}連携を追加",
             "integration_updated": "が{type}連携を更新",
             "integration_removed": "が{type}連携を削除",
-            "email_recipients_updated": "メール受信者を更新"
+            "email_recipients_updated": "メール受信者を更新",
+            "skill_published": "がスキルを公開",
+            "skill_installed": "がスキルをインストール",
+            "skill_installed_by": "（作者: {author}）"
         },
         "changed": "変更項目:",
         "fields": {
@@ -625,6 +631,7 @@
             "runs": "実行",
             "suites": "スイート",
             "tests": "テスト",
+            "skills": "スキル",
             "people": "メンバーとユーザー",
             "settings": "設定と通知"
         },
@@ -968,6 +975,8 @@
             "explainCode": "AIでコードを解説",
             "updateDescription": "AIで説明を更新",
             "aboutSuite": "AIでスイートを解説",
+            "editSkill": "AIでスキルを編集",
+            "createSkill": "AIでスキルを作成",
             "setupFirst": "まずプロフィール設定でAIエージェントを設定してください",
             "disabledByAdmin": "AIエージェントは管理者によりアカウントで無効化されています",
             "copyGateway": "MCPプロンプトをコピー",
@@ -978,6 +987,8 @@
             "explainError": "テスト「{name}」が失敗しました。失敗理由を説明し、修正方法を提案してください。",
             "explainCode": "Playwrightテスト「{name}」の内容を順を追って説明してください。",
             "updateDescription": "テスト「{name}」のPlaywrightコードを読み、テスト内容を正確に反映した説明に更新してください。update_testツールを使って新しい説明を保存してください。",
+            "editSkill": "スキル「{name}」の編集を手伝ってください。現在の名前・説明・公開設定・完全なマークダウン内容はコンテキスト（active_skill）にあります。変更内容を確認した上で、update_skillツールを使って変更を適用してください。",
+            "createSkill": "新しいスキルの作成を手伝ってください。名前・簡単な説明・含めるべきマークダウンの手順を確認した上で、create_skillツールを使って作成してください。",
             "aboutSuite": "テストスイート「{name}」の概要を教えてください。カバー範囲、テストの現状、注意が必要な点など。"
         },
         "chat": {
@@ -1017,6 +1028,13 @@
             "maxStepsTitle": "1ターンの最大ステップ数 — エージェントが停止して続行を確認するまでに、1つのメッセージで実行できるツール呼び出しの往復回数。",
             "maxRunTitle": "エージェントモードのターンの最大実行時間",
             "agentRunning": "エージェント — 最大 {minutes} 分までバックグラウンドで実行中。ウィンドウを閉じても構いません。",
+            "skills": "スキル",
+            "skillsTitle": "スキル（マークダウン形式の手順書）をこのチャットに添付します。選択すると、その内容が毎回エージェントへの指示として送信されます。",
+            "skillSearch": "スキルを検索...",
+            "skillsEmpty": "スキルがまだありません。",
+            "skillsCreate": "プロフィールページで作成できます。",
+            "skillsNoMatch": "一致するスキルがありません。",
+            "skillRemove": "このスキルを外す",
             "runCard": {
                 "title": "テスト実行",
                 "passed": "成功",
@@ -1128,5 +1146,58 @@
             "notSet": "未設定",
             "privacyNote": "すべてのチャットは非公開です。会話とそのツール実行の履歴は、あなたにのみ表示されます。他のスイートメンバーや管理者には見えません。"
         }
+    },
+    "skills": {
+        "navTitle": "共有スキル",
+        "title": "スキル",
+        "hint": "My AI エージェントのチャットに添付できるマークダウン形式の手順書です。チャットで選択すると、その内容がエージェントへの指示として送信されます。",
+        "add": "新規スキル",
+        "newSkill": "新規スキル",
+        "editSkill": "スキルを編集",
+        "name": "名前",
+        "namePlaceholder": "例：QAレビューチェックリスト",
+        "description": "説明",
+        "descriptionPlaceholder": "このスキルでエージェントが何をするか（任意）",
+        "content": "内容",
+        "contentPlaceholder": "# スキルの手順\n\nエージェントが従う手順をマークダウンで書いてください...",
+        "preview": "プレビュー",
+        "editMarkdown": "マークダウンを編集",
+        "previewEmpty": "プレビューする内容がまだありません。",
+        "publicToggle": "公開",
+        "publicHint": "オンにすると、他のユーザーが共有スキルページでこのスキルを検索してインストールできます。オフの場合は自分専用です。",
+        "save": "保存",
+        "empty": "スキルがまだありません。作成するか、共有スキルページからインストールしてください。",
+        "publicBadge": "公開",
+        "privateBadge": "非公開",
+        "installsCount": "{count} 人がこのスキルをインストールしました",
+        "copiedFrom": "{name}から",
+        "copiedFromTitle": "「{name}」からインストール（作者: {author}）",
+        "copiedFromTitleNoAuthor": "「{name}」からインストール",
+        "originalDeleted": "元のスキルは削除済み",
+        "originalDeletedTitle": "インストール元のスキルは削除されました。このコピーは独立しており、引き続き利用できます。",
+        "ownSkill": "あなたのスキル",
+        "ownSkillTitle": "あなたが作成したスキルです。すでにコレクションにあります。",
+        "skillUsage": "{count} / {limit} 個のスキルを使用中",
+        "limitCaption": "スキルは最大{limit}個まで保存できます。共有ページからのインストールも上限に含まれます。",
+        "limitReachedTitle": "スキルの上限（{limit}個）に達しました。削除して空きを作ってください。",
+        "edit": "編集",
+        "delete": "削除",
+        "confirmDelete": "スキル「{name}」を削除しますか？",
+        "browseTitle": "スキル",
+        "browseSubtitle": "他のユーザーが公開しているスキルです。インストールして自分のAIエージェントチャットで使えます。",
+        "searchPlaceholder": "スキルを検索...",
+        "browseEmpty": "公開スキルがまだありません。あなたのスキルを共有してみましょう。",
+        "install": "インストール",
+        "installed": "「{name}」を自分のスキルにインストールしました — プロフィールで確認できます。",
+        "alreadyInstalled": "「{name}」はすでにインストール済みです — プロフィールで確認できます。",
+        "installedButton": "インストール済み",
+        "installedButtonTitle": "このスキルはすでにインストール済みです — コピーはプロフィールで確認できます。",
+        "installFailed": "このスキルをインストールできませんでした。",
+        "showContent": "内容を表示",
+        "hideContent": "内容を閉じる",
+        "unknownAuthor": "不明な作成者",
+        "pagination": "{total} 件中 {from}–{to}",
+        "publish": "マイスキル",
+        "publishTitle": "プロフィールで自分のスキルを確認・管理できます"
     }
 }

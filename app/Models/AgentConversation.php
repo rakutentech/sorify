@@ -17,6 +17,7 @@ class AgentConversation extends Model
         'context',
         'agent_mode',
         'agent_max_run_minutes',
+        'skill_ids',
     ];
 
     protected function casts(): array
@@ -25,6 +26,7 @@ class AgentConversation extends Model
             'updated_at' => 'datetime',
             'agent_mode' => 'boolean',
             'agent_max_run_minutes' => 'integer',
+            'skill_ids' => 'array',
         ];
     }
 

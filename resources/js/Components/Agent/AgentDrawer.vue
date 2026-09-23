@@ -1,9 +1,9 @@
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import {
-    ArrowLeft, Bot, CircleAlert, Gauge, LoaderCircle, MessageSquarePlus, MessagesSquare,
+    ArrowLeft, BookMarked, Bot, CircleAlert, CircleCheck, Gauge, LoaderCircle, MessageSquarePlus, MessagesSquare,
     Send, Settings2, Square, Trash2, X,
 } from '@lucide/vue';
 import RunProgressCard from './RunProgressCard.vue';
@@ -45,6 +45,84 @@ const streaming = ref(false);
 const deletingId = ref(null);
 const deletingAll = ref(false);
 const scrollContainer = ref(null);
+
+// ── Skills ───────────────────────────────────────────────────────────────────
+// The user's own skills, selectable per conversation. Selected skill ids are
+// stored on the conversation and injected into every turn's system prompt.
+const skills = ref([]);
+const selectedSkillIds = ref([]);
+const skillsMenuOpen = ref(false);
+const skillSearch = ref('');
+const skillsMenuRef = ref(null);
+
+const filteredSkills = computed(() => {
+    const query = skillSearch.value.trim().toLowerCase();
+
+    if (query === '') return skills.value;
+
+    return skills.value.filter((skill) =>
+        skill.name.toLowerCase().includes(query)
+        || (skill.description ?? '').toLowerCase().includes(query));
+});
+
+const selectedSkills = computed(() =>
+    skills.value.filter((skill) => selectedSkillIds.value.includes(skill.id)));
+
+function onClickOutsideSkillsMenu(event) {
+    if (skillsMenuRef.value && !skillsMenuRef.value.contains(event.target)) {
+        skillsMenuOpen.value = false;
+    }
+}
+
+async function loadSkills() {
+    try {
+        const response = await fetch('/sorify/skills', { headers: { Accept: 'application/json' } });
+
+        const data = await response.json();
+        skills.value = data.skills ?? [];
+
+        // Drop selections whose skill was deleted meanwhile.
+        const availableIds = skills.value.map((skill) => skill.id);
+        selectedSkillIds.value = selectedSkillIds.value.filter((id) => availableIds.includes(id));
+    } catch {
+        skills.value = [];
+    }
+}
+
+function toggleSkillsMenu() {
+    skillsMenuOpen.value = !skillsMenuOpen.value;
+
+    if (skillsMenuOpen.value) {
+        skillSearch.value = '';
+        nextTick(() => document.addEventListener('click', onClickOutsideSkillsMenu));
+    } else {
+        document.removeEventListener('click', onClickOutsideSkillsMenu);
+    }
+}
+
+/**
+ * Toggle a skill on/off for the current selection. In an open chat the
+ * selection is persisted right away so the next turn already uses it.
+ */
+function toggleSkill(skill) {
+    const enabled = selectedSkillIds.value.includes(skill.id);
+
+    selectedSkillIds.value = enabled
+        ? selectedSkillIds.value.filter((id) => id !== skill.id)
+        : [...selectedSkillIds.value, skill.id];
+
+    if (conversation.value) {
+        fetch(`/sorify/agent/conversations/${conversation.value.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-XSRF-TOKEN': csrfToken(),
+            },
+            body: JSON.stringify({ skill_ids: selectedSkillIds.value }),
+        }).catch(() => {});
+    }
+}
 
 // Agent mode: the per-conversation toggle for the full agent — tools,
 // background execution bounded by the selected max run time. Off means
@@ -304,6 +382,7 @@ async function createConversation(options = {}) {
             page_name: ctx.pageName,
             context: newChatForm.value.context,
             agent_mode: options.agentMode === true,
+            skill_ids: selectedSkillIds.value,
         }),
     });
 
@@ -340,6 +419,7 @@ async function openConversation(id) {
         const data = await response.json();
         conversation.value = data.conversation;
         newChatForm.value.profile_id = data.conversation.profile_id;
+        selectedSkillIds.value = [...(data.conversation.skill_ids ?? [])];
         trackedRunIds.clear();
         messages.value = groupMessages(data.messages ?? []);
         view.value = 'chat';
@@ -851,9 +931,12 @@ watch(() => props.show, (show) => {
         view.value = 'list';
         loadConversations();
         loadProfiles();
+        loadSkills();
         applyDrawerRequest();
     } else {
         detach();
+        skillsMenuOpen.value = false;
+        document.removeEventListener('click', onClickOutsideSkillsMenu);
     }
 });
 
@@ -930,6 +1013,11 @@ watch(messages, () => {
         if (el) el.scrollTop = el.scrollHeight;
     });
 }, { deep: true });
+
+onBeforeUnmount(() => {
+    skillsMenuOpen.value = false;
+    document.removeEventListener('click', onClickOutsideSkillsMenu);
+});
 </script>
 
 <template>
@@ -1252,6 +1340,80 @@ watch(messages, () => {
 
                 <!-- Input -->
                 <div class="border-t border-[var(--md-sys-color-outline-variant)] flex-shrink-0">
+                    <!-- Skills: searchable multi-select, attached to this chat -->
+                    <div ref="skillsMenuRef" class="relative flex items-center gap-1.5 px-4 pt-2.5 flex-wrap">
+                        <button
+                            class="md-label-small inline-flex items-center gap-1 px-2.5 py-1 rounded-full transition-colors"
+                            :class="selectedSkillIds.length > 0
+                                ? 'bg-[var(--md-sys-color-secondary-container)] text-[var(--md-sys-color-on-secondary-container)]'
+                                : 'text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-highest)]'"
+                            :title="t('agent.chat.skillsTitle')"
+                            @click="toggleSkillsMenu"
+                        >
+                            <BookMarked :size="12" />
+                            {{ t('agent.chat.skills') }}<template v-if="selectedSkillIds.length > 0"> ({{ selectedSkillIds.length }})</template>
+                        </button>
+
+                        <span
+                            v-for="skill in selectedSkills"
+                            :key="skill.id"
+                            class="md-label-small inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] max-w-40"
+                        >
+                            <span class="truncate">{{ skill.name }}</span>
+                            <button
+                                type="button"
+                                class="flex-shrink-0 opacity-70 hover:opacity-100"
+                                :title="t('agent.chat.skillRemove')"
+                                @click="toggleSkill(skill)"
+                            >
+                                <X :size="11" />
+                            </button>
+                        </span>
+
+                        <!-- Searchable skill picker -->
+                        <div
+                            v-if="skillsMenuOpen"
+                            class="absolute left-4 bottom-full mb-2 w-80 max-w-[calc(100%-2rem)] rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container)] shadow-elevation-2 border border-[var(--md-sys-color-outline-variant)] z-20 overflow-hidden"
+                        >
+                            <div class="p-2 border-b border-[var(--md-sys-color-outline-variant)]">
+                                <input
+                                    v-model="skillSearch"
+                                    type="text"
+                                    class="w-full md-body-small bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] px-3 py-2 outline-none focus:ring-2 ring-[var(--md-sys-color-primary)]"
+                                    :placeholder="t('agent.chat.skillSearch')"
+                                >
+                            </div>
+                            <ul class="max-h-56 overflow-y-auto slim-scrollbar py-1">
+                                <li v-if="skills.length === 0">
+                                    <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] px-3 py-2">
+                                        {{ t('agent.chat.skillsEmpty') }}
+                                        <a href="/sorify/profile?section=skills" class="underline">{{ t('agent.chat.skillsCreate') }}</a>
+                                    </p>
+                                </li>
+                                <li v-for="skill in filteredSkills" :key="skill.id">
+                                    <button
+                                        type="button"
+                                        class="w-full flex items-start gap-2 text-left px-3 py-2 transition-colors hover:bg-[var(--md-sys-color-surface-container-high)]"
+                                        @click="toggleSkill(skill)"
+                                    >
+                                        <CircleCheck
+                                            :size="15"
+                                            class="flex-shrink-0 mt-0.5"
+                                            :style="selectedSkillIds.includes(skill.id) ? { color: 'var(--md-sys-color-primary)' } : { color: 'var(--md-sys-color-outline)' }"
+                                        />
+                                        <span class="min-w-0">
+                                            <span class="md-label-large text-[var(--md-sys-color-on-surface)] block truncate">{{ skill.name }}</span>
+                                            <span v-if="skill.description" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] block truncate">{{ skill.description }}</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li v-if="skills.length > 0 && filteredSkills.length === 0">
+                                    <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] px-3 py-2">{{ t('agent.chat.skillsNoMatch') }}</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
                     <!-- Agent mode toggle + step / max-run-time options -->
                     <div class="flex items-center gap-1 px-4 pt-2.5 flex-wrap">
                         <button

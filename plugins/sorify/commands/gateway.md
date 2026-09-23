@@ -11,7 +11,7 @@ description: >
     /sorify:gateway what MCP tools are available for tests?
     /sorify:gateway list my test suites
     /sorify:gateway show suite 3
-allowed-tools: ["Bash", "Read", "mcp__plugin_sorify_sorify__list_suites", "mcp__plugin_sorify_sorify__list_bookmarked_suites", "mcp__plugin_sorify_sorify__get_suite", "mcp__plugin_sorify_sorify__list_suite_members", "mcp__plugin_sorify_sorify__list_tests", "mcp__plugin_sorify_sorify__get_test", "mcp__plugin_sorify_sorify__list_runs", "mcp__plugin_sorify_sorify__get_run", "mcp__plugin_sorify_sorify__get_run_status", "mcp__plugin_sorify_sorify__list_screenshots"]
+allowed-tools: ["Bash", "Read", "mcp__plugin_sorify_sorify__list_suites", "mcp__plugin_sorify_sorify__list_bookmarked_suites", "mcp__plugin_sorify_sorify__get_suite", "mcp__plugin_sorify_sorify__list_suite_members", "mcp__plugin_sorify_sorify__list_tests", "mcp__plugin_sorify_sorify__get_test", "mcp__plugin_sorify_sorify__list_runs", "mcp__plugin_sorify_sorify__get_run", "mcp__plugin_sorify_sorify__get_run_status", "mcp__plugin_sorify_sorify__list_screenshots", "mcp__plugin_sorify_sorify__list_skills", "mcp__plugin_sorify_sorify__get_skill", "mcp__plugin_sorify_sorify__list_public_skills"]
 ---
 
 # sorify:gateway
@@ -83,10 +83,10 @@ for target-webpage test accounts — see "Suite variables" below).
 MCP Server
 ──────────────────────────────────────────────
 Name:    Sorify (registered in this plugin's .mcp.json as "sorify")
-Purpose: Manage Sorify test suites, tests, runs, and screenshots
-Tools:   38 total across 5 resource groups — run `/sorify:gateway tools` for
+Purpose: Manage Sorify test suites, tests, runs, screenshots, and skills
+Tools:   45 total across 6 resource groups — run `/sorify:gateway tools` for
          the full reference, or `/sorify:gateway {topic}` for one group
-         (suites / tests / runs / screenshots / agents)
+         (suites / tests / runs / screenshots / skills / agents)
 
 Dashboard: {SORIFY_BASE_URL}
 ```
@@ -250,6 +250,18 @@ run every active test in the suite.
 | `list_screenshots` | `result_id` | List screenshots captured for one test result |
 | `get_screenshot` | `screenshot_id` | Fetch a screenshot as inline viewable image content |
 
+**Skills** — `App\Mcp\Tools\Skills\*` (user-authored markdown instruction documents, attachable to My AI Agent chats)
+
+| Tool | Params | Description |
+|---|---|---|
+| `list_skills` | `search?`, `include_content?` (default false — summaries only), `per_page?` (10/50/100), `page?` | List the current user's own skills, optionally filtered by a search term |
+| `get_skill` | `skill_id` | One skill with its full markdown content. Own skills and public skills are readable; private skills of other users are not |
+| `create_skill` | `name`, `content`, `description?`, `is_public?` (default false) | Create a skill. `is_public` controls whether other users can see and copy it. A user can keep at most 25 skills in total (own skills plus installed copies) — creating fails once the collection is full |
+| `update_skill` | `skill_id`, `name?`, `content?`, `description?`, `is_public?` | Update one of the user's own skills — rename, edit the markdown, or change public visibility |
+| `delete_skill` | `skill_id` | Delete one of the user's own skills |
+| `list_public_skills` | `search?`, `per_page?` (10/50/100), `page?` | List skills other users have shared publicly, most-copied first |
+| `copy_skill` | `skill_id` | Copy a public skill (or one of your own) into your private collection — fully editable and detached; increments the original's copy counter. Each user can copy a given skill only once; a repeat call returns the existing copy with `already_installed: true`. Counts towards the 25-skill cap — fails once the collection is full |
+
 **Agents** — `App\Mcp\Tools\Agent\*` (used by the dashboard's "My AI Agent" chat; also callable directly)
 
 | Tool | Params | Description |
@@ -295,6 +307,17 @@ tool directly and present the result — do not just describe the tool.
 
 "screenshots for result {id}"
   → mcp__plugin_sorify_sorify__list_screenshots({ result_id: {id} })
+
+"list my skills" / "what skills do I have"
+  → mcp__plugin_sorify_sorify__list_skills({})
+  Present as a table: id, name, description, public/private, copies
+
+"show skill {id}" / "read skill {id}"
+  → mcp__plugin_sorify_sorify__get_skill({ skill_id: {id} })
+
+"list public skills" / "what skills have others shared"
+  → mcp__plugin_sorify_sorify__list_public_skills({})
+  Present as a table: id, name, author, description, copies
 ```
 
 If an ID is required but missing from the question, run the closest list
@@ -303,7 +326,7 @@ asking them to look it up elsewhere.
 
 This command never calls the mutating tools (`create_*`, `update_*`,
 `delete_*`, `duplicate_*`, `trigger_run`, `cancel_run`, `bulk_*`,
-`add_suite_member`, `remove_suite_member`) — those belong to
+`copy_skill`, `add_suite_member`, `remove_suite_member`) — those belong to
 `/sorify:generate` or direct tool use with explicit user intent, not to a
 help/lookup command.
 

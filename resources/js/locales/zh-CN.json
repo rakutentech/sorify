@@ -14,7 +14,8 @@
             "suites": "测试套件",
             "tests": "测试",
             "runs": "运行",
-            "conversations": "AI 聊天"
+            "conversations": "AI 聊天",
+            "skills": "技能"
         }
     },
     "nav": {
@@ -567,7 +568,9 @@
             "variables_updated": "变量更新",
             "cookies_updated": "Cookie 更新",
             "integration_updated": "集成变更",
-            "email_recipients_updated": "邮件收件人变更"
+            "email_recipients_updated": "邮件收件人变更",
+            "skill_published": "技能已公开",
+            "skill_installed": "技能已安装"
         },
         "actions": {
             "run_triggered": "开始了一次运行",
@@ -598,7 +601,10 @@
             "integration_added": "添加了 {type} 集成",
             "integration_updated": "更新了 {type} 集成",
             "integration_removed": "移除了 {type} 集成",
-            "email_recipients_updated": "更新了邮件收件人"
+            "email_recipients_updated": "更新了邮件收件人",
+            "skill_published": "公开了技能",
+            "skill_installed": "安装了技能",
+            "skill_installed_by": "（作者：{author}）"
         },
         "changed": "变更项:",
         "fields": {
@@ -625,6 +631,7 @@
             "runs": "运行",
             "suites": "套件",
             "tests": "测试",
+            "skills": "技能",
             "people": "成员与用户",
             "settings": "设置与通知"
         },
@@ -968,6 +975,8 @@
             "explainCode": "AI 解释代码",
             "updateDescription": "AI 更新描述",
             "aboutSuite": "AI 介绍此套件",
+            "editSkill": "AI 编辑技能",
+            "createSkill": "AI 创建技能",
             "setupFirst": "请先在个人资料设置中配置 AI 助手",
             "disabledByAdmin": "AI 助手已被管理员针对您的账号禁用",
             "copyGateway": "复制 MCP 提示词",
@@ -978,6 +987,8 @@
             "explainError": "测试“{name}”失败了。请解释失败原因并给出修复建议。",
             "explainCode": "请逐步解释 Playwright 测试“{name}”做了什么。",
             "updateDescription": "阅读测试“{name}”的 Playwright 代码，并更新其描述以准确反映测试内容。使用 update_test 工具保存新描述。",
+            "editSkill": "帮我编辑技能“{name}”。它当前的名称、描述、可见性和完整 markdown 内容都在上下文中（active_skill）。先询问我要修改什么，然后使用 update_skill 工具应用更改。",
+            "createSkill": "帮我创建一个新技能。先向我确认名称、简短描述和要包含的 markdown 指令，然后使用 create_skill 工具创建。",
             "aboutSuite": "给我一个测试套件“{name}”的概览：它覆盖了什么、测试的当前状态，以及需要关注的事项。"
         },
         "chat": {
@@ -1017,6 +1028,13 @@
             "maxStepsTitle": "每轮最大步骤数 — 一条消息可执行的工具调用往返次数上限，超过后代理将停止并请求继续。",
             "maxRunTitle": "智能体模式回合的最长运行时间",
             "agentRunning": "智能体 — 正在后台运行，最长 {minutes} 分钟。您可以关闭此窗口。",
+            "skills": "技能",
+            "skillsTitle": "将技能（markdown 指令文档）附加到此对话。选中后，其内容会作为指令随每条消息发送给智能体。",
+            "skillSearch": "搜索技能...",
+            "skillsEmpty": "还没有技能。",
+            "skillsCreate": "在个人资料页面创建。",
+            "skillsNoMatch": "没有匹配的技能。",
+            "skillRemove": "移除此技能",
             "runCard": {
                 "title": "测试运行",
                 "passed": "通过",
@@ -1128,5 +1146,58 @@
             "notSet": "未设置",
             "privacyNote": "每个会话都是私密的。对话及其工具活动只有你自己可见——其他套件成员和管理员无法看到。"
         }
+    },
+    "skills": {
+        "navTitle": "共享技能",
+        "title": "技能",
+        "hint": "可附加到 My AI Agent 对话的 markdown 指令文档。在对话中选中后，其内容会作为指令发送给智能体。",
+        "add": "新建技能",
+        "newSkill": "新建技能",
+        "editSkill": "编辑技能",
+        "name": "名称",
+        "namePlaceholder": "例如：QA 审查清单",
+        "description": "描述",
+        "descriptionPlaceholder": "此技能让智能体做什么（可选）",
+        "content": "内容",
+        "contentPlaceholder": "# 技能指令\n\n用 markdown 写下智能体应遵循的指令...",
+        "preview": "预览",
+        "editMarkdown": "编辑 markdown",
+        "previewEmpty": "还没有可预览的内容。",
+        "publicToggle": "公开",
+        "publicHint": "开启后，其他用户可以在共享技能页面找到并安装此技能。关闭则仅自己可见。",
+        "save": "保存",
+        "empty": "还没有技能。创建一个，或从共享技能页面安装。",
+        "publicBadge": "公开",
+        "privateBadge": "私密",
+        "installsCount": "{count} 位用户安装了此技能",
+        "copiedFrom": "来自{name}",
+        "copiedFromTitle": "安装自「{name}」（作者：{author}）",
+        "copiedFromTitleNoAuthor": "安装自「{name}」",
+        "originalDeleted": "原技能已删除",
+        "originalDeletedTitle": "此技能的安装原版已被删除。你的副本是独立安装，可继续使用。",
+        "ownSkill": "你的技能",
+        "ownSkillTitle": "这是你创建的技能 — 已在你的技能列表中。",
+        "skillUsage": "已使用 {count} / {limit} 个技能",
+        "limitCaption": "最多可保存 {limit} 个技能；从共享页面安装的也计入上限。",
+        "limitReachedTitle": "已达到技能上限（{limit} 个）。请删除一个技能以腾出空间。",
+        "edit": "编辑",
+        "delete": "删除",
+        "confirmDelete": "删除技能「{name}」？",
+        "browseTitle": "技能",
+        "browseSubtitle": "其他用户公开分享的技能。安装后可在你自己的 AI 智能体对话中使用。",
+        "searchPlaceholder": "搜索技能...",
+        "browseEmpty": "还没有公开技能。分享一个你的技能来开始吧。",
+        "install": "安装",
+        "installed": "已将「{name}」安装到你的技能 — 可在个人资料页面查看。",
+        "alreadyInstalled": "「{name}」已安装过 — 可在个人资料页面查看。",
+        "installedButton": "已安装",
+        "installedButtonTitle": "此技能已安装过 — 你的副本可在个人资料页面查看。",
+        "installFailed": "安装此技能失败。",
+        "showContent": "显示内容",
+        "hideContent": "收起内容",
+        "unknownAuthor": "未知作者",
+        "pagination": "第 {from}–{to} 项，共 {total} 项",
+        "publish": "我的技能",
+        "publishTitle": "在个人资料页面查看和管理你自己的技能"
     }
 }

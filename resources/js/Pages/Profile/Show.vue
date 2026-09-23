@@ -1,11 +1,13 @@
 <script setup>
 import { useForm, router, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Card, Button, TextField, Avatar } from '@/Components/ui';
 import AgentProfiles from '@/Components/Agent/AgentProfiles.vue';
-import { UserCircle, Upload, KeyRound, Lock, User, Check, Bot, CircleAlert } from '@lucide/vue';
+import UserSkills from '@/Components/Skills/UserSkills.vue';
+import { clearAgentContext, setAgentContext } from '@/composables/useAgentContext';
+import { UserCircle, Upload, KeyRound, Lock, User, Check, Bot, CircleAlert, BookMarked } from '@lucide/vue';
 
 const { t } = useI18n();
 
@@ -17,6 +19,8 @@ const adminAgentDisabled = computed(() => page.props.auth?.user?.agent_disabled 
 const props = defineProps({
     user: Object,
     agentProfiles: { type: Array, default: () => [] },
+    skills: { type: Array, default: () => [] },
+    skillLimit: { type: Number, default: 25 },
 });
 
 // Section navigation. Selecting an item shows only its card.
@@ -24,11 +28,12 @@ const sections = computed(() => [
     { id: 'avatar', label: t('profile.avatar'), icon: UserCircle },
     { id: 'account', label: t('profile.account'), icon: User },
     { id: 'agents', label: t('agent.profiles.navTitle'), icon: Bot },
+    { id: 'skills', label: t('skills.title'), icon: BookMarked },
     { id: 'password', label: hasPassword.value ? t('profile.changePassword') : t('profile.setPassword'), icon: KeyRound },
 ]);
 
 const activeSection = ref(
-    ['avatar', 'account', 'agents', 'password'].includes(new URLSearchParams(window.location.search).get('section'))
+    ['avatar', 'account', 'agents', 'skills', 'password'].includes(new URLSearchParams(window.location.search).get('section'))
         ? new URLSearchParams(window.location.search).get('section')
         : 'avatar',
 );
@@ -110,6 +115,29 @@ function removeAvatar() {
     if (!confirm(t('profile.confirmRemoveAvatar'))) return;
     avatarForm.delete('/sorify/profile/avatar', { preserveScroll: true });
 }
+
+// AI agent page context: when the skills section is open, the agent knows
+// the user's own skills — ids, names, visibility and copy counts.
+watch(activeSection, () => {
+    if (activeSection.value === 'skills') {
+        setAgentContext(() => ({
+            context: JSON.stringify({
+                page: 'profile_skills',
+                own_skills: props.skills.map(skill => ({
+                    skill_id: skill.id,
+                    name: skill.name,
+                    description: skill.description ?? null,
+                    is_public: !!skill.is_public,
+                    copies_count: skill.copies_count,
+                })),
+            }, null, 2),
+        }));
+    } else {
+        clearAgentContext();
+    }
+}, { immediate: true });
+
+onUnmounted(() => clearAgentContext());
 </script>
 
 <template>
@@ -222,6 +250,11 @@ function removeAvatar() {
                             <p class="md-body-small">{{ t('agent.disabledByAdmin') }}</p>
                         </div>
                         <AgentProfiles :profiles="agentProfiles" />
+                    </div>
+
+                    <!-- Skills -->
+                    <div v-if="activeSection === 'skills'" data-section="skills">
+                        <UserSkills :skills="skills" :limit="skillLimit" />
                     </div>
 
                     <!-- Change / Set Password -->

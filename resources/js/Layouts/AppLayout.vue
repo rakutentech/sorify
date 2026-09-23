@@ -12,7 +12,7 @@ import CommandPalette from '@/Components/CommandPalette.vue';
 import {
     Activity, FolderKanban, Star, BookOpen, Search,
     ShieldCheck, ScrollText, ExternalLink, ChevronDown, Sun, Moon,
-    UserCircle, LogOut, CircleCheck, Info, Workflow, Cpu, Bot,
+    UserCircle, LogOut, CircleCheck, Info, Workflow, Cpu, Bot, BookMarked,
 } from '@lucide/vue';
 import sorifyLogo from '@/../images/sorify-icon.svg';
 
@@ -68,6 +68,7 @@ const navLinks = computed(() => [
     { label: t('nav.feed'), href: '/sorify/feed', icon: Activity, accent: 'var(--md-ext-color-success)' },
     { label: t('nav.testSuites'), href: '/sorify/suites', icon: FolderKanban, accent: 'var(--md-sys-color-tertiary)' },
     { label: t('nav.bookmarks'), href: '/sorify/bookmarks', icon: Star, accent: 'var(--md-ext-color-warning)' },
+    { label: t('skills.navTitle'), href: '/sorify/skills/browse', icon: BookMarked, accent: 'var(--md-sys-color-primary)' },
 ]);
 
 const docsLink = computed(() => ({ label: t('nav.docs'), href: 'https://github.com/rakutentech/sorify', external: true, newTab: true, icon: BookOpen, accent: 'var(--md-sys-color-on-surface-variant)' }));
@@ -179,17 +180,23 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
                             <kbd class="text-base font-medium px-2 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] bg-[var(--md-sys-color-surface-container-highest)]">{{ isMac ? '⌘K' : 'Ctrl K' }}</kbd>
                         </button>
 
-                        <!-- AI agent -->
-                        <button
+                        <!-- AI agent button on its own distinct background,
+                             wearing the same gradient as the in-page AI
+                             buttons. -->
+                        <div
                             v-if="user"
-                            type="button"
-                            class="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-colors bg-[var(--md-sys-color-tertiary-container)] text-[var(--md-sys-color-on-tertiary-container)] hover:brightness-90 flex-shrink-0"
-                            :title="t('agent.open')"
-                            @click="showAgentDrawer = true"
+                            class="hidden sm:flex items-center gap-1 p-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-surface-container-high)] flex-shrink-0"
                         >
-                            <Bot :size="16" class="flex-shrink-0" />
-                            {{ t('agent.open') }}
-                        </button>
+                            <button
+                                type="button"
+                                class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large transition-all duration-200 flex items-center gap-1.5 active:brightness-95 bg-gradient-to-r from-white to-[color-mix(in_srgb,var(--md-sys-color-primary)_14%,white)] text-[var(--md-sys-color-on-surface)] ring-1 ring-inset ring-[color-mix(in_srgb,var(--md-sys-color-primary)_30%,transparent)] hover:shadow-[0_0_12px_color-mix(in_srgb,var(--md-sys-color-primary)_35%,transparent)] dark:from-[var(--md-sys-color-primary)] dark:to-[var(--md-sys-color-tertiary)] dark:text-[var(--md-sys-color-inverse-on-surface)] dark:ring-0 dark:hover:brightness-110"
+                                :title="t('agent.open')"
+                                @click="showAgentDrawer = true"
+                            >
+                                <Bot :size="16" class="flex-shrink-0" />
+                                {{ t('agent.open') }}
+                            </button>
+                        </div>
 
                         <!-- User nav -->
                         <div v-if="user" ref="userMenuRef" class="relative">
@@ -282,15 +289,21 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
 
                 <AdminMenu v-if="adminLinks.length" :links="adminLinks" />
 
-                <button
+                <!-- AI agent button on its own distinct background
+                     (mobile nav row). -->
+                <div
                     v-if="user"
-                    type="button"
-                    class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-colors flex items-center gap-1.5 flex-shrink-0 bg-[var(--md-sys-color-tertiary-container)] text-[var(--md-sys-color-on-tertiary-container)] hover:brightness-90"
-                    @click="showAgentDrawer = true"
+                    class="flex items-center gap-1 p-1 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-surface-container-high)] flex-shrink-0"
                 >
-                    <Bot :size="16" class="flex-shrink-0" />
-                    {{ t('agent.open') }}
-                </button>
+                    <button
+                        type="button"
+                        class="px-4 py-1.5 rounded-[var(--md-sys-shape-corner-full)] md-label-large whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 active:brightness-95 bg-gradient-to-r from-white to-[color-mix(in_srgb,var(--md-sys-color-primary)_14%,white)] text-[var(--md-sys-color-on-surface)] ring-1 ring-inset ring-[color-mix(in_srgb,var(--md-sys-color-primary)_30%,transparent)] hover:shadow-[0_0_12px_color-mix(in_srgb,var(--md-sys-color-primary)_35%,transparent)] dark:from-[var(--md-sys-color-primary)] dark:to-[var(--md-sys-color-tertiary)] dark:text-[var(--md-sys-color-inverse-on-surface)] dark:ring-0 dark:hover:brightness-110"
+                        @click="showAgentDrawer = true"
+                    >
+                        <Bot :size="16" class="flex-shrink-0" />
+                        {{ t('agent.open') }}
+                    </button>
+                </div>
 
                 <button
                     v-if="user"

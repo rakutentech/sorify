@@ -153,9 +153,22 @@ For programmatic access, prefer the MCP endpoint `POST /sorify/mcp` — see the 
 | GET | `/sorify/agent/conversations/{conversation}/turns/{turnId}/events` | live turn events (SSE stream) |
 | POST | `/sorify/agent/conversations/{conversation}/chat` | send message (Ask or Agent mode) |
 | POST | `/sorify/agent/conversations/{conversation}/cancel-turn` | cancel a running agent turn |
-| PUT | `/sorify/agent/conversations/{conversation}` | update conversation |
+| PUT | `/sorify/agent/conversations/{conversation}` | update conversation (title, context, agent mode, attached `skill_ids`) |
 | DELETE | `/sorify/agent/conversations/{conversation}` | delete conversation |
 | DELETE | `/sorify/agent/conversations` | delete all conversations |
+
+### Authenticated — Skills
+
+User-authored markdown instruction documents, attachable to My AI Agent chats. All routes only need authentication — no agent profile required.
+
+| Method | Path | Description |
+| :--- | :--- | :--- |
+| GET | `/sorify/skills/browse` | shared skills page: all users' public skills (searchable) |
+| GET | `/sorify/skills` | list the current user's own skills |
+| POST | `/sorify/skills` | create skill (`name`, `content`, `description?`, `is_public?` — default private) |
+| PUT | `/sorify/skills/{skill}` | update own skill (rename, edit content, toggle public) |
+| DELETE | `/sorify/skills/{skill}` | delete own skill |
+| POST | `/sorify/skills/{skill}/copy` | copy a public skill into your private collection; increments the original's copy counter |
 
 ### Admin only
 

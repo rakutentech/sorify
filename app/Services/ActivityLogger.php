@@ -21,25 +21,27 @@ class ActivityLogger
      * personally-sensitive data beyond what suite members can already see.
      */
     public const PAYLOAD_KEYS = [
-        'run_triggered'        => ['triggered_by'],
-        'run_completed'         => ['status', 'triggered_by', 'total_tests', 'passed_count', 'failed_count', 'error_count', 'duration_ms'],
-        'run_cancelled'         => ['triggered_by'],
-        'suite_created'         => ['name'],
-        'suite_updated'         => ['name', 'fields'],
-        'suite_duplicated'      => ['name', 'source_suite_name'],
-        'test_created'          => ['name', 'count'],
-        'test_updated'          => ['name'],
-        'test_code_updated'     => ['name'],
-        'test_deleted'          => ['name', 'count'],
-        'test_status_changed'   => ['status', 'count'],
+        'run_triggered' => ['triggered_by'],
+        'run_completed' => ['status', 'triggered_by', 'total_tests', 'passed_count', 'failed_count', 'error_count', 'duration_ms'],
+        'run_cancelled' => ['triggered_by'],
+        'suite_created' => ['name'],
+        'suite_updated' => ['name', 'fields'],
+        'suite_duplicated' => ['name', 'source_suite_name'],
+        'test_created' => ['name', 'count'],
+        'test_updated' => ['name'],
+        'test_code_updated' => ['name'],
+        'test_deleted' => ['name', 'count'],
+        'test_status_changed' => ['status', 'count'],
         'suite_members_changed' => ['action', 'member_name'],
-        'user_registered'       => [],
-        'user_created'          => ['user_name'],
-        'schedule_updated'      => ['action', 'cron_expression', 'timezone', 'is_enabled'],
-        'variables_updated'     => ['count'],
-        'cookies_updated'       => ['count'],
-        'integration_updated'   => ['action', 'type'],
+        'user_registered' => [],
+        'user_created' => ['user_name'],
+        'schedule_updated' => ['action', 'cron_expression', 'timezone', 'is_enabled'],
+        'variables_updated' => ['count'],
+        'cookies_updated' => ['count'],
+        'integration_updated' => ['action', 'type'],
         'email_recipients_updated' => ['count'],
+        'skill_published' => ['name'],
+        'skill_installed' => ['name', 'author_name'],
     ];
 
     public static function log(string $type, ?User $actor = null, ?TestSuite $suite = null, ?Model $subject = null, array $payload = []): Activity
@@ -48,12 +50,12 @@ class ActivityLogger
             ?? throw new InvalidArgumentException("Unknown activity type [{$type}].");
 
         return Activity::create([
-            'type'          => $type,
-            'actor_id'      => $actor?->id,
-            'suite_id'      => $suite?->id,
-            'subject_type'  => $subject !== null ? $subject->getMorphClass() : null,
-            'subject_id'    => $subject?->getKey(),
-            'payload'       => collect($payload)->only($allowed)->all(),
+            'type' => $type,
+            'actor_id' => $actor?->id,
+            'suite_id' => $suite?->id,
+            'subject_type' => $subject !== null ? $subject->getMorphClass() : null,
+            'subject_id' => $subject?->getKey(),
+            'payload' => collect($payload)->only($allowed)->all(),
         ]);
     }
 }

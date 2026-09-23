@@ -9,7 +9,7 @@ import { useScreenshotLightbox } from '@/composables/useScreenshotLightbox';
 import { formatRelativeTime } from '@/utils/date';
 import {
     Rss, FilterX, ArrowUp, LoaderCircle, Activity, FolderOpen,
-    FileCode, Users, SlidersHorizontal, ChevronDown,
+    FileCode, Users, SlidersHorizontal, ChevronDown, BookMarked,
 } from '@lucide/vue';
 
 const { t } = useI18n();
@@ -56,6 +56,7 @@ const CATEGORY_GROUPS = [
     { key: 'runs', types: ['run_triggered', 'run_completed', 'run_cancelled'] },
     { key: 'suites', types: ['suite_created', 'suite_updated', 'suite_duplicated'] },
     { key: 'tests', types: ['test_created', 'test_updated', 'test_code_updated', 'test_deleted', 'test_status_changed'] },
+    { key: 'skills', types: ['skill_published', 'skill_installed'] },
     { key: 'people', types: ['suite_members_changed', 'user_registered', 'user_created'] },
     { key: 'settings', types: ['schedule_updated', 'variables_updated', 'cookies_updated', 'integration_updated', 'email_recipients_updated'] },
 ];
@@ -70,6 +71,7 @@ const CATEGORY_META = {
     runs:     { icon: Activity,          accent: 'var(--md-sys-color-primary)' },
     suites:   { icon: FolderOpen,        accent: 'var(--md-sys-color-tertiary)' },
     tests:    { icon: FileCode,          accent: 'var(--md-sys-color-secondary)' },
+    skills:   { icon: BookMarked,        accent: 'var(--md-sys-color-tertiary)' },
     people:   { icon: Users,             accent: 'var(--md-ext-color-warning)' },
     settings: { icon: SlidersHorizontal, accent: 'var(--md-ext-color-success)' },
 };

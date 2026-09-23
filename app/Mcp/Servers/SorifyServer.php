@@ -14,6 +14,13 @@ use App\Mcp\Tools\Runs\ListRunsTool;
 use App\Mcp\Tools\Runs\TriggerRunTool;
 use App\Mcp\Tools\Screenshots\GetScreenshotTool;
 use App\Mcp\Tools\Screenshots\ListScreenshotsTool;
+use App\Mcp\Tools\Skills\CopySkillTool;
+use App\Mcp\Tools\Skills\CreateSkillTool;
+use App\Mcp\Tools\Skills\DeleteSkillTool;
+use App\Mcp\Tools\Skills\GetSkillTool;
+use App\Mcp\Tools\Skills\ListPublicSkillsTool;
+use App\Mcp\Tools\Skills\ListSkillsTool;
+use App\Mcp\Tools\Skills\UpdateSkillTool;
 use App\Mcp\Tools\Suites\AddSuiteMemberTool;
 use App\Mcp\Tools\Suites\BookmarkSuiteTool;
 use App\Mcp\Tools\Suites\CreateSuiteTool;
@@ -48,7 +55,7 @@ class SorifyServer extends Server
 
     protected string $version = '1.0.0';
 
-    protected string $instructions = 'Manage Sorify test suites, tests, runs, and screenshots — the same actions available on the Sorify dashboard.';
+    protected string $instructions = 'Manage Sorify test suites, tests, runs, screenshots, and user skills — the same actions available on the Sorify dashboard.';
 
     protected array $tools = [
         ListSuitesTool::class,
@@ -90,6 +97,14 @@ class SorifyServer extends Server
 
         ListScreenshotsTool::class,
         GetScreenshotTool::class,
+
+        ListSkillsTool::class,
+        GetSkillTool::class,
+        CreateSkillTool::class,
+        UpdateSkillTool::class,
+        DeleteSkillTool::class,
+        ListPublicSkillsTool::class,
+        CopySkillTool::class,
 
         FetchUrlTool::class,
         BrowserMapTool::class,
