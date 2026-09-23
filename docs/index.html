@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorify, browser testing you can ask for in plain words</title>
+<meta name="description" content="Sorify writes and runs website tests for you. You describe what to check, an AI agent writes the test, and Sorify runs it in a real browser.">
+<link rel="icon" href="static/sorify-icon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --ink: #0b1220;
+    --muted: #5b6b83;
+    --faint: #8a97ab;
+    --accent: #2563eb;
+    --violet: #7c3aed;
+    --accent-soft: #eef4ff;
+    --bg: #fbfcfe;
+    --card: #ffffff;
+    --border: #e6eaf1;
+    --shadow-sm: 0 1px 2px rgba(11, 18, 32, .06), 0 4px 14px rgba(11, 18, 32, .05);
+    --shadow-lg: 0 2px 6px rgba(11, 18, 32, .06), 0 24px 64px rgba(11, 18, 32, .14);
+    --grad: linear-gradient(120deg, #2563eb, #7c3aed);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  p { margin: 0 0 12px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+  ::selection { background: #dbeafe; }
+
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    *, *::before, *::after { animation: none !important; }
+  }
+
+  /* Header */
+  header {
+    position: sticky; top: 12px; z-index: 40;
+    margin: 0 auto; max-width: 1120px; padding: 0 28px;
+  }
+  .navbar {
+    display: flex; align-items: center; gap: 26px; height: 58px;
+    background: rgba(255, 255, 255, .72);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    border: 1px solid rgba(230, 234, 241, .9);
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+    padding: 0 10px 0 20px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; font-weight: 750; font-size: 19px; color: var(--ink); letter-spacing: -.01em; }
+  .brand img { width: 34px; height: 34px; }
+  .nav-links { display: flex; gap: 4px; margin-left: auto; align-items: center; }
+  .nav-links a {
+    color: var(--muted); font-size: 14.5px; font-weight: 550;
+    padding: 8px 13px; border-radius: 999px; transition: background .15s ease, color .15s ease;
+  }
+  .nav-links a:hover { color: var(--ink); background: #f1f5fb; text-decoration: none; }
+  /* Keep the GitHub button readable: nav link styles must not recolor it. */
+  .nav-links .btn { color: #fff; }
+  .nav-links .btn:hover { background: var(--grad); color: #fff; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 22px; border-radius: 999px;
+    font-weight: 620; font-size: 15px; border: 1px solid transparent;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:hover { text-decoration: none; transform: translateY(-1px); }
+  .btn-primary { background: var(--grad); color: #fff; box-shadow: 0 8px 22px rgba(37, 99, 235, .3); }
+  .btn-primary:hover { box-shadow: 0 12px 28px rgba(37, 99, 235, .38); }
+  .btn-ghost { border-color: var(--border); color: var(--ink); background: var(--card); box-shadow: var(--shadow-sm); }
+  .btn-sm { padding: 8px 16px; font-size: 14px; }
+
+  /* Hero */
+  .hero { position: relative; padding: 92px 0 64px; text-align: center; overflow: hidden; }
+  .hero-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle, #d9e2ef 1.1px, transparent 1.1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 62% at 50% 32%, #000 30%, transparent 75%);
+    mask-image: radial-gradient(ellipse 75% 62% at 50% 32%, #000 30%, transparent 75%);
+  }
+  .hero-glow { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .hero-glow::before, .hero-glow::after {
+    content: ""; position: absolute; border-radius: 50%; filter: blur(90px); opacity: .5;
+  }
+  .hero-glow::before { width: 520px; height: 380px; background: #dbeafe; top: -140px; left: 50%; transform: translateX(-85%); }
+  .hero-glow::after { width: 520px; height: 380px; background: #ede9fe; top: -120px; left: 50%; transform: translateX(-12%); }
+  .hero-inner { position: relative; }
+  .hero-logo { width: 230px; height: auto; display: block; margin: 0 auto 20px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 620; letter-spacing: .02em;
+    color: #4338ca; background: #eef2ff; border: 1px solid #e0e7ff;
+    padding: 6px 14px; border-radius: 999px; margin-bottom: 26px;
+  }
+  .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: #6366f1; animation: blink 2.2s ease-in-out infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  h1 {
+    font-size: clamp(34px, 6vw, 64px); line-height: 1.08; letter-spacing: -.025em;
+    margin: 0 0 20px; font-weight: 800; max-width: 820px; margin-left: auto; margin-right: auto;
+  }
+  h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { font-size: 19px; color: var(--muted); max-width: 620px; margin: 0 auto 32px; }
+  .lead b { color: var(--ink); }
+  .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 26px; }
+  .chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 13px; font-weight: 550; color: var(--muted); background: var(--card);
+    border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; box-shadow: var(--shadow-sm);
+  }
+  .chip b { color: var(--ink); font-weight: 650; }
+
+  /* Browser mockup */
+  .mockup-wrap { position: relative; max-width: 900px; margin: 64px auto 0; }
+  .mockup {
+    border-radius: var(--radius); border: 1px solid var(--border);
+    background: var(--card); box-shadow: var(--shadow-lg); overflow: hidden;
+  }
+  .mock-bar {
+    display: flex; align-items: center; gap: 7px;
+    padding: 13px 18px; border-bottom: 1px solid var(--border); background: #f7f9fc;
+  }
+  .mock-bar i { width: 11px; height: 11px; border-radius: 50%; }
+  .mock-bar i:nth-child(1) { background: #ff5f57; }
+  .mock-bar i:nth-child(2) { background: #febc2e; }
+  .mock-bar i:nth-child(3) { background: #28c840; }
+  .mock-url {
+    margin-left: 12px; flex: 1; max-width: 340px; text-align: center;
+    background: #fff; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 12.5px; color: var(--faint); padding: 4px 12px;
+  }
+  .mockup img { display: block; width: 100%; height: auto; }
+  .float-chip {
+    position: absolute; z-index: 2; display: flex; align-items: center; gap: 9px;
+    background: rgba(255, 255, 255, .92); backdrop-filter: blur(8px);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 11px 16px; font-size: 13.5px; font-weight: 600; color: var(--ink);
+    box-shadow: var(--shadow-lg); animation: bob 5s ease-in-out infinite;
+  }
+  .float-chip .ico {
+    width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
+  }
+  .float-chip span { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
+  .fc-1 { top: 74px; left: -26px; }
+  .fc-2 { top: 150px; right: -30px; animation-delay: 1.2s; }
+  .fc-3 { bottom: 60px; left: -36px; animation-delay: 2.4s; }
+  .fc-4 { bottom: 140px; right: -38px; animation-delay: 3.4s; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+
+  /* Sections */
+  section { padding: 88px 0; }
+  h2 { font-size: clamp(26px, 3.6vw, 38px); letter-spacing: -.02em; margin: 0 0 14px; font-weight: 780; }
+  .sub { color: var(--muted); max-width: 620px; margin: 0 0 42px; font-size: 17.5px; }
+  .center { text-align: center; }
+  .center .sub { margin-left: auto; margin-right: auto; }
+
+  /* How it works */
+  .how-grid { display: grid; gap: 28px; }
+  .diagram-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px; box-shadow: var(--shadow-sm);
+  }
+  .diagram-card img { display: block; width: 100%; height: auto; }
+  .diagram-note {
+    margin: 18px 4px 0; color: var(--muted); font-size: 15.5px; line-height: 1.7;
+  }
+  .diagram-note b { color: var(--ink); }
+  .timeline {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  }
+  .timeline li {
+    display: flex; flex-direction: column; gap: 10px;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px; box-shadow: var(--shadow-sm);
+  }
+  .step-num {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--card); border: 2px solid #bfdbfe; color: var(--accent);
+    font-weight: 750; font-size: 15px; position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm);
+  }
+  .timeline b { display: block; font-size: 17px; letter-spacing: -.01em; }
+  .timeline span { color: var(--muted); font-size: 15.5px; }
+  code {
+    background: #eef2f7; border: 1px solid var(--border); border-radius: 6px;
+    padding: 2px 8px; font-size: .88em; color: #334155;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  /* Bento features */
+  .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 26px; transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+    position: relative; overflow: hidden;
+  }
+  .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: #d7e2f5; }
+  .card .icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+    color: #fff; background: var(--grad); box-shadow: 0 6px 16px rgba(37, 99, 235, .25);
+  }
+  .card h3 { margin: 0 0 7px; font-size: 17.5px; letter-spacing: -.01em; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .card-lg { grid-column: span 6; }
+  .card-md { grid-column: span 3; }
+  .card .mini-chips { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 16px; }
+  .mini-chip {
+    font-size: 12.5px; font-weight: 600; color: #4338ca; background: #eef2ff;
+    border: 1px solid #e0e7ff; border-radius: 999px; padding: 4px 11px;
+  }
+
+  /* Showcases */
+  .showcase { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; margin-bottom: 84px; }
+  .showcase:last-child { margin-bottom: 0; }
+  .showcase.flip .shot { order: 2; }
+  .shot-txt .kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .shot-txt h3 { font-size: clamp(21px, 2.6vw, 27px); letter-spacing: -.015em; margin: 0 0 12px; font-weight: 750; }
+  .shot-txt p { color: var(--muted); margin: 0 0 14px; font-size: 16.5px; }
+  .shot-txt ul { list-style: none; margin: 0; padding: 0; }
+  .shot-txt li { display: flex; gap: 10px; align-items: flex-start; color: var(--muted); font-size: 15.5px; padding: 5px 0; }
+  .shot-txt li::before {
+    content: ""; flex: none; width: 18px; height: 18px; margin-top: 4px; border-radius: 50%;
+    background: #e0f2e9 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2316a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>') center / 11px no-repeat;
+  }
+  .shot img {
+    display: block; width: 100%; height: auto;
+    border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    background: #fff; transition: transform .25s ease;
+  }
+  .shot { position: relative; }
+  .shot:hover img { transform: scale(1.012); }
+  /* Size tweaks for individual screenshots */
+  .shot-slim img { max-width: 340px; margin-inline: auto; }
+  .showcase.wide { grid-template-columns: 1.45fr 1fr; }
+
+  /* Integrations */
+  .flow-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 44px; }
+  .flow-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 26px; transition: box-shadow .18s ease, transform .18s ease;
+  }
+  .flow-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+  .flow-card .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 9px; font-size: 14px; font-weight: 700;
+    color: #4338ca; background: #eef2ff; border: 1px solid #e0e7ff; margin-bottom: 16px;
+  }
+  .flow-card b { display: block; font-size: 17px; margin-bottom: 5px; }
+  .flow-card span { color: var(--muted); font-size: 15px; }
+  .wide-shot img { display: block; width: 100%; height: auto; border: 1px solid var(--border); box-shadow: var(--shadow-sm); background: #fff; }
+
+  /* Quick start */
+  .quick {
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 40px; box-shadow: var(--shadow-lg); position: relative; overflow: hidden;
+  }
+  .quick::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 5px; background: var(--grad);
+  }
+  .quick .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
+  .quick .steps li { display: flex; gap: 18px; align-items: flex-start; }
+  .quick .step-num {
+    background: var(--grad); color: #fff; border: none;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, .3);
+  }
+  .quick b { display: block; font-size: 17px; }
+  .quick .desc { color: var(--muted); font-size: 15.5px; margin-top: 3px; }
+  .cmd {
+    display: inline-flex; align-items: center; gap: 12px; margin-top: 10px;
+    background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 10px 10px 10px 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14.5px;
+  }
+  .cmd .dollar { color: #64748b; user-select: none; }
+  .copy-btn {
+    border: 1px solid #33415580; background: #1e293b; color: #cbd5e1;
+    border-radius: 7px; padding: 4px 11px; font-size: 12.5px; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: background .15s ease, color .15s ease;
+  }
+  .copy-btn:hover { background: #334155; color: #fff; }
+  .copy-btn.done { background: #166534; border-color: #166534; color: #fff; }
+  .quick .more { color: var(--muted); font-size: 15px; margin: 30px 0 0; }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--border); padding: 48px 0 64px; color: var(--muted); font-size: 15px; background: var(--card); }
+  footer .cols { display: flex; gap: 56px; flex-wrap: wrap; justify-content: space-between; }
+  footer .fbrand { display: flex; align-items: center; gap: 11px; font-weight: 750; font-size: 20px; color: var(--ink); margin-bottom: 10px; }
+  footer .fbrand img { width: 34px; height: 34px; }
+  footer ul { list-style: none; margin: 8px 0 0; padding: 0; }
+  footer li { margin-top: 5px; }
+  footer b { color: var(--ink); }
+
+  @media (max-width: 980px) {
+    .timeline { grid-template-columns: repeat(2, 1fr); }
+    .card-lg { grid-column: span 12; }
+    .card-md { grid-column: span 6; }
+    .showcase { grid-template-columns: 1fr; gap: 28px; margin-bottom: 64px; }
+    .showcase.flip .shot { order: 0; }
+    .showcase.wide { grid-template-columns: 1fr; }
+    .flow-grid { grid-template-columns: 1fr; }
+    .float-chip { display: none; }
+  }
+  @media (max-width: 640px) {
+    .nav-links a.nav-hide { display: none; }
+    .card-md { grid-column: span 12; }
+    .timeline { grid-template-columns: 1fr; }
+    section { padding: 64px 0; }
+    header { top: 8px; padding: 0 14px; }
+    .wrap { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="navbar">
+    <a class="brand" href="#top">Sorify</a>
+    <nav class="nav-links">
+      <a class="nav-hide" href="#how-it-works">How it works</a>
+      <a class="nav-hide" href="#features">Features</a>
+      <a class="nav-hide" href="#screenshots">Screenshots</a>
+      <a class="nav-hide" href="#quick-start">Get started</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rakutentech/sorify">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="wrap hero-inner">
+      <img class="hero-logo" src="static/sorify-icon.svg" alt="Sorify logo">
+      <span class="eyebrow"><span class="dot"></span> Open source, Apache 2.0</span>
+      <h1>Browser testing you can ask for in <span class="grad">plain words</span></h1>
+      <p class="lead">
+        Sorify writes and runs website tests for you.
+        <b>You describe what to check.</b>
+        An AI agent writes the test, and Sorify runs it in a real browser.
+        You get a clear pass or fail, with screenshots.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#quick-start">Get started
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/rakutentech/sorify">View on GitHub</a>
+      </div>
+      <div class="chips">
+        <span class="chip">Works with <b>Claude</b></span>
+        <span class="chip">Works with <b>Codex</b></span>
+        <span class="chip">Works with <b>OpenCode</b></span>
+        <span class="chip">Or the chat inside the <b>dashboard</b></span>
+      </div>
+
+      <div class="mockup-wrap reveal">
+        <div class="mockup">
+          <div class="mock-bar"><i></i><i></i><i></i><span class="mock-url">localhost:8000/sorify</span></div>
+          <img src="static/dashboard-test-management.png" alt="Sorify dashboard showing test suites, test cases, and run results">
+        </div>
+        <div class="float-chip fc-1">
+          <span class="ico" style="background:#dcfce7;color:#16a34a">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </span>
+          <div>Run passed<span>12 of 12 tests</span></div>
+        </div>
+        <div class="float-chip fc-2">
+          <span class="ico" style="background:#e0e7ff;color:#4338ca">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9h4M7 13h7"/><circle cx="17" cy="17" r="3"/><path d="M17 15.5v1.5l1 1"/></svg>
+          </span>
+          <div>AI agent online<span>runs in the background</span></div>
+        </div>
+        <div class="float-chip fc-3">
+          <span class="ico" style="background:#fef3c7;color:#b45309">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </span>
+          <div>Scheduled nightly<span>runs while you sleep</span></div>
+        </div>
+        <div class="float-chip fc-4">
+          <span class="ico" style="background:#e0e7ff;color:#4338ca">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-5-6-5"/><path d="M12 19h8"/></svg>
+          </span>
+          <div>AI agents from local<span>connect using MCP</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <section id="how-it-works">
+    <div class="wrap">
+      <div class="center reveal">
+        <h2>How it works</h2>
+        <p class="sub">Four steps, from your request to the result. You never write test code yourself.</p>
+      </div>
+      <div class="how-grid">
+        <div class="diagram-card reveal">
+          <img src="static/sorify.svg" alt="Sorify workflow diagram: your product knowledge and an AI agent connect to Sorify, which writes, runs, and reviews browser tests, with a recorder and local agents in the loop.">
+          <p class="diagram-note">
+            Sorify sits between you and the browser.
+            <b>You say what you want checked, in your own words</b>, and an AI agent turns that into a real test.
+            Sorify then runs the test in a real browser and keeps every result, with screenshots.
+            When something breaks, you hear about it on the dashboard, in Teams, or by email.
+          </p>
+        </div>
+        <ol class="timeline reveal">
+          <li>
+            <span class="step-num">1</span>
+            <p><b>You ask.</b>
+            <span>Type what you want checked, in everyday words. For example, ask it to test your shopping cart.</span></p>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <p><b>The AI agent writes the test.</b>
+            <span>It can read your source code, crawl your site, or learn from a recording of your clicks.</span></p>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <p><b>Sorify runs the test.</b>
+            <span>It runs in a real browser, on demand or on a schedule, and every run is saved with its history.</span></p>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <p><b>You get the result.</b>
+            <span>Pass or fail, with screenshots. If something breaks, you get an alert, and the AI can explain why.</span></p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="alt-bg" id="features" style="background:linear-gradient(180deg,#f4f7fc,#fbfcfe);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="wrap">
+      <div class="center reveal">
+        <h2>What you get</h2>
+        <p class="sub">One place to create, run, and watch your tests, with AI help at every step.</p>
+      </div>
+      <div class="bento">
+        <div class="card card-lg reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 4.9 5.6.8-4 3.9.9 5.4L12 14.6 7.1 17l.9-5.4-4-3.9 5.6-.8z"/></svg></div>
+          <h3>AI test writing</h3>
+          <p>You say what to check. The agent turns that into a real test, then uploads and runs it.</p>
+          <div class="mini-chips">
+            <span class="mini-chip">From source code</span>
+            <span class="mini-chip">From a live site</span>
+            <span class="mini-chip">From a recording</span>
+          </div>
+        </div>
+        <div class="card card-md reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></div>
+          <h3>Real browser runs</h3>
+          <p>Playwright runs each test and keeps full logs, history, and pass rates.</p>
+        </div>
+        <div class="card card-md reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <h3>Schedules</h3>
+          <p>Run any suite on a timer, on demand, or from your CI pipeline.</p>
+        </div>
+        <div class="card card-md reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <h3>Screenshots and healing</h3>
+          <p>Failures come with screenshots, and the AI can explain what went wrong.</p>
+        </div>
+        <div class="card card-md reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></div>
+          <h3>Notifications</h3>
+          <p>Microsoft Teams and email alerts when a run finishes or fails.</p>
+        </div>
+        <div class="card card-md reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L19 1m-3.5 3.5L18 7"/></svg></div>
+          <h3>Cookie and login handling</h3>
+          <p>Reuse logged-in sessions per suite, so tests skip the login steps.</p>
+        </div>
+        <div class="card card-md reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/></svg></div>
+          <h3>Code coverage</h3>
+          <p>See which parts of your frontend the tests actually covered.</p>
+        </div>
+        <div class="card card-lg reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg></div>
+          <h3>Chrome extension recorder</h3>
+          <p>Click through your site while the extension records. The recording becomes the test, and the AI fills in the details.</p>
+          <div class="mini-chips">
+            <span class="mini-chip">Records clicks</span>
+            <span class="mini-chip">Records uploads</span>
+            <span class="mini-chip">Records tabs</span>
+          </div>
+        </div>
+        <div class="card card-md reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h3>Users and roles</h3>
+          <p>Invite teammates, share suites, and control who sees what.</p>
+        </div>
+        <div class="card card-md reveal">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 4.9 5.6.8-4 3.9.9 5.4L12 14.6 7.1 17l.9-5.4-4-3.9 5.6-.8z"/></svg></div>
+          <h3>Skills library</h3>
+          <p>Save reusable testing skills and share them with the team.</p>
+        </div>
+      </div>
+      <p class="sub center reveal" style="margin:34px auto 0">
+        There is more: admin tools, a page aware dashboard chat, and Japanese, Chinese, and Malay support.
+        See the full list in the <a href="https://github.com/rakutentech/sorify#features">README</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- Screenshots: showcases -->
+  <section id="screenshots">
+    <div class="wrap">
+      <div class="center reveal">
+        <h2>A look inside</h2>
+        <p class="sub">Everything lives in one dashboard. You can also drive all of it from your terminal.</p>
+      </div>
+
+      <div class="showcase reveal">
+        <div class="shot-txt">
+          <div class="kicker">Terminal</div>
+          <h3>Control everything from your terminal</h3>
+          <p>Claude, Codex, and OpenCode manage suites, tests, and runs from your local harness.</p>
+          <ul>
+            <li>Same tools as the dashboard, over MCP</li>
+            <li>Low token use, thanks to a lean MCP layer</li>
+            <li>Install once as a plugin, no extra setup</li>
+          </ul>
+        </div>
+        <figure class="shot" style="margin:0">
+          <img src="static/local-harness-claude-codex.png" alt="Claude and Codex in a terminal managing Sorify suites through MCP" loading="lazy">
+        </figure>
+      </div>
+
+      <div class="showcase flip reveal">
+        <div class="shot-txt">
+          <div class="kicker">Dashboard</div>
+          <h3>An AI agent inside the dashboard</h3>
+          <p>Chat with an agent that sees the page you are on, and pick up where you left off.</p>
+          <ul>
+            <li>Bring your own model, any OpenAI compatible one</li>
+            <li>Runs around the clock as a background agent</li>
+            <li>Hands work over to your local agents</li>
+          </ul>
+        </div>
+        <figure class="shot" style="margin:0">
+          <img src="static/dashboard-ai-agent.png" alt="AI agent chat inside the Sorify dashboard" loading="lazy">
+        </figure>
+      </div>
+
+      <div class="showcase reveal">
+        <div class="shot-txt">
+          <div class="kicker">Dashboard</div>
+          <h3>Page aware chat</h3>
+          <p>The chat knows which page you are on and can call every Sorify tool.</p>
+          <ul>
+            <li>Ask about the suite you are looking at</li>
+            <li>Same tools as your terminal agents</li>
+            <li>Work moves between chat and terminal without getting lost</li>
+          </ul>
+        </div>
+        <figure class="shot" style="margin:0">
+          <img src="static/page-aware-mcp.png" alt="Page aware chat calling Sorify MCP tools" loading="lazy">
+        </figure>
+      </div>
+
+      <!-- More showcases -->
+      <div class="showcase flip reveal">
+        <figure class="shot" style="margin:0">
+          <img src="static/code-coverage.png" alt="Code coverage report for frontend assets" loading="lazy">
+        </figure>
+        <div class="shot-txt">
+          <div class="kicker">Reports</div>
+          <h3>See what your tests actually covered</h3>
+          <p>Sorify measures which parts of your frontend code the tests touched, so you know where you still have gaps.</p>
+          <ul>
+            <li>Coverage report right on the dashboard</li>
+            <li>Export as LCOV for other tools</li>
+            <li>Filter by bundle URL</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="showcase wide reveal">
+        <figure class="shot" style="margin:0">
+          <img src="static/skills_create.png" alt="Creating a reusable user skill" loading="lazy">
+        </figure>
+        <div class="shot-txt">
+          <div class="kicker">Skills</div>
+          <h3>Write it once, reuse it everywhere</h3>
+          <p>A skill is a saved set of instructions for agents, written in plain markdown. Teach it your testing style once, then reuse it on every project.</p>
+          <ul>
+            <li>Create, copy, and share skills with your team</li>
+            <li>Attach them to local agents or the dashboard agent</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="showcase flip reveal">
+        <figure class="shot shot-slim" style="margin:0">
+          <img src="static/chrome-extension-recorder.png" alt="Chrome extension recording browser actions" loading="lazy">
+        </figure>
+        <div class="shot-txt">
+          <div class="kicker">Recorder</div>
+          <h3>Record your clicks, get a test</h3>
+          <p>Click through your site while the Chrome extension records. The recording becomes the test, and the AI fills in the details.</p>
+          <ul>
+            <li>Captures clicks, inputs, uploads, tabs, and network</li>
+            <li>Works even better next to your source code</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="showcase wide reveal">
+        <figure class="shot" style="margin:0">
+          <img src="static/admin-tools.png" alt="Admin panel with user management and OAuth apps" loading="lazy">
+        </figure>
+        <div class="shot-txt">
+          <div class="kicker">Admin</div>
+          <h3>Run it like a product</h3>
+          <p>An admin panel for the whole workspace, with user management, app logins, logs, and monitoring.</p>
+          <ul>
+            <li>Manage users, roles, and password resets</li>
+            <li>OAuth login through GitHub apps</li>
+            <li>Logs, monitoring, and a dashboard message</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Settings showcases -->
+      <div class="center reveal" style="margin-top:96px">
+        <h2>Every knob you need</h2>
+        <p class="sub">Suites, schedules, webhooks, and integrations, all configurable from the settings pages.</p>
+      </div>
+
+      <div class="showcase reveal">
+        <figure class="shot" style="margin:0">
+          <img src="static/suite_settings.png" alt="Suite settings page with webhooks and integrations" loading="lazy">
+        </figure>
+        <div class="shot-txt">
+          <div class="kicker">Settings</div>
+          <h3>Each suite has its own settings</h3>
+          <p>A suite is a folder of related tests. Its settings page holds the webhooks and integrations for just those tests.</p>
+          <ul>
+            <li>Integrations are set per suite</li>
+            <li>Add members and share the suite</li>
+            <li>Turn single tests on or off</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="showcase flip reveal">
+        <figure class="shot" style="margin:0">
+          <img src="static/webhook_settings.png" alt="CI webhook settings for triggering Sorify runs" loading="lazy">
+        </figure>
+        <div class="shot-txt">
+          <div class="kicker">Settings</div>
+          <h3>Let your pipeline start the tests</h3>
+          <p>Every suite gets a CI webhook. Your pipeline calls it, and Sorify starts the run.</p>
+          <ul>
+            <li>A token does the auth, no login needed</li>
+            <li>Run all tests, or pick just a few</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="showcase reveal">
+        <figure class="shot" style="margin:0">
+          <img src="static/run_settings.png" alt="Run settings with webhook URL, token and run options" loading="lazy">
+        </figure>
+        <div class="shot-txt">
+          <div class="kicker">Settings</div>
+          <h3>Runs, your way</h3>
+          <p>Set the webhook URL and token, and choose how each run behaves.</p>
+          <ul>
+            <li>Run options per suite</li>
+            <li>See who started each run, and when</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="showcase flip reveal">
+        <figure class="shot" style="margin:0">
+          <img src="static/http_integration_settings.png" alt="HTTP integration settings for pre and post run hooks" loading="lazy">
+        </figure>
+        <div class="shot-txt">
+          <div class="kicker">Settings</div>
+          <h3>Call any service around a run</h3>
+          <p>Prepare test data before a run, or collect the results after it.</p>
+          <ul>
+            <li>Works with any HTTP address</li>
+            <li>Runs before or after each test run</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="showcase reveal">
+        <figure class="shot" style="margin:0">
+          <img src="static/github_integration_settings.png" alt="GitHub integration settings for dispatching workflows" loading="lazy">
+        </figure>
+        <div class="shot-txt">
+          <div class="kicker">Settings</div>
+          <h3>Start GitHub Actions from Sorify</h3>
+          <p>Connect a GitHub App once. Then Sorify can start any of your workflows before or after a run.</p>
+          <ul>
+            <li>Set up from the admin panel</li>
+            <li>The run details arrive as workflow inputs</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Integrations -->
+  <section style="background:linear-gradient(180deg,#f4f7fc,#fbfcfe);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="wrap">
+      <div class="center reveal">
+        <h2>Plays well with your tools</h2>
+        <p class="sub">Sorify talks to your pipeline in both directions, through three kinds of webhooks.</p>
+      </div>
+      <div class="flow-grid">
+        <div class="flow-card reveal">
+          <span class="num">1</span>
+          <b>Trigger Sorify from outside</b>
+          <span>Start a run from your CI, on every push or whenever you want.</span>
+        </div>
+        <div class="flow-card reveal">
+          <span class="num">2</span>
+          <b>Call any HTTP address</b>
+          <span>Before or after a run. For example, prepare test data first, then collect results.</span>
+        </div>
+        <div class="flow-card reveal">
+          <span class="num">3</span>
+          <b>Start a GitHub Action</b>
+          <span>Before or after a run. Connect a GitHub App once, then dispatch any workflow from Sorify.</span>
+        </div>
+      </div>
+      <figure class="wide-shot reveal" style="margin:0">
+        <img src="static/sorify-webhooks.svg" alt="Diagram of webhook flows between Sorify, CI, HTTP services, and GitHub Actions" loading="lazy">
+      </figure>
+    </div>
+  </section>
+
+  <!-- Quick start -->
+  <section id="quick-start">
+    <div class="wrap">
+      <div class="center reveal">
+        <h2>Get started</h2>
+        <p class="sub">One command to run it on your own machine, with Docker.</p>
+      </div>
+      <div class="quick reveal">
+        <ol class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <div>
+              <b>Start Sorify.</b>
+              <div class="desc">Run this in the project folder:</div>
+              <div class="cmd"><span class="dollar">$</span> docker-compose up
+                <button class="copy-btn" type="button" data-copy="docker-compose up">Copy</button>
+              </div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <div>
+              <b>Open the dashboard.</b>
+              <div class="desc">Go to <a href="http://localhost:8000/sorify">http://localhost:8000/sorify</a> and log in with the default admin account.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <div>
+              <b>Connect your AI agent.</b>
+              <div class="desc">Install the Sorify plugin for Claude or Codex, following the steps in the <a href="https://github.com/rakutentech/sorify#ai-usage">README</a>.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <div>
+              <b>Ask for your first test.</b>
+              <div class="desc">Ask the agent to create a suite and test your site. Then run it and watch the dashboard.</div>
+            </div>
+          </li>
+        </ol>
+        <p class="more">
+          For self hosting, ephemeral mode, and running from source, see the
+          <a href="https://github.com/rakutentech/sorify/blob/master/INSTALL.md">install guide</a>.
+          The full HTTP API is listed in <a href="https://github.com/rakutentech/sorify/blob/master/API.md">API.md</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap cols">
+    <div>
+      <div class="fbrand">Sorify</div>
+      <ul>
+        <li><a href="https://github.com/rakutentech/sorify">GitHub repository</a></li>
+        <li><a href="https://github.com/rakutentech/sorify#readme">Documentation</a></li>
+        <li><a href="https://github.com/rakutentech/sorify/issues">Report an issue</a></li>
+      </ul>
+    </div>
+    <div>
+      <b>License</b>
+      <ul>
+        <li><a href="https://github.com/rakutentech/sorify/blob/master/LICENSE">Apache License 2.0</a></li>
+        <li>Chrome extension under BSD 3-Clause</li>
+      </ul>
+    </div>
+    <div>
+      <b>Contribute</b>
+      <ul>
+        <li>Raise an issue or a pull request to master</li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Reveal sections as they scroll into view.
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(function (el, i) {
+      el.style.transitionDelay = (Math.min(i % 4, 3) * 60) + 'ms';
+      io.observe(el);
+    });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // Copy button for the quick start command.
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.getAttribute('data-copy');
+      var done = function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('done');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta); done();
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
