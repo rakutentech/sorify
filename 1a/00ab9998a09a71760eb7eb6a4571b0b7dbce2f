@@ -1,0 +1,91 @@
+app/Http/Controllers/ProfileController.php
+  h_f44dfe84a46cdf 6,37-57
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 2,6,49-126,385,422,934,938-939,1016-1020,1343-1416
+routes/web.php
+  h_f44dfe84a46cdf 17,144-154
+resources/js/Components/CommandPalette.vue
+  h_f44dfe84a46cdf 6,19,151-170,251,276,289
+API.md
+  h_f44dfe84a46cdf 156,160-172
+database/migrations/2026_09_24_000003_keep_copied_from_after_original_deletion.php
+  h_f44dfe84a46cdf 1-32
+resources/js/Components/Skills/UserSkills.vue
+  h_f44dfe84a46cdf 1-295
+app/Mcp/Tools/Skills/ListSkillsTool.php
+  h_f44dfe84a46cdf 1-69
+resources/js/Pages/Feed/Index.vue
+  h_f44dfe84a46cdf 12,59,74
+resources/js/Layouts/AppLayout.vue
+  h_f44dfe84a46cdf 15,71,183-186,188,190-199,292-294,296,298-306
+README.md
+  h_f44dfe84a46cdf 81-86,88-91,123,187,587
+  h_f44dfe84a46cdf 87,124
+database/migrations/2026_09_24_000002_one_install_per_skill.php
+  h_f44dfe84a46cdf 1-41
+database/migrations/2026_09_24_000002_add_skill_ids_to_agent_conversations_table.php
+  h_f44dfe84a46cdf 1-25
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 17-18,571-573,604-607,634,978-979,990-991,1031-1037,1149-1201
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 10,14,378-380,390-392,405-407,451,561-566,570-607
+tests/Feature/SearchTest.php
+  h_f44dfe84a46cdf 6,29,50,157-181
+app/Mcp/Tools/Skills/ListPublicSkillsTool.php
+  h_f44dfe84a46cdf 1-73
+resources/js/Pages/Skills/Browse.vue
+  h_f44dfe84a46cdf 1-333
+app/Mcp/Tools/Skills/GetSkillTool.php
+  h_f44dfe84a46cdf 1-45
+resources/js/Components/feed/ActivityCard.vue
+  h_f44dfe84a46cdf 10,42-43,80-92,133-138,243-244,256
+app/Http/Controllers/SearchController.php
+  h_f44dfe84a46cdf 7,16-20,97-117,143-149,155
+app/Models/AgentConversation.php
+  h_f44dfe84a46cdf 20,29
+plugins/sorify/commands/gateway.md
+  h_f44dfe84a46cdf 14,86-87,89,253-264,310-320,329
+app/Mcp/Servers/SorifyServer.php
+  h_f44dfe84a46cdf 17-23,58,101-108
+resources/js/Components/Skills/SkillEditForm.vue
+  h_f44dfe84a46cdf 1-129
+app/Http/Controllers/AgentConversationController.php
+  h_f44dfe84a46cdf 14,63-64,89,100,117-118,129,152,262
+app/Mcp/Tools/Skills/CopySkillTool.php
+  h_f44dfe84a46cdf 1-76
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 17-18,571-573,604-607,634,978-979,990-991,1031-1037,1149-1201
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 17-18,571-573,604-607,634,978-979,990-991,1031-1037,1149-1201
+app/Mcp/Tools/Skills/CreateSkillTool.php
+  h_f44dfe84a46cdf 1-56
+app/Http/Controllers/SkillController.php
+  h_f44dfe84a46cdf 1-246
+tests/Feature/SkillTest.php
+  h_f44dfe84a46cdf 1-764
+app/Mcp/Tools/Skills/DeleteSkillTool.php
+  h_f44dfe84a46cdf 1-39
+app/Services/ActivityLogger.php
+  h_f44dfe84a46cdf 24-34,36-41,43-44,53-58
+app/Models/Skill.php
+  h_f44dfe84a46cdf 1-91
+database/migrations/2026_09_24_000001_create_skills_table.php
+  h_f44dfe84a46cdf 1-36
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 17-18,571-573,604-607,634,978-979,990-991,1031-1037,1149-1201
+app/Mcp/Tools/Skills/UpdateSkillTool.php
+  h_f44dfe84a46cdf 1-56
+resources/js/Pages/Profile/Show.vue
+  h_f44dfe84a46cdf 4,8-10,22-23,31,36,118-140,255-259
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1a00ab9998a09a71760eb7eb6a4571b0b7dbce2f",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
