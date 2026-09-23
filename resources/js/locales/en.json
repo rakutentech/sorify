@@ -1148,7 +1148,7 @@
         }
     },
     "skills": {
-        "navTitle": "Shared Skills",
+        "navTitle": "Skills",
         "title": "Skills",
         "hint": "Markdown instruction documents you can attach to My AI Agent chats. Their content is sent to the agent as instructions when selected in a chat.",
         "add": "New skill",

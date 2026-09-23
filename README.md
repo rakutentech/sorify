@@ -584,4 +584,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v2.1** - My AI Agent: in-dashboard agent chat (OpenAI-compatible profiles, page context, MCP handoff) and AI model attribution on test code.
 - **v2.2** - Long running agents, admin controlled stale runs, mermaid support on md, AI explain these buttons. Sleaker UI.
 - **v2.3** - Playwright coverage supported.
-- **v2.4** - User Skills: markdown instruction documents attachable to My AI Agent chats (searchable multi-select), public/private sharing with a shared Skills browse page, copy with counter, and full MCP tool coverage (`list_skills`, `get_skill`, `create_skill`, `update_skill`, `delete_skill`, `list_public_skills`, `copy_skill`).
+- **v2.4** - User Skills: share, copy, distribute, use in agents.

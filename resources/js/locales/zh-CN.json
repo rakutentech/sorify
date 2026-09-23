@@ -1148,7 +1148,7 @@
         }
     },
     "skills": {
-        "navTitle": "共享技能",
+        "navTitle": "技能",
         "title": "技能",
         "hint": "可附加到 My AI Agent 对话的 markdown 指令文档。在对话中选中后，其内容会作为指令发送给智能体。",
         "add": "新建技能",

@@ -1148,7 +1148,7 @@
         }
     },
     "skills": {
-        "navTitle": "Kemahiran Kongsi",
+        "navTitle": "Kemahiran",
         "title": "Kemahiran",
         "hint": "Dokumen arahan markdown yang boleh dilampirkan pada sembang My AI Agent. Apabila dipilih dalam sembang, kandungannya dihantar kepada ejen sebagai arahan.",
         "add": "Kemahiran baharu",
