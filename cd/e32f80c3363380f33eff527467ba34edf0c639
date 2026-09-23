@@ -1,0 +1,16 @@
+docs/index.html
+  h_f44dfe84a46cdf 1-879
+docs/static/sorify-icon.svg
+  h_f44dfe84a46cdf 1-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "cde32f80c3363380f33eff527467ba34edf0c639",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
