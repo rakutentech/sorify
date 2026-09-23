@@ -1,0 +1,22 @@
+README.md
+  h_f44dfe84a46cdf 587
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 1151
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 1151
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 1151
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 1151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3d353b7e2ea049f22b73e8168444288b8b3536b7",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
