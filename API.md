@@ -109,19 +109,25 @@ For programmatic access, prefer the MCP endpoint `POST /sorify/mcp` — see the 
 | PATCH | `/sorify/suites/{suite}/tests/bulk/status` | bulk update status |
 | POST | `/sorify/suites/{suite}/tests/bulk/duplicate` | bulk duplicate |
 
-### Authenticated — Runs, Results, Feed, Profile
+### Authenticated — Runs, Results, Coverage, Feed, Profile
 
 | Method | Path | Description |
 | :--- | :--- | :--- |
+| GET | `/sorify/runs` | redirect (301) to `/sorify/feed` |
 | GET | `/sorify/runs/{run}` | run details |
 | GET | `/sorify/runs/{run}/status` | run status (poll) |
 | POST | `/sorify/runs/{run}/cancel` | cancel run |
 | DELETE | `/sorify/runs/{run}` | delete run |
+| GET | `/sorify/runs/{run}/coverage/report/{path?}` | Istanbul HTML coverage report |
+| GET | `/sorify/runs/{run}/coverage/lcov` | LCOV coverage export |
 | GET | `/sorify/results/{result}/screenshots` | screenshots for a result |
 | GET | `/sorify/screenshots/{screenshot}` | screenshot file |
 | GET | `/sorify/feed` | activity feed |
 | GET | `/sorify/feed/poll` | activity feed (poll) |
 | GET | `/sorify/bookmarks` | bookmarked suites |
+| GET | `/sorify` | dashboard |
+| PUT | `/sorify/dashboard-note` | update dashboard broadcast note (admin only) |
+| GET | `/sorify/search` | global search for the command palette (Cmd/Ctrl+K) |
 | GET | `/sorify/profile` | profile |
 | PUT | `/sorify/profile` | update name |
 | PUT | `/sorify/profile/password` | update password |
@@ -129,6 +135,27 @@ For programmatic access, prefer the MCP endpoint `POST /sorify/mcp` — see the 
 | DELETE | `/sorify/profile/avatar` | remove avatar |
 | PATCH | `/sorify/profile/locale` | update locale |
 | POST | `/sorify/logout` | logout |
+
+### Authenticated — AI Agent (My AI Agent)
+
+| Method | Path | Description |
+| :--- | :--- | :--- |
+| GET | `/sorify/agent/profiles` | list agent endpoint profiles |
+| POST | `/sorify/agent/profiles` | create agent profile (OpenAI-compatible) |
+| PUT | `/sorify/agent/profiles/{profile}` | update agent profile |
+| DELETE | `/sorify/agent/profiles/{profile}` | delete agent profile |
+| POST | `/sorify/agent/profiles/test-connection` | test agent profile connection |
+| GET | `/sorify/agent/models` | models for a saved profile |
+| POST | `/sorify/agent/models` | models for unsaved credentials |
+| GET | `/sorify/agent/conversations` | list conversations |
+| POST | `/sorify/agent/conversations` | create conversation (page-aware context) |
+| GET | `/sorify/agent/conversations/{conversation}/messages` | conversation messages |
+| GET | `/sorify/agent/conversations/{conversation}/turns/{turnId}/events` | live turn events (SSE stream) |
+| POST | `/sorify/agent/conversations/{conversation}/chat` | send message (Ask or Agent mode) |
+| POST | `/sorify/agent/conversations/{conversation}/cancel-turn` | cancel a running agent turn |
+| PUT | `/sorify/agent/conversations/{conversation}` | update conversation |
+| DELETE | `/sorify/agent/conversations/{conversation}` | delete conversation |
+| DELETE | `/sorify/agent/conversations` | delete all conversations |
 
 ### Admin only
 
@@ -139,6 +166,9 @@ For programmatic access, prefer the MCP endpoint `POST /sorify/mcp` — see the 
 | PUT | `/sorify/admin/users/{user}` | update user |
 | DELETE | `/sorify/admin/users/{user}` | delete user |
 | POST | `/sorify/admin/users/{user}/reset-password` | reset password |
+| GET | `/sorify/admin/agent-runs` | running AI agent turns view |
+| GET | `/sorify/admin/agent-runs/list` | running AI agent turns list |
+| POST | `/sorify/admin/agent-runs/{turn}/stop` | stop a running agent turn |
 | GET | `/sorify/admin/github-apps` | list GitHub Apps |
 | POST | `/sorify/admin/github-apps` | create GitHub App |
 | PUT | `/sorify/admin/github-apps/{githubApp}` | update GitHub App |

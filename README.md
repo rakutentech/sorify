@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/zoNzjBg.png" alt="Sorify screenshot" width="850"/>
+  <img src="docs/static/dashboard-test-management.png" alt="Sorify screenshot" width="850"/>
 </p>
 
 <p align="center">
@@ -36,7 +36,7 @@
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/gNvMGcs.png" alt="Sorify screenshot" width="550"/>
+  <img src="docs/static/local-harness-claude-codex.png" alt="Sorify screenshot" width="650"/>
 </p>
 
 
@@ -47,7 +47,7 @@
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/VJ20NP1.png" alt="Sorify screenshot" width="850" />
+  <img src="docs/static/dashboard-ai-agent.png" alt="Sorify screenshot" width="850" />
 </p>
 
 <p align="center">
@@ -57,7 +57,7 @@
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/ckbNf4c.png" alt="Sorify screenshot" width="850" />
+  <img src="docs/static/page-aware-mcp.png" alt="Sorify screenshot" width="850" />
 </p>
 <p align="center">
   <b>Admin tools</b><br>
@@ -66,7 +66,7 @@
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/87dy5Ov.png" alt="Sorify screenshot" width="850" />
+  <img src="docs/static/admin-tools.png" alt="Sorify screenshot" width="850" />
 </p>
 
 <p align="center">
@@ -75,7 +75,7 @@
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/554KQWp.png" alt="Sorify screenshot" width="850" />
+  <img src="docs/static/code-coverage.png" alt="Sorify screenshot" width="850" />
 </p>
 
 
@@ -127,10 +127,12 @@ WITH ALL MCP CONTROLS - SUPPORTED
 ・ AI test generation        ・ Playwright execution
 ・ Browser automation        ・ Cross-browser support
 ・ Headless mode             ・ Scheduled runs
-・ Cron scheduling           ・ Run history
-・ Run cancellation          ・ Status polling
-・ Test logs                 ・ Pass-rate analytics
-・ Code coverage reports     ・ Bundle URL filter
+・ Cron scheduling           ・ Per-test scheduling
+・ Run history               ・ Run cancellation
+・ Status polling            ・ Test logs
+・ Pass-rate analytics       ・ Screenshot on failure
+・ Code coverage reports     ・ LCOV coverage export
+・ Bundle URL filter         ・ Run retention pruning
 
 ▼ Test Management
 ・ Suite management          ・ Test case management
@@ -138,7 +140,8 @@ WITH ALL MCP CONTROLS - SUPPORTED
 ・ Suite duplication         ・ Test duplication
 ・ Code version history      ・ Version restore
 ・ Test enable/disable       ・ Search and filters
-・ Suite bookmarks           ・ Dashboard analytics
+・ Suite bookmarks           ・ Suite review page
+・ Dashboard analytics
 
 ▼ Sessions and Data
 ・ Cookie injection          ・ Pre-authenticated sessions
@@ -160,22 +163,34 @@ WITH ALL MCP CONTROLS - SUPPORTED
 ・ Webhook concurrency guard ・ Webhook token regeneration
 ・ GitHub Actions dispatch   ・ HTTP request hooks
 ・ Pre-run hooks             ・ Post-run hooks
-・ GitHub App login
+・ Multi GitHub App support  ・ GitHub/GHE OAuth login
+・ MCP discovery endpoint
 
 ▼ AI and Agents
 ・ MCP server                ・ Low-token consumption
 ・ Claude plugins            ・ Codex plugins
 ・ My AI Agent web chat      ・ Agent chat handoff to MCP
+・ Agent profiles            ・ Ask and Agent chat modes
+・ Long running agents       ・ Live agent streaming
+・ Agent turn cancellation   ・ Agent web tools
 ・ AI healing                ・ Failure investigation
 ・ Gateway live lookups
 
+▼ Dashboard and UI
+・ Activity feed             ・ Cmd+K command palette
+・ Global search             ・ Screenshot gallery
+・ Syntax highlighted editor ・ Admin dashboard note
+・ i18n (JA, ZH, MS)         ・ Dark mode
+
 ▼ Recorder
 ・ Chrome extension          ・ Session recording
-・ Recorded test generation
+・ Recorded test generation  ・ Standalone recorder MCP
 
 ▼ Deployment
 ・ Self hosting              ・ Ephemeral mode
 ・ Docker deployment         ・ Admin panel
+・ Ephemeral readiness check ・ Execution mode switcher
+・ Runner image build        ・ Data retention pruning
 ```
 
 ## Feature Matrix
@@ -249,7 +264,7 @@ codex mcp get sorify
 ```
 
 <p align="center">
-  <img src="./sorify.svg" width="850" alt="Sorify workflow"/>
+  <img src="./docs/static/sorify.svg" width="850" alt="Sorify workflow"/>
 </p>
 
 ### SKILL 1 - Sorify MCP
@@ -325,7 +340,7 @@ Codex. In Claude Code, check `/mcp` for
 
 **No 4.** Click the extension icon → Connect → Start recording
 
-![Chrome extension recorder](https://i.imgur.com/59imHA1.png)
+![Chrome extension recorder](docs/static/chrome-extension-recorder.png)
 
 *Perform the clicks/inputs you want turned into a test, then Stop recording.*
 
@@ -362,6 +377,32 @@ http://localhost:8000/sorify
 
 See [INSTALL.md](./INSTALL.md) for other details, self hosting, ephemeral mode, docker.
 
+## Customizable Settings
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <b>Suite settings</b><br>
+      <sub>Webhooks and integrations configured per suite</sub><br><br>
+      <img src="./docs/static/suite_settings.png" alt="Suite settings" width="420"/>
+    </td>
+    <td align="center" width="50%">
+      <b>Webhook settings</b><br>
+      <sub>CI webhook for triggering Sorify runs</sub><br><br>
+      <img src="./docs/static/webhook_settings.png" alt="Webhook settings" width="420"/>
+    </td>
+  </tr>
+</table>
+
+<p align="center">
+  <b>Run settings</b><br>
+  Webhook URL, token and run options
+</p>
+
+<p align="center">
+  <img src="./docs/static/run_settings.png" alt="Run settings" width="850"/>
+</p>
+
 # Integrations
 
 1. **Sorify Webhook:** Trigger Sorify run/runs from outside
@@ -370,7 +411,16 @@ See [INSTALL.md](./INSTALL.md) for other details, self hosting, ephemeral mode, 
 
 
 <p align="center">
-  <img src="./sorify-webhooks.svg" width="850" alt="Sorify workflow"/>
+  <img src="./docs/static/sorify-webhooks.svg" width="850" alt="Sorify workflow"/>
+</p>
+
+<p align="center">
+  <b>HTTP integration settings</b><br>
+  Trigger HTTP from Sorify - pre/post run
+</p>
+
+<p align="center">
+  <img src="./docs/static/http_integration_settings.png" alt="HTTP integration settings" width="850"/>
 </p>
 
 ## GitHub, GHES, GHEC integrations
@@ -411,6 +461,10 @@ To register an app, follow the walkthrough on the dashboard itself: **Admin → 
 register"**.
 
 A workflow dispatched by Sorify looks like this:
+
+<p align="center">
+  <img src="./docs/static/github_integration_settings.png" alt="GitHub integration settings" width="850"/>
+</p>
 
 ```yaml
 on:
