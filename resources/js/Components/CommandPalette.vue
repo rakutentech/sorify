@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import {
-    Activity, Bot, Cpu, FlaskConical, FolderKanban, LayoutDashboard, MessageSquare,
+    Activity, Bot, BookMarked, Cpu, FlaskConical, FolderKanban, LayoutDashboard, MessageSquare,
     PlayCircle, Search, ScrollText, ShieldCheck, Star, UserCircle, Workflow,
 } from '@lucide/vue';
 import { useCommandPalette } from '@/composables/useCommandPalette.js';
@@ -16,7 +16,7 @@ const { open, closeCommandPalette } = useCommandPalette();
 
 const query = ref('');
 const searching = ref(false);
-const results = ref({ suites: [], tests: [], runs: [], conversations: [] });
+const results = ref({ suites: [], tests: [], runs: [], conversations: [], skills: [] });
 const selectedIndex = ref(0);
 const inputEl = ref(null);
 const listContainer = ref(null);
@@ -148,6 +148,26 @@ const groups = computed(() => {
         });
     }
 
+    if (results.value.skills?.length) {
+        groupsOut.push({
+            key: 'skills',
+            label: t('commandPalette.groups.skills'),
+            items: results.value.skills.map((skill) => ({
+                type: 'skill',
+                id: `skill-${skill.id}`,
+                label: skill.name,
+                sublabel: [skill.author_name, skill.description].filter(Boolean).join(' · '),
+                icon: BookMarked,
+                accent: 'var(--md-sys-color-tertiary)',
+                // Your own skill lives on the profile page; one shared by
+                // someone else deep-links into the browse page, pre-filtered.
+                href: skill.owner
+                    ? '/sorify/profile?section=skills'
+                    : `/sorify/skills/browse?search=${encodeURIComponent(skill.name)}`,
+            })),
+        });
+    }
+
     return groupsOut;
 });
 
@@ -228,7 +248,7 @@ watch(query, (value) => {
     const trimmed = value.trim();
 
     if (trimmed.length < 2) {
-        results.value = { suites: [], tests: [], runs: [], conversations: [] };
+        results.value = { suites: [], tests: [], runs: [], conversations: [], skills: [] };
         searching.value = false;
         controller?.abort();
 
@@ -253,7 +273,7 @@ async function search(term) {
         results.value = await response.json();
     } catch (error) {
         if (error.name !== 'AbortError') {
-            results.value = { suites: [], tests: [], runs: [], conversations: [] };
+            results.value = { suites: [], tests: [], runs: [], conversations: [], skills: [] };
         }
     } finally {
         // An aborted request that lost the race must not clear the flag of
@@ -266,7 +286,7 @@ async function search(term) {
 watch(open, (isOpen) => {
     if (isOpen) {
         query.value = '';
-        results.value = { suites: [], tests: [], runs: [], conversations: [] };
+        results.value = { suites: [], tests: [], runs: [], conversations: [], skills: [] };
         searching.value = false;
         selectedIndex.value = 0;
         nextTick(() => inputEl.value?.focus());

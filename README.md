@@ -78,6 +78,17 @@
   <img src="docs/static/code-coverage.png" alt="Sorify screenshot" width="850" />
 </p>
 
+<p align="center">
+  <b>User Skills</b><br>
+  Create, reuse skills - all in one place<br>
+  Share, browse, copy, attach<br>
+  For both local or UI Agent<br>
+</p>
+
+<p align="center">
+  <img src="docs/static/skills_create.png" alt="Sorify screenshot - create user skill" width="850" />
+</p>
+
 
 ★ **Automate:** Automate browser testing, using claude, codex - with skills, mcp, test runners & dashboard.
 
@@ -108,6 +119,8 @@
 ✴︎ **My AI Agent:** In-dashboard background capable, AI agent your own OpenAI-compatible.
 
 ✴︎ **MCP:** Page aware chats that can call every Sorify MCP tool, resumable handoffs to local agents.
+
+✴︎ **Skills:** Create, share skills for agents within platform. Use over MCP or UI agent within.
 
 ✴︎ **i18n & 2 modes:** Supports Japanese, Chinese, Malay, with dark mode.
 
@@ -171,6 +184,7 @@ WITH ALL MCP CONTROLS - SUPPORTED
 ・ Claude plugins            ・ Codex plugins
 ・ My AI Agent web chat      ・ Agent chat handoff to MCP
 ・ Agent profiles            ・ Ask and Agent chat modes
+・ User skills (markdown)    ・ Skills library + copy
 ・ Long running agents       ・ Live agent streaming
 ・ Agent turn cancellation   ・ Agent web tools
 ・ AI healing                ・ Failure investigation
@@ -570,3 +584,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v2.1** - My AI Agent: in-dashboard agent chat (OpenAI-compatible profiles, page context, MCP handoff) and AI model attribution on test code.
 - **v2.2** - Long running agents, admin controlled stale runs, mermaid support on md, AI explain these buttons. Sleaker UI.
 - **v2.3** - Playwright coverage supported.
+- **v2.4** - User Skills: markdown instruction documents attachable to My AI Agent chats (searchable multi-select), public/private sharing with a shared Skills browse page, copy with counter, and full MCP tool coverage (`list_skills`, `get_skill`, `create_skill`, `update_skill`, `delete_skill`, `list_public_skills`, `copy_skill`).

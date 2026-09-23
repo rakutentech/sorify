@@ -14,7 +14,8 @@
             "suites": "Suite ujian",
             "tests": "Ujian",
             "runs": "Jalanan",
-            "conversations": "Sembang AI"
+            "conversations": "Sembang AI",
+            "skills": "Kemahiran"
         }
     },
     "nav": {
@@ -567,7 +568,9 @@
             "variables_updated": "Pemboleh ubah dikemas kini",
             "cookies_updated": "Cookie dikemas kini",
             "integration_updated": "Integrasi berubah",
-            "email_recipients_updated": "Penerima e-mel diubah"
+            "email_recipients_updated": "Penerima e-mel diubah",
+            "skill_published": "Kemahiran diterbitkan",
+            "skill_installed": "Kemahiran dipasang"
         },
         "actions": {
             "run_triggered": "memulakan jalan uji",
@@ -598,7 +601,10 @@
             "integration_added": "menambah integrasi {type}",
             "integration_updated": "mengemas kini integrasi {type}",
             "integration_removed": "membuang integrasi {type}",
-            "email_recipients_updated": "mengemas kini penerima e-mel"
+            "email_recipients_updated": "mengemas kini penerima e-mel",
+            "skill_published": "menerbitkan kemahiran",
+            "skill_installed": "memasang kemahiran",
+            "skill_installed_by": "oleh {author}"
         },
         "changed": "Perubahan:",
         "fields": {
@@ -625,6 +631,7 @@
             "runs": "Jalan Uji",
             "suites": "Set",
             "tests": "Ujian",
+            "skills": "Kemahiran",
             "people": "Ahli & Pengguna",
             "settings": "Tetapan & Notifikasi"
         },
@@ -968,6 +975,8 @@
             "explainCode": "AI terangkan kod",
             "updateDescription": "AI kemas kini penerangan",
             "aboutSuite": "AI tentang suite ini",
+            "editSkill": "AI edit kemahiran",
+            "createSkill": "AI cipta kemahiran",
             "setupFirst": "Sediakan ejen AI anda dalam tetapan profil dahulu",
             "disabledByAdmin": "Ejen AI telah dilumpuhkan untuk akaun anda oleh pentadbir",
             "copyGateway": "Salin prompt MCP",
@@ -978,6 +987,8 @@
             "explainError": "Ujian \"{name}\" gagal. Terangkan sebab kegagalan dan cadangkan cara membetulkannya.",
             "explainCode": "Terangkan langkah demi langkah apa yang dilakukan oleh ujian Playwright \"{name}\".",
             "updateDescription": "Baca kod Playwright ujian \"{name}\" dan kemas kini penerangannya supaya tepat dengan apa yang diuji. Gunakan alat update_test untuk menyimpan penerangan baharu.",
+            "editSkill": "Bantu saya mengedit kemahiran \"{name}\". Nama, penerangan, keterlihatan dan kandungan markdown penuh semasanya ada dalam konteks (active_skill). Tanya saya apa yang perlu diubah, kemudian gunakan alat update_skill untuk menerapkannya.",
+            "createSkill": "Bantu saya mencipta kemahiran baharu. Tanya saya namanya, penerangan ringkas dan arahan markdown yang perlu dimasukkan, kemudian cipta dengan alat create_skill.",
             "aboutSuite": "Beri saya gambaran keseluruhan suite ujian \"{name}\": apa yang diliputinya, keadaan semasa ujiannya, dan apa yang perlu diberi perhatian."
         },
         "chat": {
@@ -1017,6 +1028,13 @@
             "maxStepsTitle": "Langkah maks setiap pusingan — berapa kali panggilan alat boleh dibuat untuk satu mesej sebelum agen berhenti dan meminta untuk diteruskan.",
             "maxRunTitle": "Had masa maksimum bagi giliran mod ejen",
             "agentRunning": "Ejen — berjalan di latar belakang sehingga {minutes} min. Anda boleh menutup tetingkap ini.",
+            "skills": "Kemahiran",
+            "skillsTitle": "Lampirkan kemahiran anda — dokumen arahan markdown — pada sembang ini. Kandungannya dihantar kepada ejen sebagai arahan dengan setiap mesej.",
+            "skillSearch": "Cari kemahiran...",
+            "skillsEmpty": "Belum ada kemahiran.",
+            "skillsCreate": "Cipta satu di halaman profil anda.",
+            "skillsNoMatch": "Tiada kemahiran sepadan.",
+            "skillRemove": "Buang kemahiran ini",
             "runCard": {
                 "title": "Jalanan ujian",
                 "passed": "lulus",
@@ -1128,5 +1146,58 @@
             "notSet": "Tidak ditetapkan",
             "privacyNote": "Setiap sembang adalah peribadi. Perbualan dan aktiviti alatnya hanya boleh dilihat oleh anda — bukan ahli suite lain atau pentadbir."
         }
+    },
+    "skills": {
+        "navTitle": "Kemahiran Kongsi",
+        "title": "Kemahiran",
+        "hint": "Dokumen arahan markdown yang boleh dilampirkan pada sembang My AI Agent. Apabila dipilih dalam sembang, kandungannya dihantar kepada ejen sebagai arahan.",
+        "add": "Kemahiran baharu",
+        "newSkill": "Kemahiran baharu",
+        "editSkill": "Sunting kemahiran",
+        "name": "Nama",
+        "namePlaceholder": "cth. Senarai semak semakan QA",
+        "description": "Penerangan",
+        "descriptionPlaceholder": "Apa yang kemahiran ini buat ejen lakukan (pilihan)",
+        "content": "Kandungan",
+        "contentPlaceholder": "# Arahan kemahiran\n\nTulis arahan yang ejen patut ikuti dalam markdown...",
+        "preview": "Pratonton",
+        "editMarkdown": "Sunting markdown",
+        "previewEmpty": "Belum ada kandungan untuk dipratonton.",
+        "publicToggle": "Awam",
+        "publicHint": "Apabila dihidupkan, pengguna lain boleh mencari kemahiran ini di halaman Kemahiran berkongsi dan memasangnya. Matikan bermakna peribadi kepada anda.",
+        "save": "Simpan",
+        "empty": "Belum ada kemahiran. Cipta satu, atau pasang dari halaman Kemahiran berkongsi.",
+        "publicBadge": "Awam",
+        "privateBadge": "Peribadi",
+        "installsCount": "{count} pengguna memasang kemahiran ini",
+        "copiedFrom": "daripada {name}",
+        "copiedFromTitle": "Dipasang daripada \"{name}\" oleh {author}",
+        "copiedFromTitleNoAuthor": "Dipasang daripada \"{name}\"",
+        "originalDeleted": "asal telah dipadam",
+        "originalDeletedTitle": "Kemahiran asal yang dipasang ini telah dipadam. Salinan anda adalah pemasangan terpisah dan terus berfungsi.",
+        "ownSkill": "Kemahiran anda",
+        "ownSkillTitle": "Anda menulis kemahiran ini — ia sudah ada dalam koleksi anda.",
+        "skillUsage": "{count} / {limit} kemahiran digunakan",
+        "limitCaption": "Anda boleh menyimpan sehingga {limit} kemahiran; pemasangan daripada halaman kongsi turut dikira.",
+        "limitReachedTitle": "Had kemahiran dicapai ({limit}). Padam satu kemahiran untuk membebaskan slot.",
+        "edit": "Sunting",
+        "delete": "Padam",
+        "confirmDelete": "Padam kemahiran \"{name}\"?",
+        "browseTitle": "Kemahiran",
+        "browseSubtitle": "Kemahiran yang dikongsi secara awam oleh pengguna lain. Pasang satu untuk digunakan dalam sembang ejen AI anda sendiri.",
+        "searchPlaceholder": "Cari kemahiran...",
+        "browseEmpty": "Belum ada kemahiran awam. Kongsi satu daripada milik anda untuk bermula.",
+        "install": "Pasang",
+        "installed": "Dipasang \"{name}\" ke kemahiran anda — cari di profil anda.",
+        "alreadyInstalled": "\"{name}\" sudah dipasang — cari di profil anda.",
+        "installedButton": "Dipasang",
+        "installedButtonTitle": "Anda sudah memasang kemahiran ini — salinan anda ada di profil anda.",
+        "installFailed": "Tidak dapat memasang kemahiran ini.",
+        "showContent": "Tunjuk kandungan",
+        "hideContent": "Sembunyi kandungan",
+        "unknownAuthor": "Pengarang tidak diketahui",
+        "pagination": "{from}–{to} daripada {total}",
+        "publish": "Kemahiran Saya",
+        "publishTitle": "Lihat dan urus kemahiran anda sendiri di profil anda"
     }
 }

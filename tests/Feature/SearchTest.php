@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AgentConversation;
+use App\Models\Skill;
 use App\Models\Test;
 use App\Models\TestRun;
 use App\Models\TestSuite;
@@ -25,7 +26,7 @@ class SearchTest extends TestCase
     private function searchAs(User $user, string $query): array
     {
         return $this->actingAs($user)
-            ->getJson("/sorify/search?q=".urlencode($query))
+            ->getJson('/sorify/search?q='.urlencode($query))
             ->assertOk()
             ->json();
     }
@@ -46,6 +47,7 @@ class SearchTest extends TestCase
         $this->assertSame([], $results['tests']);
         $this->assertSame([], $results['runs']);
         $this->assertSame([], $results['conversations']);
+        $this->assertSame([], $results['skills']);
     }
 
     public function test_admin_finds_suites_by_name(): void
@@ -151,5 +153,30 @@ class SearchTest extends TestCase
 
         $this->assertCount(1, $results['conversations']);
         $this->assertSame('My regression chat', $results['conversations'][0]['title']);
+    }
+
+    public function test_skills_find_own_and_public_but_not_others_private(): void
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+        $other = User::factory()->create(['is_admin' => false, 'name' => 'Other Author']);
+
+        $own = Skill::create(['user_id' => $user->id, 'name' => 'My playwright skill', 'content' => '# x']);
+        $public = Skill::create(['user_id' => $other->id, 'name' => 'Shared playwright skill', 'content' => '# x', 'is_public' => true]);
+        Skill::create(['user_id' => $other->id, 'name' => 'Hidden playwright skill', 'content' => '# x', 'is_public' => false]);
+        // A copy the other user installed and later made public — a shared
+        // copy must not shadow the original.
+        Skill::create(['user_id' => $other->id, 'name' => 'Installed playwright copy', 'content' => '# x', 'is_public' => true, 'copied_from_id' => $public->id]);
+
+        $results = $this->searchAs($user, 'playwright skill');
+
+        $this->assertSame(['My playwright skill', 'Shared playwright skill'], array_column($results['skills'], 'name'));
+
+        $ownResult = collect($results['skills'])->firstWhere('id', $own->id);
+        $this->assertTrue($ownResult['owner']);
+        $this->assertNull($ownResult['author_name']);
+
+        $publicResult = collect($results['skills'])->firstWhere('id', $public->id);
+        $this->assertFalse($publicResult['owner']);
+        $this->assertSame('Other Author', $publicResult['author_name']);
     }
 }

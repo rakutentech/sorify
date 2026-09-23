@@ -7,9 +7,11 @@ use App\Models\AgentMessage;
 use App\Models\AgentProfile;
 use App\Models\AgentTurn;
 use App\Models\AgentTurnEvent;
+use App\Models\Skill;
 use Generator;
 use GuzzleHttp\Client as GuzzleClient;
 use OpenAI;
+use OpenAI\Client;
 use OpenAI\Exceptions\ErrorException;
 use OpenAI\Responses\StreamResponse;
 use Throwable;
@@ -373,7 +375,9 @@ class AgentService
      */
     private function touchTrackedTurn(?AgentTurn $turn): void
     {
-        if ($turn === null) return;
+        if ($turn === null) {
+            return;
+        }
 
         $turn->forceFill(['last_activity_at' => now()])->save();
     }
@@ -383,7 +387,9 @@ class AgentService
      */
     private function finishTrackedTurn(?AgentTurn $turn): void
     {
-        if ($turn === null) return;
+        if ($turn === null) {
+            return;
+        }
 
         $turn->forceFill(['finished_at' => now()])->save();
     }
@@ -396,7 +402,9 @@ class AgentService
      */
     private function turnCancelRequested(?AgentTurn $turn): bool
     {
-        if ($turn === null) return false;
+        if ($turn === null) {
+            return false;
+        }
 
         if ($turn->cancel_requested_at !== null) {
             return true;
@@ -440,7 +448,7 @@ class AgentService
      * events are yielded so the UI can show why the turn is paused
      * instead of the turn dying with "Agent request failed".
      *
-     * @param  \OpenAI\Client  $client
+     * @param  Client  $client
      * @param  array<string, mixed>  $payload
      * @return StreamResponse
      */
@@ -550,7 +558,51 @@ class AgentService
             $prompt .= "\n\nAdditional user instructions:\n".$profile->system_prompt;
         }
 
+        $skillsBlock = $this->skillsBlock($conversation);
+
+        if ($skillsBlock !== '') {
+            $prompt .= $skillsBlock;
+        }
+
         return ['role' => 'system', 'content' => $prompt];
+    }
+
+    /**
+     * The conversation's attached skills, rendered into the system prompt.
+     * Skill content is authored by the chatting user — treat it as the
+     * user's own instructions for how the agent should behave.
+     */
+    private function skillsBlock(AgentConversation $conversation): string
+    {
+        $ids = $conversation->skill_ids ?? [];
+
+        if ($ids === []) {
+            return '';
+        }
+
+        $skills = Skill::query()
+            ->whereIn('id', $ids)
+            ->ownedBy($conversation->user_id)
+            ->orderBy('name')
+            ->get();
+
+        if ($skills->isEmpty()) {
+            return '';
+        }
+
+        $blocks = $skills
+            ->map(fn (Skill $skill) => <<<SKILL
+
+            ### Skill: {$skill->name}
+            {$skill->description}
+
+            ---
+
+            {$skill->content}
+            SKILL)
+            ->implode("\n");
+
+        return "\n\nThe user attached the following skills — instructions that take precedence over your defaults when they conflict:\n{$blocks}";
     }
 
     /**

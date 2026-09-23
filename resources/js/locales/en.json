@@ -14,7 +14,8 @@
             "suites": "Test suites",
             "tests": "Tests",
             "runs": "Runs",
-            "conversations": "AI chats"
+            "conversations": "AI chats",
+            "skills": "Skills"
         }
     },
     "nav": {
@@ -567,7 +568,9 @@
             "variables_updated": "Variables updated",
             "cookies_updated": "Cookies updated",
             "integration_updated": "Integrations changed",
-            "email_recipients_updated": "Email recipients changed"
+            "email_recipients_updated": "Email recipients changed",
+            "skill_published": "Skill published",
+            "skill_installed": "Skill installed"
         },
         "actions": {
             "run_triggered": "started a run",
@@ -598,7 +601,10 @@
             "integration_added": "added a {type} integration",
             "integration_updated": "updated a {type} integration",
             "integration_removed": "removed a {type} integration",
-            "email_recipients_updated": "updated email recipients"
+            "email_recipients_updated": "updated email recipients",
+            "skill_published": "published skill",
+            "skill_installed": "installed skill",
+            "skill_installed_by": "by {author}"
         },
         "changed": "Changed:",
         "fields": {
@@ -625,6 +631,7 @@
             "runs": "Runs",
             "suites": "Suites",
             "tests": "Tests",
+            "skills": "Skills",
             "people": "People",
             "settings": "Settings & Notifications"
         },
@@ -968,6 +975,8 @@
             "explainCode": "AI explain code",
             "updateDescription": "AI update description",
             "aboutSuite": "AI about this suite",
+            "editSkill": "AI edit skill",
+            "createSkill": "AI create skill",
             "setupFirst": "Set up your AI agent in profile settings first",
             "disabledByAdmin": "AI agents have been disabled for your account by an administrator",
             "copyGateway": "Copy MCP prompt",
@@ -978,6 +987,8 @@
             "explainError": "The test \"{name}\" failed. Explain why it failed and suggest how to fix it.",
             "explainCode": "Explain what the Playwright test \"{name}\" does, step by step.",
             "updateDescription": "Read the Playwright code of the test \"{name}\" and update its description to accurately reflect what it tests. Use the update_test tool to save the new description.",
+            "editSkill": "Help me edit the skill \"{name}\". Its current name, description, visibility and full markdown content are in the context (active_skill). Ask me what I want to change, then apply the changes with the update_skill tool.",
+            "createSkill": "Help me create a new skill. Ask me for its name, a short description and the markdown instructions it should contain, then create it with the create_skill tool.",
             "aboutSuite": "Give me an overview of the test suite \"{name}\": what it covers, the current state of its tests, and what needs attention."
         },
         "chat": {
@@ -1017,6 +1028,13 @@
             "maxStepsTitle": "Max steps per turn — how many tool-calling round-trips one message may take before the agent stops and asks to continue.",
             "maxRunTitle": "Maximum run time for an agent-mode turn",
             "agentRunning": "Agent — running in the background for up to {minutes} min. You can close this window.",
+            "skills": "Skills",
+            "skillsTitle": "Attach your skills — markdown instruction documents — to this chat. Their content is sent to the agent as instructions with every message.",
+            "skillSearch": "Search skills...",
+            "skillsEmpty": "No skills yet.",
+            "skillsCreate": "Create one in your profile page.",
+            "skillsNoMatch": "No skills match.",
+            "skillRemove": "Remove this skill",
             "runCard": {
                 "title": "Test run",
                 "passed": "passed",
@@ -1128,5 +1146,58 @@
             "notSet": "Not set",
             "privacyNote": "Every chat is private. Conversations and their tool activity are visible only to you — never to other suite members or admins."
         }
+    },
+    "skills": {
+        "navTitle": "Shared Skills",
+        "title": "Skills",
+        "hint": "Markdown instruction documents you can attach to My AI Agent chats. Their content is sent to the agent as instructions when selected in a chat.",
+        "add": "New skill",
+        "newSkill": "New skill",
+        "editSkill": "Edit skill",
+        "name": "Name",
+        "namePlaceholder": "e.g. QA review checklist",
+        "description": "Description",
+        "descriptionPlaceholder": "What this skill makes the agent do (optional)",
+        "content": "Content",
+        "contentPlaceholder": "# Skill instructions\n\nWrite the instructions the agent should follow as markdown...",
+        "preview": "Preview",
+        "editMarkdown": "Edit markdown",
+        "previewEmpty": "Nothing to preview yet.",
+        "publicToggle": "Public",
+        "publicHint": "When on, other users can find this skill on the shared Skills page and install it. Off means private to you.",
+        "save": "Save",
+        "empty": "No skills yet. Create one, or install one from the shared Skills page.",
+        "publicBadge": "Public",
+        "privateBadge": "Private",
+        "installsCount": "{count} user(s) installed this skill",
+        "copiedFrom": "from {name}",
+        "copiedFromTitle": "Installed from \"{name}\" by {author}",
+        "copiedFromTitleNoAuthor": "Installed from \"{name}\"",
+        "originalDeleted": "original deleted",
+        "originalDeletedTitle": "The original skill this was installed from has been deleted. Your copy is a detached install and keeps working.",
+        "ownSkill": "Your skill",
+        "ownSkillTitle": "You wrote this skill — it is already in your collection.",
+        "skillUsage": "{count} / {limit} skills used",
+        "limitCaption": "You can keep up to {limit} skills; installs from the shared page count too.",
+        "limitReachedTitle": "Skill limit reached ({limit}). Delete a skill to free a slot.",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirmDelete": "Delete the skill \"{name}\"?",
+        "browseTitle": "Skills",
+        "browseSubtitle": "Skills other users have shared publicly. Install one to use it in your own AI agent chats.",
+        "searchPlaceholder": "Search skills...",
+        "browseEmpty": "No public skills yet. Share one of yours to get started.",
+        "install": "Install",
+        "installed": "Installed \"{name}\" to your skills — find it in your profile.",
+        "alreadyInstalled": "You already installed \"{name}\" — find it in your profile.",
+        "installedButton": "Installed",
+        "installedButtonTitle": "You already installed this skill — find your copy in your profile.",
+        "installFailed": "Could not install this skill.",
+        "showContent": "Show content",
+        "hideContent": "Hide content",
+        "unknownAuthor": "Unknown author",
+        "pagination": "{from}–{to} of {total}",
+        "publish": "My Skills",
+        "publishTitle": "View and manage your own skills in your profile"
     }
 }

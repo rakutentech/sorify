@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AgentProfile;
+use App\Models\Skill;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -33,6 +34,27 @@ class ProfileController extends Controller
                 ->orderBy('name')
                 ->get()
                 ->map(fn (AgentProfile $profile) => $profile->toSafeArray()),
+            'skills' => Skill::query()
+                ->ownedBy($user->id)
+                ->with('original.user:id,name')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Skill $skill) => [
+                    ...$skill->only([
+                        'id', 'user_id', 'name', 'description', 'content',
+                        'is_public', 'copies_count', 'copied_from_id', 'updated_at',
+                    ]),
+                    // Where an installed copy came from — null when the
+                    // original skill has since been deleted (the copy itself
+                    // stays: installs are fully detached).
+                    'original' => $skill->original !== null ? [
+                        'id' => $skill->original->id,
+                        'name' => $skill->original->name,
+                        'is_public' => (bool) $skill->original->is_public,
+                        'author_name' => $skill->original->user?->getRawOriginal('name'),
+                    ] : null,
+                ]),
+            'skill_limit' => Skill::MAX_PER_USER,
         ]);
     }
 

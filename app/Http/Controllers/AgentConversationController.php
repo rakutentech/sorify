@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Jobs\RunAgentTurnJob;
 use App\Models\AgentConversation;
 use App\Models\AgentMessage;
@@ -12,6 +11,7 @@ use App\Models\AgentTurnEvent;
 use App\Services\Agent\AgentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AgentConversationController extends Controller
@@ -60,6 +60,8 @@ class AgentConversationController extends Controller
             'context' => ['nullable', 'string', 'max:8000'],
             'profile_id' => ['nullable', 'integer', 'exists:agent_profiles,id'],
             'agent_mode' => ['nullable', 'boolean'],
+            'skill_ids' => ['nullable', 'array', 'max:20'],
+            'skill_ids.*' => ['integer', Rule::exists('skills', 'id')->where('user_id', $request->user()->id)],
         ]);
 
         $profileId = $validated['profile_id'] ?? null;
@@ -84,6 +86,7 @@ class AgentConversationController extends Controller
             'page_url' => $validated['page_url'] ?? null,
             'page_name' => $validated['page_name'] ?? null,
             'context' => $validated['context'] ?? null,
+            'skill_ids' => array_values(array_unique($validated['skill_ids'] ?? [])),
         ]);
 
         return response()->json(['conversation' => [
@@ -94,6 +97,7 @@ class AgentConversationController extends Controller
             'context' => $conversation->context,
             'profile_name' => $conversation->profile?->name,
             'agent_mode' => (bool) $conversation->agent_mode,
+            'skill_ids' => $conversation->skill_ids ?? [],
             'updated_at' => $conversation->updated_at,
         ]], 201);
     }
@@ -110,6 +114,8 @@ class AgentConversationController extends Controller
             'context' => ['nullable', 'string', 'max:8000'],
             'agent_mode' => ['nullable', 'boolean'],
             'agent_max_run_minutes' => ['nullable', 'integer', 'in:'.implode(',', self::AGENT_MAX_RUN_MINUTES)],
+            'skill_ids' => ['nullable', 'array', 'max:20'],
+            'skill_ids.*' => ['integer', Rule::exists('skills', 'id')->where('user_id', $request->user()->id)],
         ]);
 
         $conversation->fill(array_filter($validated, fn ($value) => $value !== null))->save();
@@ -120,6 +126,7 @@ class AgentConversationController extends Controller
             'context' => $conversation->context,
             'agent_mode' => (bool) $conversation->agent_mode,
             'agent_max_run_minutes' => (int) $conversation->agent_max_run_minutes,
+            'skill_ids' => $conversation->skill_ids ?? [],
         ]]);
     }
 
@@ -142,6 +149,7 @@ class AgentConversationController extends Controller
                 'updated_at' => $conversation->updated_at,
                 'agent_mode' => (bool) $conversation->agent_mode,
                 'agent_max_run_minutes' => (int) $conversation->agent_max_run_minutes,
+                'skill_ids' => $conversation->skill_ids ?? [],
                 'active_turn' => $this->activeTurn($conversation),
             ],
             'messages' => $conversation->messages()->get(),
@@ -251,7 +259,7 @@ class AgentConversationController extends Controller
         // the closing round-trip and event persistence.
         $streamLimit = max(1, (int) $conversation->agent_max_run_minutes) * 60 + 300;
 
-        return response()->stream(function () use ($conversation, $turnId, &$cursor, $streamLimit) {
+        return response()->stream(function () use ($turnId, &$cursor, $streamLimit) {
             set_time_limit($streamLimit);
 
             $deadline = microtime(true) + $streamLimit;

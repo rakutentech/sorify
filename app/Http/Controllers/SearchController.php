@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\AgentConversation;
+use App\Models\Skill;
 use App\Models\Test;
 use App\Models\TestRun;
 use Illuminate\Http\JsonResponse;
@@ -12,10 +13,11 @@ use Illuminate\Http\Request;
 /**
  * Global search for the command palette (Cmd/Ctrl+K).
  *
- * One request, four small result groups — suites, tests, runs and the
- * signed-in user's agent conversations — scoped exactly like the list
- * pages: suites via suite membership (can_view), tests/runs through
- * their suite, conversations strictly per-user.
+ * One request, five small result groups — suites, tests, runs, the
+ * signed-in user's agent conversations, and skills — scoped exactly like
+ * the list pages: suites via suite membership (can_view), tests/runs
+ * through their suite, conversations strictly per-user, skills own + all
+ * public.
  */
 class SearchController extends Controller
 {
@@ -92,6 +94,27 @@ class SearchController extends Controller
             ->limit(self::LIMIT)
             ->get(['id', 'title', 'page_name', 'updated_at']);
 
+        // Skills the user can act on: their own (any visibility) plus
+        // everyone's public skills — the same scope as the Skills pages.
+        $skills = Skill::query()
+            ->where(function ($q) use ($like) {
+                $q->where('name', 'like', $like)
+                    ->orWhere('description', 'like', $like);
+            })
+            ->where(function ($q) use ($request) {
+                $q->where('user_id', $request->user()->id)
+                    ->orWhere(function ($public) {
+                        // Shared skills: originals only — copies someone
+                        // installed and later made public stay off the list.
+                        $public->where('is_public', true)
+                            ->whereNull('copied_from_id');
+                    });
+            })
+            ->with('user:id,name')
+            ->orderByDesc('updated_at')
+            ->limit(self::LIMIT)
+            ->get(['id', 'user_id', 'name', 'description', 'is_public']);
+
         return response()->json([
             'suites' => $suites->map(fn ($suite) => [
                 'id' => $suite->id,
@@ -117,11 +140,18 @@ class SearchController extends Controller
                 'page_name' => $conversation->page_name,
                 'updated_at' => $conversation->updated_at?->toISOString(),
             ]),
+            'skills' => $skills->map(fn (Skill $skill) => [
+                'id' => $skill->id,
+                'name' => $skill->name,
+                'description' => $skill->description,
+                'owner' => $skill->user_id === $request->user()->id,
+                'author_name' => $skill->user_id === $request->user()->id ? null : $skill->user?->getRawOriginal('name'),
+            ]),
         ]);
     }
 
     private function emptyResults(): array
     {
-        return ['suites' => [], 'tests' => [], 'runs' => [], 'conversations' => []];
+        return ['suites' => [], 'tests' => [], 'runs' => [], 'conversations' => [], 'skills' => []];
     }
 }
