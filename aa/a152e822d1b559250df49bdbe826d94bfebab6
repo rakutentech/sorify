@@ -1,0 +1,76 @@
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 470,698-700,771-775,966-971
+app/Http/Controllers/Admin/SystemController.php
+  h_f44dfe84a46cdf 21,25-41
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 10,549,555,559-564
+tests/Feature/AgentGlobalPromptTest.php
+  h_f44dfe84a46cdf 1-139
+tests/Feature/AgentCodeSandboxTest.php
+  h_f44dfe84a46cdf 1-152
+tests/Unit/PlaywrightCodeValidatorServiceTest.php
+  h_f44dfe84a46cdf 28,35-53,72-85
+app/Mcp/Servers/SorifyServer.php
+  h_f44dfe84a46cdf 50,52,62-98
+app/Services/PlaywrightRunnerService.php
+  h_f44dfe84a46cdf 61-72
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  h_f44dfe84a46cdf 76
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 470,698-700,771-775,966-971
+resources/playwright/harness.cjs
+  h_f44dfe84a46cdf 131,145-149,158-183,202,252-257,264-270,348-356
+app/Http/Controllers/TestRunController.php
+  h_f44dfe84a46cdf 32-39
+app/Jobs/GenerateRunCoverageReportJob.php
+  h_f44dfe84a46cdf 54-58,116-123,130
+tests/Feature/RunRedirectTest.php
+  h_f44dfe84a46cdf 1-81
+resources/js/Pages/Admin/System.vue
+  h_f44dfe84a46cdf 16,20,24,69-96,176-195
+tests/Feature/AgentToolAdapterTest.php
+  h_f44dfe84a46cdf 141-157
+app/Http/Controllers/TestController.php
+  h_f44dfe84a46cdf 36,96-98
+plugins/sorify/commands/gateway.md
+  h_f44dfe84a46cdf 91-95,346-349
+resources/js/Pages/TestRuns/Show.vue
+  h_f44dfe84a46cdf 291-292,295,312-321,494,496,502-509
+app/Services/Agent/AgentToolAdapter.php
+  h_f44dfe84a46cdf 21-24,78,107,124-143
+app/Services/TestRunService.php
+  h_f44dfe84a46cdf 315-316,318
+tests/Feature/McpHttpTest.php
+  h_f44dfe84a46cdf 29-60
+app/Services/PlaywrightCodeValidatorService.php
+  h_f44dfe84a46cdf 7-20,24-43,48-52,60
+resources/js/Pages/Tests/Show.vue
+  h_f44dfe84a46cdf 26,46-85,432-446,449-508
+resources/playwright/coverage.cjs
+  h_f44dfe84a46cdf 7,54-56,71-109,155,165-168
+routes/web.php
+  h_f44dfe84a46cdf 236
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 470,698-700,771-775,966-971
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 470,698-700,771-775,966-971
+tests/Feature/TestPageCanTest.php
+  h_f44dfe84a46cdf 1-78
+tests/Feature/CoverageTest.php
+  h_f44dfe84a46cdf 106-107,121-186,284-289
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  h_f44dfe84a46cdf 78
+config/sorify.php
+  h_f44dfe84a46cdf 85-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "aaa152e822d1b559250df49bdbe826d94bfebab6",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
