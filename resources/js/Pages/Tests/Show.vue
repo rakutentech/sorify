@@ -23,6 +23,7 @@ const props = defineProps({
     history: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
     codeVersions: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
     codeVersionRetention: { type: Number, default: 10 },
+    can: { type: Object, default: () => ({}) },
 });
 
 // Edit form
@@ -41,6 +42,46 @@ const visibleVariables = computed(() => {
     const variables = props.suite.variables ?? [];
     return showAllVariables.value ? variables : variables.slice(0, VARIABLE_PREVIEW_COUNT);
 });
+
+// Inline editing of suite variables — the same PUT the suite settings
+// page uses, so server-side validation and authorization are identical.
+const variablesEditable = ref(false);
+const variableRows = ref([]);
+const variablesForm = useForm({ variables: [] });
+const variablesSaved = ref(false);
+let variablesSavedTimer = null;
+
+function startVariableEdit() {
+    variableRows.value = (props.suite.variables ?? []).map(v => ({ key: v.key, value: v.value ?? '' }));
+    variablesForm.clearErrors();
+    variablesEditable.value = true;
+}
+
+function addVariableRow() {
+    variableRows.value.push({ key: '', value: '' });
+}
+
+function removeVariableRow(index) {
+    variableRows.value.splice(index, 1);
+}
+
+const variablesError = computed(() => Object.values(variablesForm.errors ?? {})[0] ?? null);
+
+function saveVariables() {
+    variablesForm.variables = variableRows.value
+        .filter(v => v.key.trim())
+        .map(v => ({ key: v.key.trim(), value: v.value }));
+
+    variablesForm.put(`/sorify/suites/${props.suite.id}`, {
+        preserveScroll: true,
+        onSuccess: () => {
+            variablesEditable.value = false;
+            variablesSaved.value = true;
+            clearTimeout(variablesSavedTimer);
+            variablesSavedTimer = setTimeout(() => { variablesSaved.value = false; }, 2000);
+        },
+    });
+}
 
 function uploader(email) {
     const user = props.users.find(u => u.email === email);
@@ -388,32 +429,83 @@ function onHistoryKeydown(e) {
                     </div>
         
                     <!-- Suite variables available in this test's scope -->
-                    <div v-if="(suite.variables ?? []).length" class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
-                        <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-2">{{ t('testShow.suiteVariables') }}</p>
-                        <div class="grid grid-cols-2 gap-1.5 mb-1.5">
-                            <div
-                                v-for="variable in visibleVariables"
-                                :key="variable.key"
-                                class="flex items-center gap-1.5 min-w-0 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-extra-small)] px-2 py-1"
-                            >
-                                <code class="md-label-small font-mono font-semibold text-[var(--md-sys-color-primary)] truncate">{{ variable.key }}</code>
-                                <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">=</span>
-                                <!-- Truncated in the chip; the full key = value shows on hover -->
-                                <Tooltip :text="`${variable.key} = ${variable.value || '∅'}`" class="min-w-0 flex-1">
-                                    <code class="md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)] truncate">{{ variable.value || '∅' }}</code>
-                                </Tooltip>
+                    <div v-if="can.edit || (suite.variables ?? []).length" class="px-5 py-3 border-b border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testShow.suiteVariables') }}</p>
+                            <div class="flex items-center gap-1.5">
+                                <span v-if="variablesSaved" class="md-label-small text-[var(--md-ext-color-success)]">{{ t('testShow.saved') }}</span>
+                                <template v-if="!variablesEditable">
+                                    <Button v-if="can.edit" variant="tonal" size="sm" @click="startVariableEdit">{{ t('testShow.editVariables') }}</Button>
+                                </template>
+                                <template v-else>
+                                    <Button variant="text" size="sm" @click="addVariableRow">{{ t('testShow.addVariable') }}</Button>
+                                    <Button variant="filled" size="sm" :disabled="variablesForm.processing" @click="saveVariables">
+                                        {{ variablesForm.processing ? t('testShow.saving') : t('testShow.saveVariables') }}
+                                    </Button>
+                                    <Button variant="text" size="sm" @click="variablesEditable = false">{{ t('testShow.cancel') }}</Button>
+                                </template>
                             </div>
                         </div>
-                        <button
-                            v-if="(suite.variables ?? []).length > VARIABLE_PREVIEW_COUNT"
-                            @click="showAllVariables = !showAllVariables"
-                            class="inline-flex items-center gap-1 md-label-small text-[var(--md-sys-color-primary)] hover:underline"
-                        >
-                            {{ showAllVariables
-                                ? t('testShow.showFewerVariables')
-                                : t('testShow.showAllVariables', { count: suite.variables.length }) }}
-                            <component :is="showAllVariables ? ChevronUp : ChevronDown" :size="14" />
-                        </button>
+
+                        <!-- Read-only chips -->
+                        <template v-if="!variablesEditable">
+                            <div class="grid grid-cols-2 gap-1.5 mb-1.5">
+                                <div
+                                    v-for="variable in visibleVariables"
+                                    :key="variable.key"
+                                    class="flex items-center gap-1.5 min-w-0 bg-[var(--md-sys-color-surface-container-high)] border border-[var(--md-sys-color-outline-variant)] rounded-[var(--md-sys-shape-corner-extra-small)] px-2 py-1"
+                                >
+                                    <code class="md-label-small font-mono font-semibold text-[var(--md-sys-color-primary)] truncate">{{ variable.key }}</code>
+                                    <span class="md-label-small text-[var(--md-sys-color-on-surface-variant)]">=</span>
+                                    <!-- Truncated in the chip; the full key = value shows on hover -->
+                                    <Tooltip :text="`${variable.key} = ${variable.value || '∅'}`" class="min-w-0 flex-1">
+                                        <code class="md-label-small font-mono text-[var(--md-sys-color-on-surface-variant)] truncate">{{ variable.value || '∅' }}</code>
+                                    </Tooltip>
+                                </div>
+                            </div>
+                            <p v-if="!(suite.variables ?? []).length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">
+                                {{ t('testShow.variablesHint') }}
+                            </p>
+                            <button
+                                v-if="(suite.variables ?? []).length > VARIABLE_PREVIEW_COUNT"
+                                @click="showAllVariables = !showAllVariables"
+                                class="inline-flex items-center gap-1 md-label-small text-[var(--md-sys-color-primary)] hover:underline"
+                            >
+                                {{ showAllVariables
+                                    ? t('testShow.showFewerVariables')
+                                    : t('testShow.showAllVariables', { count: suite.variables.length }) }}
+                                <component :is="showAllVariables ? ChevronUp : ChevronDown" :size="14" />
+                            </button>
+                        </template>
+
+                        <!-- Inline editor -->
+                        <template v-else>
+                            <p v-if="!variableRows.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] opacity-70 mb-1.5">
+                                {{ t('testShow.noVariablesYet') }}
+                            </p>
+                            <div v-for="(row, index) in variableRows" :key="index" class="flex items-start gap-2 mb-1.5">
+                                <input
+                                    v-model="row.key"
+                                    type="text"
+                                    placeholder="VARIABLE_NAME"
+                                    class="w-2/5 bg-[var(--md-sys-color-surface)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                                />
+                                <input
+                                    v-model="row.value"
+                                    type="text"
+                                    placeholder="value"
+                                    class="flex-1 bg-[var(--md-sys-color-surface)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-small)] px-2.5 py-1.5 md-body-small font-mono text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent"
+                                />
+                                <button
+                                    type="button"
+                                    @click="removeVariableRow(index)"
+                                    class="p-1.5 text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors"
+                                >
+                                    <Trash2 :size="14" />
+                                </button>
+                            </div>
+                            <p v-if="variablesError" class="md-body-small text-[var(--md-sys-color-error)]">{{ variablesError }}</p>
+                        </template>
                     </div>
         
                     <div class="p-1">

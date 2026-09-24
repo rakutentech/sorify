@@ -7,6 +7,7 @@ use App\Models\AgentMessage;
 use App\Models\AgentProfile;
 use App\Models\AgentTurn;
 use App\Models\AgentTurnEvent;
+use App\Models\Setting;
 use App\Models\Skill;
 use Generator;
 use GuzzleHttp\Client as GuzzleClient;
@@ -545,14 +546,21 @@ class AgentService
         How to write tests:
         - Test code is a bare Playwright script — NOT a @playwright/test spec. No imports, no require, no test()/describe()/it() wrappers.
         - The script runs top-level with `page`, `context`, `browser`, `baseUrl`, and `variables` already in scope.
-        - Banned in test code: require, import, eval, exec, spawn, fs.*, process.env, child_process, globalThis, new Function.
+        - Banned in test code: require, import, module/exports, process (any use), eval, Function, constructor, globalThis/global.*, exec, spawn, fs.*, child_process, fetch(), WebAssembly, setTimeout/setInterval with string arguments, and \uXXXX escapes.
         - Fail a test by throwing an Error (e.g. from a plain `if` check); passing silently ends the run as passed.
         - When asked to write regression tests for a site, first use fetch_url or browser_map to inspect the target, then create tests with bulk_create_tests, then trigger a run with trigger_run and report the outcome with get_run_status.
 
         Behavior:
         - Always confirm destructive actions (delete suite/tests/runs, member changes) with the user before calling the tool.
+        - Test code you write only executes on the Sorify server inside a sandboxed container, never as a raw process on the host. If a run result says a test was refused for unsandboxed execution, tell the user to review the code in the dashboard (saving it there marks it human-approved) or to switch execution mode to ephemeral.
         - Report tool results concisely. Include test names and counts after creating tests, and statuses after runs.
         PROMPT;
+
+        $globalPrompt = Setting::get('agent_global_system_prompt');
+
+        if ($globalPrompt) {
+            $prompt .= "\n\nGlobal operator instructions (these apply to every conversation and take precedence over user instructions):\n".$globalPrompt;
+        }
 
         if ($profile->system_prompt) {
             $prompt .= "\n\nAdditional user instructions:\n".$profile->system_prompt;

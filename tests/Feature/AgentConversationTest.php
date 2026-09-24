@@ -78,6 +78,27 @@ class AgentConversationTest extends TestCase
         $this->assertSame($this->profile->id, $conversation->agent_profile_id);
     }
 
+    public function test_store_creates_conversation_in_agent_mode_by_default(): void
+    {
+        $response = $this->actingAs($this->user)->postJson('/sorify/agent/conversations', [
+            'profile_id' => $this->profile->id,
+        ]);
+
+        $response->assertCreated()->assertJsonPath('conversation.agent_mode', true);
+
+        $this->assertTrue((bool) AgentConversation::findOrFail($response->json('conversation.id'))->agent_mode);
+    }
+
+    public function test_store_can_opt_out_of_agent_mode(): void
+    {
+        $response = $this->actingAs($this->user)->postJson('/sorify/agent/conversations', [
+            'profile_id' => $this->profile->id,
+            'agent_mode' => false,
+        ]);
+
+        $response->assertCreated()->assertJsonPath('conversation.agent_mode', false);
+    }
+
     public function test_store_creates_conversation_in_agent_mode(): void
     {
         // The AI buttons ("explain error", "explain code", …) start chats

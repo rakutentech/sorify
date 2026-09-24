@@ -13,12 +13,15 @@ const props = defineProps({
     readiness: Array,
     image: String,
     lastBuild: Object,
+    agentGlobalPrompt: { type: String, default: '' },
 });
 
 const selectedMode = ref(props.mode);
+const agentPrompt = ref(props.agentGlobalPrompt ?? '');
 const checks = ref(props.readiness ?? []);
 const checking = ref(false);
 const saving = ref(false);
+const savingPrompt = ref(false);
 const building = ref(false);
 const errorBanner = ref(null);
 const infoBanner = ref(null);
@@ -60,6 +63,34 @@ async function saveMode() {
         }
     } finally {
         saving.value = false;
+    }
+}
+
+async function saveAgentPrompt() {
+    const next = agentPrompt.value.trim();
+
+    if (next === (props.agentGlobalPrompt ?? '')) return;
+
+    savingPrompt.value = true;
+    errorBanner.value = null;
+    infoBanner.value = null;
+
+    try {
+        const res = await fetch('/sorify/admin/system/agent-prompt', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ agent_global_system_prompt: next }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            agentPrompt.value = data.agent_global_system_prompt ?? '';
+            infoBanner.value = t('adminSystem.agentPromptSaved');
+        } else {
+            errorBanner.value = data.message || t('adminSystem.agentPromptSaveFailed');
+        }
+    } finally {
+        savingPrompt.value = false;
     }
 }
 
@@ -139,6 +170,26 @@ onMounted(recheck);
                     <span v-if="selectedMode === 'ephemeral' && !isReady(checks)" class="md-body-small text-[var(--md-sys-color-tertiary)]">
                         {{ t('adminSystem.notReadyHint') }}
                     </span>
+                </div>
+            </Card>
+
+            <Card padding="p-5" class="space-y-4">
+                <h2 class="md-title-medium text-[var(--md-sys-color-on-surface)]">{{ t('adminSystem.agentPromptTitle') }}</h2>
+                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] -mt-2">
+                    {{ t('adminSystem.agentPromptHelp') }}
+                </p>
+
+                <textarea
+                    v-model="agentPrompt"
+                    rows="6"
+                    class="w-full rounded-[var(--md-sys-shape-corner-medium)] border border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface)] px-4 py-3 md-body-medium text-[var(--md-sys-color-on-surface)] focus:outline-none focus:border-[var(--md-sys-color-primary)]"
+                    :placeholder="t('adminSystem.agentPromptPlaceholder')"
+                ></textarea>
+
+                <div class="flex items-center gap-3">
+                    <Button variant="filled" :disabled="savingPrompt || agentPrompt.trim() === (props.agentGlobalPrompt ?? '')" @click="saveAgentPrompt">
+                        {{ t('adminSystem.agentPromptSave') }}
+                    </Button>
                 </div>
             </Card>
 

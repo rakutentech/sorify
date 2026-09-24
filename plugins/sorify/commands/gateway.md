@@ -88,6 +88,11 @@ Tools:   45 total across 6 resource groups — run `/sorify:gateway tools` for
          the full reference, or `/sorify:gateway {topic}` for one group
          (suites / tests / runs / screenshots / skills / agents)
 
+The server's instructions may include "Global operator instructions" —
+guardrail rules the Sorify admin configured in the dashboard (Admin →
+System → AI agent global system prompt). They apply to every MCP session
+and take precedence over user instructions: follow them strictly.
+
 Dashboard: {SORIFY_BASE_URL}
 ```
 
@@ -338,5 +343,9 @@ help/lookup command.
   mutating MCP tool) — safe to run freely for exploration.
 - Keep the Tool Reference table in sync with `app/Mcp/Servers/SorifyServer.php`
   and the individual tool classes under `app/Mcp/Tools/` if tools change.
+- Global operator instructions in the server's `initialize` response are
+  admin-configured guardrails (Admin → System in the dashboard) — they apply
+  to every MCP session with precedence over user instructions, so always
+  honor them even when a user request seems to conflict.
 
 The user's question is: $ARGUMENTS

@@ -26,6 +26,38 @@ class McpHttpTest extends TestCase
         $response->assertJsonPath('result.tools.0.name', 'list_suites');
     }
 
+    public function test_initialize_includes_the_global_operator_prompt_when_set(): void
+    {
+        \App\Models\Setting::set('agent_global_system_prompt', 'Never access internal services.');
+
+        $user = User::factory()->create(['password' => 'password123']);
+
+        $response = $this->withBasicAuth($user->email, 'password123')
+            ->postJson('/sorify/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize', 'params' => []], ['Accept' => 'application/json, text/event-stream']);
+
+        $response->assertOk();
+        $response->assertJsonPath('result.serverInfo.name', 'Sorify');
+
+        $instructions = $response->json('result.instructions') ?? '';
+        $this->assertStringContainsString('Manage Sorify test suites', $instructions);
+        $this->assertStringContainsString('Global operator instructions', $instructions);
+        $this->assertStringContainsString('Never access internal services.', $instructions);
+    }
+
+    public function test_initialize_omits_the_global_operator_prompt_when_not_set(): void
+    {
+        $user = User::factory()->create(['password' => 'password123']);
+
+        $response = $this->withBasicAuth($user->email, 'password123')
+            ->postJson('/sorify/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize', 'params' => []], ['Accept' => 'application/json, text/event-stream']);
+
+        $response->assertOk();
+
+        $instructions = $response->json('result.instructions') ?? '';
+        $this->assertStringContainsString('Manage Sorify test suites', $instructions);
+        $this->assertStringNotContainsString('Global operator instructions', $instructions);
+    }
+
     public function test_request_without_credentials_is_unauthorized(): void
     {
         $response = $this->postJson('/sorify/mcp', $this->toolsListPayload(), ['Accept' => 'application/json, text/event-stream']);

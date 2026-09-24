@@ -51,8 +51,11 @@ class GenerateRunCoverageReportJob implements ShouldQueue
         $files = $coverage->runResultPaths($run);
 
         if (empty($files)) {
-            // Nothing was collected (e.g. coverage disabled mid-run, or the
-            // target served no matching scripts) — nothing to report.
+            // Nothing was collected (e.g. the target served no scripts, or
+            // the filter matched none) — record it so the run page shows why
+            // there is no coverage card instead of failing silently.
+            $run->forceFill(['coverage_summary' => ['status' => 'empty']])->save();
+
             return;
         }
 
@@ -110,12 +113,21 @@ class GenerateRunCoverageReportJob implements ShouldQueue
                     'payload' => $payload,
                 ]);
 
+                // Surface the failure on the run page (coverage card shows
+                // an error notice) instead of the summary silently never
+                // appearing.
+                $run->forceFill(['coverage_summary' => [
+                    'status' => 'failed',
+                    'error' => mb_substr((string) ($payload['error'] ?? 'Unknown coverage report error'), 0, 500),
+                ]])->save();
+
                 return;
             }
 
             $this->persistArtifacts($coverage, $run, $outDir);
 
             $run->forceFill(['coverage_summary' => [
+                'status' => 'ok',
                 'lines' => $payload['summary']['lines'] ?? null,
                 'functions' => $payload['summary']['functions'] ?? null,
                 'branches' => $payload['summary']['branches'] ?? null,

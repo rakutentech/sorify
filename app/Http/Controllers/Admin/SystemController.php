@@ -18,7 +18,25 @@ class SystemController extends Controller
             'readiness' => $checker->check(),
             'image' => config('sorify.execution.runner_image'),
             'lastBuild' => cache('sorify.execution.runner_image_last_build'),
+            'agentGlobalPrompt' => Setting::get('agent_global_system_prompt'),
         ]);
+    }
+
+    public function updateAgentPrompt()
+    {
+        $data = request()->validate([
+            'agent_global_system_prompt' => ['nullable', 'string', 'max:20000'],
+        ]);
+
+        $prompt = trim((string) ($data['agent_global_system_prompt'] ?? ''));
+
+        if ($prompt === '') {
+            Setting::forget('agent_global_system_prompt');
+        } else {
+            Setting::set('agent_global_system_prompt', $prompt);
+        }
+
+        return response()->json(['agent_global_system_prompt' => $prompt]);
     }
 
     public function readiness(EphemeralReadinessChecker $checker)

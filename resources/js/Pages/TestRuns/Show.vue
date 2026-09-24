@@ -288,10 +288,11 @@ const totalTests     = computed(() => props.run.total_tests || 0);
 
 // Coverage percentages for the summary card: lines, functions, branches.
 // Istanbul's summary carries {total, covered, pct} per metric, so the bars can
-// show real counts next to the percentage.
+// show real counts next to the percentage. Empty/failed runs (no metrics
+// collected) show a notice instead of bars.
 const coverageMetrics = computed(() => {
     const s = props.run.coverage_summary;
-    if (!s) return [];
+    if (!s || s.status === 'empty' || s.status === 'failed') return [];
     const metric = (key, label) => {
         const m = s[key];
         return {
@@ -307,6 +308,16 @@ const coverageMetrics = computed(() => {
         metric('functions', t('testRunShow.coverageFunctions')),
         metric('branches', t('testRunShow.coverageBranches')),
     ];
+});
+
+// Why the coverage card has no numbers: nothing was collected, or the merged
+// report could not be generated (shown with the underlying error).
+const coverageNotice = computed(() => {
+    const s = props.run.coverage_summary;
+    if (!s) return null;
+    if (s.status === 'failed') return t('testRunShow.coverageFailed');
+    if (s.status === 'empty') return t('testRunShow.coverageEmpty');
+    return null;
 });
 // The full HTML report is embedded inline behind a toggle instead of
 // linking out to a separate tab.
@@ -480,15 +491,22 @@ const failedPct = computed(() => {
                 <div class="flex items-center gap-2">
                     <Gauge :size="18" :style="{ color: 'var(--md-sys-color-primary)' }" />
                     <span class="md-title-small text-[var(--md-sys-color-on-surface)]">{{ t('testRunShow.coverage') }}</span>
-                    <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.coverageTests', { count: run.coverage_summary.tests ?? 0 }) }}</span>
+                    <span v-if="coverageMetrics.length" class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('testRunShow.coverageTests', { count: run.coverage_summary.tests ?? 0 }) }}</span>
                 </div>
-                <Button variant="tonal" size="sm" @click="showReport = !showReport">
+                <Button v-if="coverageMetrics.length" variant="tonal" size="sm" @click="showReport = !showReport">
                     <FileText :size="14" />
                     {{ showReport ? t('testRunShow.coverageHideReport') : t('testRunShow.coverageReport') }}
                 </Button>
             </div>
 
-            <div class="space-y-4">
+            <!-- Nothing to show numbers for: explain why instead of
+                 rendering an empty card. -->
+            <div v-if="coverageNotice" class="space-y-1">
+                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ coverageNotice }}</p>
+                <p v-if="run.coverage_summary.error" class="md-body-small text-[var(--md-sys-color-on-surface-variant)] break-all">{{ run.coverage_summary.error }}</p>
+            </div>
+
+            <div v-if="coverageMetrics.length" class="space-y-4">
                 <div v-for="metric in coverageMetrics" :key="metric.key">
                     <div class="flex items-center justify-between gap-3 mb-1.5">
                         <div class="flex items-baseline gap-2 min-w-0">

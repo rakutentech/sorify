@@ -467,7 +467,7 @@
         "coverageOff": "オフ",
         "coverageFilter": "バンドルURLフィルター",
         "coverageFilterPlaceholder": "例: example.com/assets/*.js",
-        "coverageFilterHint": "カンマ区切りで複数指定できます。*は任意の文字列に一致します。一致したJavaScriptファイルがレポートに含まれます。CSSは計測されません。",
+        "coverageFilterHint": "カンマ区切りで複数指定できます。*は任意の文字列に一致し、スクリプトのオリジンとパスに対して照合します。空欄の場合はテストが訪れたページのスクリプトが対象になります。CSSは計測されません。",
         "coverageCollect": "収集",
         "coverageFilterExampleFile": "特定のファイル",
         "coverageFilterExamplePath": "パス配下のすべてのファイル",
@@ -695,7 +695,9 @@
         "coverageFunctions": "関数",
         "coverageBranches": "ブランチ",
         "coverageHint": "カバレッジはUI操作で実行されたフロントエンドのコードパスを示します。テストの検証が正しいことを保証するものではありません。",
-        "coverageHideReport": "レポートを閉じる"
+        "coverageHideReport": "レポートを閉じる",
+        "coverageEmpty": "カバレッジ収集は有効ですが、スクリプトが収集されませんでした。テストが訪れたページには一致するJavaScriptがありません。",
+        "coverageFailed": "カバレッジレポートを生成できませんでした。"
     },
     "testShow": {
         "testCase": "テストケース",
@@ -766,7 +768,11 @@
         "sourceAgent": "マイAIエージェント",
         "colAiModel": "AIモデル",
         "showAllVariables": "すべて表示（{count}）",
-        "showFewerVariables": "折りたたむ"
+        "showFewerVariables": "折りたたむ",
+        "editVariables": "変数を編集",
+        "addVariable": "+ 追加",
+        "saveVariables": "変数を保存",
+        "noVariablesYet": "変数はまだありません。追加するとテストコード内で variables.KEY として利用できます。"
     },
     "profile": {
         "title": "プロフィール",
@@ -957,6 +963,12 @@
         "statusInfo": "情報",
         "lastBuildOk": "最終イメージビルド: {at}",
         "lastBuildFailed": "{at} にイメージビルドが失敗しました: {error}",
+        "agentPromptTitle": "AIエージェント グローバルシステムプロンプト",
+        "agentPromptHelp": "すべてのAIエージェントの会話に、各プロファイルの指示よりも優先して挿入されます。常に適用したいルール（例：サーバー保護のため、ホストのファイルシステムへのアクセスやコマンド実行、データ持ち出しを禁止する）を記述します。",
+        "agentPromptPlaceholder": "例：ホストのファイルシステム、環境変数、内部サービスへのアクセスを決して試みないこと。テスト対象のサイトのみにアクセスすること…",
+        "agentPromptSave": "プロンプトを保存",
+        "agentPromptSaved": "グローバルシステムプロンプトを保存しました。すべてのAIエージェントの会話に適用されます。",
+        "agentPromptSaveFailed": "グローバルシステムプロンプトの保存に失敗しました。",
         "checks": {
             "docker_cli": "Docker CLI",
             "daemon": "Docker デーモン",

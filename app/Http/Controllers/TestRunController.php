@@ -29,9 +29,14 @@ class TestRunController extends Controller
             return back()->withErrors(['run' => $e->getMessage()]);
         }
 
-        // Re-running from a run page goes straight to the new run (Inertia
-        // follows the redirect); everywhere else keeps the user in place.
-        if (preg_match('#/sorify/runs/\d+/?$#', (string) url()->previous())) {
+        // Re-running from a run page, or starting a run from a test page,
+        // goes straight to the new run (Inertia follows the redirect);
+        // everywhere else keeps the user in place.
+        $previousPath = (string) parse_url((string) url()->previous(), PHP_URL_PATH);
+        if (
+            preg_match('#^/sorify/runs/\d+/?$#', $previousPath)
+            || preg_match('#^/sorify/suites/\d+/tests/\d+/?$#', $previousPath)
+        ) {
             return redirect()->to('/sorify/runs/'.$run->id);
         }
 

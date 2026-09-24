@@ -233,5 +233,6 @@ Route::prefix('sorify/admin')->middleware(['auth', 'admin'])->name('admin.')->gr
     Route::get('/system', [SystemController::class, 'index'])->name('system.index');
     Route::get('/system/readiness', [SystemController::class, 'readiness'])->name('system.readiness');
     Route::put('/system/mode', [SystemController::class, 'updateMode'])->name('system.mode');
+    Route::put('/system/agent-prompt', [SystemController::class, 'updateAgentPrompt'])->name('system.agent-prompt');
     Route::post('/system/build-image', [SystemController::class, 'buildImage'])->name('system.build-image');
 });

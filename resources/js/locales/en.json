@@ -467,7 +467,7 @@
         "coverageOff": "Off",
         "coverageFilter": "Bundle URL filter",
         "coverageFilterPlaceholder": "e.g. example.com/assets/*.js",
-        "coverageFilterHint": "Simple patterns separated by commas; * matches anything. Matching JavaScript files are included in the report; CSS is not measured.",
+        "coverageFilterHint": "Simple patterns separated by commas; * matches anything, matched against the script's origin and path. Leave empty to cover the scripts of the pages the tests visit; CSS is not measured.",
         "coverageCollect": "Collect",
         "coverageFilterExampleFile": "one file",
         "coverageFilterExamplePath": "all files under a path",
@@ -695,7 +695,9 @@
         "coverageFunctions": "Functions",
         "coverageBranches": "Branches",
         "coverageHint": "Coverage shows which frontend code paths the UI interactions executed — it does not prove the test assertions were correct.",
-        "coverageHideReport": "Hide report"
+        "coverageHideReport": "Hide report",
+        "coverageEmpty": "Coverage was on, but no scripts were collected — the pages the test visited served no matching JavaScript.",
+        "coverageFailed": "The coverage report could not be generated."
     },
     "testShow": {
         "testCase": "Test Case",
@@ -766,7 +768,11 @@
         "sourceAgent": "My AI Agent",
         "colAiModel": "AI Model",
         "showAllVariables": "Show all ({count})",
-        "showFewerVariables": "Show fewer"
+        "showFewerVariables": "Show fewer",
+        "editVariables": "Edit Variables",
+        "addVariable": "+ Add",
+        "saveVariables": "Save Variables",
+        "noVariablesYet": "No variables yet — add one to make it available in test code as variables.KEY."
     },
     "profile": {
         "title": "Profile",
@@ -957,6 +963,12 @@
         "statusInfo": "Info",
         "lastBuildOk": "Last image build: {at}",
         "lastBuildFailed": "Last image build failed at {at}: {error}",
+        "agentPromptTitle": "AI agent global system prompt",
+        "agentPromptHelp": "Prepended to every AI agent conversation, above each profile's own instructions. Use it for rules that must always apply — for example, protecting the server: never attempt to access the host filesystem, run commands, or exfiltrate data.",
+        "agentPromptPlaceholder": "e.g. Never attempt to access the host filesystem, environment variables, or internal services. Only interact with the target site under test…",
+        "agentPromptSave": "Save prompt",
+        "agentPromptSaved": "Global system prompt saved. It applies to every AI agent conversation.",
+        "agentPromptSaveFailed": "Failed to save the global system prompt.",
         "checks": {
             "docker_cli": "Docker CLI",
             "daemon": "Docker daemon",

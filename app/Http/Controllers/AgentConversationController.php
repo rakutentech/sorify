@@ -79,7 +79,7 @@ class AgentConversationController extends Controller
         $conversation = AgentConversation::create([
             'user_id' => $request->user()->id,
             'agent_profile_id' => $profileId,
-            'agent_mode' => (bool) ($validated['agent_mode'] ?? false),
+            'agent_mode' => (bool) ($validated['agent_mode'] ?? true),
             'title' => mb_substr((string) ($validated['context'] ?? ''), 0, 60) !== ''
                 ? 'Chat: '.mb_substr((string) ($validated['page_name'] ?? ''), 0, 50)
                 : 'New chat',

@@ -128,7 +128,7 @@ function startProxyDispatcher (proxyRules, defaultProxy) {
 
 /**
  * Splits a comma-separated filter string into trimmed, non-empty patterns.
- * '' (no filters) → [] (everything is kept).
+ * '' (no filters) → [] (first-party scripts of the visited pages are kept).
  */
 function splitCoverageFilters (coverageFilter) {
     return String(coverageFilter)
@@ -142,13 +142,43 @@ function splitCoverageFilters (coverageFilter) {
  * semantics: every character is matched literally except `*`, which matches
  * any run of characters. No regex escaping by the user, ever.
  *   'example.com/assets/*.js'  → matches all bundle files, nothing else
- *   'example.com'              → matches any script URL containing that text
+ *   'example.com'              → matches any script served by that host
+ * Patterns are tested against the script's origin + path only (never its
+ * query string): tracking/ad scripts routinely embed the target site's URL
+ * as a query parameter (…?url=https%3A%2F%2Fexample.com%2F…), and a plain
+ * substring match against the full URL would let them sneak in.
  */
 function coverageFilterToRegex (pattern) {
     const escaped = pattern
         .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape every special char…
         .replace(/\\\*/g, '[\\s\\S]*') // …then turn escaped asterisks into wildcards
     return new RegExp(escaped, 'i')
+}
+
+/**
+ * Origin of a script URL, or null for unparseable/non-http(s) URLs.
+ */
+function scriptOrigin (url) {
+    try {
+        const u = new URL(url)
+        return /^https?:$/.test(u.protocol) ? u.origin : null
+    } catch {
+        return null
+    }
+}
+
+/**
+ * The part of a script URL a filter pattern is matched against: origin +
+ * path, without query string or fragment. Falls back to the raw string
+ * when the URL cannot be parsed (inline scripts, browser internals).
+ */
+function scriptUrlKey (url) {
+    try {
+        const u = new URL(url)
+        return u.origin + u.pathname
+    } catch {
+        return String(url)
+    }
 }
 
 /**
@@ -169,7 +199,7 @@ function coverageFilterToRegex (pattern) {
  * @param {Record<string, *>}  variables  Suite-level key/value pairs exposed to the test code as a `variables` object
  * @param {Array<{name: string, value: string, domain?: string, url?: string, path?: string, expires?: number, httpOnly?: boolean, secure?: boolean, sameSite?: 'Strict'|'Lax'|'None'}>}  cookies  Suite-level cookies added to the browser context before any page is created
  * @param {boolean}     collectCoverage  Collect Chromium JavaScript coverage while the test runs (chromium only)
- * @param {string|null} coverageFilter  Optional regular expression tested (case-insensitive) against script URLs; only matching scripts are kept
+ * @param {string|null} coverageFilter  Optional comma-separated glob patterns ('*' wildcard) matched case-insensitively against script origin + path (never the query string); only matching scripts are kept. null/'' = first-party scripts of the origins the test visits
  * @returns {Promise<{
  *   status: 'passed'|'failed'|'error',
  *   duration_ms: number,
@@ -219,14 +249,25 @@ async function runWithHarness (
         coverageRegexes = splitCoverageFilters(coverageFilter).map(coverageFilterToRegex)
     }
 
+    // Origins of the pages the test actually navigates to (main frame only).
+    // With no filter these become the default coverage scope: first-party
+    // scripts served by the visited sites are kept, while third-party
+    // tracking/ad scripts (doubleclick, analytics, extensions…) are not.
+    const visitedOrigins = new Set()
+
     const stopCoverageAndWrite = async () => {
         if (!coverageActive || !page) return
         coverageActive = false
         try {
             const entries = await page.coverage.stopJSCoverage()
             const filtered = coverageRegexes.length > 0
-                ? entries.filter((entry) => coverageRegexes.some((regex) => regex.test(entry.url)))
-                : entries
+                ? entries.filter((entry) => coverageRegexes.some((regex) => regex.test(scriptUrlKey(entry.url))))
+                : (visitedOrigins.size > 0
+                    ? entries.filter((entry) => {
+                        const origin = scriptOrigin(entry.url)
+                        return origin !== null && visitedOrigins.has(origin)
+                    })
+                    : entries)
             if (filtered.length > 0) {
                 fs.writeFileSync(
                     path.join(outputDir, 'coverage.json'),
@@ -303,6 +344,15 @@ async function runWithHarness (
         }
 
         page = await context.newPage()
+
+        // Track the origins the main frame navigates to, so the no-filter
+        // coverage default can scope to first-party scripts only. Attached
+        // before coverage starts so the very first navigation counts too.
+        page.on('framenavigated', (frame) => {
+            if (frame !== page.mainFrame()) return
+            const origin = scriptOrigin(frame.url())
+            if (origin) visitedOrigins.add(origin)
+        })
 
         // Start JS coverage before any user code runs so even the initial
         // page load's script execution is measured. resetOnNavigation: false

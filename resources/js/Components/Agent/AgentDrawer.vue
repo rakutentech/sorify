@@ -381,7 +381,9 @@ async function createConversation(options = {}) {
             page_url: ctx.pageUrl,
             page_name: ctx.pageName,
             context: newChatForm.value.context,
-            agent_mode: options.agentMode === true,
+            // New chats default to agent mode (tools, background
+            // execution); `agentMode: false` can still opt out explicitly.
+            agent_mode: options.agentMode !== false,
             skill_ids: selectedSkillIds.value,
         }),
     });
@@ -399,8 +401,8 @@ async function createConversation(options = {}) {
     trackedRunIds.clear();
     view.value = 'chat';
 
-    // Sync the mode toggle with what the server stored — chats started
-    // from the AI buttons are created in agent mode.
+    // Sync the mode toggle with what the server stored — new chats are
+    // created in agent mode (the AI buttons' path included).
     agentMode.value = !!data.conversation.agent_mode;
 
     // Models were already loaded for the picked profile in the new-chat
@@ -815,7 +817,7 @@ async function send() {
 
 // ── Agent mode ─────────────────────────────────────────────────────────────────
 /**
- * Toggle Agent mode for this conversation (off by default). When on,
+ * Toggle Agent mode for this conversation (on for new chats). When on,
  * turns run with the full tool set in a background job bounded by the
  * selected max run time, and keep going even if this window is closed.
  * Off means plain Ask mode — quick, tool-free answers.

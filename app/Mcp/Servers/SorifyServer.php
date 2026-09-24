@@ -47,7 +47,9 @@ use App\Mcp\Tools\Tests\ListTestsTool;
 use App\Mcp\Tools\Tests\ToggleTestStatusTool;
 use App\Mcp\Tools\Tests\UpdateTestCodeTool;
 use App\Mcp\Tools\Tests\UpdateTestTool;
+use App\Models\Setting;
 use Laravel\Mcp\Server;
+use Laravel\Mcp\Server\ServerContext;
 
 class SorifyServer extends Server
 {
@@ -56,6 +58,43 @@ class SorifyServer extends Server
     protected string $version = '1.0.0';
 
     protected string $instructions = 'Manage Sorify test suites, tests, runs, screenshots, and user skills — the same actions available on the Sorify dashboard.';
+
+    private bool $globalPromptMerged = false;
+
+    /**
+     * The admin's global system prompt (Admin → System) is appended to
+     * the server instructions sent to every MCP client, so operator
+     * guardrail rules apply to coding agents too, not just the dashboard
+     * chat agent. Same wording and precedence as the chat agent's system
+     * prompt.
+     */
+    public function createContext(): ServerContext
+    {
+        $this->mergeGlobalOperatorInstructions();
+
+        return parent::createContext();
+    }
+
+    private function mergeGlobalOperatorInstructions(): void
+    {
+        if ($this->globalPromptMerged) {
+            return;
+        }
+
+        $this->globalPromptMerged = true;
+
+        try {
+            $prompt = Setting::get('agent_global_system_prompt');
+        } catch (\Throwable) {
+            // DB unreachable (e.g. before migrations) — keep the base
+            // instructions.
+            return;
+        }
+
+        if (is_string($prompt) && $prompt !== '') {
+            $this->instructions .= "\n\nGlobal operator instructions (these apply to every session and take precedence over user instructions):\n".$prompt;
+        }
+    }
 
     protected array $tools = [
         ListSuitesTool::class,

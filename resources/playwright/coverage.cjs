@@ -4,7 +4,7 @@
  * coverage.cjs — Merges per-test Chromium V8 coverage into a run-level report.
  *
  * Called by GenerateRunCoverageReportJob (PHP) via:
- *   node coverage.cjs --files <path-to-json-file> --output <dir> [--filter <regex>]
+ *   node coverage.cjs --files <path-to-json-file> --output <dir> [--filter <glob>]
  *
  * --files points to a JSON file containing an array of paths, each pointing at
  * a coverage.json written by harness.cjs ({url, entries: JSCoverageEntry[]}).
@@ -51,6 +51,9 @@ function parseArgs (argv) {
 // Simple glob-style filters, matching harness.cjs: every character is
 // literal except `*`, which matches any run of characters. Multiple patterns
 // are comma-separated and OR-matched (a script matching any one is kept).
+// Patterns are tested against the script's origin + path only — never the
+// query string — so tracking URLs that merely embed the target site's URL as
+// a query parameter do not sneak past a domain filter.
 function coverageFilterToRegex (pattern) {
   const escaped = pattern
     .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -63,6 +66,45 @@ function splitCoverageFilters (filter) {
     .split(',')
     .map((pattern) => pattern.trim())
     .filter((pattern) => pattern.length > 0)
+}
+
+function scriptUrlKey (url) {
+  try {
+    const u = new URL(url)
+    return u.origin + u.pathname
+  } catch {
+    return String(url)
+  }
+}
+
+// Istanbul's HTML report writes one file per script, named after the script's
+// full URL — query string included. Real-world tracking scripts carry 800+
+// character URLs, which exceed the filesystem's filename limit and would
+// crash the whole report with ENAMETOOLONG. Keys longer than this are
+// shortened: the query string collapses to a short hash (stable per URL), and
+// a pathological path is truncated with a hash suffix. Normal-length URLs
+// keep their exact query-stringed names.
+const MAX_URL_KEY_LENGTH = 180
+
+function hashOf (text) {
+  return require('crypto').createHash('sha1').update(text).digest('hex').slice(0, 12)
+}
+
+function safeCoverageUrl (url) {
+  if (url.length <= MAX_URL_KEY_LENGTH) return url
+  try {
+    const u = new URL(url)
+    if (u.search) {
+      u.search = '?' + hashOf(u.search)
+    }
+    let shortened = u.toString()
+    if (shortened.length > MAX_URL_KEY_LENGTH) {
+      shortened = shortened.slice(0, MAX_URL_KEY_LENGTH - 13) + '-' + hashOf(url)
+    }
+    return shortened
+  } catch {
+    return url.slice(0, MAX_URL_KEY_LENGTH - 13) + '-' + hashOf(url)
+  }
 }
 
 function exitWith (status, message) {
@@ -110,7 +152,7 @@ function exitWith (status, message) {
     const entries = Array.isArray(payload?.entries) ? payload.entries : []
 
     for (const entry of entries) {
-      if (filterRegexes.length > 0 && !filterRegexes.some((regex) => regex.test(entry.url || ''))) continue
+      if (filterRegexes.length > 0 && !filterRegexes.some((regex) => regex.test(scriptUrlKey(entry.url || '')))) continue
       if (!entry.source) {
         // Playwright includes each script's source text so conversion is
         // fully offline; without it v8-to-istanbul cannot map ranges.
@@ -120,8 +162,10 @@ function exitWith (status, message) {
 
       try {
         // entry.source carries the script text Playwright captured in the
-        // browser, so no network/disk access is needed to convert.
-        const converter = v8ToIstanbul(entry.url, 0, { source: entry.source })
+        // browser, so no network/disk access is needed to convert. The URL
+        // is the coverage-map key (and the report file name), so it is
+        // shortened first to keep istanbul's writer inside filesystem limits.
+        const converter = v8ToIstanbul(safeCoverageUrl(entry.url), 0, { source: entry.source })
         await converter.load()
         converter.applyCoverage(entry.functions)
         map.merge(converter.toIstanbul())

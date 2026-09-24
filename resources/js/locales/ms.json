@@ -467,7 +467,7 @@
         "coverageOff": "Mati",
         "coverageFilter": "Penapis URL bundle",
         "coverageFilterPlaceholder": "cth. example.com/assets/*.js",
-        "coverageFilterHint": "Padanan mudah dipisahkan dengan koma; * memadankan apa sahaja. Fail JavaScript yang sepadan disertakan dalam laporan; CSS tidak diukur.",
+        "coverageFilterHint": "Padanan mudah dipisahkan dengan koma; * memadankan apa sahaja, dipadankan terhadap asal dan laluan skrip. Kosongkan untuk meliputi skrip halaman yang dilawati ujian; CSS tidak diukur.",
         "coverageCollect": "Kumpul",
         "coverageFilterExampleFile": "satu fail",
         "coverageFilterExamplePath": "semua fail dalam laluan",
@@ -695,7 +695,9 @@
         "coverageFunctions": "Fungsi",
         "coverageBranches": "Cabang",
         "coverageHint": "Liputan menunjukkan laluan kod frontend yang dilaksanakan oleh interaksi UI — ia tidak membuktikan pengesahan ujian adalah betul.",
-        "coverageHideReport": "Tutup laporan"
+        "coverageHideReport": "Tutup laporan",
+        "coverageEmpty": "Liputan diaktifkan, tetapi tiada skrip dikumpul — halaman yang dilawati ujian tidak memuatkan JavaScript yang sepadan.",
+        "coverageFailed": "Laporan liputan tidak dapat dijana."
     },
     "testShow": {
         "testCase": "Kes Ujian",
@@ -766,7 +768,11 @@
         "sourceAgent": "Ejen AI Saya",
         "colAiModel": "Model AI",
         "showAllVariables": "Tunjukkan semua ({count})",
-        "showFewerVariables": "Tunjukkan kurang"
+        "showFewerVariables": "Tunjukkan kurang",
+        "editVariables": "Edit Pemboleh Ubah",
+        "addVariable": "+ Tambah",
+        "saveVariables": "Simpan Pemboleh Ubah",
+        "noVariablesYet": "Belum ada pemboleh ubah — tambah satu untuk menjadikannya tersedia dalam kod ujian sebagai variables.KEY."
     },
     "profile": {
         "title": "Profil",
@@ -957,6 +963,12 @@
         "statusInfo": "Maklumat",
         "lastBuildOk": "Binaan imej terakhir: {at}",
         "lastBuildFailed": "Binaan imej gagal pada {at}: {error}",
+        "agentPromptTitle": "Prompt sistem global ejen AI",
+        "agentPromptHelp": "Disisipkan ke dalam setiap perbualan ejen AI, mengatasi arahan setiap profil. Gunakannya untuk peraturan yang mesti sentiasa berkuat kuasa — contohnya melindungi pelayan: jangan sesekali mencuba mengakses fail sistem hos, menjalankan arahan, atau membocorkan data.",
+        "agentPromptPlaceholder": "cth. Jangan sesekali mencuba mengakses fail sistem hos, pemboleh ubah persekitaran, atau perkhidmatan dalaman. Hanya berinteraksi dengan tapak sasaran yang diuji…",
+        "agentPromptSave": "Simpan prompt",
+        "agentPromptSaved": "Prompt sistem global disimpan. Ia terpakai kepada setiap perbualan ejen AI.",
+        "agentPromptSaveFailed": "Gagal menyimpan prompt sistem global.",
         "checks": {
             "docker_cli": "Docker CLI",
             "daemon": "Docker daemon",

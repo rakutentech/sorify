@@ -312,7 +312,10 @@ class TestRunService
             'total_tests' => $run->total_tests,
             'duration_ms' => $run->duration_ms,
             // Present once the run's merged coverage report was generated.
+            // status: 'ok' | 'empty' (nothing collected) | 'failed' (report
+            // generation error; details only in the run page's card).
             'coverage' => $run->coverage_summary ? [
+                'status' => $run->coverage_summary['status'] ?? 'ok',
                 'lines' => $run->coverage_summary['lines']['pct'] ?? null,
                 'functions' => $run->coverage_summary['functions']['pct'] ?? null,
                 'branches' => $run->coverage_summary['branches']['pct'] ?? null,

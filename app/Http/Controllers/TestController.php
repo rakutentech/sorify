@@ -33,7 +33,7 @@ class TestController extends Controller
         return redirect(route('suites.show', $suite, absolute: false));
     }
 
-    public function show(TestSuite $suite, Test $test): Response
+    public function show(Request $request, TestSuite $suite, Test $test): Response
     {
         $this->authorize('view', $suite);
 
@@ -93,6 +93,9 @@ class TestController extends Controller
             'codeVersions' => $codeVersions,
             'history' => $history,
             'codeVersionRetention' => (int) config('sorify.test_code_version_retention'),
+            'can' => [
+                'edit' => $suite->privilegesFor($request->user())['edit'],
+            ],
         ]);
     }
 

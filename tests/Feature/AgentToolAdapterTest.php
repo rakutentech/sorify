@@ -138,4 +138,21 @@ class AgentToolAdapterTest extends TestCase
             'code_ai_model' => 'gpt-4o',
         ]);
     }
+
+    public function test_blocked_tools_are_hidden_and_not_executable(): void
+    {
+        config(['sorify.agent.blocked_tools' => ' trigger_run , fetch_url ']);
+
+        // Hidden from the definitions sent to the LLM…
+        $names = array_map(fn ($definition) => $definition['function']['name'], $this->adapter->definitions());
+
+        $this->assertNotContains('trigger_run', $names);
+        $this->assertNotContains('fetch_url', $names);
+        $this->assertContains('get_suite', $names);
+
+        // …and refused even when called directly.
+        $result = $this->adapter->execute('trigger_run', ['suite_id' => 1]);
+
+        $this->assertTrue($result['is_error']);
+    }
 }

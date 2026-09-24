@@ -18,6 +18,10 @@ use Throwable;
  * always exposes the same toolset as the MCP server, and tool calls are
  * executed in-process: each tool re-runs its own authorization gates
  * against the authenticated user.
+ *
+ * One chat-agent-only filter applies on top: tools named in the
+ * sorify.agent.blocked_tools config are never exposed to the agent (the
+ * MCP server keeps them).
  */
 class AgentToolAdapter
 {
@@ -71,7 +75,7 @@ class AgentToolAdapter
             }
         }
 
-        if ($tool === null || in_array($name, self::EXCLUDED_TOOLS, true)) {
+        if ($tool === null || in_array($name, $this->blockedTools(), true)) {
             return ['result' => "Unknown tool [{$name}].", 'is_error' => true];
         }
 
@@ -100,7 +104,7 @@ class AgentToolAdapter
         if ($this->resolved !== null) {
             return array_values(array_filter(
                 $this->resolved,
-                fn (Tool $tool) => ! in_array($tool->name(), self::EXCLUDED_TOOLS, true)
+                fn (Tool $tool) => ! in_array($tool->name(), $this->blockedTools(), true)
             ));
         }
 
@@ -115,6 +119,26 @@ class AgentToolAdapter
         }
 
         return $this->tools();
+    }
+
+    /**
+     * Tool names hidden from the chat agent: the built-in exclusions plus
+     * the sorify.agent.blocked_tools config (comma-separated names).
+     *
+     * @return list<string>
+     */
+    private function blockedTools(): array
+    {
+        $configured = config('sorify.agent.blocked_tools');
+
+        $names = is_string($configured)
+            ? explode(',', $configured)
+            : (is_array($configured) ? $configured : []);
+
+        return array_values(array_unique(array_merge(
+            self::EXCLUDED_TOOLS,
+            array_filter(array_map('trim', $names)),
+        )));
     }
 
     /**

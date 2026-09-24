@@ -103,7 +103,8 @@ class CoverageTest extends TestCase
     public function test_coverage_report_job_honors_the_filter(): void
     {
         // A filter matching none of the collected scripts drops every entry,
-        // so no report or summary is produced.
+        // so no report is produced — and the run records a failed status so
+        // the UI can say why instead of silently showing nothing.
         $run = $this->makeRun(['collect_coverage' => true, 'coverage_url_filter' => 'nomatch.example.com']);
         $run->testResults()->update(['status' => 'passed', 'completed_at' => now()]);
         $run->forceFill(['status' => 'completed', 'completed_at' => now()])->save();
@@ -117,7 +118,68 @@ class CoverageTest extends TestCase
         (new GenerateRunCoverageReportJob($run->refresh()))
             ->handle(app(CoverageService::class));
 
-        $this->assertNull($run->refresh()->coverage_summary);
+        $summary = $run->refresh()->coverage_summary;
+        $this->assertIsArray($summary);
+        $this->assertSame('failed', $summary['status']);
+        $this->assertArrayNotHasKey('lines', $summary);
+    }
+
+    public function test_coverage_filter_does_not_match_query_strings(): void
+    {
+        // Tracking/ad scripts embed the target site's URL as a query
+        // parameter (…?url=https%3A%2F%2Fexample.com%2F…). The filter is
+        // matched against origin + path only, so such a script must not
+        // sneak past a domain filter.
+        $run = $this->makeRun(['collect_coverage' => true, 'coverage_url_filter' => 'example.com']);
+        $run->testResults()->update(['status' => 'passed', 'completed_at' => now()]);
+        $run->forceFill(['status' => 'completed', 'completed_at' => now()])->save();
+
+        $result = $run->testResults()->first();
+
+        $fixture = $this->coverageFixture();
+        $fixture['entries'][0]['url'] = $this->randomDoubleclickUrl();
+
+        Storage::disk('coverage')->put(
+            app(CoverageService::class)->resultPath($run->test_suite_id, $run->id, $result->test_id),
+            json_encode($fixture)
+        );
+
+        (new GenerateRunCoverageReportJob($run->refresh()))
+            ->handle(app(CoverageService::class));
+
+        $this->assertSame('failed', $run->refresh()->coverage_summary['status']);
+    }
+
+    public function test_coverage_report_survives_overlong_script_urls(): void
+    {
+        // Third-party scripts can carry 800+ character URLs; Istanbul's
+        // HTML writer names report files after the full URL, which exceeds
+        // filesystem filename limits and used to crash the whole report.
+        // The URL key is now shortened, so the report still generates.
+        $run = $this->makeRun(['collect_coverage' => true]);
+        $run->testResults()->update(['status' => 'passed', 'completed_at' => now()]);
+        $run->forceFill(['status' => 'completed', 'completed_at' => now()])->save();
+
+        $result = $run->testResults()->first();
+
+        $fixture = $this->coverageFixture();
+        $fixture['entries'][0]['url'] = $this->randomDoubleclickUrl(str_repeat('a', 800));
+
+        Storage::disk('coverage')->put(
+            app(CoverageService::class)->resultPath($run->test_suite_id, $run->id, $result->test_id),
+            json_encode($fixture)
+        );
+
+        (new GenerateRunCoverageReportJob($run->refresh()))
+            ->handle(app(CoverageService::class));
+
+        $run = $run->refresh();
+        $this->assertSame('ok', $run->coverage_summary['status']);
+        $this->assertIsNumeric($run->coverage_summary['lines']['pct']);
+
+        Storage::disk('coverage')->assertExists(
+            app(CoverageService::class)->reportPath($run)
+        );
     }
 
     public function test_empty_coverage_filter_clears_the_setting(): void
@@ -215,7 +277,12 @@ class CoverageTest extends TestCase
         (new GenerateRunCoverageReportJob($run->refresh()))
             ->handle(app(CoverageService::class));
 
-        $this->assertNull($run->refresh()->coverage_summary);
+        // Nothing was collected — the run records an empty status so the
+        // run page can explain the missing coverage card.
+        $summary = $run->refresh()->coverage_summary;
+        $this->assertIsArray($summary);
+        $this->assertSame('empty', $summary['status']);
+        $this->assertArrayNotHasKey('lines', $summary);
     }
 
     // ─── Serving: authenticated routes ──────────────────────────────────────
@@ -326,6 +393,23 @@ class CoverageTest extends TestCase
         ]);
 
         return $run->refresh();
+    }
+
+    /**
+     * A random ad-tracker script URL in the shape of the real ones that
+     * broke coverage (doubleclick viewthroughconversion). Values are
+     * generated per run — the only thing the tests rely on is the
+     * googleads.g.doubleclick.net origin + path and, where given, the
+     * example.com URL smuggled inside the query string.
+     */
+    private function randomDoubleclickUrl(string $suffix = ''): string
+    {
+        $conversionId = random_int(1000000000, 9999999999);
+        $cacheBuster = (int) (microtime(true) * 1000);
+
+        return 'https://googleads.g.doubleclick.net/pagead/viewthroughconversion/'.$conversionId.'/'
+            .'?random='.$cacheBuster.'&url=https%3A%2F%2Fexample.com%2F&hn=www.googleadservices.com'
+            .$suffix;
     }
 
     /**
