@@ -1,0 +1,56 @@
+app/Http/Controllers/Admin/SystemController.php
+  h_f44dfe84a46cdf 21,25-41
+app/Http/Controllers/TestController.php
+  h_f44dfe84a46cdf 36,96-98
+app/Mcp/Servers/SorifyServer.php
+  h_f44dfe84a46cdf 50,52,62-98
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 10,549,555,559-564
+app/Services/Agent/AgentToolAdapter.php
+  h_f44dfe84a46cdf 21-24,78,107,124-143
+app/Services/PlaywrightCodeValidatorService.php
+  h_f44dfe84a46cdf 7-20,24-43,48-52,60
+app/Services/PlaywrightRunnerService.php
+  h_f44dfe84a46cdf 61-72
+config/sorify.php
+  h_f44dfe84a46cdf 85-96
+plugins/sorify/commands/gateway.md
+  h_f44dfe84a46cdf 91-95,346-349
+resources/js/Pages/Admin/System.vue
+  h_f44dfe84a46cdf 16,20,24,69-96,176-195
+resources/js/Pages/Tests/Show.vue
+  h_f44dfe84a46cdf 26,46-85,432-446,449-508
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 771-775,966-971
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 771-775,966-971
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 771-775,966-971
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 771-775,966-971
+routes/web.php
+  h_f44dfe84a46cdf 236
+tests/Feature/AgentCodeSandboxTest.php
+  h_f44dfe84a46cdf 1-152
+tests/Feature/AgentGlobalPromptTest.php
+  h_f44dfe84a46cdf 1-139
+tests/Feature/AgentToolAdapterTest.php
+  h_f44dfe84a46cdf 141-157
+tests/Feature/McpHttpTest.php
+  h_f44dfe84a46cdf 29-60
+tests/Feature/TestPageCanTest.php
+  h_f44dfe84a46cdf 1-78
+tests/Unit/PlaywrightCodeValidatorServiceTest.php
+  h_f44dfe84a46cdf 28,35-53,72-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "ae59f7efb5489e58bbbc260c7463126d1a9659aa",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
