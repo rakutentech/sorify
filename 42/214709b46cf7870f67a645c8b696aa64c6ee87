@@ -1,0 +1,40 @@
+app/Http/Controllers/TestRunController.php
+  h_f44dfe84a46cdf 32-39
+app/Jobs/GenerateRunCoverageReportJob.php
+  h_f44dfe84a46cdf 54-58,116-123,130
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  h_f44dfe84a46cdf 76
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  h_f44dfe84a46cdf 78
+app/Services/TestRunService.php
+  h_f44dfe84a46cdf 315-316,318
+resources/js/Pages/TestRuns/Show.vue
+  h_f44dfe84a46cdf 291-292,295,312-321,494,496,502-509
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 470,698-700
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 470,698-700
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 470,698-700
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 470,698-700
+resources/playwright/coverage.cjs
+  h_f44dfe84a46cdf 7,54-56,71-109,155,165-168
+resources/playwright/harness.cjs
+  h_f44dfe84a46cdf 131,145-149,158-183,202,252-257,264-270,348-356
+tests/Feature/CoverageTest.php
+  h_f44dfe84a46cdf 106-107,121-186,284-289
+tests/Feature/RunRedirectTest.php
+  h_f44dfe84a46cdf 1-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "42214709b46cf7870f67a645c8b696aa64c6ee87",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
