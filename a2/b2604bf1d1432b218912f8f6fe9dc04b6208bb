@@ -1,0 +1,16 @@
+resources/views/errors/404.blade.php
+  h_f44dfe84a46cdf 1-63
+routes/web.php
+  h_f44dfe84a46cdf 28-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a2b2604bf1d1432b218912f8f6fe9dc04b6208bb",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
