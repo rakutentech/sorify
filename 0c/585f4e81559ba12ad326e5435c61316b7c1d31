@@ -1,0 +1,14 @@
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0c585f4e81559ba12ad326e5435c61316b7c1d31",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
