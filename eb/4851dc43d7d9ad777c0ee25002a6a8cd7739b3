@@ -1,0 +1,34 @@
+tests/Feature/SuiteCookiesTest.php
+  h_f44dfe84a46cdf 227-329
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 25,289,293-294
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 289,293-294
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 289,293-294
+app/Mcp/Tools/Suites/UploadSuiteCookiesTool.php
+  h_f44dfe84a46cdf 8,72-75,77
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  h_f44dfe84a46cdf 10,139-145
+app/Support/CookiePayload.php
+  h_f44dfe84a46cdf 1-108
+app/Http/Requests/StoreTestSuiteRequest.php
+  h_f44dfe84a46cdf 5,32-40
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 289,293-294
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 587,608,620-625,628-635,657-670,675,680-682,691-692,698-699,713,716,737-742,2975,2978
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  h_f44dfe84a46cdf 11,142-148
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "eb4851dc43d7d9ad777c0ee25002a6a8cd7739b3",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
