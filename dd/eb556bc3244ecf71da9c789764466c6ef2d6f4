@@ -1,0 +1,52 @@
+app/Http/Controllers/AgentConversationController.php
+  h_f44dfe84a46cdf 178-180,205
+app/Http/Controllers/AgentProfileController.php
+  h_f44dfe84a46cdf 29-31,37-39,54-56,70,160,192-197,207-221,235-238
+app/Jobs/RunAgentTurnJob.php
+  h_f44dfe84a46cdf 36,70
+app/Models/AgentProfile.php
+  h_f44dfe84a46cdf 23,35,72-111,124
+app/Providers/AppServiceProvider.php
+  h_f44dfe84a46cdf 14,25-27,29
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 88,152,452-454,457,471-482,497-503
+app/Services/Agent/Prism/OpenAiCompatibleProvider.php
+  h_f44dfe84a46cdf 1-33
+app/Services/Agent/Prism/ReasoningStream.php
+  h_f44dfe84a46cdf 1-50
+database/migrations/2026_10_09_000001_add_extra_headers_to_agent_profiles_table.php
+  h_f44dfe84a46cdf 1-28
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 6,15,159-188,811-816,1454-1456,1469-1490
+resources/js/Components/Agent/AgentProfiles.vue
+  h_f44dfe84a46cdf 20,65-90,115,145,175,230,352-389
+resources/js/Components/ui/SelectMenu.vue
+  h_f44dfe84a46cdf 1-128
+resources/js/Components/ui/index.js
+  h_f44dfe84a46cdf 25
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 1043-1048,1147-1152
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 1043-1048,1147-1152
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 1043-1048,1147-1152
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 1043-1048,1147-1152
+tests/Feature/AgentConversationTest.php
+  h_f44dfe84a46cdf 230-239
+tests/Feature/AgentPrismTurnTest.php
+  h_f44dfe84a46cdf 93-149,389,398
+tests/Feature/AgentProfileTest.php
+  h_f44dfe84a46cdf 212-326
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ddeb556bc3244ecf71da9c789764466c6ef2d6f4",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
