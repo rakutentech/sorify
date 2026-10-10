@@ -1,0 +1,14 @@
+app/Services/Agent/Prism/ReasoningStream.php
+  h_f44dfe84a46cdf 29-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b1197c564d210e6bf68d216f820446d9fea2c5fe",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
