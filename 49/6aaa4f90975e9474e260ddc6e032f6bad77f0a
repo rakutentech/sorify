@@ -1,0 +1,14 @@
+scripts/backup-storage-sorify.sh
+  h_f44dfe84a46cdf 1-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "496aaa4f90975e9474e260ddc6e032f6bad77f0a",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
