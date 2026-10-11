@@ -1,0 +1,20 @@
+deploy.php
+  s_722e65665d2bda::t_638b43fc4c22f0 104-105,107,111-112
+  s_722e65665d2bda::t_bb687abc0dc843 102-103,106,108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dd94e0e51f6d6dec4d3745986bc2a2a2ef03ea01",
+  "prompts": {},
+  "sessions": {
+    "s_722e65665d2bda": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b3eb25c9-4526-41b2-9f1c-6a9e32bd5f4c",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
