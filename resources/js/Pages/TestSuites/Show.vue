@@ -28,6 +28,7 @@ const props = defineProps({
     tests: { type: Object, default: () => ({ data: [], links: [], meta: {} }) },
     filters: { type: Object, default: () => ({ search: '', per_page: 50 }) },
     recentRuns: { type: Array, default: () => [] },
+    browserAvailability: { type: Object, default: () => ({}) },
     webhookUrl: { type: String, default: null },
     previousWebhooks: { type: Array, default: () => [] },
     webhookLimitReached: { type: Boolean, default: false },
@@ -752,8 +753,34 @@ const screenshotMode = (value) => {
     return value ?? 'enabled';
 };
 
+// The suite's browser column holds a comma-separated set of engines
+// ("chromium,firefox"); the checkbox group binds to it as an array.
+const SUPPORTED_BROWSERS = [
+    { value: 'chromium', label: 'Chromium' },
+    { value: 'firefox', label: 'Firefox' },
+    { value: 'webkit', label: 'WebKit' },
+];
+
+function parseBrowsers(value) {
+    const list = (Array.isArray(value) ? value : String(value ?? '').split(','))
+        .map((b) => String(b).trim())
+        .filter(Boolean);
+    const known = list.filter((b) => SUPPORTED_BROWSERS.some((s) => s.value === b));
+    return known.length ? known : ['chromium'];
+}
+
+const browserDisplayName = (value) => SUPPORTED_BROWSERS.find((s) => s.value === value)?.label ?? value;
+
+// Sidebar badge label for the browser set, e.g. "Chromium, Firefox".
+const browserListLabel = computed(() => localSettings.browser.map(browserDisplayName).join(', '));
+
+// Engines whose driver is missing on this host — drives the hint line
+// under the browser chips (with a ready-to-run install command).
+const missingBrowsers = computed(() =>
+    SUPPORTED_BROWSERS.filter((b) => browserAvailability(b.value)?.installed === false));
+
 const localSettings = reactive({
-    browser: props.suite.browser ?? 'chromium',
+    browser: parseBrowsers(props.suite.browser),
     headless: props.suite.headless ?? true,
     timeout_ms: props.suite.timeout_ms ?? 30000,
     take_screenshot: screenshotMode(props.suite.take_screenshot),
@@ -781,7 +808,7 @@ watch(() => ({
     collect_coverage: props.suite.collect_coverage,
     coverage_url_filter: props.suite.coverage_url_filter,
 }), (s) => {
-    localSettings.browser = s.browser ?? 'chromium';
+    localSettings.browser = parseBrowsers(s.browser);
     localSettings.headless = s.headless ?? true;
     localSettings.timeout_ms = s.timeout_ms ?? 30000;
     localSettings.take_screenshot = screenshotMode(s.take_screenshot);
@@ -822,7 +849,7 @@ const settingsSections = computed(() => [
         label: t('testSuiteShow.runSettings'),
         icon: SlidersHorizontal,
         badges: [
-            { label: localSettings.browser, active: true, kind: 'browser' },
+            { label: browserListLabel.value, active: true, kind: 'browser' },
             { label: localSettings.headless ? t('testSuiteShow.headless') : t('testSuiteShow.headedVisible'), active: localSettings.headless, kind: 'headless' },
             { label: t('testSuiteShow.timeoutShort', { value: localSettings.timeout_ms >= 60000 ? `${Math.round(localSettings.timeout_ms / 60000)}m` : `${localSettings.timeout_ms / 1000}s` }), active: true, kind: 'timeout' },
             { label: localSettings.take_screenshot === 'on_failure' ? t('testSuiteShow.screenshotsOnFailure') : t('testSuiteShow.screenshots'), active: localSettings.take_screenshot !== 'disabled', kind: 'screenshots' },
@@ -988,7 +1015,11 @@ function updateSuiteSetting(field) {
         {
             preserveState: true,
             preserveScroll: true,
-            onError: () => { localSettings[field] = oldValue; },
+            onError: () => {
+                // The suite prop stores the browser column as a
+                // comma-separated string; the checkbox group binds an array.
+                localSettings[field] = field === 'browser' ? parseBrowsers(oldValue) : oldValue;
+            },
             onFinish: () => {
                 savingSetting.value = false;
                 savedField.value = field;
@@ -999,37 +1030,30 @@ function updateSuiteSetting(field) {
     );
 }
 
-// Coverage collection is Chromium-only (Playwright Coverage API): enabling it
-// also switches the suite's browser to Chromium in the same save.
-function toggleCoverage() {
-    savingSetting.value = true;
-    const wasEnabled = props.suite.collect_coverage ?? false;
-    const wasBrowser = props.suite.browser ?? 'chromium';
-    const payload = { collect_coverage: localSettings.collect_coverage };
-
-    if (localSettings.collect_coverage && wasBrowser !== 'chromium') {
-        localSettings.browser = 'chromium';
-        payload.browser = 'chromium';
+// Toggling a browser chip: the last enabled browser cannot be deselected
+// (every run needs at least one engine), and an engine whose driver is not
+// installed on this host cannot be selected. Auto-saves like the selects.
+function toggleBrowser(value) {
+    const enabled = localSettings.browser.includes(value);
+    if (enabled) {
+        if (localSettings.browser.length === 1) return;
+        localSettings.browser = localSettings.browser.filter((b) => b !== value);
+    } else {
+        if (browserAvailability(value)?.installed === false) return;
+        localSettings.browser = [...localSettings.browser, value];
     }
+    updateSuiteSetting('browser');
+}
 
-    router.put(
-        `/sorify/suites/${props.suite.id}`,
-        payload,
-        {
-            preserveState: true,
-            preserveScroll: true,
-            onSuccess: () => {
-                savedField.value = 'collect_coverage';
-                clearTimeout(savedTimer);
-                savedTimer = setTimeout(() => { savedField.value = null; }, 1500);
-            },
-            onError: () => {
-                localSettings.collect_coverage = wasEnabled;
-                localSettings.browser = wasBrowser;
-            },
-            onFinish: () => { savingSetting.value = false; },
-        },
-    );
+function browserAvailability(value) {
+    return props.browserAvailability?.[value] ?? null;
+}
+
+// Toggling coverage collection. Coverage is Chromium-only (Playwright
+// Coverage API): on multi-browser suites only the chromium run collects
+// it, so the toggle never restricts the browser set.
+function toggleCoverage() {
+    updateSuiteSetting('collect_coverage');
 }
 
 // Manage users settings panel
@@ -1881,32 +1905,64 @@ function toggleRunsExpanded(testId) {
                         </div>
                     </div>
                     <div class="px-3 pb-4 pt-3 space-y-3">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container-high)] px-4 py-3">
-                            <!-- Browser -->
-                        <div class="flex items-center justify-between gap-3">
-                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-browser-${suite.id}`">{{ t('testSuiteShow.browser') }}</label>
-                            <select
-                                :id="`setting-browser-${suite.id}`"
-                                v-model="localSettings.browser"
-                                @change="updateSuiteSetting('browser')"
-                                :disabled="!can.edit || savingSetting"
-                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                        <!-- Browser (multi-select chips: one run is triggered per selected engine) -->
+                        <div class="rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container-high)] px-4 py-3">
+                            <div class="flex items-center justify-between gap-3">
+                                <label class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.browser') }}</label>
+                                <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)] opacity-70">{{ t('testSuiteShow.browserMultiHint') }}</span>
+                            </div>
+                            <div class="mt-2.5 mb-2 flex flex-wrap items-center justify-center gap-2">
+                                <button
+                                    v-for="b in SUPPORTED_BROWSERS"
+                                    :key="b.value"
+                                    type="button"
+                                    class="md-filter-chip md-label-large"
+                                    :class="{ 'is-selected': localSettings.browser.includes(b.value) }"
+                                    :aria-pressed="localSettings.browser.includes(b.value)"
+                                    :disabled="!can.edit || savingSetting || (browserAvailability(b.value)?.installed === false && !localSettings.browser.includes(b.value))"
+                                    :title="browserAvailability(b.value)?.installed === false
+                                        ? t('testSuiteShow.browserDriverMissing', {
+                                            browser: b.value,
+                                            path: browserAvailability(b.value)?.executable_path
+                                                ? `\n${browserAvailability(b.value).executable_path}`
+                                                : '',
+                                        })
+                                        : t('testSuiteShow.browserDriverInstalled', { browser: b.label })"
+                                    @click="toggleBrowser(b.value)"
+                                >
+                                    <Check v-if="localSettings.browser.includes(b.value)" :size="14" class="flex-shrink-0" />
+                                    {{ b.label }}
+                                    <span
+                                        class="flex-shrink-0 w-1.5 h-1.5 rounded-full"
+                                        :class="browserAvailability(b.value)?.installed === false
+                                            ? 'bg-[var(--md-sys-color-error)]'
+                                            : 'bg-[var(--md-ext-color-success)]'"
+                                    />
+                                </button>
+                            </div>
+                            <p
+                                v-if="missingBrowsers.length"
+                                class="flex items-center justify-center gap-1.5 md-body-small text-[var(--md-sys-color-on-surface-variant)]"
                             >
-                                <option value="chromium">Chromium</option>
-                                <option value="firefox">Firefox</option>
-                                <option value="webkit">WebKit</option>
-                            </select>
+                                <CircleAlert :size="13" class="flex-shrink-0 text-[var(--md-sys-color-error)]" />
+                                {{ t('testSuiteShow.browserNotInstalledHint', {
+                                    browsers: missingBrowsers.map((b) => b.label).join(', '),
+                                    command: `npx playwright install ${missingBrowsers.map((b) => b.value).join(' ')}`,
+                                }) }}
+                            </p>
                         </div>
 
-                        <!-- Mode -->
-                        <div class="flex items-center justify-between gap-3">
-                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-mode-${suite.id}`">{{ t('testSuiteShow.mode') }}</label>
+                        <!-- Run options (one per line) -->
+                        <div class="grid grid-cols-1 gap-y-2 rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container-high)] px-4 py-3">
+                            <!-- Mode -->
+                            <div class="flex items-center justify-between gap-3">
+                                <label class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-mode-${suite.id}`">{{ t('testSuiteShow.mode') }}</label>
                             <select
                                 :id="`setting-mode-${suite.id}`"
                                 v-model="localSettings.headless"
                                 @change="updateSuiteSetting('headless')"
                                 :disabled="!can.edit || savingSetting"
-                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                class="md-select md-label-medium w-40"
                             >
                                 <option :value="true">{{ t('testSuiteShow.headless') }}</option>
                                 <option :value="false">{{ t('testSuiteShow.headedVisible') }}</option>
@@ -1915,13 +1971,13 @@ function toggleRunsExpanded(testId) {
 
                         <!-- Timeout -->
                         <div class="flex items-center justify-between gap-3">
-                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-timeout-${suite.id}`">{{ t('testSuiteShow.timeout') }}</label>
+                            <label class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-timeout-${suite.id}`">{{ t('testSuiteShow.timeout') }}</label>
                             <select
                                 :id="`setting-timeout-${suite.id}`"
                                 v-model="localSettings.timeout_ms"
                                 @change="updateSuiteSetting('timeout_ms')"
                                 :disabled="!can.edit || savingSetting"
-                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                class="md-select md-label-medium w-40"
                             >
                                 <option :value="10000">{{ t('testSuiteShow.tenSeconds') }}</option>
                                 <option :value="30000">{{ t('testSuiteShow.thirtySeconds') }}</option>
@@ -1934,13 +1990,13 @@ function toggleRunsExpanded(testId) {
 
                         <!-- Screenshots -->
                         <div class="flex items-center justify-between gap-3">
-                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-screenshots-${suite.id}`">{{ t('testSuiteShow.screenshots') }}</label>
+                            <label class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-screenshots-${suite.id}`">{{ t('testSuiteShow.screenshots') }}</label>
                             <select
                                 :id="`setting-screenshots-${suite.id}`"
                                 v-model="localSettings.take_screenshot"
                                 @change="updateSuiteSetting('take_screenshot')"
                                 :disabled="!can.edit || savingSetting"
-                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                class="md-select md-label-medium w-40"
                             >
                                 <option value="enabled">{{ t('testSuiteShow.enabled') }}</option>
                                 <option value="on_failure">{{ t('testSuiteShow.screenshotsOnFailure') }}</option>
@@ -1950,13 +2006,13 @@ function toggleRunsExpanded(testId) {
 
                         <!-- Retries -->
                         <div class="flex items-center justify-between gap-3">
-                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-retries-${suite.id}`">{{ t('testSuiteShow.retries') }}</label>
+                            <label class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-retries-${suite.id}`">{{ t('testSuiteShow.retries') }}</label>
                             <select
                                 :id="`setting-retries-${suite.id}`"
                                 v-model="localSettings.max_retries"
                                 @change="updateSuiteSetting('max_retries')"
                                 :disabled="!can.edit || savingSetting"
-                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                class="md-select md-label-medium w-40"
                             >
                                 <option :value="0">{{ t('testSuites.noRetries') }}</option>
                                 <option :value="1">{{ t('testSuites.retryOnce') }}</option>
@@ -1967,13 +2023,13 @@ function toggleRunsExpanded(testId) {
 
                         <!-- Keep History -->
                         <div class="flex items-center justify-between gap-3">
-                            <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-history-${suite.id}`">{{ t('testSuiteShow.keepHistory') }}</label>
+                            <label class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-history-${suite.id}`">{{ t('testSuiteShow.keepHistory') }}</label>
                             <select
                                 :id="`setting-history-${suite.id}`"
                                 v-model="localSettings.history_retention"
                                 @change="updateSuiteSetting('history_retention')"
                                 :disabled="!can.edit || savingSetting"
-                                class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                class="md-select md-label-medium w-40"
                             >
                                 <option :value="3">{{ t('testSuites.last3Runs') }}</option>
                                 <option :value="5">{{ t('testSuites.last5Runs') }}</option>
@@ -1983,18 +2039,18 @@ function toggleRunsExpanded(testId) {
                         </div>
 
                         <!-- Coverage category -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container-high)] px-4 py-3">
-                            <p class="sm:col-span-2 md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.coverage') }}</p>
+                        <div class="grid grid-cols-1 gap-y-2 rounded-[var(--md-sys-shape-corner-medium)] bg-[var(--md-sys-color-surface-container-high)] px-4 py-3">
+                            <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)]">{{ t('testSuiteShow.coverage') }}</p>
 
                             <!-- Collect -->
                             <div class="flex items-center justify-between gap-3">
-                                <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-coverage-${suite.id}`">{{ t('testSuiteShow.coverageCollect') }}</label>
+                                <label class="md-label-medium text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-coverage-${suite.id}`">{{ t('testSuiteShow.coverageCollect') }}</label>
                                 <select
                                     :id="`setting-coverage-${suite.id}`"
                                     v-model="localSettings.collect_coverage"
                                     @change="toggleCoverage"
                                     :disabled="!can.edit || savingSetting"
-                                    class="bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline)] rounded-[var(--md-sys-shape-corner-extra-small)] w-36 px-2 py-1 md-label-small text-[var(--md-sys-color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="md-select md-label-medium w-40"
                                 >
                                     <option :value="false">{{ t('testSuiteShow.coverageOff') }}</option>
                                     <option :value="true">{{ t('testSuiteShow.coverageOn') }}</option>
@@ -2002,7 +2058,7 @@ function toggleRunsExpanded(testId) {
                             </div>
 
                         <!-- Coverage bundle URL filter (only while coverage is on) -->
-                        <div v-if="localSettings.collect_coverage" class="sm:col-span-2">
+                        <div v-if="localSettings.collect_coverage">
                             <label class="md-label-small text-[var(--md-sys-color-on-surface-variant)]" :for="`setting-coverage-filter-${suite.id}`">{{ t('testSuiteShow.coverageFilter') }}</label>
                             <input
                                 :id="`setting-coverage-filter-${suite.id}`"
@@ -2823,6 +2879,11 @@ function toggleRunsExpanded(testId) {
                                     <!-- Line 1: chip + run title -->
                                     <div class="flex items-center gap-2.5 min-w-0">
                                         <Chip :status="run.status" :fixed="true" />
+                                        <span
+                                            v-if="run.browser"
+                                            class="flex-shrink-0 md-label-small px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-extra-small)] bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)]"
+                                            :title="t('testSuiteShow.runBrowser', { browser: browserDisplayName(run.browser) })"
+                                        >{{ browserDisplayName(run.browser) }}</span>
                                         <span class="group/title relative min-w-0">
                                             <Link
                                                 :href="`/sorify/runs/${run.id}`"

@@ -21,6 +21,22 @@ class StoreSuiteRequest extends FormRequest
             $this->merge(['take_screenshot' => ScreenshotMode::normalize($this->input('take_screenshot'))]);
         }
 
+        // The browser setting accepts a single engine name, a comma-separated
+        // list, or an array of engine names — normalized onto the
+        // comma-separated column form (trimmed, deduplicated; unknown
+        // engines kept so the regex rule below rejects them), matching the
+        // dashboard's checkbox group.
+        if ($this->has('browser')) {
+            $list = is_array($this->input('browser')) ? $this->input('browser') : explode(',', (string) $this->input('browser'));
+
+            $browsers = array_values(array_unique(array_filter(array_map(
+                fn ($b) => trim((string) $b),
+                $list,
+            ))));
+
+            $this->merge(['browser' => $browsers !== [] ? implode(',', $browsers) : null]);
+        }
+
         // Normalize the comma-separated coverage filter the same way the
         // dashboard does: trim each pattern, drop empty ones.
         if ($this->has('coverage_url_filter')) {
@@ -63,7 +79,7 @@ class StoreSuiteRequest extends FormRequest
             }],
             'integrations' => 'nullable|array',
             ...StoreTestSuiteIntegrationRequest::rulesFor('integrations.*'),
-            'browser' => 'nullable|string|in:chromium,firefox,webkit',
+            'browser' => ['nullable', 'string', 'max:100', 'regex:/^(chromium|firefox|webkit)(,(chromium|firefox|webkit))*$/'],
             'headless' => 'nullable|boolean',
             'base_url' => 'nullable|string|max:500',
             'history_retention' => 'nullable|integer|in:3,5,10',

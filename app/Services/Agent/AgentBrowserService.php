@@ -63,7 +63,7 @@ class AgentBrowserService
                 '--spec', 'SPEC',
                 '--output', 'OUTPUT',
                 '--timeout', (string) $timeoutMs,
-                '--browser', $suite->browser ?? 'chromium',
+                '--browser', $suite->primaryBrowser(),
                 '--headless', 'true',
                 '--screenshot-mode', 'disabled',
             ];

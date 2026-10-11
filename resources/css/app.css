@@ -274,6 +274,113 @@
     .md-label-large  { font-weight: 500; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0.00625rem; }
     .md-label-medium { font-weight: 500; font-size: 0.75rem; line-height: 1rem; letter-spacing: 0.03125rem; }
     .md-label-small  { font-weight: 500; font-size: 0.6875rem; line-height: 1rem; letter-spacing: 0.03125rem; }
+
+    /* ── MD3 form controls ────────────────────────────────────────────────
+       Native <select> and checkbox styled to the MD3 spec using system
+       tokens only (no @material/web — it is maintenance mode). Shapes,
+       colors, states and motion all resolve from --md-sys-* so they follow
+       light/dark theming automatically. */
+
+    /* Outlined-field-style select: compact 28dp control, 8dp corners,
+       outline border that strengthens on hover, 2px primary focus
+       treatment, token-colored caret (two half-square gradients form the
+       chevron — a data-URI SVG would need a hardcoded fill and break
+       theming). */
+    .md-select {
+        appearance: none;
+        -webkit-appearance: none;
+        height: 1.75rem;
+        padding-left: 0.5rem;
+        padding-right: 1.5rem;
+        background-color: var(--md-sys-color-surface-container-lowest);
+        color: var(--md-sys-color-on-surface);
+        border: 1px solid var(--md-sys-color-outline);
+        border-radius: var(--md-sys-shape-corner-small);
+        background-image:
+            linear-gradient(45deg, transparent 50%, var(--md-sys-color-on-surface-variant) 50%),
+            linear-gradient(135deg, var(--md-sys-color-on-surface-variant) 50%, transparent 50%);
+        background-position: calc(100% - 0.75rem) 50%, calc(100% - 0.5rem) 50%;
+        background-size: 0.25rem 0.25rem;
+        background-repeat: no-repeat;
+        cursor: pointer;
+        transition:
+            border-color var(--md-sys-motion-duration-short-4) var(--md-sys-motion-easing-standard),
+            box-shadow var(--md-sys-motion-duration-short-4) var(--md-sys-motion-easing-standard),
+            background-color var(--md-sys-motion-duration-short-4) var(--md-sys-motion-easing-standard);
+    }
+
+    /* MD3 outlined field hover: border rises outline → on-surface. */
+    .md-select:hover:not(:disabled) {
+        border-color: var(--md-sys-color-on-surface);
+    }
+
+    /* MD3 focus: 2px primary (1px border + 1px inset ring). */
+    .md-select:focus-visible {
+        outline: none;
+        border-color: var(--md-sys-color-primary);
+        box-shadow: inset 0 0 0 1px var(--md-sys-color-primary);
+    }
+
+    .md-select:disabled {
+        cursor: not-allowed;
+        color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent);
+        border-color: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
+    }
+
+    .md-select option {
+        background-color: var(--md-sys-color-surface-container-low);
+        color: var(--md-sys-color-on-surface);
+    }
+
+    /* MD3 filter chip — the browser multi-select. Pill shape, 1px outline
+       when unselected, secondary-container tonal fill with a leading check
+       when selected. Disabled = engine's driver is not installed on this
+       host (the trailing status dot + hint line still explain why). */
+    .md-filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        height: 2rem;
+        padding: 0 0.875rem;
+        border: 1px solid var(--md-sys-color-outline);
+        border-radius: var(--md-sys-shape-corner-full);
+        background-color: transparent;
+        color: var(--md-sys-color-on-surface);
+        white-space: nowrap;
+        cursor: pointer;
+        user-select: none;
+        transition:
+            background-color var(--md-sys-motion-duration-short-4) var(--md-sys-motion-easing-standard),
+            border-color var(--md-sys-motion-duration-short-4) var(--md-sys-motion-easing-standard),
+            color var(--md-sys-motion-duration-short-4) var(--md-sys-motion-easing-standard),
+            box-shadow var(--md-sys-motion-duration-short-4) var(--md-sys-motion-easing-standard);
+    }
+
+    /* MD3 state layers: 8% hover overlay on both states. */
+    .md-filter-chip:hover:not(:disabled):not(.is-selected) {
+        background-color: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+    }
+
+    .md-filter-chip:hover:not(:disabled).is-selected {
+        background-color: color-mix(in srgb, var(--md-sys-color-secondary-container) 88%, var(--md-sys-color-on-secondary-container));
+    }
+
+    .md-filter-chip.is-selected {
+        background-color: var(--md-sys-color-secondary-container);
+        border-color: transparent;
+        color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .md-filter-chip:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--md-sys-color-surface), 0 0 0 4px var(--md-sys-color-primary);
+    }
+
+    .md-filter-chip:disabled {
+        cursor: not-allowed;
+        border-color: var(--md-sys-color-outline-variant);
+        color: color-mix(in srgb, var(--md-sys-color-on-surface) 45%, transparent);
+    }
 }
 
 /* ── Theme transition ──────────────────────────────────────────────────────── */

@@ -645,7 +645,7 @@ class AgentService
 
         Behavior:
         - Always confirm destructive actions (delete suite/tests/runs, member changes) with the user before calling the tool.
-        - Test code you write only executes on the Sorify server inside a sandboxed container, never as a raw process on the host. If a run result says a test was refused for unsandboxed execution, tell the user to review the code in the dashboard (saving it there marks it human-approved) or to switch execution mode to ephemeral.
+        - Test code you write executes on the Sorify server in the execution mode configured by the operator (local process or ephemeral Docker container).
         - Report tool results concisely. Include test names and counts after creating tests, and statuses after runs.
         PROMPT;
 

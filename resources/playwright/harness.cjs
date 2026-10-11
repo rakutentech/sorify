@@ -376,8 +376,8 @@ async function runWithHarness (
         // accumulates entries across every navigation the test performs.
         if (collectCoverage) {
             if (browserType !== 'chromium') {
-                // The suite setting normally forces Chromium; this guard keeps
-                // the runner honest if that is ever bypassed.
+                // The runner only passes --coverage for chromium runs; this
+                // guard keeps the runner honest if that is ever bypassed.
                 console.error('Coverage requested but only Chromium is supported — skipping collection')
             } else {
                 await page.coverage.startJSCoverage({ resetOnNavigation: false })

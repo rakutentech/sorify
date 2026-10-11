@@ -66,6 +66,7 @@ class RunsToolsTest extends TestCase
             ->assertStructuredContent([
                 'status' => 'completed',
                 'status_note' => null,
+                'browser' => null,
                 'passed_count' => 3,
                 'failed_count' => 1,
                 'error_count' => 0,

@@ -284,6 +284,21 @@ const results     = computed(() => props.results.data);
 const passedCount = computed(() => props.run.passed_count ?? 0);
 const failedCount = computed(() => (props.run.failed_count ?? 0) + (props.run.error_count ?? 0));
 
+// Driver (browser engine) this run executed against — every test in the run
+// shares it. Runs from before the browser column (or single-browser suites)
+// fall back to the suite's first enabled engine.
+const runBrowser = computed(() => {
+    if (props.run.browser) return props.run.browser;
+    const suiteBrowser = String(props.run.suite?.browser ?? '').split(',').filter(Boolean)[0];
+    return suiteBrowser || null;
+});
+
+const runBrowserLabel = computed(() => {
+    if (!runBrowser.value) return null;
+    const names = { chromium: 'Chromium', firefox: 'Firefox', webkit: 'WebKit' };
+    return names[runBrowser.value] ?? runBrowser.value;
+});
+
 const totalTests     = computed(() => props.run.total_tests || 0);
 
 // Coverage percentages for the summary card: lines, functions, branches.
@@ -378,12 +393,17 @@ const failedPct = computed(() => {
                         </span>
                     </span>
                     <div class="flex items-center gap-3 flex-wrap">
-                        <h1 class="md-title-large text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5">
+                        <h1 class="md-title-large text-[var(--md-sys-color-on-surface)] flex items-center gap-2.5 flex-wrap">
                             <Activity :size="26" :style="{ color: 'var(--md-ext-color-success)' }" />
                             <span>
                                 <SuiteName v-if="run.suite" :name="run.suite.name" /><span v-else>{{ t('testRunShow.testRun') }}</span>
                                 — {{ t('testRunShow.runNumber', { id: run.id }) }}
                             </span>
+                            <span
+                                v-if="runBrowserLabel"
+                                class="md-label-small px-2 py-0.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-tertiary-container)] text-[var(--md-sys-color-on-tertiary-container)]"
+                                :title="t('testRunShow.runBrowser', { browser: runBrowserLabel })"
+                            >{{ runBrowserLabel }}</span>
                         </h1>
                     </div>
                     <p class="md-body-medium text-[var(--md-sys-color-on-surface-variant)] mt-1.5 flex items-center gap-2 flex-wrap">

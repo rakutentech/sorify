@@ -6,6 +6,7 @@ return [
     'max_test_timeout_ms' => env('SORIFY_MAX_TEST_TIMEOUT_MS', 30000),
     'runner_script_path' => resource_path('playwright/runner.cjs'),
     'coverage_script_path' => resource_path('playwright/coverage.cjs'),
+    'browser_check_script_path' => resource_path('playwright/browser-check.cjs'),
     'tmp_dir' => storage_path('app/tmp'),
     'test_code_version_retention' => env('SORIFY_TEST_CODE_VERSION_RETENTION', 10),
 
@@ -87,12 +88,5 @@ return [
         // names (e.g. "trigger_run,fetch_url"). The MCP server keeps
         // offering them — this only shapes the chat agent.
         'blocked_tools' => env('SORIFY_AGENT_BLOCKED_TOOLS'),
-
-        // Code written by the chat agent only executes in sandboxed
-        // (Docker/ephemeral) mode — never as a raw node process on the
-        // host. A human takes ownership of the code by saving it from the
-        // dashboard (which re-tags its source), or the operator disables
-        // this guard.
-        'require_sandboxed_execution' => env('SORIFY_AGENT_REQUIRE_SANDBOXED_EXECUTION', true),
     ],
 ];

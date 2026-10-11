@@ -50,6 +50,14 @@ const triggeredByUser = computed(() => props.run?.triggered_by_user ?? null);
 const duplicateUser = computed(() =>
     props.activity.actor?.id != null && triggeredByUser.value?.id === props.activity.actor.id);
 
+// Browser engine this run executed against (multi-browser suites fan out
+// into one run per engine) — shown capitalized, e.g. "Firefox".
+const browserLabel = computed(() => {
+    const browser = props.run?.browser;
+    if (!browser) return null;
+    return browser.charAt(0).toUpperCase() + browser.slice(1);
+});
+
 function formatDuration(ms) {
     if (ms === null || ms === undefined) return '—';
     if (!ms && ms !== 0) return '—';
@@ -63,6 +71,10 @@ function formatDuration(ms) {
     <div class="mt-3 space-y-3">
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Chip v-if="status" :status="status" :label="status === 'failed' ? t('feed.failedInterrupted') : status" />
+            <span
+                v-if="browserLabel"
+                class="md-label-small px-1.5 py-0.5 rounded-[var(--md-sys-shape-corner-small)] bg-[var(--md-sys-color-surface-container-high)] text-[var(--md-sys-color-on-surface-variant)]"
+            >{{ browserLabel }}</span>
             <span class="md-body-medium font-medium text-[var(--md-ext-color-success)]">
                 {{ t('feed.passedOfTotal', { passed: counts.passed ?? 0, total: counts.total ?? 0 }) }}
             </span>

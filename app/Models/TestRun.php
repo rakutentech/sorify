@@ -14,6 +14,7 @@ class TestRun extends Model
     protected $casts = [
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
+        'group_notified_at' => 'datetime',
         'coverage_summary' => 'array',
     ];
 

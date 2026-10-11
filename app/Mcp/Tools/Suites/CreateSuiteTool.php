@@ -34,7 +34,7 @@ class CreateSuiteTool extends Tool
             'name' => $schema->string()->required()->description('Suite name.'),
             'description' => $schema->string()->description('Suite description.'),
             'base_url' => $schema->string()->description('Base URL the suite\'s tests run against.'),
-            'browser' => $schema->string()->enum(['chromium', 'firefox', 'webkit'])->description('Playwright browser to use.'),
+            'browser' => $schema->string()->enum(['chromium', 'firefox', 'webkit'])->description('Playwright browser to use. Only a single engine can be set here; the dashboard additionally supports enabling multiple browsers at once (one run per browser).'),
             'headless' => $schema->boolean()->description('Whether to run headless.'),
             'playwright_proxy' => $schema->string()->description('Default HTTP proxy server to use for anything not matched by proxy_rules (e.g. http://proxy:8080).'),
             'proxy_rules' => $schema->array()
@@ -73,7 +73,7 @@ class CreateSuiteTool extends Tool
                 $schema->boolean(),
                 $schema->string()->enum(ScreenshotMode::ALL),
             ])->description('Screenshot capture mode: "enabled" (default), "on_failure" (screenshots are captured but kept only when a test fails), or "disabled" (never captured, faster runs). A boolean is accepted for backwards compatibility: true = enabled, false = disabled.'),
-            'collect_coverage' => $schema->boolean()->description('Collect JavaScript code coverage while tests run, producing an Istanbul report on each completed run (lines/functions/branches). Chromium only — the browser is forced to chromium for the run. Defaults to false.'),
+            'collect_coverage' => $schema->boolean()->description('Collect JavaScript code coverage while tests run, producing an Istanbul report on each completed run (lines/functions/branches). Chromium only — coverage is collected on the suite\'s chromium runs; other enabled browsers still run, without coverage. Defaults to false.'),
             'coverage_url_filter' => $schema->string()->description('Comma-separated simple patterns limiting which scripts are included in the coverage report. "*" matches anything, everything else matches literally (case-insensitive) against the script\'s origin and path — never its query string; a script is included when it matches any pattern. Empty or omitted = first-party scripts of the origins the tests visit. E.g. "example.com/assets/*, cdn.example.com/app.js". JavaScript only — CSS is not measured.'),
             'teams_webhook_url' => $schema->string()->description('MS Teams incoming webhook URL to notify when runs complete.'),
             'teams_webhook_proxy' => $schema->string()->description('HTTP proxy to use when posting to the Teams webhook, if any.'),

@@ -10,6 +10,7 @@ use App\Models\TestResult;
 use App\Models\TestSuite;
 use App\Models\User;
 use App\Services\ActivityLogger;
+use App\Services\BrowserDriverService;
 use App\Services\ReportingService;
 use App\Services\TestRunService;
 use App\Services\TestSuiteDuplicationService;
@@ -26,6 +27,7 @@ class TestSuiteController extends Controller
     public function __construct(
         private readonly ReportingService $reporting,
         private readonly TestRunService $runs,
+        private readonly BrowserDriverService $browserDrivers,
     ) {}
 
     public function index(Request $request): Response
@@ -286,6 +288,10 @@ class TestSuiteController extends Controller
             'suite' => $suite,
             'isBookmarked' => $suite->isBookmarkedBy($request->user()),
             'stats' => $this->reporting->suiteStats($suite),
+            // Which Playwright drivers are installed on this host — drives
+            // the browser checkboxes' enabled/disabled + installed hints
+            // in the run settings panel.
+            'browserAvailability' => $this->browserDrivers->availability(),
             'tests' => $tests,
             'filters' => ['search' => $search, 'per_page' => $perPage, 'sort' => $sort, 'sort_dir' => $sortDir, 'status' => $status],
             'recentRuns' => $suite->testRuns()

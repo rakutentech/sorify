@@ -47,7 +47,7 @@ class TestRunController extends Controller
     {
         $this->authorize('view', $run->testSuite);
 
-        $run->load(['testSuite:id,name', 'triggeredByUser:id,name,email,avatar']);
+        $run->load(['testSuite:id,name,browser', 'triggeredByUser:id,name,email,avatar']);
 
         $perPage = (int) request()->input('per_page', 50);
         $perPage = in_array($perPage, [25, 50, 100, 200]) ? $perPage : 50;

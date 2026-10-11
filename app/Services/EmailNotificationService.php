@@ -101,6 +101,76 @@ class EmailNotificationService
     }
 
     /**
+     * Combined completion notification for a fan-out group: one email
+     * covering every browser-run of the trigger, sent once when the last
+     * sibling finalizes. Single-run groups send the regular per-run email,
+     * so single-engine triggers keep their familiar message.
+     *
+     * @param  Collection<int, TestRun>  $runs
+     */
+    public function notifyRunGroupCompleted(Collection $runs): void
+    {
+        $runs = $runs->values();
+        $first = $runs->first();
+        $suite = $first->testSuite;
+
+        if (! $suite) {
+            return;
+        }
+
+        // All-cancelled groups send nothing, matching the per-run behavior
+        // of skipping cancelled runs entirely.
+        $reportable = $runs->filter(fn (TestRun $run) => $run->status !== 'cancelled');
+
+        if ($reportable->isEmpty()) {
+            return;
+        }
+
+        $anySuccess = $reportable->contains(fn (TestRun $run) => $run->isSuccessful());
+        $anyFailure = $reportable->contains(fn (TestRun $run) => ! $run->isSuccessful());
+
+        if ($anySuccess && ! $anyFailure && ! $suite->email_notify_on_success) {
+            return;
+        }
+
+        if ($anyFailure && ! $suite->email_notify_on_failure) {
+            return;
+        }
+
+        if (NotificationCooldown::shouldSuppress($suite, 'email', $first)) {
+            return;
+        }
+
+        $recipients = $this->recipients($suite);
+
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        // The group's own runs are never re-digested: they are reported by
+        // this very message. Anything else held back while a cooling-off
+        // window was open is flushed into the same digest, and the window
+        // is re-anchored afterwards — safe here because nothing is left
+        // behind to swallow.
+        $groupIds = $runs->modelKeys();
+
+        $heldBack = NotificationCooldown::heldBackRuns($suite, 'email', $first)
+            ->reject(fn (TestRun $r) => in_array($r->getKey(), $groupIds, true));
+
+        if ($heldBack->isNotEmpty()) {
+            $this->send($recipients, new RunDigestEmail($suite, $heldBack->concat($runs->all())), $first, 'digest');
+        } else {
+            $mailable = $runs->count() === 1
+                ? new RunCompletedEmail($first, $first->isSuccessful())
+                : new RunDigestEmail($suite, $runs);
+
+            $this->send($recipients, $mailable, $first, 'completion');
+        }
+
+        NotificationCooldown::markNotified($suite, 'email', $first);
+    }
+
+    /**
      * Scheduled digest flush: once a cooling-off window has expired, send
      * the runs it held back so results are delivered even when no further
      * run ever happens. Re-anchors the window so the next digest can only

@@ -19,6 +19,12 @@ class TestSuite extends Model
      */
     public const MAX_WEBHOOK_TOKENS = 5;
 
+    /**
+     * Playwright engines a suite may run against, in canonical order —
+     * also the order multi-browser runs fan out in.
+     */
+    public const SUPPORTED_BROWSERS = ['chromium', 'firefox', 'webkit'];
+
     protected $fillable = [
         'name',
         'description',
@@ -72,11 +78,67 @@ class TestSuite extends Model
         static::creating(function (TestSuite $suite) {
             $suite->webhook_token ??= static::generateWebhookToken();
         });
+
+        // The browser column holds a comma-separated set of engines —
+        // canonicalize it on save (known engines only, deduplicated,
+        // canonical order) and never let it empty out: the column is NOT
+        // NULL and every run needs at least one engine.
+        static::saving(function (TestSuite $suite) {
+            $suite->browser = implode(',', $suite->browsers());
+
+            // Turning a channel's cooldown off drops its stale window
+            // stamps. The clock is never re-stamped while off, so keeping
+            // them would re-digest ancient runs the moment the cooldown
+            // is enabled again.
+            foreach (['teams', 'email'] as $channel) {
+                if ($suite->notificationCooldownMinutes($channel) <= 0) {
+                    $suite->{$suite->lastNotifiedAtColumn($channel)} = null;
+                    $suite->{$suite->lastNotifiedRunIdColumn($channel)} = null;
+                }
+            }
+        });
     }
 
     public static function generateWebhookToken(): string
     {
         return 'whk_'.Str::random(40);
+    }
+
+    /**
+     * The suite's enabled browsers as a normalized list — the `browser`
+     * column stores a comma-separated set ("chromium,firefox"). Unknown
+     * engines and duplicates are dropped; the list is re-ordered into
+     * SUPPORTED_BROWSERS order and never empty (defaults to chromium).
+     *
+     * @return array<int, string>
+     */
+    public function browsers(): array
+    {
+        $raw = is_array($this->browser)
+            ? $this->browser
+            : explode(',', (string) ($this->browser ?? ''));
+
+        $selected = array_intersect(
+            self::SUPPORTED_BROWSERS,
+            array_values(array_unique(array_filter(array_map(
+                fn ($b) => trim((string) $b),
+                $raw,
+            )))),
+        );
+
+        $browsers = array_values($selected);
+
+        return $browsers !== [] ? $browsers : ['chromium'];
+    }
+
+    /**
+     * The single browser used when only one makes sense — the agent's live
+     * browser_map session, MCP single-value contexts, or the fallback for
+     * runs created before per-run browsers existed.
+     */
+    public function primaryBrowser(): string
+    {
+        return $this->browsers()[0];
     }
 
     public function regenerateWebhookToken(): bool

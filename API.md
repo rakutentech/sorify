@@ -27,6 +27,8 @@ curl -X POST https://your-host/sorify/suites \
   }'
 ```
 
+`browser` also accepts multiple engines (`"chromium,firefox"` or an array like `["chromium","firefox"]`) — triggering the suite then queues one run per browser, and each run records the engine it used in its `browser` field.
+
 Trigger a run via CI webhook (token auth, no session needed):
 
 ```sh

@@ -100,6 +100,183 @@ class TeamsNotificationService
     }
 
     /**
+     * Combined completion notification for a fan-out group: one card
+     * covering every browser-run of the trigger, sent once when the last
+     * sibling finalizes. Single-run groups render the regular per-run
+     * card, so single-engine triggers keep their familiar message.
+     *
+     * @param  Collection<int, TestRun>  $runs
+     */
+    public function notifyRunGroupCompleted(Collection $runs): void
+    {
+        $runs = $runs->values();
+        $first = $runs->first();
+        $suite = $first->testSuite;
+
+        if (! $suite || ! $suite->teams_webhook_url) {
+            return;
+        }
+
+        // All-cancelled groups send nothing, matching the per-run behavior
+        // of skipping cancelled runs entirely.
+        $reportable = $runs->filter(fn (TestRun $run) => $run->status !== 'cancelled');
+
+        if ($reportable->isEmpty()) {
+            return;
+        }
+
+        $anySuccess = $reportable->contains(fn (TestRun $run) => $run->isSuccessful());
+        $anyFailure = $reportable->contains(fn (TestRun $run) => ! $run->isSuccessful());
+
+        if ($anySuccess && ! $anyFailure && ! $suite->teams_notify_on_success) {
+            return;
+        }
+
+        if ($anyFailure && ! $suite->teams_notify_on_failure) {
+            return;
+        }
+
+        if (NotificationCooldown::shouldSuppress($suite, 'teams', $first)) {
+            return;
+        }
+
+        // The group's own runs are never re-digested: they are reported by
+        // this very message. Anything else held back while a cooling-off
+        // window was open is flushed into the same digest, and the window
+        // is re-anchored afterwards — safe here because nothing is left
+        // behind to swallow.
+        $groupIds = $runs->modelKeys();
+
+        $heldBack = NotificationCooldown::heldBackRuns($suite, 'teams', $first)
+            ->reject(fn (TestRun $r) => in_array($r->getKey(), $groupIds, true));
+
+        if ($heldBack->isNotEmpty()) {
+            $this->post($suite, $this->buildDigestPayload($suite, $heldBack->concat($runs->all())), $first, 'digest');
+        } else {
+            $this->post($suite, $this->buildGroupPayload($suite, $runs), $first, 'completion');
+        }
+
+        NotificationCooldown::markNotified($suite, 'teams', $first);
+    }
+
+    /**
+     * Combined fan-out card: aggregate counts across every browser-run of
+     * the trigger, plus one row per browser linking to its run. A
+     * single-run group renders the regular per-run card instead.
+     *
+     * @param  Collection<int, TestRun>  $runs
+     */
+    private function buildGroupPayload(TestSuite $suite, Collection $runs): array
+    {
+        if ($runs->count() === 1) {
+            $run = $runs->first();
+
+            return $this->buildPayload($suite, $run, $run->isSuccessful());
+        }
+
+        $reportable = $runs->filter(fn (TestRun $run) => $run->status !== 'cancelled');
+        $isSuccess = $reportable->every(fn (TestRun $run) => $run->isSuccessful());
+
+        $total = (int) $runs->sum('total_tests');
+        $passed = (int) $runs->sum('passed_count');
+        $failed = (int) $runs->sum('failed_count');
+        $errors = (int) $runs->sum('error_count');
+
+        // Wall time of the whole fan-out: earliest start to latest completion.
+        $started = $runs->pluck('started_at')->filter();
+        $ended = $runs->pluck('completed_at')->filter();
+        $duration = ($started->isNotEmpty() && $ended->isNotEmpty())
+            ? round($started->min()->diffInSeconds($ended->max()), 1).'s'
+            : '—';
+
+        $lines = $runs->map(function (TestRun $run) {
+            $icon = $run->status === 'cancelled' ? '🚫' : ($run->isSuccessful() ? '✅' : '❌');
+            $duration = $run->duration_ms ? round($run->duration_ms / 1000, 1).'s' : '—';
+            $runUrl = $this->absoluteUrl(route('runs.show', $run, absolute: false));
+
+            return sprintf(
+                '%s [%s](%s) — %d/%d passed — %s',
+                $icon,
+                ($browser = $this->browserLabel($run->browser)) ?? "Run #{$run->id}",
+                $runUrl,
+                (int) $run->passed_count,
+                (int) $run->total_tests,
+                $duration,
+            );
+        });
+
+        $body = [
+            [
+                'type' => 'TextBlock',
+                'id' => 'title',
+                'text' => "Sorify — Suite: {$suite->name} — ".($isSuccess ? 'Success' : 'Failure'),
+                'size' => 'large',
+                'weight' => 'bolder',
+                'wrap' => true,
+                'color' => $isSuccess ? 'good' : 'attention',
+            ],
+        ];
+
+        if ($suite->description) {
+            $body[] = [
+                'type' => 'TextBlock',
+                'text' => $suite->description,
+                'isSubtle' => true,
+                'wrap' => true,
+                'spacing' => 'none',
+            ];
+        }
+
+        $body[] = [
+            'type' => 'TextBlock',
+            'text' => "{$passed}/{$total} passed  •  {$failed} failed  •  {$errors} errors  •  {$duration}  •  {$runs->count()} browsers",
+            'wrap' => true,
+            'spacing' => 'small',
+        ];
+
+        $body[] = [
+            'type' => 'TextBlock',
+            'text' => $lines->implode("\n\n"),
+            'wrap' => true,
+            'isSubtle' => true,
+            'spacing' => 'small',
+        ];
+
+        $body[] = [
+            'type' => 'TextBlock',
+            'text' => 'Triggered by: '.$this->triggeredBy($runs->first()),
+            'wrap' => true,
+            'isSubtle' => true,
+            'spacing' => 'none',
+        ];
+
+        if ($cooldownNotice = NotificationCooldown::holdNotice($suite, 'teams')) {
+            $body[] = $this->cooldownTextBlock($cooldownNotice);
+        }
+
+        return [
+            'type' => 'message',
+            'attachments' => [[
+                'contentType' => 'application/vnd.microsoft.card.adaptive',
+                'contentUrl' => null,
+                'content' => [
+                    '$schema' => 'http://adaptivecards.io/schemas/adaptive-card.json',
+                    'type' => 'AdaptiveCard',
+                    'version' => '1.4',
+                    'body' => $body,
+                    'actions' => [
+                        [
+                            'type' => 'Action.OpenUrl',
+                            'title' => 'View suite',
+                            'url' => AppUrl::absolute(route('suites.show', $suite, absolute: false)),
+                        ],
+                    ],
+                ],
+            ]],
+        ];
+    }
+
+    /**
      * Scheduled digest flush: once a cooling-off window has expired, send
      * the runs it held back so results are delivered even when no further
      * run ever happens. Re-anchors the window so the next digest can only
@@ -161,10 +338,51 @@ class TeamsNotificationService
      * Compact "run started" card: suite name, test count, trigger source and
      * a link to the run — enough to glance at what just kicked off.
      */
+    /**
+     * Browser list for a run's label: every engine of its fan-out group
+     * ("Chromium, Firefox, WebKit"), or just the run's own engine for
+     * legacy runs without a group.
+     */
+    private function groupBrowserLabels(TestRun $run): string
+    {
+        if ($run->fan_out_id === null) {
+            return (string) ($this->browserLabel($run->browser) ?? '');
+        }
+
+        return TestRun::where('fan_out_id', $run->fan_out_id)
+            ->orderBy('id')
+            ->pluck('browser')
+            ->map(fn (?string $b) => $this->browserLabel($b) ?? $b)
+            ->implode(', ');
+    }
+
+    /**
+     * Display name of a run's engine ("chromium" → "Chromium"), or null
+     * when the run has no browser recorded (pre-matrix runs) — labels the
+     * per-browser messages of a multi-browser fan-out.
+     */
+    private function browserLabel(?string $browser): ?string
+    {
+        if (! $browser) {
+            return null;
+        }
+
+        return [
+            'chromium' => 'Chromium',
+            'firefox' => 'Firefox',
+            'webkit' => 'WebKit',
+        ][$browser] ?? ucfirst($browser);
+    }
+
     private function buildStartedPayload(TestSuite $suite, TestRun $run): array
     {
         $suiteUrl = AppUrl::absolute(route('suites.show', $suite, absolute: false));
         $runUrl = $this->absoluteUrl(route('runs.show', $run, absolute: false));
+
+        $queued = "{$run->total_tests} test".($run->total_tests === 1 ? '' : 's').' queued';
+        if ($browsers = $this->groupBrowserLabels($run)) {
+            $queued .= "  •  {$browsers}";
+        }
 
         $body = [
             [
@@ -177,7 +395,7 @@ class TeamsNotificationService
             ],
             [
                 'type' => 'TextBlock',
-                'text' => "{$run->total_tests} test".($run->total_tests === 1 ? '' : 's').' queued',
+                'text' => $queued,
                 'wrap' => true,
                 'spacing' => 'small',
             ],
@@ -248,9 +466,14 @@ class TeamsNotificationService
         $failed = (int) $run->failed_count;
         $errors = (int) $run->error_count;
 
+        $stats = "{$passed}/{$total} passed  •  {$failed} failed  •  {$errors} errors  •  {$duration}";
+        if ($browser = $this->browserLabel($run->browser)) {
+            $stats .= "  •  {$browser}";
+        }
+
         $body[] = [
             'type' => 'TextBlock',
-            'text' => "{$passed}/{$total} passed  •  {$failed} failed  •  {$errors} errors  •  {$duration}",
+            'text' => $stats,
             'wrap' => true,
             'spacing' => 'small',
         ];
@@ -314,9 +537,10 @@ class TeamsNotificationService
             $runUrl = $this->absoluteUrl(route('runs.show', $run, absolute: false));
 
             return sprintf(
-                '%s [Run #%d](%s) — %d/%d passed — %s',
+                '%s [Run #%d%s](%s) — %d/%d passed — %s',
                 $icon,
                 $run->id,
+                ($browser = $this->browserLabel($run->browser)) ? " ({$browser})" : '',
                 $runUrl,
                 (int) $run->passed_count,
                 (int) $run->total_tests,

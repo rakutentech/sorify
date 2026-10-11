@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Events\TestRunCompleted;
+use App\Events\TestRunGroupCompleted;
 use App\Events\TestRunStarted;
 use App\Exceptions\RunRateLimitExceededException;
 use App\Exceptions\WebhookRunInProgressException;
@@ -67,33 +68,49 @@ class TestRunService
             $this->assertNotRateLimited($suite, $triggeredBy, $triggeredByUserId);
         }
 
+        // Multi-browser suites fan out into one run per enabled engine,
+        // each recording its browser on the run row. Coverage collection
+        // is Chromium-only (Playwright Coverage API), so it is collected
+        // on the chromium run only — it never restricts the fan-out.
+        $browsers = $suite->browsers();
+
         // CI webhooks enforce one-at-a-time concurrency per suite: while a
         // webhook-triggered run is pending or running, further webhook requests
         // are rejected with 409 Conflict. Manual, MCP and scheduled triggers
         // are NOT subject to this check — they may queue concurrent runs.
         // The suite row is locked (select-for-update) so two concurrent webhook
-        // requests cannot both pass the check and create a run.
-        $run = $triggeredBy === 'ci'
-            ? $this->createCiRun($suite, $testIds, $triggeredByUserId, $ciIp, $ciUserAgent)
-            : $this->createRun($suite, $testIds, $triggeredBy, $triggeredByUserId);
+        // requests cannot both pass the check and create a run; all browsers
+        // of one trigger are created inside that same lock so the fan-out is
+        // never cut in half by a racing webhook.
+        $runs = $triggeredBy === 'ci'
+            ? $this->createCiRuns($suite, $testIds, $browsers, $triggeredByUserId, $ciIp, $ciUserAgent)
+            : $this->createRuns($suite, $testIds, $browsers, $triggeredBy, $triggeredByUserId);
 
-        ActivityLogger::log('run_triggered', $this->resolveActor($triggeredByUserId), $suite, $run, [
-            'triggered_by' => $triggeredBy,
-        ]);
+        foreach ($runs as $run) {
+            ActivityLogger::log('run_triggered', $this->resolveActor($triggeredByUserId), $suite, $run, [
+                'triggered_by' => $triggeredBy,
+            ]);
 
-        // Blocking pre-run integrations (e.g. a GitHub Action that must
-        // finish first): the run stays `pending` — with a note explaining
-        // why — while a queued job runs the integrations, then starts the
-        // tests once every one of them succeeds.
-        if ($suite->preRunIntegrations()->exists()) {
-            $run->update(['status_note' => 'Waiting for pre-run integrations…']);
+            // Blocking pre-run integrations (e.g. a GitHub Action that must
+            // finish first): the run stays `pending` — with a note explaining
+            // why — while a queued job runs the integrations, then starts the
+            // tests once every one of them succeeds. Each browser-run waits
+            // for its own integration pass.
+            if ($suite->preRunIntegrations()->exists()) {
+                $run->update(['status_note' => 'Waiting for pre-run integrations…']);
 
-            RunPreRunIntegrationsJob::dispatch($run, $testIds)->onQueue('sorify');
+                RunPreRunIntegrationsJob::dispatch($run, $testIds)->onQueue('sorify');
 
-            return $run;
+                continue;
+            }
+
+            $this->startTests($run, $testIds);
         }
 
-        return $this->startTests($run, $testIds);
+        // The first run of the fan-out (canonical browser order) is the
+        // trigger's representative — what web redirects to and what
+        // webhook/MCP callers get pointed at.
+        return $runs[0];
     }
 
     /**
@@ -135,7 +152,12 @@ class TestRunService
             return $run;
         }
 
-        TestRunStarted::dispatch($run);
+        // One "started" notification per fan-out group: only the first
+        // sibling run dispatches the event; legacy runs without a group
+        // always do.
+        if ($this->opensGroup($run)) {
+            TestRunStarted::dispatch($run);
+        }
 
         Bus::batch($tests->map(fn (Test $test) => new RunSingleTestJob($run, $test))->all())
             ->onQueue('sorify')
@@ -165,6 +187,8 @@ class TestRunService
             $run = $run->refresh();
 
             TestRunCompleted::dispatch($run);
+
+            $this->maybeNotifyGroupCompleted($run);
 
             $this->logRunCompleted($run, 'failed');
         }
@@ -205,13 +229,71 @@ class TestRunService
 
         // The run is now fully finalized: merge per-test coverage into the
         // run-level HTML report + lcov.info when the suite collects coverage.
-        if ($run->testSuite->collect_coverage) {
+        // Coverage is Chromium-only, so non-chromium runs of the fan-out skip
+        // the job and show no coverage card at all.
+        $browser = $run->browser ?: $run->testSuite->primaryBrowser();
+        if ($run->testSuite->collect_coverage && $browser === 'chromium') {
             GenerateRunCoverageReportJob::dispatch($run->refresh());
         }
 
         TestRunCompleted::dispatch($run->refresh());
 
+        $this->maybeNotifyGroupCompleted($run->refresh());
+
         $this->logRunCompleted($run, $status);
+    }
+
+    /**
+     * True for the run that should carry the fan-out group's "started"
+     * notification: legacy runs without a group, or the group's first
+     * (lowest-id) sibling.
+     */
+    private function opensGroup(TestRun $run): bool
+    {
+        if ($run->fan_out_id === null) {
+            return true;
+        }
+
+        return (int) TestRun::where('fan_out_id', $run->fan_out_id)->min('id') === (int) $run->id;
+    }
+
+    /**
+     * Consolidated completion notification: when the last run of a
+     * fan-out group finalizes, fire one group event (consumed by the
+     * Teams/email listeners) instead of per-run messages. The
+     * group_notified_at claim is taken under a row lock so sibling runs
+     * finalizing concurrently fire it exactly once.
+     */
+    private function maybeNotifyGroupCompleted(TestRun $run): void
+    {
+        if ($run->fan_out_id === null) {
+            return;
+        }
+
+        $runs = DB::transaction(function () use ($run) {
+            $siblings = TestRun::where('fan_out_id', $run->fan_out_id)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            $allFinal = $siblings->every(
+                fn (TestRun $r) => in_array($r->status, ['completed', 'failed', 'cancelled'], true),
+            );
+
+            $alreadyClaimed = $siblings->contains(fn (TestRun $r) => $r->group_notified_at !== null);
+
+            if (! $allFinal || $alreadyClaimed) {
+                return null;
+            }
+
+            TestRun::whereKey($siblings->modelKeys())->update(['group_notified_at' => now()]);
+
+            return $siblings;
+        });
+
+        if ($runs !== null) {
+            TestRunGroupCompleted::dispatch($runs);
+        }
     }
 
     private function logRunCompleted(TestRun $run, string $status): void
@@ -251,11 +333,13 @@ class TestRunService
     }
 
     /**
+     * @return array<int, TestRun>
+     *
      * @throws WebhookRunInProgressException
      */
-    private function createCiRun(TestSuite $suite, ?array $testIds, ?int $triggeredByUserId, ?string $ciIp, ?string $ciUserAgent): TestRun
+    private function createCiRuns(TestSuite $suite, ?array $testIds, array $browsers, ?int $triggeredByUserId, ?string $ciIp, ?string $ciUserAgent): array
     {
-        return DB::transaction(function () use ($suite, $testIds, $triggeredByUserId, $ciIp, $ciUserAgent) {
+        return DB::transaction(function () use ($suite, $testIds, $browsers, $triggeredByUserId, $ciIp, $ciUserAgent) {
             // Lock the suite row so two simultaneous webhook requests serialize
             // and cannot both pass the in-progress check. Works on MySQL and
             // SQLite (SQLite serializes all writes anyway).
@@ -271,19 +355,32 @@ class TestRunService
                 throw new WebhookRunInProgressException($existing);
             }
 
-            return $this->createRun($suite, $testIds, 'ci', $triggeredByUserId, $ciIp, $ciUserAgent);
+            return $this->createRuns($suite, $testIds, $browsers, 'ci', $triggeredByUserId, $ciIp, $ciUserAgent);
         });
     }
 
-    private function createRun(TestSuite $suite, ?array $testIds, string $triggeredBy, ?int $triggeredByUserId, ?string $ciIp = null, ?string $ciUserAgent = null): TestRun
+    /**
+     * @return array<int, TestRun>
+     */
+    private function createRuns(TestSuite $suite, ?array $testIds, array $browsers, string $triggeredBy, ?int $triggeredByUserId, ?string $ciIp = null, ?string $ciUserAgent = null): array
     {
-        return $suite->testRuns()->create([
-            'triggered_by' => $triggeredBy,
-            'triggered_by_user_id' => $triggeredByUserId,
-            'ci_ip' => $ciIp,
-            'ci_user_agent' => $ciUserAgent,
-            'status' => 'pending',
-        ]);
+        // All sibling runs of one trigger share a fan-out id: notifications
+        // are consolidated per group (one started message + one combined
+        // result message) instead of one pair per browser.
+        $fanOutId = (string) Str::uuid();
+
+        return array_map(
+            fn (string $browser) => $suite->testRuns()->create([
+                'triggered_by' => $triggeredBy,
+                'triggered_by_user_id' => $triggeredByUserId,
+                'ci_ip' => $ciIp,
+                'ci_user_agent' => $ciUserAgent,
+                'browser' => $browser,
+                'fan_out_id' => $fanOutId,
+                'status' => 'pending',
+            ]),
+            $browsers,
+        );
     }
 
     public function cancel(TestRun $run, ?User $cancelledBy = null): TestRun

@@ -144,6 +144,17 @@ class NotificationCooldown
      */
     public static function heldBackRuns(TestSuite $suite, string $channel, ?TestRun $exceptRun = null): Collection
     {
+        $minutes = $suite->notificationCooldownMinutes($channel);
+
+        // No window configured — nothing was ever held back. This also
+        // neutralizes stale stamps left behind by a cooldown that was
+        // later disabled: without the check, every notification would
+        // re-digest the same old runs forever, because the clock is never
+        // re-stamped while the cooldown is off.
+        if ($minutes <= 0) {
+            return collect();
+        }
+
         $last = $suite->lastNotifiedAt($channel);
 
         if ($last === null) {
@@ -162,6 +173,12 @@ class NotificationCooldown
 
         return $suite->testRuns()
             ->where('completed_at', '>', $last)
+            // Only a run completing while the window was open can have
+            // been suppressed by it — anything completing later always
+            // got its own chance to notify. The bound also keeps a stale
+            // stamp (a cooldown re-enabled long after being turned off)
+            // from digesting weeks of already-reported runs.
+            ->where('completed_at', '<=', $last->copy()->addMinutes($minutes))
             ->where('status', '!=', 'cancelled')
             ->orderBy('completed_at')
             ->get()

@@ -37,6 +37,9 @@ class GetRunStatusTool extends Tool
             // Why the run is pending (e.g. waiting for pre-run integrations)
             // or failed (e.g. a pre-run integration failed).
             'status_note' => $run->status_note,
+            // Engine this run executes against — a multi-browser fan-out
+            // creates one run per engine with its own value here.
+            'browser' => $run->browser,
             'passed_count' => $run->passed_count,
             'failed_count' => $run->failed_count,
             'error_count' => $run->error_count,

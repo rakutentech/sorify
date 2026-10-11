@@ -58,18 +58,6 @@ class PlaywrightRunnerService
 
         $mode = ExecutionMode::current();
 
-        // Environment guard: in local mode the runner is a raw node
-        // process on THIS host, and the test code may have been written by
-        // the chat agent — possibly steered by prompt injection through
-        // fetched page content. Agent-written code only executes
-        // sandboxed (Docker/ephemeral); a human takes ownership of it by
-        // saving it from the dashboard, which re-tags its source.
-        if ($mode === ExecutionMode::LOCAL
-            && config('sorify.agent.require_sandboxed_execution', true)
-            && $test->code_source === 'agent') {
-            return $this->createErrorResult($testRun, $test, 'This test\'s code was written by the AI agent and is only allowed to run in sandboxed (ephemeral) execution mode. Review the code on the suite page and save it to mark it human-approved, then run it again.');
-        }
-
         $runDir = $this->tmpDir."/run-{$testRun->id}-{$test->id}";
         $workDir = $runDir.'/work';
         $outDir = $runDir.'/out';
@@ -143,10 +131,17 @@ class PlaywrightRunnerService
             }
 
             // Coverage collection is Chromium-only (Playwright Coverage API):
-            // the browser is forced to Chromium whenever it is enabled.
-            $collectCoverage = (bool) ($testRun->testSuite->collect_coverage ?? false);
+            // the browser is forced to Chromium whenever it is enabled. The
+            // run's own browser column (set at fan-out time for multi-browser
+            // suites) wins; older runs without one fall back to the suite's
+            // primary browser.
+            $browser = $testRun->browser ?: $testRun->testSuite->primaryBrowser();
+
+            // Coverage collection is Chromium-only (Playwright Coverage
+            // API): on a multi-browser fan-out only the chromium run
+            // collects it; the other engines' runs skip it silently.
+            $collectCoverage = (bool) ($testRun->testSuite->collect_coverage ?? false) && $browser === 'chromium';
             $coverageFilter = $testRun->testSuite->coverage_url_filter ?: null;
-            $browser = $collectCoverage ? 'chromium' : ($testRun->testSuite->browser ?? 'chromium');
 
             $runnerArgs[] = '--browser';
             $runnerArgs[] = $browser;

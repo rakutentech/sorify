@@ -21,7 +21,7 @@ class TriggerRunTool extends Tool
 
     protected string $name = 'trigger_run';
 
-    protected string $description = 'Queue a run of a test suite, optionally limited to specific tests. If the suite has enabled "before run" integrations (GitHub Action / HTTP request), the run stays pending until they succeed — poll get_run_status (status_note explains why a run is pending or failed).';
+    protected string $description = 'Queue a run of a test suite, optionally limited to specific tests. A suite with multiple browsers enabled fans out into one run per browser; run_id points at the first (the others follow immediately after it in list_runs). If the suite has enabled "before run" integrations (GitHub Action / HTTP request), the run stays pending until they succeed — poll get_run_status (status_note explains why a run is pending or failed).';
 
     public function schema(JsonSchema $schema): array
     {
@@ -48,6 +48,11 @@ class TriggerRunTool extends Tool
             return Response::error($e->getMessage());
         }
 
-        return Response::structured(['run_id' => $run->id, 'status' => $run->status]);
+        return Response::structured([
+            'run_id' => $run->id,
+            'status' => $run->status,
+            'browser' => $run->browser,
+            'browsers' => $suite->browsers(),
+        ]);
     }
 }

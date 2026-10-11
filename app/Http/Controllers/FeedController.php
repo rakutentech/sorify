@@ -287,6 +287,7 @@ class FeedController extends Controller
             $subject = [
                 'id' => $run->id,
                 'status' => $run->status,
+                'browser' => $run->browser,
                 'total_tests' => $run->total_tests,
                 'passed_count' => $run->passed_count,
                 'failed_count' => $run->failed_count,

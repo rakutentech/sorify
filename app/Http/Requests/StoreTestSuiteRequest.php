@@ -21,6 +21,15 @@ class StoreTestSuiteRequest extends FormRequest
             $this->merge(['take_screenshot' => ScreenshotMode::normalize($this->input('take_screenshot'))]);
         }
 
+        // The browser setting is a set of engines: the dashboard sends an
+        // array of checked boxes, MCP/API a single string. Normalize both
+        // onto the comma-separated column form (trimmed, deduplicated).
+        // Unknown engines are kept here so the regex rule below rejects
+        // them; the model canonicalizes valid values on save.
+        if ($this->has('browser')) {
+            $this->merge(['browser' => $this->normalizeBrowser($this->input('browser'))]);
+        }
+
         // An emptied-out filter field should clear the setting, not fail
         // validation. Multiple filters are comma-separated; each part is
         // trimmed and empty parts (trailing commas, ", ,") are dropped.
@@ -72,7 +81,7 @@ class StoreTestSuiteRequest extends FormRequest
                     $fail('The :attribute must set either a domain or a url (Playwright requires one of them).');
                 }
             }],
-            'browser' => 'nullable|string|in:chromium,firefox,webkit',
+            'browser' => ['nullable', 'string', 'max:100', 'regex:/^(chromium|firefox|webkit)(,(chromium|firefox|webkit))*$/'],
             'headless' => 'nullable|boolean',
             'history_retention' => 'nullable|integer|in:3,5,10',
             'timeout_ms' => 'nullable|integer|in:10000,30000,60000,120000,300000,600000',
@@ -102,5 +111,24 @@ class StoreTestSuiteRequest extends FormRequest
                 $fail('The :attribute must be a valid regular expression.');
             }
         };
+    }
+
+    /**
+     * Accepts a single engine name, a comma-separated list or an array of
+     * engine names (the dashboard's checkbox group) and returns the
+     * comma-separated form — trimmed, deduplicated. Unknown engines are
+     * kept so the validation rule can reject them; valid values are
+     * canonicalized (known engines, canonical order) by the model on save.
+     */
+    private function normalizeBrowser(mixed $value): ?string
+    {
+        $list = is_array($value) ? $value : explode(',', (string) $value);
+
+        $browsers = array_values(array_unique(array_filter(array_map(
+            fn ($b) => trim((string) $b),
+            $list,
+        ))));
+
+        return $browsers !== [] ? implode(',', $browsers) : null;
     }
 }
