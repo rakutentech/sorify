@@ -81,7 +81,7 @@ const argumentsPreview = computed(() => {
                 :size="14"
                 :style="{ color: statusColor }"
                 class="flex-shrink-0"
-                :class="running ? 'animate-pulse' : ''"
+                :class="running ? 'animate-thinking-dot' : ''"
             />
             <span class="md-body-small font-medium text-[var(--md-sys-color-on-surface)] truncate">{{ label }}</span>
             <span
@@ -93,7 +93,7 @@ const argumentsPreview = computed(() => {
             <CircleAlert v-if="toolCall.isError" :size="14" class="text-[var(--md-sys-color-error)] flex-shrink-0" />
             <ChevronDown
                 :size="14"
-                class="text-[var(--md-sys-color-on-surface-variant)] flex-shrink-0 ml-auto transition-transform"
+                class="text-[var(--md-sys-color-on-surface-variant)] flex-shrink-0 ml-auto transition-transform duration-200 [transition-timing-function:var(--md-sys-motion-easing-standard)]"
                 :class="expanded ? 'rotate-180' : ''"
             />
         </button>

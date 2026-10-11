@@ -20,6 +20,7 @@ class AgentProfile extends Model
         'base_url',
         'api_token',
         'proxy_url',
+        'extra_headers',
         'default_model',
         'system_prompt',
         'history_retention_days',
@@ -31,6 +32,7 @@ class AgentProfile extends Model
     {
         return [
             'api_token' => 'encrypted',
+            'extra_headers' => 'array',
             'history_retention_days' => 'integer',
         ];
     }
@@ -68,6 +70,46 @@ class AgentProfile extends Model
     }
 
     /**
+     * Normalize custom chat-request headers. Accepts the name/value pair rows
+     * the settings form sends ([{name, value}]) and already-normalized
+     * name => value maps (stored data) alike.
+     *
+     * Header names must be RFC 7230 tokens; values are stripped of CR/LF/NUL
+     * so a value like "x\r\nEvil: 1" cannot smuggle in extra headers.
+     * Authorization is dropped — the profile's api_token is the only way to
+     * set credentials, so a header row can never shadow or duplicate it.
+     *
+     * @param  array<mixed>|null  $rows
+     * @return array<string, string>
+     */
+    public static function normalizeHeaders(?array $rows): array
+    {
+        $headers = [];
+
+        foreach ((array) $rows as $key => $row) {
+            if (is_string($row)) {
+                $name = trim((string) $key);
+                $value = $row;
+            } else {
+                $name = trim((string) (($row ?? [])['name'] ?? ''));
+                $value = (string) (($row ?? [])['value'] ?? '');
+            }
+
+            if ($name === '' || strcasecmp($name, 'Authorization') === 0) {
+                continue;
+            }
+
+            if (! preg_match('/^[A-Za-z0-9!#$%&\'*+.^_`|~-]+$/', $name)) {
+                continue;
+            }
+
+            $headers[$name] = str_replace(["\r", "\n", "\0"], '', $value);
+        }
+
+        return $headers;
+    }
+
+    /**
      * Public-safe representation for the frontend (never exposes the token).
      *
      * @return array<string, mixed>
@@ -79,6 +121,7 @@ class AgentProfile extends Model
             'name' => $this->name,
             'base_url' => $this->base_url,
             'proxy_url' => $this->proxy_url,
+            'extra_headers' => $this->extra_headers ?? [],
             'default_model' => $this->default_model,
             'system_prompt' => $this->system_prompt,
             'history_retention_days' => $this->history_retention_days,

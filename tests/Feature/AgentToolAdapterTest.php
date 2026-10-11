@@ -21,10 +21,10 @@ class AgentToolAdapterTest extends TestCase
         $this->adapter = app(AgentToolAdapter::class);
     }
 
-    public function test_definitions_cover_the_server_toolset_with_valid_schemas(): void
+    public function test_prism_tools_cover_the_server_toolset_with_valid_schemas(): void
     {
-        $definitions = $this->adapter->definitions();
-        $names = array_map(fn ($definition) => $definition['function']['name'], $definitions);
+        $tools = $this->adapter->prismTools('test-model');
+        $names = array_map(fn ($tool) => $tool->name(), $tools);
 
         $this->assertContains('bulk_create_tests', $names);
         $this->assertContains('trigger_run', $names);
@@ -34,17 +34,40 @@ class AgentToolAdapterTest extends TestCase
         // Binary image content cannot be a text tool result.
         $this->assertNotContains('get_screenshot', $names);
 
-        foreach ($definitions as $definition) {
-            $this->assertSame('function', $definition['type']);
+        foreach ($tools as $tool) {
+            // Names must be valid for the tool-calling API.
+            $this->assertMatchesRegularExpression('/^[a-zA-Z0-9_-]{1,64}$/', $tool->name());
+            $this->assertNotSame('', $tool->description());
 
-            $parameters = $definition['function']['parameters'];
+            foreach ($tool->parameters() as $parameter) {
+                $this->assertNotSame('', $parameter->name());
+                $this->assertIsArray($parameter->toArray());
+            }
 
-            $this->assertSame('object', $parameters['type']);
-            $this->assertArrayHasKey('properties', $parameters);
-
-            // Names must be valid for the OpenAI tool-calling API.
-            $this->assertMatchesRegularExpression('/^[a-zA-Z0-9_-]{1,64}$/', $definition['function']['name']);
+            // Required parameters are declared as such.
+            $this->assertIsArray($tool->requiredParameters());
         }
+    }
+
+    public function test_prism_tool_handlers_delegate_to_the_adapter_with_agent_meta(): void
+    {
+        $user = User::factory()->create();
+        $suite = TestSuite::create(['name' => 'S', 'base_url' => 'https://example.com', 'created_by' => $user->id]);
+        $suite->members()->attach($user->id, ['can_view' => true, 'can_edit' => true]);
+
+        $this->actingAs($user);
+
+        $tools = collect($this->adapter->prismTools('gpt-4o'))
+            ->keyBy(fn ($tool) => $tool->name());
+
+        $this->assertTrue($tools->has('get_suite'));
+
+        // Prism invokes handlers with named parameters collected into an
+        // array by the variadic signature.
+        $result = $tools->get('get_suite')->handle(...['suite_id' => $suite->id]);
+
+        $this->assertIsString($result);
+        $this->assertStringContainsString('S', $result);
     }
 
     public function test_unknown_tool_returns_error(): void
@@ -143,8 +166,8 @@ class AgentToolAdapterTest extends TestCase
     {
         config(['sorify.agent.blocked_tools' => ' trigger_run , fetch_url ']);
 
-        // Hidden from the definitions sent to the LLM…
-        $names = array_map(fn ($definition) => $definition['function']['name'], $this->adapter->definitions());
+        // Hidden from the tools sent to the LLM…
+        $names = array_map(fn ($tool) => $tool->name(), $this->adapter->prismTools('test-model'));
 
         $this->assertNotContains('trigger_run', $names);
         $this->assertNotContains('fetch_url', $names);

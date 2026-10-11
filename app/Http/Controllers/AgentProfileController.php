@@ -26,12 +26,17 @@ class AgentProfileController extends Controller
             'base_url' => ['required', 'string', 'max:2048'],
             'api_token' => ['required', 'string', 'max:8192'],
             'proxy_url' => ['nullable', 'url', 'max:2048'],
+            'extra_headers' => ['nullable', 'array', 'max:20'],
+            'extra_headers.*.name' => ['nullable', 'string', 'max:128', 'regex:/^[A-Za-z0-9!#$%&\'*+.^_`|~-]+$/'],
+            'extra_headers.*.value' => ['nullable', 'string', 'max:2048'],
             'default_model' => ['nullable', 'string', 'max:255'],
             'system_prompt' => ['nullable', 'string', 'max:8000'],
             'history_retention_days' => ['required', 'integer', 'in:'.implode(',', AgentProfile::RETENTION_DAYS)],
         ]);
 
-        $profile = AgentProfile::create($validated + ['user_id' => $request->user()->id]);
+        $profile = AgentProfile::create(
+            $this->withNormalizedHeaders($validated) + ['user_id' => $request->user()->id],
+        );
 
         return response()->json(['profile' => $profile->toSafeArray()], 201);
     }
@@ -46,6 +51,9 @@ class AgentProfileController extends Controller
             'base_url' => ['required', 'string', 'max:2048'],
             'api_token' => ['nullable', 'string', 'max:8192'],
             'proxy_url' => ['nullable', 'url', 'max:2048'],
+            'extra_headers' => ['nullable', 'array', 'max:20'],
+            'extra_headers.*.name' => ['nullable', 'string', 'max:128', 'regex:/^[A-Za-z0-9!#$%&\'*+.^_`|~-]+$/'],
+            'extra_headers.*.value' => ['nullable', 'string', 'max:2048'],
             'default_model' => ['nullable', 'string', 'max:255'],
             'system_prompt' => ['nullable', 'string', 'max:8000'],
             'history_retention_days' => ['required', 'integer', 'in:'.implode(',', AgentProfile::RETENTION_DAYS)],
@@ -59,6 +67,7 @@ class AgentProfileController extends Controller
                 ? $validated['api_token']
                 : $profile->api_token,
             'proxy_url' => $validated['proxy_url'] ?? null,
+            'extra_headers' => $this->withNormalizedHeaders($validated)['extra_headers'],
             'default_model' => $validated['default_model'] ?? null,
             'system_prompt' => $validated['system_prompt'] ?? null,
             'history_retention_days' => $validated['history_retention_days'],
@@ -148,7 +157,7 @@ class AgentProfileController extends Controller
     }
 
     /**
-     * @return array{base_url: string, token: ?string, proxy: ?string}|null
+     * @return array{base_url: string, token: ?string, proxy: ?string, headers: array<string, string>}|null
      */
     private function credentials(Request $request): ?array
     {
@@ -180,6 +189,12 @@ class AgentProfileController extends Controller
             'base_url' => AgentProfile::normalizeBaseUrl($baseUrl),
             'token' => $token,
             'proxy' => $proxy,
+            // Unsaved form rows ({name, value}) win; a blank field falls
+            // back to the profile's stored headers, matching the token
+            // behavior above.
+            'headers' => is_array($request->input('extra_headers'))
+                ? AgentProfile::normalizeHeaders($request->input('extra_headers'))
+                : ($profile?->extra_headers ?? []),
         ];
     }
 
@@ -189,7 +204,21 @@ class AgentProfileController extends Controller
     }
 
     /**
-     * @param  array{base_url: string, token: ?string, proxy: ?string}  $credentials
+     * Replace the raw extra_headers pair rows of a validated payload with
+     * the sanitized name => value map (null when empty).
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function withNormalizedHeaders(array $validated): array
+    {
+        $validated['extra_headers'] = AgentProfile::normalizeHeaders($validated['extra_headers'] ?? null) ?: null;
+
+        return $validated;
+    }
+
+    /**
+     * @param  array{base_url: string, token: ?string, proxy: ?string, headers: array<string, string>}  $credentials
      * @return list<string>
      */
     private function fetchModels(array $credentials): array
@@ -201,6 +230,10 @@ class AgentProfileController extends Controller
 
         if ($credentials['proxy'] !== null) {
             $request->withOptions(['proxy' => $credentials['proxy']]);
+        }
+
+        if ($credentials['headers'] !== []) {
+            $request->withHeaders($credentials['headers']);
         }
 
         if ($credentials['token'] !== null) {

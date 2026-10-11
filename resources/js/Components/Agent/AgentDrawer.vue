@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import {
-    ArrowLeft, BookMarked, Bot, CircleAlert, CircleCheck, Gauge, LoaderCircle, MessageSquarePlus, MessagesSquare,
+    ArrowLeft, BookMarked, Bot, Brain, CircleAlert, CircleCheck, Gauge, LoaderCircle, MessageSquarePlus, MessagesSquare,
     Send, Settings2, Square, Trash2, X,
 } from '@lucide/vue';
 import RunProgressCard from './RunProgressCard.vue';
@@ -12,7 +12,7 @@ import CopyButton from '@/Components/CopyButton.vue';
 import { useAgentContext } from '@/composables/useAgentContext';
 import { useAgentDrawer } from '@/composables/useAgentDrawer.js';
 import { formatRelativeTime } from '@/utils/date';
-import { MarkdownRenderer } from '@/Components/ui';
+import { MarkdownRenderer, SelectMenu } from '@/Components/ui';
 
 const { t } = useI18n();
 
@@ -155,6 +155,36 @@ const maxSteps = ref(Number(localStorage.getItem('agent.max_steps')) || 100);
 if (!MAX_STEPS_OPTIONS.includes(maxSteps.value)) maxSteps.value = 100;
 
 watch(maxSteps, (value) => localStorage.setItem('agent.max_steps', String(value)));
+
+const maxStepsOptions = computed(() => MAX_STEPS_OPTIONS.map((steps) => ({
+    value: steps,
+    label: t('agent.chat.maxSteps', { count: steps }),
+})));
+
+const agentMaxRunOptions = computed(() => AGENT_MAX_RUN_OPTIONS.map((minutes) => ({
+    value: minutes,
+    label: t('agent.chat.maxRun', { minutes }),
+})));
+
+// Reasoning effort — how hard the model thinks before answering.
+// 'default' sends nothing and lets the model decide; low/medium/high are
+// forwarded as the OpenAI-style `reasoning_effort` request parameter
+// (endpoints that don't understand it ignore it). Remembered like the
+// step budget.
+const REASONING_EFFORTS = ['default', 'low', 'medium', 'high'];
+
+const reasoningEffort = ref(localStorage.getItem('agent.reasoning_effort') || 'default');
+
+if (!REASONING_EFFORTS.includes(reasoningEffort.value)) reasoningEffort.value = 'default';
+
+watch(reasoningEffort, (value) => localStorage.setItem('agent.reasoning_effort', value));
+
+const reasoningEffortOptions = computed(() => [
+    { value: 'default', label: t('agent.chat.reasoningEffortDefault'), hint: t('agent.chat.reasoningEffortDefaultHint') },
+    { value: 'low', label: t('agent.chat.reasoningEffortLow') },
+    { value: 'medium', label: t('agent.chat.reasoningEffortMedium') },
+    { value: 'high', label: t('agent.chat.reasoningEffortHigh') },
+]);
 
 let abortController = null;
 
@@ -778,7 +808,12 @@ async function send() {
                 'Accept': 'application/json',
                 'X-XSRF-TOKEN': csrfToken(),
             },
-            body: JSON.stringify({ message, model: selectedModel.value || null, max_steps: maxSteps.value }),
+            body: JSON.stringify({
+                message,
+                model: selectedModel.value || null,
+                max_steps: maxSteps.value,
+                reasoning_effort: reasoningEffort.value === 'default' ? null : reasoningEffort.value,
+            }),
             signal: abortController.signal,
         });
 
@@ -1028,12 +1063,12 @@ onBeforeUnmount(() => {
              so the page content stays visible and interactive beside the chat -->
         <div
             v-if="show"
-            class="fixed inset-0 z-50 bg-[var(--md-sys-color-scrim)]/60 lg:hidden"
+            class="fixed inset-0 z-50 bg-[var(--md-sys-color-scrim)]/60 lg:hidden animate-scrim-in"
             @click="emit('close')"
         />
         <div
             v-if="show"
-            class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-xl bg-[var(--md-sys-color-surface-container-high)] shadow-elevation-3 flex flex-col border-l border-[var(--md-sys-color-outline-variant)]"
+            class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-xl bg-[var(--md-sys-color-surface-container-high)] shadow-elevation-3 flex flex-col border-l border-[var(--md-sys-color-outline-variant)] animate-drawer-in"
             role="dialog"
             :aria-label="t('agent.chat.title')"
         >
@@ -1041,7 +1076,7 @@ onBeforeUnmount(() => {
             <div class="flex items-center gap-2 px-4 py-3 border-b border-[var(--md-sys-color-outline-variant)] flex-shrink-0">
                 <button
                     v-if="view !== 'list'"
-                    class="p-1.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                    class="p-1.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] hover:bg-[var(--md-sys-color-on-surface-variant)]/10 active:bg-[var(--md-sys-color-on-surface-variant)]/10 transition-colors"
                     :title="t('agent.chat.back')"
                     @click="backToList"
                 >
@@ -1063,7 +1098,7 @@ onBeforeUnmount(() => {
 
                 <button
                     v-if="view === 'chat' && conversation"
-                    class="p-1.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors"
+                    class="p-1.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] hover:bg-[var(--md-sys-color-error)]/10 active:bg-[var(--md-sys-color-error)]/10 transition-colors"
                     :title="t('agent.chat.delete')"
                     :disabled="deletingId === conversation.id || streaming"
                     @click="deleteConversation(conversation.id)"
@@ -1073,14 +1108,14 @@ onBeforeUnmount(() => {
                 <Link
                     href="/sorify/profile"
                     :data="{ section: 'agents' }"
-                    class="p-1.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                    class="p-1.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] hover:bg-[var(--md-sys-color-on-surface-variant)]/10 transition-colors"
                     :title="t('agent.chat.openSettings')"
                     @click="emit('close')"
                 >
                     <Settings2 :size="18" />
                 </Link>
                 <button
-                    class="p-1.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors"
+                    class="p-1.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] hover:bg-[var(--md-sys-color-on-surface-variant)]/10 transition-colors"
                     :title="t('common.close')"
                     @click="emit('close')"
                 >
@@ -1285,28 +1320,28 @@ onBeforeUnmount(() => {
                         <div
                             v-for="(message, index) in messages"
                             :key="index"
-                            class="flex flex-col"
+                            class="flex flex-col animate-fade-slide-in"
                             :class="message.role === 'user' ? 'items-end' : 'items-start'"
                         >
                         <div
                             v-if="message.content !== '' && message.role === 'user'"
-                            class="max-w-[85%] md-body-medium whitespace-pre-wrap break-words rounded-[var(--md-sys-shape-corner-medium)] px-3.5 py-2.5 bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)]"
+                            class="max-w-[85%] md-body-medium whitespace-pre-wrap break-words px-3.5 py-2.5 bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] rounded-[var(--md-sys-shape-corner-large)_var(--md-sys-shape-corner-large)_var(--md-sys-shape-corner-small)_var(--md-sys-shape-corner-large)]"
                         >
                             {{ message.content }}
                         </div>
                         <div
                             v-else-if="message.content !== '' && message.role !== 'error'"
-                            class="max-w-[92%] w-fit rounded-[var(--md-sys-shape-corner-medium)] px-3.5 py-2.5 bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)]"
+                            class="max-w-[92%] w-fit px-3.5 py-2.5 bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)_var(--md-sys-shape-corner-large)_var(--md-sys-shape-corner-large)_var(--md-sys-shape-corner-large)]"
                         >
                             <MarkdownRenderer :content="message.content" />
                             <span
                                 v-if="message.streaming && message.toolCalls.length === 0"
-                                class="inline-block w-1.5 h-4 ml-0.5 align-text-bottom bg-[var(--md-sys-color-primary)] animate-pulse"
+                                class="inline-block w-1.5 h-4 ml-0.5 align-text-bottom bg-[var(--md-sys-color-primary)] animate-md-caret-blink"
                             />
                         </div>
                             <div
                                 v-if="message.role === 'error'"
-                                class="max-w-[85%] md-body-small rounded-[var(--md-sys-shape-corner-medium)] px-3.5 py-2.5 bg-[var(--md-sys-color-error-container)] text-[var(--md-sys-color-on-error-container)] flex items-start gap-2"
+                                class="max-w-[85%] md-body-small px-3.5 py-2.5 bg-[var(--md-sys-color-error-container)] text-[var(--md-sys-color-on-error-container)] flex items-start gap-2 rounded-[var(--md-sys-shape-corner-small)_var(--md-sys-shape-corner-large)_var(--md-sys-shape-corner-large)_var(--md-sys-shape-corner-large)]"
                             >
                                 <CircleAlert :size="14" class="flex-shrink-0 mt-0.5" />
                                 <span class="whitespace-pre-wrap break-words">{{ message.content }}</span>
@@ -1326,9 +1361,9 @@ onBeforeUnmount(() => {
                          in flight and no text is streaming yet -->
                     <div v-if="streaming && thinking" class="flex items-center gap-2.5 px-1 py-1">
                         <span class="flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-pulse"></span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-pulse [animation-delay:150ms]"></span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-pulse [animation-delay:300ms]"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-thinking-dot"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-thinking-dot [animation-delay:150ms]"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--md-sys-color-primary)] animate-thinking-dot [animation-delay:300ms]"></span>
                         </span>
                         <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ stopping ? t('agent.chat.stopping') : t('agent.chat.thinking') }}</span>
                         <span v-if="waitingInfo && !stopping" class="md-body-small text-[var(--md-sys-color-error)]">
@@ -1416,8 +1451,9 @@ onBeforeUnmount(() => {
                         </div>
                     </div>
 
-                    <!-- Agent mode toggle + step / max-run-time options -->
-                    <div class="flex items-center gap-1 px-4 pt-2.5 flex-wrap">
+                    <!-- Agent mode toggle + reasoning / step / max-run-time
+                         options, as MD3 dropdown selects. -->
+                    <div class="flex items-center gap-1.5 px-4 pt-2.5 flex-wrap">
                         <button
                             class="md-label-small inline-flex items-center gap-1 px-2.5 py-1 rounded-full transition-colors disabled:opacity-50"
                             :class="agentMode
@@ -1430,31 +1466,28 @@ onBeforeUnmount(() => {
                             <Bot :size="12" />
                             {{ t('agent.chat.agentMode') }}
                         </button>
-                        <label class="inline-flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]" :title="t('agent.chat.maxStepsTitle')">
-                            <Gauge :size="12" />
-                            <select
-                                v-model="maxSteps"
-                                class="bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-full)] px-2 py-0.5 outline-none focus:ring-2 ring-[var(--md-sys-color-primary)] disabled:opacity-50"
-                                :disabled="streaming"
-                            >
-                                <option v-for="steps in MAX_STEPS_OPTIONS" :key="steps" :value="steps">
-                                    {{ t('agent.chat.maxSteps', { count: steps }) }}
-                                </option>
-                            </select>
-                        </label>
-                        <label v-if="agentMode" class="inline-flex items-center gap-1.5 md-label-small text-[var(--md-sys-color-on-surface-variant)]">
-                            <select
-                                v-model="agentMaxRun"
-                                class="bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-full)] px-2 py-0.5 outline-none focus:ring-2 ring-[var(--md-sys-color-primary)] disabled:opacity-50"
-                                :title="t('agent.chat.maxRunTitle')"
-                                :disabled="streaming"
-                                @change="saveAgentMaxRun"
-                            >
-                                <option v-for="minutes in AGENT_MAX_RUN_OPTIONS" :key="minutes" :value="minutes">
-                                    {{ t('agent.chat.maxRun', { minutes }) }}
-                                </option>
-                            </select>
-                        </label>
+                        <SelectMenu
+                            v-model="reasoningEffort"
+                            :options="reasoningEffortOptions"
+                            :leading-icon="Brain"
+                            :title="t('agent.chat.reasoningEffortTitle')"
+                            :disabled="streaming"
+                        />
+                        <SelectMenu
+                            v-model="maxSteps"
+                            :options="maxStepsOptions"
+                            :leading-icon="Gauge"
+                            :title="t('agent.chat.maxStepsTitle')"
+                            :disabled="streaming"
+                        />
+                        <SelectMenu
+                            v-if="agentMode"
+                            v-model="agentMaxRun"
+                            :options="agentMaxRunOptions"
+                            :title="t('agent.chat.maxRunTitle')"
+                            :disabled="streaming"
+                            @change="saveAgentMaxRun"
+                        />
                     </div>
 
                     <div class="flex items-end gap-2 px-4 py-3">
@@ -1469,7 +1502,7 @@ onBeforeUnmount(() => {
                         />
                         <button
                             v-if="streaming"
-                            class="p-2.5 rounded-full bg-[var(--md-sys-color-error-container)] text-[var(--md-sys-color-on-error-container)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="p-2.5 rounded-full bg-[var(--md-sys-color-error-container)] text-[var(--md-sys-color-on-error-container)] transition duration-100 [transition-timing-function:var(--md-sys-motion-easing-standard)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
                             :title="t('agent.chat.stop')"
                             :disabled="stopping"
                             @click="stop"
@@ -1478,10 +1511,10 @@ onBeforeUnmount(() => {
                         </button>
                         <button
                             v-else
-                            class="p-2.5 rounded-full transition-colors"
+                            class="p-2.5 rounded-full transition duration-100 [transition-timing-function:var(--md-sys-motion-easing-standard)] active:scale-95"
                             :class="input.trim() === ''
                                 ? 'bg-[var(--md-sys-color-surface-container-highest)] text-[var(--md-sys-color-on-surface-variant)] cursor-default'
-                                : 'bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)]'"
+                                : 'bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] hover:brightness-110'"
                             :disabled="input.trim() === ''"
                             :title="t('agent.chat.send')"
                             @click="send"

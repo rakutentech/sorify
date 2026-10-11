@@ -22,3 +22,4 @@ export { default as Pagination } from './Pagination.vue';
 export { default as MarkdownRenderer } from './MarkdownRenderer.vue';
 export { default as Tooltip } from './Tooltip.vue';
 export { default as SortableTh } from './SortableTh.vue';
+export { default as SelectMenu } from './SelectMenu.vue';
