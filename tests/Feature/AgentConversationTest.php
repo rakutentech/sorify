@@ -227,6 +227,16 @@ class AgentConversationTest extends TestCase
         ])->assertStatus(422)->assertJsonValidationErrors(['max_steps']);
     }
 
+    public function test_chat_rejects_an_unknown_reasoning_effort(): void
+    {
+        $conversation = AgentConversation::create($this->conversationAttributes());
+
+        $this->actingAs($this->user)->postJson("/sorify/agent/conversations/{$conversation->id}/chat", [
+            'message' => 'hello',
+            'reasoning_effort' => 'ultra',
+        ])->assertStatus(422)->assertJsonValidationErrors(['reasoning_effort']);
+    }
+
     public function test_destroy_deletes_conversation_and_messages(): void
     {
         $conversation = AgentConversation::create($this->conversationAttributes());

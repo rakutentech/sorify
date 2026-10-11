@@ -10,24 +10,34 @@ use App\Models\AgentTurnEvent;
 use App\Models\Setting;
 use App\Models\Skill;
 use Generator;
-use GuzzleHttp\Client as GuzzleClient;
-use OpenAI;
-use OpenAI\Client;
-use OpenAI\Exceptions\ErrorException;
-use OpenAI\Responses\StreamResponse;
+use Prism\Prism\Exceptions\PrismRateLimitedException;
+use Prism\Prism\Facades\Prism;
+use Prism\Prism\Streaming\Events\StepFinishEvent;
+use Prism\Prism\Streaming\Events\StepStartEvent;
+use Prism\Prism\Streaming\Events\StreamEndEvent;
+use Prism\Prism\Streaming\Events\TextDeltaEvent;
+use Prism\Prism\Streaming\Events\ToolCallEvent;
+use Prism\Prism\Streaming\Events\ToolResultEvent;
+use Prism\Prism\Tool as PrismTool;
+use Prism\Prism\ValueObjects\Messages\AssistantMessage;
+use Prism\Prism\ValueObjects\Messages\ToolResultMessage;
+use Prism\Prism\ValueObjects\Messages\UserMessage;
+use Prism\Prism\ValueObjects\ToolCall;
 use Throwable;
 
 /**
- * The AI agent: a streaming tool-calling loop over the user's
+ * The AI agent: a Prism-powered tool-calling loop over the user's
  * OpenAI-compatible profile.
  *
  * Each turn sends the system prompt (built from the conversation's page
  * context plus the profile's extra instructions), the persisted thread
- * history, and the user's message to the LLM. Text deltas are yielded as
- * `delta` events while they stream in; tool calls are executed in-process
- * through the AgentToolAdapter (which re-runs authorization gates as the
- * chatting user) and yielded as `tool_start` / `tool_result` events. The
- * loop repeats until the LLM produces a plain-text answer or the step budget
+ * history, and the user's message to the LLM through Prism's streaming
+ * API. Prism owns the round-trip loop; its stream events are mapped here
+ * onto the chat's SSE protocol (`delta`, `step`, `tool_start`,
+ * `tool_result`, `waiting`, `done`) while the transcript is persisted
+ * step by step. Tools execute in-process through the AgentToolAdapter
+ * (which re-runs authorization gates as the chatting user) and the loop
+ * repeats until the LLM produces a plain-text answer or the step budget
  * is exhausted.
  *
  * In `ask` mode no tools are sent, so the LLM answers in a single
@@ -35,8 +45,6 @@ use Throwable;
  */
 class AgentService
 {
-    private const MAX_TOOL_RESULT_CHARS = 60000;
-
     /**
      * The per-turn step budget options offered in the chat box. One option
      * per row in the select; also the `in:` validation list the chat
@@ -77,7 +85,7 @@ class AgentService
      * loop repeats until the LLM answers, the step budget or the optional
      * wall-clock budget runs out.
      */
-    public function runTurn(AgentConversation $conversation, AgentMessage $userMessage, ?string $model, string $mode = 'agent', ?int $deadlineSeconds = null, ?int $maxSteps = null): Generator
+    public function runTurn(AgentConversation $conversation, AgentMessage $userMessage, ?string $model, string $mode = 'agent', ?int $deadlineSeconds = null, ?int $maxSteps = null, ?string $reasoningEffort = null): Generator
     {
         $profile = $conversation->profile;
 
@@ -104,215 +112,231 @@ class AgentService
         // The row records the turn's mode (ask / agent) and no content.
         $turn = $this->startTrackedTurn($conversation, $turnId, $mode);
 
+        // Messages accumulate as steps complete so a rate-limited
+        // round-trip can be retried without replaying what already
+        // streamed.
         $messages = [
-            $this->systemMessage($conversation, $profile),
             ...$this->history($conversation, $turnId),
-            ['role' => 'user', 'content' => $message],
+            new UserMessage($message),
         ];
 
-        $toolDefinitions = $mode === 'ask' ? [] : $this->tools->definitions();
+        $prismTools = $mode === 'ask' ? [] : $this->tools->prismTools($model);
         $stepsBudget = $this->maxSteps($maxSteps);
-        $stepsLeft = $stepsBudget;
+        $systemPrompt = $this->systemPrompt($conversation, $profile);
+
         $step = 0;
+        $lastAssistantId = null;
+        $lastStepHadToolCalls = false;
+        $finished = false;
+        $rateLimitRetry = 1;
+        $maxRateLimitRetries = (int) config('sorify.agent.rate_limit_retries', 3);
 
         try {
-            $client = $this->buildClient($profile);
+            // This turn was stopped on request before it started — stop
+            // cleanly without a round-trip.
+            if ($this->turnCancelRequested($turn)) {
+                $this->persistAssistant($conversation, $turnId, 'I stopped because this run was stopped on request.');
 
-            while (true) {
-                $this->touchTrackedTurn($turn);
+                yield ['event' => 'done', 'data' => ['reason' => 'cancelled']];
 
-                // This turn was stopped on request (the user's Stop
-                // button, or an admin from the running-agents page) —
-                // stop cleanly at the next step boundary.
-                if ($this->turnCancelRequested($turn)) {
-                    $this->persistAssistant($conversation, $turnId, 'I stopped because this run was stopped on request.');
+                $this->touch($conversation);
 
-                    yield ['event' => 'done', 'data' => ['reason' => 'cancelled']];
+                return;
+            }
 
-                    $this->touch($conversation);
+            while (! $finished) {
+                // A rate-limited round-trip resumes with the steps it
+                // already consumed taken off the budget.
+                $remainingSteps = max(1, $stepsBudget - $step);
 
-                    return;
-                }
+                $stream = $this->openStream($profile, $model, $systemPrompt, $messages, $prismTools, $remainingSteps, $reasoningEffort);
 
-                if ($stepsLeft-- <= 0) {
-                    $this->persistAssistant($conversation, $turnId, "I stopped after reaching the maximum number of tool-call steps ({$stepsBudget}). Please continue in a new message if more work is needed.");
+                try {
+                    // ── Per-step accumulators (reset at each step) ──────
+                    $stepContent = '';
+                    $stepToolCalls = [];
+                    $stepToolResults = [];
+                    $stepToolRows = [];
+                    $interrupted = null; // 'cancelled' | 'max_time'
+                    $lastCancelCheck = microtime(true);
 
-                    yield ['event' => 'done', 'data' => ['reason' => 'max_steps']];
+                    foreach ($stream as $event) {
+                        // Stop requests and the wall-clock budget are also
+                        // honoured mid-response: a single LLM answer can
+                        // stream for minutes and the user's Stop should
+                        // land within seconds. Polled at an interval so
+                        // the database isn't queried on every event.
+                        if (microtime(true) - $lastCancelCheck >= 1) {
+                            $lastCancelCheck = microtime(true);
 
-                    $this->touch($conversation);
+                            if ($this->turnCancelRequested($turn)) {
+                                $interrupted = 'cancelled';
 
-                    return;
-                }
+                                break;
+                            }
 
-                // The whole turn is bounded by its wall-clock budget
-                // (the conversation's max run time) — stop cleanly
-                // when it is gone.
-                if ($deadlineSeconds !== null && microtime(true) - $startedAt > $deadlineSeconds) {
-                    $this->persistAssistant($conversation, $turnId, "I stopped after reaching the maximum run time ({$this->deadlineMinutes($deadlineSeconds)} minutes). Please continue in a new message if more work is needed.");
+                            if ($deadlineSeconds !== null && microtime(true) - $startedAt > $deadlineSeconds) {
+                                $interrupted = 'max_time';
 
-                    yield ['event' => 'done', 'data' => ['reason' => 'max_time']];
+                                break;
+                            }
+                        }
 
-                    $this->touch($conversation);
+                        if ($event instanceof StepStartEvent) {
+                            $step++;
 
-                    return;
-                }
+                            $this->touchTrackedTurn($turn);
 
-                // Signal the client that the LLM round-trip is starting, so
-                // the UI can show a "thinking" state with the step count.
-                $step++;
+                            // Signal the client that the LLM round-trip is
+                            // starting, so the UI can show a "thinking"
+                            // state with the step count.
+                            yield ['event' => 'step', 'data' => [
+                                'step' => $step,
+                                'max_steps' => $mode === 'agent' ? $stepsBudget : null,
+                            ]];
 
-                yield ['event' => 'step', 'data' => [
-                    'step' => $step,
-                    'max_steps' => $mode === 'agent' ? $stepsBudget : null,
-                ]];
+                            continue;
+                        }
 
-                $payload = [
-                    'model' => $model,
-                    'messages' => $messages,
-                ];
+                        if ($event instanceof TextDeltaEvent) {
+                            $stepContent .= $event->delta;
 
-                if ($toolDefinitions !== []) {
-                    $payload['tools'] = $toolDefinitions;
-                }
+                            yield ['event' => 'delta', 'data' => ['text' => $event->delta]];
 
-                $stream = yield from $this->createStream($client, $payload);
+                            continue;
+                        }
 
-                $content = '';
-                $toolCalls = [];
-                $cancelledMidStream = false;
-                $lastCancelCheck = microtime(true);
+                        if ($event instanceof ToolCallEvent) {
+                            $stepToolCalls[] = $event->toolCall;
 
-                foreach ($stream as $chunk) {
-                    // Stop requests are also honoured mid-response: a
-                    // single LLM answer can stream for minutes, and the
-                    // user's Stop should land within seconds instead of at
-                    // the next step boundary. Polled at an interval so the
-                    // database isn't queried on every chunk.
-                    if (microtime(true) - $lastCancelCheck >= 1) {
-                        $lastCancelCheck = microtime(true);
+                            yield ['event' => 'tool_start', 'data' => [
+                                'id' => $event->toolCall->id,
+                                'name' => $event->toolCall->name,
+                                'arguments' => $this->decodeArguments($event->toolCall),
+                            ]];
 
-                        if ($this->turnCancelRequested($turn)) {
-                            $cancelledMidStream = true;
+                            continue;
+                        }
+
+                        if ($event instanceof ToolResultEvent) {
+                            yield ['event' => 'tool_result', 'data' => [
+                                'id' => $event->toolResult->toolCallId,
+                                'name' => $event->toolResult->toolName,
+                                'is_error' => ! $event->success,
+                                'result' => mb_substr((string) $event->toolResult->result, 0, 2000),
+                            ]];
+
+                            $stepToolResults[] = $event->toolResult;
+
+                            $stepToolRows[] = [
+                                'turn_id' => $turnId,
+                                'conversation_id' => $conversation->id,
+                                'role' => 'tool',
+                                'content' => mb_substr((string) $event->toolResult->result, 0, AgentToolAdapter::MAX_TOOL_RESULT_CHARS),
+                                'tool_call_id' => $event->toolResult->toolCallId,
+                                'name' => $event->toolResult->toolName,
+                            ];
+
+                            continue;
+                        }
+
+                        if ($event instanceof StepFinishEvent) {
+                            // Persist the step the way the transcript
+                            // expects it: the assistant row (text and/or
+                            // tool calls), then its tool rows.
+                            $assistant = $this->persistStep($conversation, $turnId, $stepContent, $stepToolCalls, $stepToolRows);
+
+                            if ($assistant !== null) {
+                                $lastAssistantId = $assistant->id;
+                            }
+
+                            // A step that produced nothing (an empty
+                            // round from a degenerate provider response)
+                            // leaves the previous step's verdict intact.
+                            if ($stepContent !== '' || $stepToolCalls !== []) {
+                                $lastStepHadToolCalls = $stepToolCalls !== [];
+                            }
+
+                            // Mirror the completed step onto the message
+                            // list so a retry after a rate-limited
+                            // round-trip resumes from the same point.
+                            if ($stepContent !== '' || $stepToolCalls !== []) {
+                                $messages[] = new AssistantMessage($stepContent, $stepToolCalls);
+                            }
+
+                            if ($stepToolResults !== []) {
+                                $messages[] = new ToolResultMessage($stepToolResults);
+                            }
+
+                            $stepContent = '';
+                            $stepToolCalls = [];
+                            $stepToolResults = [];
+                            $stepToolRows = [];
+
+                            continue;
+                        }
+
+                        if ($event instanceof StreamEndEvent) {
+                            $finished = true;
+
+                            if ($lastStepHadToolCalls) {
+                                // The step budget ran out with the model
+                                // still asking for tools — the provider's
+                                // stream ends right after the step
+                                // instead of continuing the loop.
+                                $assistant = $this->persistAssistant($conversation, $turnId, "I stopped after reaching the maximum number of tool-call steps ({$stepsBudget}). Please continue in a new message if more work is needed.");
+
+                                $lastAssistantId = $assistant?->id;
+
+                                yield ['event' => 'done', 'data' => ['reason' => 'max_steps']];
+                            } else {
+                                yield ['event' => 'done', 'data' => ['message_id' => $lastAssistantId]];
+                            }
 
                             break;
                         }
                     }
 
-                    foreach ($chunk->choices as $choice) {
-                        $delta = $choice->delta;
+                    if ($interrupted !== null) {
+                        // Keep whatever streamed before the stop landed, then
+                        // close the turn out with the stop note.
+                        $this->persistStep($conversation, $turnId, $stepContent, $stepToolCalls, $stepToolRows);
 
-                        if (($delta->content ?? null) !== null && $delta->content !== '') {
-                            $content .= $delta->content;
+                        if ($interrupted === 'cancelled') {
+                            $this->persistAssistant($conversation, $turnId, 'I stopped because this run was stopped on request.');
 
-                            yield ['event' => 'delta', 'data' => ['text' => $delta->content]];
+                            yield ['event' => 'done', 'data' => ['reason' => 'cancelled']];
+                        } else {
+                            $this->persistAssistant($conversation, $turnId, "I stopped after reaching the maximum run time ({$this->deadlineMinutes($deadlineSeconds)} minutes). Please continue in a new message if more work is needed.");
+
+                            yield ['event' => 'done', 'data' => ['reason' => 'max_time']];
                         }
 
-                        foreach ($delta->toolCalls ?? [] as $toolCall) {
-                            $index = $toolCall->index ?? count($toolCalls);
-
-                            $toolCalls[$index] ??= [
-                                'id' => '',
-                                'type' => 'function',
-                                'function' => ['name' => '', 'arguments' => ''],
-                            ];
-
-                            if ($toolCall->id !== null && $toolCall->id !== '') {
-                                $toolCalls[$index]['id'] = $toolCall->id;
-                            }
-
-                            if ($toolCall->function->name !== null && $toolCall->function->name !== '') {
-                                $toolCalls[$index]['function']['name'] .= $toolCall->function->name;
-                            }
-
-                            $toolCalls[$index]['function']['arguments'] .= $toolCall->function->arguments;
-                        }
+                        $finished = true;
                     }
-                }
-
-                if ($cancelledMidStream) {
-                    // Keep whatever streamed before the stop landed, then
-                    // close the turn out with the stop note.
-                    if ($content !== '') {
-                        $this->persistAssistant($conversation, $turnId, $content);
+                } catch (Throwable $exception) {
+                    if (! $this->isRateLimited($exception) || $rateLimitRetry > $maxRateLimitRetries) {
+                        throw $exception;
                     }
 
-                    $this->persistAssistant($conversation, $turnId, 'I stopped because this run was stopped on request.');
+                    // While waiting out the provider's advertised retry
+                    // delay, `waiting` events are yielded so the UI can
+                    // show why the turn is paused instead of the turn
+                    // dying with "Agent request failed". The reopen below
+                    // resumes from the messages accumulated so far, so
+                    // nothing that already streamed is repeated.
+                    $seconds = $this->retryDelaySeconds($exception, $rateLimitRetry);
 
-                    yield ['event' => 'done', 'data' => ['reason' => 'cancelled']];
-
-                    $this->touch($conversation);
-
-                    return;
-                }
-
-                $toolCalls = array_values(array_filter(
-                    $toolCalls,
-                    fn (array $toolCall) => $toolCall['function']['name'] !== ''
-                ));
-
-                if ($toolCalls === []) {
-                    $assistant = $this->persistAssistant($conversation, $turnId, $content);
-
-                    yield ['event' => 'done', 'data' => ['message_id' => $assistant?->id]];
-
-                    $this->touch($conversation);
-
-                    return;
-                }
-
-                $this->persistAssistant($conversation, $turnId, $content !== '' ? $content : null, $toolCalls);
-
-                $messages[] = [
-                    'role' => 'assistant',
-                    'content' => $content !== '' ? $content : null,
-                    'tool_calls' => $toolCalls,
-                ];
-
-                foreach ($toolCalls as $toolCall) {
-                    $name = $toolCall['function']['name'];
-
-                    $arguments = json_decode($toolCall['function']['arguments'], true);
-                    if (! is_array($arguments)) {
-                        $arguments = [];
-                    }
-
-                    yield ['event' => 'tool_start', 'data' => [
-                        'id' => $toolCall['id'],
-                        'name' => $name,
-                        'arguments' => $arguments,
+                    yield ['event' => 'waiting', 'data' => [
+                        'reason' => 'rate_limited',
+                        'seconds' => $seconds,
+                        'attempt' => $rateLimitRetry,
+                        'max_attempts' => $maxRateLimitRetries,
                     ]];
 
-                    // The agent's model is the ground-truth attribution for
-                    // any test code this tool call writes.
-                    $result = $this->tools->execute($name, $arguments, [
-                        'ai_model' => $model,
-                        'via' => 'agent',
-                    ]);
+                    $this->waitOutRateLimit($seconds, $exception);
 
-                    yield ['event' => 'tool_result', 'data' => [
-                        'id' => $toolCall['id'],
-                        'name' => $name,
-                        'is_error' => $result['is_error'],
-                        'result' => mb_substr($result['result'], 0, 2000),
-                    ]];
-
-                    $toolContent = mb_substr($result['result'], 0, self::MAX_TOOL_RESULT_CHARS);
-
-                    AgentMessage::create([
-                        'turn_id' => $turnId,
-                        'conversation_id' => $conversation->id,
-                        'role' => 'tool',
-                        'content' => $toolContent,
-                        'tool_call_id' => $toolCall['id'],
-                        'name' => $name,
-                    ]);
-
-                    $messages[] = [
-                        'role' => 'tool',
-                        'tool_call_id' => $toolCall['id'],
-                        'name' => $name,
-                        'content' => $toolContent,
-                    ];
+                    $rateLimitRetry++;
                 }
             }
         } catch (Throwable $exception) {
@@ -417,76 +441,84 @@ class AgentService
             ->exists();
     }
 
-    private function buildClient(AgentProfile $profile)
+    /**
+     * Open the Prism stream for the remaining conversation. Prism runs
+     * the tool-calling loop itself; its events are consumed by runTurn.
+     *
+     * @param  string  $model
+     * @param  string  $systemPrompt
+     * @param  list<\Prism\Prism\Contracts\Message>  $messages
+     * @param  list<PrismTool>  $tools
+     * @param  string|null  $reasoningEffort  low|medium|high; null = the
+     *                                        model's own default (nothing
+     *                                        is sent)
+     * @return Generator<\Prism\Prism\Streaming\Events\StreamEvent>
+     */
+    private function openStream(AgentProfile $profile, string $model, string $systemPrompt, array $messages, array $tools, int $stepsBudget, ?string $reasoningEffort = null): Generator
     {
-        $factory = OpenAI::factory()
-            ->withBaseUri(AgentProfile::normalizeBaseUrl($profile->base_url))
-            ->withApiKey($profile->api_token);
-
         // Always bound the HTTP call — without this, a stalled endpoint
         // would hang the SSE chat stream forever (connect cap + a total
         // request cap drawn from config). The proxy is additive.
-        $options = [
+        $clientOptions = [
             'connect_timeout' => 10,
             'timeout' => (int) config('sorify.agent.request_timeout', 300),
         ];
 
         if ($profile->proxy_url) {
-            $options['proxy'] = $profile->proxy_url;
+            $clientOptions['proxy'] = $profile->proxy_url;
         }
 
-        $factory->withHttpClient(new GuzzleClient($options));
-
-        return $factory->make();
-    }
-
-    /**
-     * Open the LLM stream, retrying when the provider rate-limits the
-     * request (HTTP 429 or a "rate limit" error — some gateways return
-     * 200-status errors in the stream body, so match the message too).
-     *
-     * While waiting out the provider's advertised retry delay, `waiting`
-     * events are yielded so the UI can show why the turn is paused
-     * instead of the turn dying with "Agent request failed".
-     *
-     * @param  Client  $client
-     * @param  array<string, mixed>  $payload
-     * @return StreamResponse
-     */
-    private function createStream($client, array $payload): Generator
-    {
-        $maxRetries = (int) config('sorify.agent.rate_limit_retries', 3);
-
-        for ($retry = 1; ; $retry++) {
-            try {
-                return $client->chat()->createStreamed($payload);
-            } catch (Throwable $exception) {
-                if (! $this->isRateLimited($exception) || $retry > $maxRetries) {
-                    throw $exception;
-                }
-
-                $seconds = $this->retryDelaySeconds($exception, $retry);
-
-                yield ['event' => 'waiting', 'data' => [
-                    'reason' => 'rate_limited',
-                    'seconds' => $seconds,
-                    'attempt' => $retry,
-                    'max_attempts' => $maxRetries,
-                ]];
-
-                $this->waitOutRateLimit($seconds, $exception);
-            }
+        // Custom headers configured on the profile (e.g. a User-Agent the
+        // endpoint requires). 'headers' is a mergeable client option, so
+        // these merge with the Authorization header Prism sets from the
+        // token — they cannot replace it (Authorization is also stripped
+        // when the profile is saved).
+        if (! empty($profile->extra_headers)) {
+            $clientOptions['headers'] = array_merge(
+                (array) ($clientOptions['headers'] ?? []),
+                $profile->extra_headers,
+            );
         }
+
+        $request = Prism::text()
+            ->using('openai-compatible', $model, [
+                'url' => AgentProfile::normalizeBaseUrl($profile->base_url),
+                'api_key' => $profile->api_token,
+            ])
+            ->withClientOptions($clientOptions)
+            ->withSystemPrompt($systemPrompt)
+            ->withMessages($messages)
+            ->withMaxSteps($stepsBudget);
+
+        if ($tools !== []) {
+            $request = $request->withTools($tools);
+        }
+
+        // Forwarded by the custom provider handler as `reasoning_effort`
+        // in the chat-completions body. Only set when the user picked an
+        // explicit level — the "model default" option must send nothing.
+        if ($reasoningEffort !== null) {
+            $request = $request->withProviderOptions(['reasoning_effort' => $reasoningEffort]);
+        }
+
+        return $request->asStream();
     }
 
     /**
      * A 429 from the API, or a rate-limit message relayed by the provider.
-     * Gateways behind OpenAI-compatible endpoints sometimes report the
-     * limit in the body with a 200 status, so the message is scanned too.
+     * Prism rethrows provider errors as PrismException carrying the HTTP
+     * status as the code (PrismRateLimitedException where the provider
+     * maps it); gateways behind OpenAI-compatible endpoints sometimes
+     * report the limit in the body with a 200 status, so the message is
+     * scanned too.
      */
     private function isRateLimited(Throwable $exception): bool
     {
-        if ($exception instanceof ErrorException && $exception->getStatusCode() === 429) {
+        if ($exception instanceof PrismRateLimitedException) {
+            return true;
+        }
+
+        if ((int) $exception->getCode() === 429) {
             return true;
         }
 
@@ -501,6 +533,10 @@ class AgentService
     private function retryDelaySeconds(Throwable $exception, int $retry): int
     {
         $max = (int) config('sorify.agent.rate_limit_max_wait', 60);
+
+        if ($exception instanceof PrismRateLimitedException && $exception->retryAfter !== null) {
+            return min($exception->retryAfter, $max);
+        }
 
         if (preg_match('/retry[ -]after:?\s*(\d+)\s*(s|sec|seconds?)?/i', $exception->getMessage(), $match) === 1) {
             return min((int) $match[1], $max);
@@ -526,9 +562,66 @@ class AgentService
     }
 
     /**
+     * Tool call arguments as an array — tolerant of malformed JSON, which
+     * some gateways emit in stream fragments and which should degrade to
+     * "no arguments" instead of killing the event stream.
+     *
      * @return array<string, mixed>
      */
-    private function systemMessage(AgentConversation $conversation, AgentProfile $profile): array
+    private function decodeArguments(ToolCall $toolCall): array
+    {
+        try {
+            return $toolCall->arguments();
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * A Prism tool call in the persisted `tool_calls` JSON shape (the
+     * same shape existing transcripts already carry).
+     *
+     * @return array<string, mixed>
+     */
+    private function persistedToolCall(ToolCall $toolCall): array
+    {
+        return [
+            'id' => $toolCall->id,
+            'type' => 'function',
+            'function' => [
+                'name' => $toolCall->name,
+                'arguments' => json_encode($this->decodeArguments($toolCall), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}',
+            ],
+        ];
+    }
+
+    /**
+     * Persist one completed step: the assistant row (text and/or tool
+     * calls) followed by its tool rows. A step with nothing to say is
+     * skipped entirely.
+     */
+    private function persistStep(AgentConversation $conversation, int $turnId, string $content, array $toolCalls, array $toolRows): ?AgentMessage
+    {
+        $assistant = $this->persistAssistant(
+            $conversation,
+            $turnId,
+            $content !== '' ? $content : null,
+            $toolCalls === [] ? null : array_map($this->persistedToolCall(...), $toolCalls),
+        );
+
+        foreach ($toolRows as $row) {
+            AgentMessage::create($row);
+        }
+
+        return $assistant;
+    }
+
+    /**
+     * The system prompt: the platform instructions (with the page
+     * context), the admin's global operator instructions, the profile's
+     * extra instructions and the attached skills.
+     */
+    private function systemPrompt(AgentConversation $conversation, AgentProfile $profile): string
     {
         $prompt = <<<PROMPT
         You are Sorify, an AI QA agent embedded in the Sorify test automation platform.
@@ -572,7 +665,7 @@ class AgentService
             $prompt .= $skillsBlock;
         }
 
-        return ['role' => 'system', 'content' => $prompt];
+        return $prompt;
     }
 
     /**
@@ -614,12 +707,14 @@ class AgentService
     }
 
     /**
-     * Replayed history for the LLM: the most recent messages before the
-     * current turn, trimmed so the set never starts with an orphaned
-     * tool message. (The current turn's user message is appended
-     * explicitly by the caller, so it is excluded here.)
+     * Replayed history for the LLM as Prism messages: the most recent
+     * messages before the current turn, trimmed so the set never sends
+     * tool calls without their results (an interrupted step can persist
+     * an assistant row whose tools only partly ran). The current turn's
+     * user message is appended explicitly by the caller, so it is
+     * excluded here.
      *
-     * @return list<array<string, mixed>>
+     * @return list<\Prism\Prism\Contracts\Message>
      */
     private function history(AgentConversation $conversation, ?int $beforeTurnId = null): array
     {
@@ -634,21 +729,65 @@ class AgentService
             ->reverse()
             ->values();
 
+        // Tool results that actually exist inside the replay window.
+        $resolvedToolCallIds = $messages
+            ->filter(fn (AgentMessage $message) => $message->role === 'tool')
+            ->pluck('tool_call_id')
+            ->filter()
+            ->flip();
+
         $replay = [];
 
         foreach ($messages as $message) {
-            // Tool messages must follow their assistant tool_calls — drop any
-            // leading orphans left by the replay window slicing a turn.
+            // Tool messages must follow their assistant tool_calls — drop
+            // any leading orphans left by the replay window slicing a
+            // turn.
             if ($replay === [] && $message->role === 'tool') {
                 continue;
             }
 
-            $replay[] = $message->toOpenAiMessage();
+            if ($message->role === 'assistant' && $message->tool_calls !== null) {
+                // Drop tool calls that were interrupted before a result
+                // was persisted, so the replay never promises a result
+                // the provider will wait for.
+                $message->tool_calls = array_values(array_filter(
+                    $message->tool_calls,
+                    fn (array $toolCall) => $resolvedToolCallIds->has((string) ($toolCall['id'] ?? '')),
+                ));
+
+                if ($message->tool_calls === [] && ($message->content === null || $message->content === '')) {
+                    continue;
+                }
+            }
+
+            $replay[] = $message->toPrismMessage();
         }
 
-        // Drop trailing tool messages when the previous turn was interrupted.
-        while ($replay !== [] && end($replay)['role'] === 'tool') {
-            array_pop($replay);
+        // Drop trailing tool messages when the previous turn was
+        // interrupted — and any tool calls left dangling on the last
+        // assistant message by the same cut.
+        while ($replay !== []) {
+            $last = $replay[count($replay) - 1];
+
+            if ($last instanceof ToolResultMessage) {
+                array_pop($replay);
+
+                continue;
+            }
+
+            if ($last instanceof AssistantMessage && $last->toolCalls !== []) {
+                if ($last->content === '') {
+                    array_pop($replay);
+
+                    continue;
+                }
+
+                $replay[count($replay) - 1] = new AssistantMessage($last->content);
+
+                continue;
+            }
+
+            break;
         }
 
         return $replay;

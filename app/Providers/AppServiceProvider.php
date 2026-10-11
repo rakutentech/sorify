@@ -10,10 +10,28 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Socialite\Facades\Socialite;
+use Prism\Prism\PrismManager;
+use App\Services\Agent\Prism\OpenAiCompatibleProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        // The agent's LLM transport: a Prism provider speaking plain
+        // OpenAI-compatible `chat/completions`. Prism's own `openai` driver
+        // targets the Responses API instead, which the vLLM / Ollama /
+        // OpenRouter-style endpoints behind AgentProfiles don't implement
+        // (upstream: prism-php/prism#900) — this provider is the vanilla
+        // chat-completions implementation plus reasoning-effort support.
+        // Credentials are supplied per request from the user's
+        // AgentProfile, so nothing is configured here.
+        $this->app->make(PrismManager::class)->extend('openai-compatible', function ($app, array $config) {
+            return new OpenAiCompatibleProvider(
+                apiKey: $config['api_key'] ?? '',
+                url: $config['url'] ?? '',
+            );
+        });
+    }
 
     public function boot(): void
     {
@@ -39,6 +57,12 @@ class AppServiceProvider extends ServiceProvider
         // notification fires twice per run.
 
         Gate::define('viewLogViewer', fn (User $user) => $user->is_admin);
+
+        // `php artisan dev`: the app server runs on port 8081 (Octane
+        // registers a "server" process on 8000; this userland registration
+        // takes precedence over the vendor one). Keep .env's APP_URL /
+        // ASSET_URL / GITHUB_REDIRECT_URI in sync with this port.
+        DevCommands::artisan('octane:start --watch --port=8081', 'server');
 
         DevCommands::artisan('queue:listen --queue=sorify,default,agent --tries=1 --timeout=0', 'queue');
         DevCommands::artisan('schedule:work', 'scheduler');

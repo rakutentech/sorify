@@ -242,7 +242,7 @@ WITH ALL MCP CONTROLS - SUPPORTED
 
 ```sh
 $ cat ~/.sorify
-SORIFY_URL=http://localhost:8000/sorify
+SORIFY_URL=http://localhost:8081/sorify
 SORIFY_USERNAME=admin@sorify.local
 SORIFY_PASSWORD=changeme
 ```
@@ -289,7 +289,7 @@ codex mcp get sorify
 /sorify:gateway List latest failing tests
 
 /sorify:gateway Create new test suite. Get requirements from JIRA/GHE/Excel. Write using /sorify:generate
-/sorify:gateway Update the test suite http://localhost:8000/sorify/suites/{id} by adding retry twice
+/sorify:gateway Update the test suite http://localhost:8081/sorify/suites/{id} by adding retry twice
 ```
 
 **AI Healing**
@@ -383,7 +383,7 @@ php artisan dev
  ## Verify
 
 ```sh
-http://localhost:8000/sorify
+http://localhost:8081/sorify
 ```
 
 - **User:** admin@sorify.local

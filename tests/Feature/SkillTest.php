@@ -566,15 +566,14 @@ class SkillTest extends TestCase
 
         $service = (new ReflectionClass(AgentService::class))->newInstanceWithoutConstructor();
 
-        $method = new ReflectionMethod(AgentService::class, 'systemMessage');
+        $method = new ReflectionMethod(AgentService::class, 'systemPrompt');
         $method->setAccessible(true);
 
-        $message = $method->invoke($service, $conversation, $profile);
+        $prompt = $method->invoke($service, $conversation, $profile);
 
-        $this->assertSame('system', $message['role']);
-        $this->assertStringContainsString('Strict selectors', $message['content']);
-        $this->assertStringContainsString('Always use strict selectors.', $message['content']);
-        $this->assertStringNotContainsString('Unselected skill', $message['content']);
+        $this->assertStringContainsString('Strict selectors', $prompt);
+        $this->assertStringContainsString('Always use strict selectors.', $prompt);
+        $this->assertStringNotContainsString('Unselected skill', $prompt);
     }
 
     public function test_another_users_skills_are_not_injected(): void
@@ -597,12 +596,12 @@ class SkillTest extends TestCase
 
         $service = (new ReflectionClass(AgentService::class))->newInstanceWithoutConstructor();
 
-        $method = new ReflectionMethod(AgentService::class, 'systemMessage');
+        $method = new ReflectionMethod(AgentService::class, 'systemPrompt');
         $method->setAccessible(true);
 
-        $message = $method->invoke($service, $conversation, $profile);
+        $prompt = $method->invoke($service, $conversation, $profile);
 
-        $this->assertStringNotContainsString('Foreign skill', $message['content']);
+        $this->assertStringNotContainsString('Foreign skill', $prompt);
     }
 
     // ── MCP tools ────────────────────────────────────────────────────────────

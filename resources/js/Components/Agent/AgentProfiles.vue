@@ -17,6 +17,7 @@ const blankForm = () => ({
     base_url: '',
     api_token: '',
     proxy_url: '',
+    extra_headers: [],
     default_model: '',
     system_prompt: '',
     history_retention_days: 30,
@@ -62,6 +63,32 @@ function isBlank(value) {
 }
 
 /**
+ * Stored headers arrive as a { name: value } map; the form edits them as
+ * rows so they can be added/removed one at a time.
+ */
+function headerRows(headers) {
+    return Object.entries(headers ?? {}).map(([name, value]) => ({ name, value: String(value) }));
+}
+
+/**
+ * The form rows back to the pair array the API accepts. Rows without a
+ * header name are dropped — they are just empty placeholders.
+ */
+function headerPairs(rows) {
+    return (rows ?? [])
+        .filter((header) => ! isBlank(header.name))
+        .map((header) => ({ name: header.name.trim(), value: header.value ?? '' }));
+}
+
+function addHeaderRow() {
+    editing.value.extra_headers.push({ name: '', value: '' });
+}
+
+function removeHeaderRow(index) {
+    editing.value.extra_headers.splice(index, 1);
+}
+
+/**
  * Fetch the endpoint's model list (OpenAI-compatible GET /models). Uses the
  * stored token of the profile being edited when the token field is blank,
  * so models auto-load right after opening an existing profile.
@@ -85,6 +112,7 @@ async function loadModels() {
                 base_url: isBlank(editing.value.base_url) ? null : editing.value.base_url,
                 api_token: isBlank(editing.value.api_token) ? null : editing.value.api_token,
                 proxy_url: isBlank(editing.value.proxy_url) ? null : editing.value.proxy_url,
+                extra_headers: headerPairs(editing.value.extra_headers),
             }),
         });
 
@@ -114,6 +142,7 @@ function startEdit(profile) {
         ...blankForm(),
         ...profile,
         api_token: '',
+        extra_headers: headerRows(profile.extra_headers),
     };
     models.value = [];
     testResult.value = null;
@@ -143,6 +172,7 @@ async function save() {
         base_url: editing.value.base_url,
         api_token: isBlank(editing.value.api_token) ? null : editing.value.api_token,
         proxy_url: isBlank(editing.value.proxy_url) ? null : editing.value.proxy_url,
+        extra_headers: headerPairs(editing.value.extra_headers),
         default_model: isBlank(editing.value.default_model) ? null : editing.value.default_model,
         system_prompt: isBlank(editing.value.system_prompt) ? null : editing.value.system_prompt,
         history_retention_days: editing.value.history_retention_days,
@@ -197,6 +227,7 @@ async function testConnection() {
                 base_url: isBlank(editing.value.base_url) ? null : editing.value.base_url,
                 api_token: isBlank(editing.value.api_token) ? null : editing.value.api_token,
                 proxy_url: isBlank(editing.value.proxy_url) ? null : editing.value.proxy_url,
+                extra_headers: headerPairs(editing.value.extra_headers),
             }),
         });
 
@@ -316,6 +347,44 @@ function routerReload() {
                     >
                     <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('agent.profiles.proxyUrlHint') }}</span>
                 </label>
+            </div>
+
+            <!-- Custom headers: per-profile extra headers for the chat
+                 requests (some gateways route by client identity). -->
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="md-label-large text-[var(--md-sys-color-on-surface)]">{{ t('agent.profiles.extraHeaders') }}</span>
+                    <button
+                        type="button"
+                        class="md-label-small text-[var(--md-sys-color-primary)] hover:underline"
+                        @click="addHeaderRow"
+                    >
+                        {{ t('agent.profiles.addHeader') }}
+                    </button>
+                </div>
+                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">{{ t('agent.profiles.extraHeadersHint') }}</p>
+                <div v-for="(header, index) in editing.extra_headers" :key="index" class="flex items-start gap-2 mb-1.5">
+                    <input
+                        v-model="header.name"
+                        type="text"
+                        class="w-2/5 md-body-medium rounded-[var(--md-sys-shape-corner-extra-small)] bg-[var(--md-sys-color-surface-container)] text-[var(--md-sys-color-on-surface)] px-3 py-2 outline-none focus:ring-2 ring-[var(--md-sys-color-primary)] font-mono"
+                        :placeholder="t('agent.profiles.headerNamePlaceholder')"
+                    >
+                    <input
+                        v-model="header.value"
+                        type="text"
+                        class="flex-1 md-body-medium rounded-[var(--md-sys-shape-corner-extra-small)] bg-[var(--md-sys-color-surface-container)] text-[var(--md-sys-color-on-surface)] px-3 py-2 outline-none focus:ring-2 ring-[var(--md-sys-color-primary)] font-mono"
+                        :placeholder="t('agent.profiles.headerValuePlaceholder')"
+                    >
+                    <button
+                        type="button"
+                        class="p-1.5 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-error)] transition-colors"
+                        :title="t('agent.profiles.removeHeader')"
+                        @click="removeHeaderRow(index)"
+                    >
+                        <X :size="14" />
+                    </button>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

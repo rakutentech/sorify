@@ -209,6 +209,121 @@ class AgentProfileTest extends TestCase
         Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer sk-stored'));
     }
 
+    public function test_store_saves_and_sanitizes_extra_headers(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/sorify/agent/profiles', [
+            'name' => 'Gateway',
+            'base_url' => 'https://gateway.example.com/v1',
+            'api_token' => 'sk-secret',
+            'history_retention_days' => 30,
+            'extra_headers' => [
+                ['name' => 'User-Agent', 'value' => 'opencode/1.0.0'],
+                // Authorization is dropped — the api_token is the only auth.
+                ['name' => ' authorization ', 'value' => 'Bearer evil'],
+                // CR/LF are stripped so a value cannot smuggle extra headers.
+                ['name' => 'X-Injected', 'value' => "a\r\nEvil: 1"],
+                // Blank names are empty placeholder rows, dropped.
+                ['name' => '', 'value' => 'dropped'],
+            ],
+        ]);
+
+        $response->assertCreated();
+
+        $profile = AgentProfile::query()->where('user_id', $user->id)->firstOrFail();
+
+        $this->assertSame([
+            'User-Agent' => 'opencode/1.0.0',
+            'X-Injected' => 'aEvil: 1',
+        ], $profile->extra_headers);
+
+        // Sanitized headers are visible to the owner (nothing secret).
+        $response->assertJsonPath('profile.extra_headers.User-Agent', 'opencode/1.0.0');
+    }
+
+    public function test_store_rejects_invalid_header_name(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/sorify/agent/profiles', [
+            'name' => 'X',
+            'base_url' => 'https://api.openai.com',
+            'api_token' => 'sk-secret',
+            'history_retention_days' => 30,
+            'extra_headers' => [['name' => 'Bad Header', 'value' => 'x']],
+        ]);
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['extra_headers.0.name']);
+    }
+
+    public function test_update_replaces_or_clears_extra_headers(): void
+    {
+        $user = User::factory()->create();
+
+        $profile = AgentProfile::create($this->profileAttributes($user, [
+            'extra_headers' => ['User-Agent' => 'old-agent'],
+        ]));
+
+        $this->actingAs($user)->putJson("/sorify/agent/profiles/{$profile->id}", [
+            'name' => 'Renamed',
+            'base_url' => 'https://api.openai.com',
+            'api_token' => null,
+            'history_retention_days' => 30,
+            'extra_headers' => [['name' => 'X-Other', 'value' => 'v2']],
+        ])->assertOk();
+
+        $this->assertSame(['X-Other' => 'v2'], $profile->fresh()->extra_headers);
+
+        // An empty list clears the stored headers (null, not an empty array).
+        $this->actingAs($user)->putJson("/sorify/agent/profiles/{$profile->id}", [
+            'name' => 'Renamed',
+            'base_url' => 'https://api.openai.com',
+            'api_token' => null,
+            'history_retention_days' => 30,
+            'extra_headers' => [],
+        ])->assertOk();
+
+        $this->assertNull($profile->fresh()->extra_headers);
+    }
+
+    public function test_test_connection_sends_stored_extra_headers(): void
+    {
+        Http::fake(['*/models' => Http::response(['data' => [['id' => 'glm']]])]);
+
+        $user = User::factory()->create();
+        $profile = AgentProfile::create($this->profileAttributes($user, [
+            'extra_headers' => ['User-Agent' => 'opencode/1.0.0'],
+        ]));
+
+        // No extra_headers in the payload — the stored ones must be sent.
+        $this->actingAs($user)->postJson('/sorify/agent/profiles/test-connection', [
+            'profile_id' => $profile->id,
+            'api_token' => null,
+        ])->assertOk()->assertJsonPath('ok', true);
+
+        Http::assertSent(fn ($request) => $request->hasHeader('User-Agent', 'opencode/1.0.0'));
+    }
+
+    public function test_test_connection_uses_unsaved_header_rows(): void
+    {
+        Http::fake(['*/models' => Http::response(['data' => [['id' => 'glm']]])]);
+
+        $user = User::factory()->create();
+        $profile = AgentProfile::create($this->profileAttributes($user, [
+            'extra_headers' => ['User-Agent' => 'old-agent'],
+        ]));
+
+        // Rows from the edit form win over the stored map, like the token.
+        $this->actingAs($user)->postJson('/sorify/agent/profiles/test-connection', [
+            'profile_id' => $profile->id,
+            'api_token' => null,
+            'extra_headers' => [['name' => 'User-Agent', 'value' => 'opencode/2.0']],
+        ])->assertOk()->assertJsonPath('ok', true);
+
+        Http::assertSent(fn ($request) => $request->hasHeader('User-Agent', 'opencode/2.0'));
+    }
+
     /**
      * @param  array<string, mixed>  $overrides
      * @return array<string, mixed>

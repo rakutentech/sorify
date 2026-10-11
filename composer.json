@@ -16,7 +16,7 @@
         "laravel/socialite": "^5.30",
         "laravel/tinker": "^3.0",
         "opcodesio/log-viewer": "^3.24",
-        "openai-php/laravel": "^0.21.0",
+        "prism-php/prism": "^0.100.1",
         "tightenco/ziggy": "^2.6"
     },
     "require-dev": {
@@ -54,7 +54,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --queue=sorify,default,agent --tries=1 --timeout=0\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve --port=8081\" \"php artisan queue:listen --queue=sorify,default,agent --tries=1 --timeout=0\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
         ],
         "test": [
             "php artisan config:clear --ansi @no_additional_args",

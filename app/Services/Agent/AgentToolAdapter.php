@@ -9,10 +9,12 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Content\Text;
 use Laravel\Mcp\Server\Tool;
+use Prism\Prism\Schema\RawSchema;
+use Prism\Prism\Tool as PrismTool;
 use Throwable;
 
 /**
- * Bridges the app's MCP tools to the OpenAI tool-calling API.
+ * Bridges the app's MCP tools to Prism's tool-calling API.
  *
  * The tool registry is read from SorifyServer's declaration so the agent
  * always exposes the same toolset as the MCP server, and tool calls are
@@ -26,6 +28,13 @@ use Throwable;
 class AgentToolAdapter
 {
     /**
+     * Cap on what a single tool result may weigh — both what is persisted
+     * to the transcript and what is fed back to the LLM on the next
+     * round-trip.
+     */
+    public const MAX_TOOL_RESULT_CHARS = 60000;
+
+    /**
      * Tools hidden from the agent. `get_screenshot` returns binary image
      * content that cannot be represented as a text tool result —
      * `list_screenshots` remains available for metadata and URLs.
@@ -38,24 +47,59 @@ class AgentToolAdapter
     private ?array $resolved = null;
 
     /**
-     * @return list<array<string, mixed>> OpenAI `tools` payload
+     * The MCP toolset as Prism tools: each wraps the SorifyServer
+     * declaration's JSON schema (as raw schemas) and delegates execution
+     * back to this adapter, which re-runs the tool's authorization gates
+     * as the chatting user and records the agent's model as the
+     * ground-truth attribution meta for any test code it writes.
+     *
+     * @return list<PrismTool>
      */
-    public function definitions(): array
+    public function prismTools(string $model): array
     {
-        $definitions = [];
+        $prismTools = [];
 
         foreach ($this->tools() as $tool) {
-            $definitions[] = [
-                'type' => 'function',
-                'function' => [
-                    'name' => $tool->name(),
-                    'description' => $tool->description(),
-                    'parameters' => $this->parameters($tool),
-                ],
-            ];
+            $name = $tool->name();
+
+            $prismTool = (new PrismTool)
+                ->as($name)
+                ->for($tool->description() ?? '');
+
+            $inputSchema = $tool->toArray()['inputSchema'] ?? [];
+
+            if (is_array($inputSchema)) {
+                $required = $inputSchema['required'] ?? [];
+
+                foreach ($inputSchema['properties'] ?? [] as $property => $propertySchema) {
+                    $prismTool->withParameter(
+                        new RawSchema((string) $property, is_array($propertySchema) ? $propertySchema : []),
+                        in_array($property, $required, true),
+                    );
+                }
+            }
+
+            $prismTool
+                ->using(function (...$arguments) use ($name, $model) {
+                    $result = $this->execute($name, $arguments, [
+                        'ai_model' => $model,
+                        'via' => 'agent',
+                    ]);
+
+                    if ($result['is_error']) {
+                        throw new AgentToolError(mb_substr($result['result'], 0, self::MAX_TOOL_RESULT_CHARS));
+                    }
+
+                    return mb_substr($result['result'], 0, self::MAX_TOOL_RESULT_CHARS);
+                })
+                ->failed(fn (Throwable $exception, array $parameters = []): string => $exception instanceof AgentToolError
+                    ? $exception->getMessage()
+                    : "Tool [{$name}] failed: {$exception->getMessage()}");
+
+            $prismTools[] = $prismTool;
         }
 
-        return $definitions;
+        return $prismTools;
     }
 
     /**
@@ -139,25 +183,6 @@ class AgentToolAdapter
             self::EXCLUDED_TOOLS,
             array_filter(array_map('trim', $names)),
         )));
-    }
-
-    /**
-     * @return array<string, mixed> JSON Schema object
-     */
-    /**
-     * @return array<string, mixed> JSON Schema object
-     */
-    private function parameters(Tool $tool): array
-    {
-        $inputSchema = $tool->toArray()['inputSchema'] ?? null;
-
-        if (! is_array($inputSchema)) {
-            return ['type' => 'object', 'properties' => new \stdClass];
-        }
-
-        $inputSchema['properties'] ??= new \stdClass;
-
-        return $inputSchema;
     }
 
     private function toText(Response|ResponseFactory $response): string

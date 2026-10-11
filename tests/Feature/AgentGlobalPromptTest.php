@@ -25,29 +25,29 @@ class AgentGlobalPromptTest extends TestCase
     {
         Setting::set('agent_global_system_prompt', 'Never touch the host filesystem.');
 
-        $message = $this->systemMessage();
+        $prompt = $this->systemPrompt();
 
-        $this->assertSame('system', $message['role']);
-        $this->assertStringContainsString('Global operator instructions', $message['content']);
-        $this->assertStringContainsString('Never touch the host filesystem.', $message['content']);
+        $this->assertStringContainsString('You are Sorify', $prompt);
+        $this->assertStringContainsString('Global operator instructions', $prompt);
+        $this->assertStringContainsString('Never touch the host filesystem.', $prompt);
     }
 
     public function test_global_prompt_is_omitted_when_not_set(): void
     {
-        $message = $this->systemMessage();
+        $prompt = $this->systemPrompt();
 
-        $this->assertStringNotContainsString('Global operator instructions', $message['content']);
+        $this->assertStringNotContainsString('Global operator instructions', $prompt);
     }
 
     public function test_global_prompt_precedes_profile_instructions(): void
     {
         Setting::set('agent_global_system_prompt', 'OPERATOR RULE');
 
-        $message = $this->systemMessage(profilePrompt: 'PROFILE RULE');
+        $prompt = $this->systemPrompt(profilePrompt: 'PROFILE RULE');
 
         $this->assertLessThan(
-            strpos($message['content'], 'PROFILE RULE'),
-            strpos($message['content'], 'OPERATOR RULE'),
+            strpos($prompt, 'PROFILE RULE'),
+            strpos($prompt, 'OPERATOR RULE'),
         );
     }
 
@@ -111,10 +111,7 @@ class AgentGlobalPromptTest extends TestCase
             ->etc());
     }
 
-    /**
-     * @return array{role: string, content: string}
-     */
-    private function systemMessage(?string $profilePrompt = null): array
+    private function systemPrompt(?string $profilePrompt = null): string
     {
         $user = User::factory()->create();
 
@@ -131,7 +128,7 @@ class AgentGlobalPromptTest extends TestCase
 
         $service = (new ReflectionClass(AgentService::class))->newInstanceWithoutConstructor();
 
-        $method = new ReflectionMethod(AgentService::class, 'systemMessage');
+        $method = new ReflectionMethod(AgentService::class, 'systemPrompt');
         $method->setAccessible(true);
 
         return $method->invoke($service, $conversation, $profile);

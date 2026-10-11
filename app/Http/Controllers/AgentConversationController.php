@@ -175,6 +175,9 @@ class AgentConversationController extends Controller
             'message' => ['required', 'string', 'min:1', 'max:8000'],
             'model' => ['nullable', 'string', 'max:255'],
             'max_steps' => ['nullable', 'integer', 'in:'.implode(',', AgentService::MAX_STEPS)],
+            // The chat's reasoning-effort picker. Absent / null means the
+            // model's own default — nothing is sent to the endpoint.
+            'reasoning_effort' => ['nullable', 'string', 'in:low,medium,high'],
         ]);
 
         $profile = $conversation->profile;
@@ -199,6 +202,7 @@ class AgentConversationController extends Controller
             $model,
             $conversation->agent_mode ? 'agent' : 'ask',
             $validated['max_steps'] ?? null,
+            $validated['reasoning_effort'] ?? null,
         );
 
         return response()->json(['turn_id' => $userMessage->id], 202);

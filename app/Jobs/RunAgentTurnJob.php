@@ -33,6 +33,7 @@ class RunAgentTurnJob implements ShouldQueue
         public readonly ?string $model,
         public readonly string $mode = 'agent',
         public readonly ?int $maxSteps = null,
+        public readonly ?string $reasoningEffort = null,
     ) {
         // Dedicated queue: agent turns run for up to an hour, and must not
         // sit behind (nor block) test executions on the shared queue. The
@@ -66,7 +67,7 @@ class RunAgentTurnJob implements ShouldQueue
 
         $seq = (int) (AgentTurnEvent::query()->where('turn_id', $this->turnId)->max('seq') ?? 0);
 
-        foreach ($agent->runTurn($conversation, $userMessage, $this->model, $this->mode, $deadlineSeconds, $this->maxSteps) as $event) {
+        foreach ($agent->runTurn($conversation, $userMessage, $this->model, $this->mode, $deadlineSeconds, $this->maxSteps, $this->reasoningEffort) as $event) {
             AgentTurnEvent::query()->create([
                 'conversation_id' => $conversation->id,
                 'turn_id' => $this->turnId,

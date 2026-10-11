@@ -4,6 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Prism\Prism\ValueObjects\Messages\AssistantMessage;
+use Prism\Prism\ValueObjects\Messages\ToolResultMessage;
+use Prism\Prism\ValueObjects\Messages\UserMessage;
+use Prism\Prism\ValueObjects\ToolCall;
+use Prism\Prism\ValueObjects\ToolResult;
 
 class AgentMessage extends Model
 {
@@ -30,30 +35,41 @@ class AgentMessage extends Model
     }
 
     /**
-     * OpenAI-compatible message payload for replaying history to the LLM.
+     * Prism message for replaying this row to the LLM. Tool rows become
+     * single-result tool result messages; AgentService::history() takes
+     * care of grouping and of never replaying tool calls without their
+     * results.
      *
-     * @return array<string, mixed>
+     * @return \Prism\Prism\Contracts\Message
      */
-    public function toOpenAiMessage(): array
+    public function toPrismMessage()
     {
-        $message = ['role' => $this->role];
-
-        if ($this->content !== null && $this->content !== '') {
-            $message['content'] = $this->content;
+        if ($this->role === 'user') {
+            return new UserMessage((string) ($this->content ?? ''));
         }
 
-        if ($this->tool_calls !== null) {
-            $message['tool_calls'] = $this->tool_calls;
+        if ($this->role === 'tool') {
+            return new ToolResultMessage([
+                new ToolResult(
+                    toolCallId: (string) ($this->tool_call_id ?? ''),
+                    toolName: (string) ($this->name ?? ''),
+                    args: [],
+                    result: (string) ($this->content ?? ''),
+                ),
+            ]);
         }
 
-        if ($this->tool_call_id !== null) {
-            $message['tool_call_id'] = $this->tool_call_id;
+        $toolCalls = [];
+
+        foreach ($this->tool_calls ?? [] as $toolCall) {
+            $toolCalls[] = new ToolCall(
+                id: (string) ($toolCall['id'] ?? ''),
+                name: (string) ($toolCall['function']['name'] ?? ''),
+                arguments: (string) ($toolCall['function']['arguments'] ?? ''),
+            );
         }
 
-        if ($this->name !== null) {
-            $message['name'] = $this->name;
-        }
-
-        return $message;
+        return new AssistantMessage((string) ($this->content ?? ''), $toolCalls);
     }
 }
+
