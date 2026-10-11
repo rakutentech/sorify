@@ -1,0 +1,14 @@
+server/sorify-agent-queue.ini
+  h_f44dfe84a46cdf 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "52f97511d152defd3761de0a5169b3f0b83c588c",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
