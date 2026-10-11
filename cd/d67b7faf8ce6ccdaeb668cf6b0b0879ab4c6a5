@@ -1,0 +1,16 @@
+.env.prod
+  h_f44dfe84a46cdf 5-7
+scripts/mysqldump-sorify.sh
+  h_f44dfe84a46cdf 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cdd67b7faf8ce6ccdaeb668cf6b0b0879ab4c6a5",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
