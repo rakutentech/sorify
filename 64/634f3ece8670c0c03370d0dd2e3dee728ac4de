@@ -1,0 +1,18 @@
+deploy.php
+  h_f44dfe84a46cdf 82
+server/sorify-agent-queue.ini
+  h_f44dfe84a46cdf 10
+server/sorify-queue.ini
+  h_f44dfe84a46cdf 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "64634f3ece8670c0c03370d0dd2e3dee728ac4de",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
