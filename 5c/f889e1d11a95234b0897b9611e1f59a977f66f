@@ -1,0 +1,30 @@
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 42-47,372,988-992,1013,1021-1022,1025-1034,1036-1049,1053-1055,1058-1061,1282-1300,1302
+resources/js/Pages/TestRuns/Show.vue
+  h_f44dfe84a46cdf 41-43
+resources/js/Pages/TestSuites/Review.vue
+  h_f44dfe84a46cdf 45-47
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 213-215,224-226
+resources/js/composables/useAgentDrawer.js
+  h_f44dfe84a46cdf 10-13,23-26
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 1131-1133
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 1131-1133
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 1131-1133
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 1131-1133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5cf889e1d11a95234b0897b9611e1f59a977f66f",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
