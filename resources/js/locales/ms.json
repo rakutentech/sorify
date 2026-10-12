@@ -1128,6 +1128,9 @@
             "contextHint": "Boleh diedit sebelum memulakan sembang. Ia dihantar kepada ejen sebagai maklumat latar.",
             "defaultContext": "Pengguna berada di halaman \"{page}\" ({url}).",
             "start": "Mulakan sembang",
+            "startWithPrompt": "Mulakan sembang dan hantar",
+            "pendingPromptLabel": "Prompt untuk dihantar",
+            "pendingPromptHint": "Sembang belum bermula — klik butang di bawah untuk memulakannya dengan prompt ini.",
             "model": "Model",
             "modelHint": "Diambil dari endpoint profil; boleh juga ditukar kemudian di pengepala sembang."
         },

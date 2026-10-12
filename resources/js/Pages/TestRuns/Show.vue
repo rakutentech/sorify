@@ -38,7 +38,9 @@ const SOURCE_LABELS = {
 const sourceLabel = computed(() => SOURCE_LABELS[props.run.triggered_by] ?? 'Manual');
 
 // ── AI explain error ─────────────────────────────────────────────────────────
-// Opens the agent drawer on a new chat with the failed result's context.
+// Opens the agent drawer's new-chat form with the failed result's context
+// and prompt ready; the chat starts when the user clicks the start button
+// in the drawer.
 const ERROR_STATUSES = ['failed', 'error', 'timeout'];
 
 function explainResultError(result) {

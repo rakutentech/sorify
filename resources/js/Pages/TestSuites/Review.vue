@@ -42,8 +42,9 @@ function reloadTests(overrides = {}) {
 const debouncedTestSearch = debounce(() => reloadTests({ page: 1 }), 350);
 
 // ── AI explain code ─────────────────────────────────────────────────────────
-// Opens the agent drawer on a new chat with this test's code (and its last
-// error, when the latest run failed) pre-filled as context.
+// Opens the agent drawer's new-chat form with this test's code (and its
+// last error, when the latest run failed) pre-filled as context. The chat
+// starts when the user clicks the start button in the drawer.
 function explainCode(test) {
     const code = test.playwright_code ?? '';
     const lastRun = test.recent_runs?.[0] ?? null;

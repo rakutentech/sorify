@@ -210,8 +210,9 @@ setAgentContext(() => ({ context: suiteContextJson() }));
 onUnmounted(() => clearAgentContext());
 
 // ── AI about this suite ──────────────────────────────────────────────────────
-// Opens the agent drawer on a new chat with this suite's context and an
-// overview prompt, sent straight away.
+// Opens the agent drawer's new-chat form with this suite's context and an
+// overview prompt ready; the chat starts when the user clicks the start
+// button in the drawer.
 function aboutSuite() {
     openAgentDrawer({
         context: suiteContextJson(),
@@ -220,8 +221,9 @@ function aboutSuite() {
 }
 
 // ── AI explain error ─────────────────────────────────────────────────────────
-// Opens the agent drawer and starts a chat with the failed test's context
-// and prompt, sent straight away.
+// Opens the agent drawer's new-chat form with the failed test's context and
+// prompt ready; the chat starts when the user clicks the start button in
+// the drawer.
 const ERROR_STATUSES = ['failed', 'error', 'timeout'];
 
 function explainTestError(test) {

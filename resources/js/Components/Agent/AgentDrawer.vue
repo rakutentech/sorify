@@ -39,6 +39,12 @@ const selectedModel = ref('');
 
 const newChatForm = ref({ profile_id: null, context: '' });
 
+// Prompt handed over by a page's AI button ("explain error", "about this
+// suite", ...). The drawer opens on the new-chat form with this prompt and
+// the page's context ready — the chat itself only starts when the user
+// clicks the start button; nothing is sent up to that point.
+const pendingPrompt = ref('');
+
 const input = ref('');
 const inputEl = ref(null);
 const streaming = ref(false);
@@ -363,6 +369,7 @@ function startNewChat() {
         return;
     }
 
+    pendingPrompt.value = '';
     newChatForm.value.context = defaultContextText();
     view.value = 'new';
 
@@ -978,10 +985,11 @@ watch(() => props.show, (show) => {
 });
 
 // A page (an "AI explain error" / "AI explain code" / "AI update
-// description" button) asked to open the drawer and start a chat with a
-// given context and message. The chat is started right away — the
-// conversation is created and the message sent without showing the
-// new-chat form. AppLayout opens the drawer on the same request;
+// description" button) asked to open the drawer with a given context and
+// message. The chat is NOT started right away — the new-chat form opens
+// with the context and prompt ready, and the conversation is only created
+// (and the message sent) when the user clicks the start button in the
+// drawer. AppLayout opens the drawer on the same request;
 // applyDrawerRequest() is idempotent per request id so whichever watcher
 // runs last wins cleanly.
 let appliedRequestId = 0;
@@ -1002,6 +1010,7 @@ async function applyDrawerRequest() {
     }
 
     newChatForm.value.context = request.context ?? defaultContextText();
+    pendingPrompt.value = request.message ?? '';
 
     // Profiles may still be loading (the drawer was opened by this very
     // request) — wait for them so a profile can be picked automatically.
@@ -1009,33 +1018,47 @@ async function applyDrawerRequest() {
         await loadProfiles();
     }
 
-    // No profile configured (or creating the conversation failed) — fall
-    // back to the new-chat view, which carries the setup hint.
-    if (profiles.value.length === 0) {
-        view.value = 'new';
-
-        return;
-    }
-
-    if (!newChatForm.value.profile_id) {
+    if (!newChatForm.value.profile_id && profiles.value.length > 0) {
         newChatForm.value.profile_id = profiles.value[0].id;
     }
 
-    // The AI buttons ("explain error", "explain code", …) imply real
-    // agent work — tools, multi-step — so the conversation they start is
-    // always created in agent mode.
+    // Open the new-chat form with the context and prompt ready. The chat
+    // starts only when the user clicks the start button; with no profile
+    // configured the form carries the setup hint (and keeps the prompt, so
+    // nothing is lost once a profile exists).
+    view.value = 'new';
+
+    // Pull the selected profile's model list so the model can be picked
+    // up front (defaults to the profile's default model).
+    if (newChatForm.value.profile_id && models.value.length === 0) {
+        loadModels(newChatForm.value.profile_id);
+    }
+}
+
+/**
+ * Start the chat a page's AI button asked for: create the conversation
+ * (agent mode — these buttons imply real agent work) and send the
+ * handed-over prompt. Only invoked by the start button in the new-chat
+ * form, never automatically.
+ */
+async function startPendingChat() {
+    if (adminDisabled.value) return;
+
+    const message = pendingPrompt.value;
+
+    pendingPrompt.value = '';
+
     await createConversation({ agentMode: true });
 
-    // Conversation started — send the message straight away. Falls back to
-    // a pre-filled input when creating it failed, so nothing is lost.
-    if (request.message && view.value !== 'new') {
-        if (conversation.value && !streaming.value) {
-            input.value = request.message;
+    if (conversation.value && view.value === 'chat' && message) {
+        if (!streaming.value) {
+            input.value = message;
             await send();
         }
-    } else if (request.message) {
-        input.value = request.message;
-        nextTick(autoResizeInput);
+    } else {
+        // The conversation could not be created (e.g. no profile) — keep
+        // the prompt so the user can retry from the new-chat form.
+        pendingPrompt.value = message;
     }
 }
 
@@ -1256,7 +1279,27 @@ onBeforeUnmount(() => {
                     <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('agent.newChat.contextHint') }}</span>
                 </label>
 
+                <!-- Prompt handed over by a page's AI button ("explain
+                     error", "about this suite", ...). Nothing is sent
+                     yet — the chat only starts when the button below is
+                     clicked. -->
+                <div v-if="pendingPrompt" class="block">
+                    <span class="md-label-large text-[var(--md-sys-color-on-surface)]">{{ t('agent.newChat.pendingPromptLabel') }}</span>
+                    <p class="mt-1 md-body-medium text-[var(--md-sys-color-on-surface)] bg-[var(--md-sys-color-surface-container-highest)] rounded-[var(--md-sys-shape-corner-small)] px-3.5 py-2.5 whitespace-pre-wrap break-words">{{ pendingPrompt }}</p>
+                    <span class="md-body-small text-[var(--md-sys-color-on-surface-variant)]">{{ t('agent.newChat.pendingPromptHint') }}</span>
+                </div>
+
                 <button
+                    v-if="pendingPrompt"
+                    class="flex w-full justify-center items-center gap-1.5 md-label-large px-4 py-2 rounded-[var(--md-sys-shape-corner-full)] bg-[color-mix(in_srgb,var(--md-ext-color-success)_80%,white)] text-[var(--md-ext-color-on-success)] shadow-elevation-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+                    :disabled="profiles.length === 0"
+                    @click="startPendingChat"
+                >
+                    <Bot :size="16" />
+                    {{ t('agent.newChat.startWithPrompt') }}
+                </button>
+                <button
+                    v-else
                     class="inline-flex items-center gap-1.5 md-label-large px-4 py-2 rounded-[var(--md-sys-shape-corner-full)] bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] hover:opacity-90 transition-opacity disabled:opacity-50"
                     :disabled="profiles.length === 0"
                     @click="createConversation"

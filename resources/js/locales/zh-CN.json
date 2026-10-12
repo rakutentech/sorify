@@ -1128,6 +1128,9 @@
             "contextHint": "开始会话前可以编辑。它将作为背景信息发送给助手。",
             "defaultContext": "用户当前在页面\"{page}\"({url})。",
             "start": "开始会话",
+            "startWithPrompt": "开始会话并发送",
+            "pendingPromptLabel": "要发送的提示",
+            "pendingPromptHint": "会话尚未开始——点击下方按钮即可以此提示开始会话。",
             "model": "模型",
             "modelHint": "从配置的端点获取；之后也可在会话顶部更改。"
         },

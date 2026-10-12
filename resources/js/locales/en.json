@@ -1128,6 +1128,9 @@
             "contextHint": "You can edit this before starting the chat. It is sent to the agent as background information.",
             "defaultContext": "The user is on the page \"{page}\" ({url}).",
             "start": "Start chat",
+            "startWithPrompt": "Start chat and send",
+            "pendingPromptLabel": "Prompt to send",
+            "pendingPromptHint": "The chat hasn't started yet — click the button below to start it with this prompt.",
             "model": "Model",
             "modelHint": "Pulled from the profile's endpoint; can also be changed later in the chat header."
         },
