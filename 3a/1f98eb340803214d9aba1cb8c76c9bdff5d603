@@ -1,0 +1,32 @@
+app/Http/Controllers/AgentConversationController.php
+  h_f44dfe84a46cdf 212
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 135-137,329-339,341-349,579-591
+app/Services/Agent/Prism/ReasoningStream.php
+  h_f44dfe84a46cdf 47-50
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 181,191
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 1054-1055
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 1054-1055
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 1054-1055
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 1054-1055
+tests/Feature/AgentConversationTest.php
+  h_f44dfe84a46cdf 332-348
+tests/Feature/AgentPrismTurnTest.php
+  h_f44dfe84a46cdf 193-240,259-277
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3a1f98eb340803214d9aba1cb8c76c9bdff5d603",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
