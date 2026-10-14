@@ -1,0 +1,50 @@
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 13,19,320-331,462,467,540-558,748
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 6,176-181,194,247-251,321-322,329-331,333,337-366,955,1119,1256-1270
+app/Services/TestRunService.php
+  h_f44dfe84a46cdf 399-409,411,416-418,434-458
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 171-180,182-183,189-217,447-473,583-590,599-606,630-635,644-649,705-710,2290-2309
+plugins/sorify/commands/gateway.md
+  h_f44dfe84a46cdf 233,253-262
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 235-236,1051,1057,1124-1127
+tests/Unit/Mcp/Tools/RunsToolsTest.php
+  h_f44dfe84a46cdf 12-13,63,68-143
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 235-236,1051,1057,1124-1127
+app/Mcp/Tools/Runs/GetRunStatusTool.php
+  h_f44dfe84a46cdf 7,18-19,22,38-42
+tests/Feature/AgentPrismTurnTest.php
+  h_f44dfe84a46cdf 13,133-192,463
+app/Http/Controllers/WebhookController.php
+  h_f44dfe84a46cdf 7,11,55-78
+README.md
+  h_f44dfe84a46cdf 588
+tests/Feature/WebhookConcurrencyTest.php
+  h_f44dfe84a46cdf 7-8,13,272-399
+API.md
+  h_f44dfe84a46cdf 70-71,121
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 235-236,1051,1057,1124-1127
+tests/Feature/AgentConversationTest.php
+  h_f44dfe84a46cdf 12,63-136,315-331
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 235-236,1051,1057,1124-1127
+app/Http/Controllers/AgentConversationController.php
+  h_f44dfe84a46cdf 14,29-32,43-62,71-74,208-212
+routes/web.php
+  h_f44dfe84a46cdf 84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "be63b3af87d81492cdc5c51c88fe499d2c7842ff",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
