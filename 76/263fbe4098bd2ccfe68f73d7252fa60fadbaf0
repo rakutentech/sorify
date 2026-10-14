@@ -1,0 +1,32 @@
+README.md
+  h_f44dfe84a46cdf 469-476
+app/Http/Controllers/AgentConversationController.php
+  h_f44dfe84a46cdf 14,29-32,43-62,71-74,208-212
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 13,19,320-331,462,467,540-558,748
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 6,176-181,194,247-251,321-322,329-331,333,337-366,955,1119,1256-1270
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 1051,1057,1124-1127
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 1051,1057,1124-1127
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 1051,1057,1124-1127
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 1051,1057,1124-1127
+tests/Feature/AgentConversationTest.php
+  h_f44dfe84a46cdf 12,63-136,315-331
+tests/Feature/AgentPrismTurnTest.php
+  h_f44dfe84a46cdf 13,133-192,463
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "76263fbe4098bd2ccfe68f73d7252fa60fadbaf0",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
