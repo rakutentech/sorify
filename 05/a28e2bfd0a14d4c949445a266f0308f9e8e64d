@@ -1,0 +1,20 @@
+app/Services/BrowserDriverService.php
+  h_f44dfe84a46cdf 5-6,245-247,256-257,261-270,276-321
+resources/css/app.css
+  h_f44dfe84a46cdf 336-340,367,371,373
+resources/js/Pages/TestRuns/Show.vue
+  h_f44dfe84a46cdf 312-321
+resources/playwright/harness.cjs
+  h_f44dfe84a46cdf 379-381,399-410
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "05a28e2bfd0a14d4c949445a266f0308f9e8e64d",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
