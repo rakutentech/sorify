@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import {
-    ArrowLeft, BookMarked, Bot, Brain, CircleAlert, CircleCheck, Gauge, LoaderCircle, MessageSquarePlus, MessagesSquare,
+    ArrowLeft, BookMarked, Bot, Brain, CircleAlert, CircleCheck, Clock, Gauge, LoaderCircle, MessageSquarePlus, MessagesSquare,
     Send, Settings2, Square, Trash2, X,
 } from '@lucide/vue';
 import RunProgressCard from './RunProgressCard.vue';
@@ -173,11 +173,12 @@ const agentMaxRunOptions = computed(() => AGENT_MAX_RUN_OPTIONS.map((minutes) =>
 })));
 
 // Reasoning effort — how hard the model thinks before answering.
-// 'default' sends nothing and lets the model decide; low/medium/high are
-// forwarded as the OpenAI-style `reasoning_effort` request parameter
-// (endpoints that don't understand it ignore it). Remembered like the
-// step budget.
-const REASONING_EFFORTS = ['default', 'low', 'medium', 'high'];
+// 'default' sends nothing and lets the model decide; the other values are
+// forwarded as the OpenAI-style `reasoning_effort` request parameter.
+// Endpoints differ in what they accept (e.g. hosted DeepSeek models take
+// low/high/max, not medium) — a rejected value is retried once without
+// it server-side. Remembered like the step budget.
+const REASONING_EFFORTS = ['default', 'none', 'low', 'medium', 'high', 'max'];
 
 const reasoningEffort = ref(localStorage.getItem('agent.reasoning_effort') || 'default');
 
@@ -187,9 +188,11 @@ watch(reasoningEffort, (value) => localStorage.setItem('agent.reasoning_effort',
 
 const reasoningEffortOptions = computed(() => [
     { value: 'default', label: t('agent.chat.reasoningEffortDefault'), hint: t('agent.chat.reasoningEffortDefaultHint') },
+    { value: 'none', label: t('agent.chat.reasoningEffortNone'), hint: t('agent.chat.reasoningEffortNoneHint') },
     { value: 'low', label: t('agent.chat.reasoningEffortLow') },
     { value: 'medium', label: t('agent.chat.reasoningEffortMedium') },
     { value: 'high', label: t('agent.chat.reasoningEffortHigh') },
+    { value: 'max', label: t('agent.chat.reasoningEffortMax') },
 ]);
 
 let abortController = null;
@@ -242,7 +245,11 @@ onMounted(() => {
         sessionStorage.removeItem(STORAGE_KEY);
     }
 
-    if (!saved.conversationId) return;
+    // Only resume the last chat when the drawer was left on it — if the
+    // user had backed out to the conversation list (or the new-chat view),
+    // a refresh should land there, not bounce back into the chat. A
+    // missing view is legacy state: treat it as "was on the chat".
+    if (!saved.conversationId || saved.view === 'list' || saved.view === 'new') return;
 
     // Re-open the last chat in the background (fetches its messages). If it
     // no longer exists (deleted / different user session) the fetch fails
@@ -312,18 +319,51 @@ function autoResizeInput() {
 watch(input, () => nextTick(autoResizeInput));
 
 // ── Data loading ──────────────────────────────────────────────────────────────
-async function loadConversations() {
-    loadingList.value = true;
+async function loadConversations({ silent = false } = {}) {
+    if (! silent) loadingList.value = true;
 
     try {
         const response = await fetch('/sorify/agent/conversations', { headers: { Accept: 'application/json' } });
 
         const data = await response.json();
         conversations.value = data.conversations ?? [];
+    } catch {
+        // Silent refreshes (see the list poll below) must not break on a
+        // transient failure — the next tick retries.
     } finally {
-        loadingList.value = false;
+        if (! silent) loadingList.value = false;
     }
 }
+
+// While the conversation list is visible, keep its live turn statuses
+// (running / queued) fresh — a turn finishing elsewhere (or the queue
+// finally picking a waiting job up) should be reflected without a reopen.
+let listPollTimer = null;
+
+function startListPolling() {
+    if (listPollTimer !== null) return;
+
+    listPollTimer = setInterval(() => {
+        if (document.visibilityState === 'hidden') return;
+
+        loadConversations({ silent: true });
+    }, 10000);
+}
+
+function stopListPolling() {
+    if (listPollTimer === null) return;
+
+    clearInterval(listPollTimer);
+    listPollTimer = null;
+}
+
+watch(view, (value) => {
+    if (value === 'list') {
+        startListPolling();
+    } else {
+        stopListPolling();
+    }
+});
 
 async function loadProfiles() {
     const response = await fetch('/sorify/agent/profiles', { headers: { Accept: 'application/json' } });
@@ -913,6 +953,7 @@ function detach() {
     abortController?.abort();
     stopping.value = false;
     finalizeInflightAssistant();
+    stopListPolling();
 }
 
 /**
@@ -1076,6 +1117,7 @@ watch(messages, () => {
 
 onBeforeUnmount(() => {
     skillsMenuOpen.value = false;
+    stopListPolling();
     document.removeEventListener('click', onClickOutsideSkillsMenu);
 });
 </script>
@@ -1212,6 +1254,21 @@ onBeforeUnmount(() => {
                         >
                             <div class="flex items-center gap-2">
                                 <p class="md-label-large text-[var(--md-sys-color-on-surface)] flex-1 truncate">{{ item.title }}</p>
+                                <span
+                                    v-if="item.status === 'running'"
+                                    class="md-label-small flex items-center gap-1 text-[var(--md-sys-color-primary)] flex-shrink-0"
+                                    :title="item.last_activity_at ? t('agent.list.lastActivity', { time: formatRelativeTime(item.last_activity_at) }) : null"
+                                >
+                                    <LoaderCircle :size="12" class="animate-spin" />
+                                    {{ t('agent.list.statusRunning') }}
+                                </span>
+                                <span
+                                    v-else-if="item.status === 'queued'"
+                                    class="md-label-small flex items-center gap-1 text-[var(--md-sys-color-on-surface-variant)] flex-shrink-0"
+                                >
+                                    <Clock :size="12" />
+                                    {{ t('agent.list.statusQueued') }}
+                                </span>
                                 <span
                                     v-if="item.profile_name"
                                     class="md-label-small text-[var(--md-sys-color-on-surface-variant)] bg-[var(--md-sys-color-surface-container)] px-2 py-0.5 rounded-full flex-shrink-0"

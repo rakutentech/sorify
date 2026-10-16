@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\RunRateLimitExceededException;
 use App\Exceptions\WebhookRunInProgressException;
+use App\Models\Screenshot;
 use App\Models\TestRun;
 use App\Services\TestRunService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class WebhookController extends Controller
 {
@@ -50,7 +52,30 @@ class WebhookController extends Controller
             abort(404);
         }
 
-        return response()->json($this->runs->statusPayload($run));
+        // The token is passed through so screenshot links in the `response`
+        // block use the token-guarded webhook route (fetchable by CI).
+        return response()->json($this->runs->statusPayload($run, $token));
+    }
+
+    /**
+     * Serve a screenshot behind the suite's webhook token so CI can fetch
+     * the images linked from the status payload without a login session.
+     */
+    public function screenshot(Request $request, string $token, Screenshot $screenshot)
+    {
+        $suite = $request->attributes->get('webhook_suite');
+
+        if ($screenshot->testResult->testRun->test_suite_id !== $suite->id) {
+            abort(404);
+        }
+
+        if (! Storage::disk('screenshots')->exists($screenshot->path)) {
+            abort(404);
+        }
+
+        return response()->file(
+            Storage::disk('screenshots')->path($screenshot->path)
+        );
     }
 
     /**

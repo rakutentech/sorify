@@ -81,6 +81,7 @@ Route::prefix('sorify')->group(function () {
 Route::prefix('sorify/webhooks/{token}')->middleware('sorify.webhook.auth')->name('webhooks.')->group(function () {
     Route::post('/trigger', [WebhookController::class, 'trigger'])->name('trigger');
     Route::get('/runs/{run}/status', [WebhookController::class, 'status'])->name('status');
+    Route::get('/screenshots/{screenshot}', [WebhookController::class, 'screenshot'])->name('screenshot');
 });
 
 // Authenticated: all app routes

@@ -10,11 +10,13 @@ use App\Models\AgentTurnEvent;
 use App\Models\Setting;
 use App\Models\Skill;
 use Generator;
+use Prism\Prism\Contracts\Message;
 use Prism\Prism\Exceptions\PrismRateLimitedException;
 use Prism\Prism\Facades\Prism;
 use Prism\Prism\Streaming\Events\StepFinishEvent;
 use Prism\Prism\Streaming\Events\StepStartEvent;
 use Prism\Prism\Streaming\Events\StreamEndEvent;
+use Prism\Prism\Streaming\Events\StreamEvent;
 use Prism\Prism\Streaming\Events\TextDeltaEvent;
 use Prism\Prism\Streaming\Events\ToolCallEvent;
 use Prism\Prism\Streaming\Events\ToolResultEvent;
@@ -130,6 +132,9 @@ class AgentService
         $finished = false;
         $rateLimitRetry = 1;
         $maxRateLimitRetries = (int) config('sorify.agent.rate_limit_retries', 3);
+        // Bounds reasoning-effort recoveries (drop, or pick up 'none') so a
+        // strict endpoint can't bounce the turn between the two forever.
+        $reasoningEffortRetries = 0;
 
         try {
             // This turn was stopped on request before it started — stop
@@ -315,6 +320,35 @@ class AgentService
                         $finished = true;
                     }
                 } catch (Throwable $exception) {
+                    // Endpoints validate `reasoning_effort` against their own
+                    // model-specific set (e.g. a hosted DeepSeek model allows
+                    // low/high/max — no "medium"), rejecting values the
+                    // chat's picker legally offers. Drop the option and try
+                    // the round-trip once more without it instead of failing
+                    // the whole turn.
+                    //
+                    // The inverse also exists: gateways that apply a model's
+                    // default reasoning when the option is ABSENT reject
+                    // that alongside function tools ("Function tools with
+                    // reasoning_effort are not supported ... set
+                    // reasoning_effort to 'none'"). When they say so, comply
+                    // once, explicitly.
+                    if ($reasoningEffortRetries < 2 && $this->rejectsReasoningEffort($exception)) {
+                        if ($reasoningEffort !== null) {
+                            $reasoningEffort = null;
+                            $reasoningEffortRetries++;
+
+                            continue;
+                        }
+
+                        if ($prismTools !== [] && $this->suggestsNoReasoningEffort($exception)) {
+                            $reasoningEffort = 'none';
+                            $reasoningEffortRetries++;
+
+                            continue;
+                        }
+                    }
+
                     if (! $this->isRateLimited($exception) || $rateLimitRetry > $maxRateLimitRetries) {
                         throw $exception;
                     }
@@ -445,14 +479,12 @@ class AgentService
      * Open the Prism stream for the remaining conversation. Prism runs
      * the tool-calling loop itself; its events are consumed by runTurn.
      *
-     * @param  string  $model
-     * @param  string  $systemPrompt
-     * @param  list<\Prism\Prism\Contracts\Message>  $messages
+     * @param  list<Message>  $messages
      * @param  list<PrismTool>  $tools
      * @param  string|null  $reasoningEffort  low|medium|high; null = the
      *                                        model's own default (nothing
      *                                        is sent)
-     * @return Generator<\Prism\Prism\Streaming\Events\StreamEvent>
+     * @return Generator<StreamEvent>
      */
     private function openStream(AgentProfile $profile, string $model, string $systemPrompt, array $messages, array $tools, int $stepsBudget, ?string $reasoningEffort = null): Generator
     {
@@ -523,6 +555,38 @@ class AgentService
         }
 
         return (bool) preg_match('/rate[\s_-]?limit/i', $exception->getMessage());
+    }
+
+    /**
+     * A 400 naming `reasoning_effort`: the endpoint understood the parameter
+     * but rejected the value against its own allowed set (e.g. hosted vLLM
+     * models that take low/high/max only). Retrying without the option is
+     * the correct recovery — the model's own default always applies.
+     */
+    private function rejectsReasoningEffort(Throwable $exception): bool
+    {
+        if (! preg_match('/reasoning[\s_-]?effort/i', $exception->getMessage())) {
+            return false;
+        }
+
+        $message = $exception->getMessage();
+
+        return (int) $exception->getCode() === 400
+            || str_contains($message, '[400]')
+            || str_contains($message, 'invalid_request');
+    }
+
+    /**
+     * The endpoint rejected its own default reasoning alongside function
+     * tools and asks for an explicit opt-out — "set reasoning_effort to
+     * 'none'". Only an explicit suggestion matches: a bare mention of
+     * "none" in an unrelated error must not flip reasoning off.
+     */
+    private function suggestsNoReasoningEffort(Throwable $exception): bool
+    {
+        $message = $exception->getMessage();
+
+        return (bool) preg_match('/reasoning[\s_-]?effort[\'"\s:=]+to[\'"\s]+none|effort[\'"\s:=]+[\'"]none[\'"]|[\'"]none[\'"]/', $message);
     }
 
     /**
@@ -714,7 +778,7 @@ class AgentService
      * user message is appended explicitly by the caller, so it is
      * excluded here.
      *
-     * @return list<\Prism\Prism\Contracts\Message>
+     * @return list<Message>
      */
     private function history(AgentConversation $conversation, ?int $beforeTurnId = null): array
     {

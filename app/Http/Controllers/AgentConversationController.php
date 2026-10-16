@@ -11,6 +11,7 @@ use App\Models\AgentTurnEvent;
 use App\Services\Agent\AgentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -25,6 +26,10 @@ class AgentConversationController extends Controller
 
     /**
      * The user's conversations, most recently active first.
+     *
+     * Each carries a live turn status: `running` (an unfinished tracked
+     * turn), `queued` (a turn job still waiting in the queue — the exact
+     * "Thinking..." forever case when workers are busy) or null (idle).
      */
     public function index(Request $request): JsonResponse
     {
@@ -35,6 +40,26 @@ class AgentConversationController extends Controller
             ->limit(100)
             ->get();
 
+        // Unfinished tracked turns, keyed by conversation. A turn's job
+        // stays in the queue table while it runs, so running beats queued.
+        $runningTurns = AgentTurn::query()
+            ->whereIn('conversation_id', $conversations->pluck('id'))
+            ->whereNull('finished_at')
+            ->get()
+            ->groupBy('conversation_id');
+
+        // Conversations with a turn job still sitting in the agent queue.
+        // The job payload is a serialized PHP object wrapped in JSON — its
+        // quotes arrive JSON-escaped (\"conversationId\";i:89;) — so the
+        // backslashes are stripped before a plain textual match. Nothing
+        // is ever unserialized.
+        $queuedConversationIds = DB::table('jobs')
+            ->where('queue', 'agent')
+            ->pluck('payload')
+            ->map(fn (string $payload) => preg_match('/"conversationId";i:(\d+);/', str_replace('\\', '', $payload), $m) ? (int) $m[1] : null)
+            ->filter()
+            ->flip();
+
         return response()->json([
             'conversations' => $conversations->map(fn (AgentConversation $conversation) => [
                 'id' => $conversation->id,
@@ -43,6 +68,10 @@ class AgentConversationController extends Controller
                 'page_url' => $conversation->page_url,
                 'profile_name' => $conversation->profile?->name,
                 'updated_at' => $conversation->updated_at,
+                'status' => $runningTurns->has($conversation->id)
+                    ? 'running'
+                    : ($queuedConversationIds->has($conversation->id) ? 'queued' : null),
+                'last_activity_at' => $runningTurns->get($conversation->id)?->first()?->last_activity_at,
             ]),
         ]);
     }
@@ -176,8 +205,11 @@ class AgentConversationController extends Controller
             'model' => ['nullable', 'string', 'max:255'],
             'max_steps' => ['nullable', 'integer', 'in:'.implode(',', AgentService::MAX_STEPS)],
             // The chat's reasoning-effort picker. Absent / null means the
-            // model's own default — nothing is sent to the endpoint.
-            'reasoning_effort' => ['nullable', 'string', 'in:low,medium,high'],
+            // model's own default — nothing is sent to the endpoint. Values
+            // beyond low/medium/high exist because endpoints differ (hosted
+            // DeepSeek models take low/high/max); a value the endpoint
+            // rejects is retried once without it.
+            'reasoning_effort' => ['nullable', 'string', 'in:none,low,medium,high,max'],
         ]);
 
         $profile = $conversation->profile;

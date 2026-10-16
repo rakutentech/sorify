@@ -9,6 +9,7 @@ use App\Models\AgentProfile;
 use App\Models\AgentTurn;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -57,6 +58,80 @@ class AgentConversationTest extends TestCase
         $this->actingAs($other)->getJson('/sorify/agent/conversations')
             ->assertOk()
             ->assertJsonCount(0, 'conversations');
+    }
+
+    public function test_conversation_list_shows_running_and_queued_turn_status(): void
+    {
+        $running = AgentConversation::create($this->conversationAttributes(['title' => 'Running']));
+        $queued = AgentConversation::create($this->conversationAttributes(['title' => 'Queued']));
+        $idle = AgentConversation::create($this->conversationAttributes(['title' => 'Idle']));
+
+        // Unfinished tracked turn = running.
+        AgentTurn::create([
+            'conversation_id' => $running->id,
+            'user_id' => $this->user->id,
+            'mode' => 'agent',
+            'started_at' => now(),
+            'last_activity_at' => now(),
+        ]);
+
+        // A turn job waiting in the agent queue = queued. The payload text
+        // carries the serialized command's conversation id, like the real
+        // dispatcher writes it.
+        $this->insertAgentQueueJob($queued->id);
+
+        $response = $this->actingAs($this->user)->getJson('/sorify/agent/conversations');
+
+        $byTitle = collect($response->json('conversations'))->keyBy('title');
+
+        $this->assertSame('running', $byTitle['Running']['status']);
+        $this->assertNotNull($byTitle['Running']['last_activity_at']);
+
+        $this->assertSame('queued', $byTitle['Queued']['status']);
+        $this->assertNull($byTitle['Queued']['last_activity_at']);
+
+        $this->assertNull($byTitle['Idle']['status']);
+    }
+
+    public function test_running_status_beats_queued_for_the_same_conversation(): void
+    {
+        $conversation = AgentConversation::create($this->conversationAttributes());
+
+        // A running turn's job also sits in the queue table (reserved) —
+        // running must win so the list doesn't say both.
+        AgentTurn::create([
+            'conversation_id' => $conversation->id,
+            'user_id' => $this->user->id,
+            'mode' => 'agent',
+            'started_at' => now(),
+            'last_activity_at' => now(),
+        ]);
+
+        $this->insertAgentQueueJob($conversation->id);
+
+        $response = $this->actingAs($this->user)->getJson('/sorify/agent/conversations');
+
+        $this->assertSame('running', $response->json('conversations.0.status'));
+    }
+
+    /**
+     * Insert a RunAgentTurnJob-shaped row into the queue table, the way
+     * the dispatcher writes it — only the conversation id matters to the
+     * list endpoint's status detection.
+     */
+    private function insertAgentQueueJob(int $conversationId): void
+    {
+        DB::table('jobs')->insert([
+            'queue' => 'agent',
+            'payload' => json_encode([
+                'displayName' => 'App\\Jobs\\RunAgentTurnJob',
+                'data' => ['command' => 'O:24:"App\\Jobs\\RunAgentTurnJob":22:{s:14:"conversationId";i:'.$conversationId.';}'],
+            ]),
+            'attempts' => 0,
+            'reserved_at' => null,
+            'available_at' => now()->getTimestamp(),
+            'created_at' => now()->getTimestamp(),
+        ]);
     }
 
     public function test_store_creates_conversation_with_page_context(): void
@@ -235,6 +310,40 @@ class AgentConversationTest extends TestCase
             'message' => 'hello',
             'reasoning_effort' => 'ultra',
         ])->assertStatus(422)->assertJsonValidationErrors(['reasoning_effort']);
+    }
+
+    public function test_chat_accepts_the_max_reasoning_effort(): void
+    {
+        Queue::fake();
+        $conversation = AgentConversation::create($this->conversationAttributes());
+
+        $response = $this->actingAs($this->user)->postJson("/sorify/agent/conversations/{$conversation->id}/chat", [
+            'message' => 'hello',
+            'reasoning_effort' => 'max',
+        ]);
+
+        $response->assertStatus(202);
+
+        // 'max' reaches the turn job verbatim — hosted DeepSeek-style
+        // endpoints take low/high/max instead of OpenAI's medium.
+        Queue::assertPushed(RunAgentTurnJob::class, fn (RunAgentTurnJob $job) => $job->reasoningEffort === 'max');
+    }
+
+    public function test_chat_accepts_the_none_reasoning_effort(): void
+    {
+        Queue::fake();
+        $conversation = AgentConversation::create($this->conversationAttributes());
+
+        $response = $this->actingAs($this->user)->postJson("/sorify/agent/conversations/{$conversation->id}/chat", [
+            'message' => 'hello',
+            'reasoning_effort' => 'none',
+        ]);
+
+        $response->assertStatus(202);
+
+        // 'none' is the explicit opt-out gateways ask for when function
+        // tools conflict with their default reasoning.
+        Queue::assertPushed(RunAgentTurnJob::class, fn (RunAgentTurnJob $job) => $job->reasoningEffort === 'none');
     }
 
     public function test_destroy_deletes_conversation_and_messages(): void

@@ -43,8 +43,11 @@ class ReasoningStream extends Stream
                     'stream' => true,
                     'model' => $request->model(),
                     'messages' => (new MessageMap($request->messages(), $request->systemPrompts()))(),
-                    'max_tokens' => $request->maxTokens(),
                 ], Arr::whereNotNull([
+                    // Omitted when unset (null): sending an explicit null
+                    // is rejected by strict gateways ("Invalid type for
+                    // 'max_tokens'"), and the model's own default applies.
+                    'max_tokens' => $request->maxTokens(),
                     'temperature' => $request->temperature(),
                     'top_p' => $request->topP(),
                     'tools' => ToolMap::map($request->tools()) ?: null,

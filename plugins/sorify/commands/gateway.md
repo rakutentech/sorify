@@ -230,7 +230,7 @@ actually running as.
 |---|---|---|
 | `list_runs` | `suite_id?`, `test_id?`, `triggered_by?` (manual/mcp/ci/schedule), `sort?` (suite/status/passed/duration/screenshots/created_by/ran_by/run_date), `sort_dir?` (asc/desc), `per_page?` (10/30/50/100), `page?` | List runs across all visible suites; optional filters by suite, test, or trigger source. Each run includes a `screenshot_count` integer. Non-admins see only runs from suites they're a member of with `can_view` |
 | `trigger_run` | `suite_id`, `test_ids?` | Queue a run; omit `test_ids` to run all active tests. A suite with multiple browsers enabled (set from the dashboard's run settings) fans out into one run per browser — `run_id` points at the first, and the response's `browsers` array lists every engine triggered. `triggered_by_user_id` is set automatically to the authenticated MCP user. If the suite has enabled "before run" integrations (GitHub Action / HTTP request), the run stays `pending` until they succeed — poll `get_run_status`, whose `status_note` explains why a run is pending or failed |
-| `get_run_status` | `run_id` | Lightweight poll: status, status_note (why a run is pending/failed, e.g. pre-run integration waiting or failure), `browser` (the engine this run executes against — each run of a multi-browser fan-out carries its own), passed/failed/error counts, duration — prefer this while polling. When the suite collects coverage, also includes a `coverage` block (`lines`/`functions`/`branches` percentages) once the run's merged report is ready |
+| `get_run_status` | `run_id` | Lightweight poll: status, status_note (why a run is pending/failed, e.g. pre-run integration waiting or failure), `browser` (the engine this run executes against — each run of a multi-browser fan-out carries its own), passed/failed/error counts, duration — prefer this while polling. Once the run is terminal (completed/failed/cancelled), a `response` block lists every test result (`test_id`, `name`, `status`, `duration_ms`, `error_message`) with its screenshots (`id`, `filename`, `label`, `url` — dashboard links usable by logged-in users). When the suite collects coverage, also includes a `coverage` block (`lines`/`functions`/`branches` percentages) once the run's merged report is ready |
 | `get_run` | `run_id` | Full run with every test result, error messages/stacks, stdout, screenshots. Includes `browser` (the engine the run executed against; null on runs from before per-run browser tracking) and `triggered_by_user_id` |
 | `cancel_run` | `run_id` | Cancel a pending or running run |
 | `delete_run` | `run_id` | Delete a run and its results |
@@ -249,6 +249,16 @@ The `trigger_run` MCP tool and the dashboard Run button do **not** enforce this
 **CI webhook `test_ids`** — pass test ids as a comma-separated query parameter
 (`?test_ids=1,2,3`); the JSON body is no longer read. Omit the parameter to
 run every active test in the suite.
+
+**CI webhook status payload** — the run status poll
+(`GET /sorify/webhooks/{token}/runs/{run}/status`) returns counts while the
+run is `pending`/`running`; once the run is terminal (completed/failed/
+cancelled) it adds a `response` block listing every test result (`test_id`,
+`name`, `status`, `duration_ms`, `error_message`) with its screenshots
+(`id`, `filename`, `label`, `url`). These screenshot links point at
+`GET /sorify/webhooks/{token}/screenshots/{screenshot}` — guarded by the
+same webhook token — so CI can download the images without a dashboard
+login. Screenshot links belonging to a run of a different suite 404.
 
 **Screenshots** — `App\Mcp\Tools\Screenshots\*`
 

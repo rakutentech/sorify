@@ -4,10 +4,13 @@ namespace Tests\Feature;
 
 use App\Mcp\Servers\SorifyServer;
 use App\Mcp\Tools\Runs\TriggerRunTool;
+use App\Models\Screenshot;
+use App\Models\TestResult;
 use App\Models\TestSuite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class WebhookConcurrencyTest extends TestCase
@@ -265,5 +268,133 @@ class WebhookConcurrencyTest extends TestCase
         $this->getJson(route('webhooks.status', ['token' => $suite->webhook_token, 'run' => $runId]))
             ->assertOk()
             ->assertJsonPath('status', 'running');
+    }
+
+    // --- Terminal runs return a `response` block with test results ---
+
+    private function terminalRunWithResults(TestSuite $suite, string $status): array
+    {
+        $run = $suite->testRuns()->create([
+            'status' => $status,
+            'triggered_by' => 'ci',
+            'completed_at' => now(),
+        ]);
+
+        $test = $suite->tests()->create(['name' => 'Checkout flow', 'playwright_code' => '// noop', 'status' => 'active']);
+        $result = TestResult::create([
+            'test_run_id' => $run->id,
+            'test_id' => $test->id,
+            'status' => 'failed',
+            'duration_ms' => 2500,
+            'error_message' => 'expect(locator).toBeVisible() failed',
+        ]);
+        $screenshot = Screenshot::create([
+            'test_result_id' => $result->id,
+            'filename' => 'shot.png',
+            'path' => 'shot.png',
+            'label' => 'after-click',
+            'taken_at_ms' => 100,
+        ]);
+
+        return [$run, $test, $result, $screenshot];
+    }
+
+    public function test_status_endpoint_includes_response_block_for_completed_run(): void
+    {
+        $suite = $this->suiteWithTests();
+        [$run, $test, $result, $screenshot] = $this->terminalRunWithResults($suite, 'completed');
+
+        $this->getJson(route('webhooks.status', ['token' => $suite->webhook_token, 'run' => $run->id]))
+            ->assertOk()
+            ->assertJsonPath('response.tests.0.test_id', $test->id)
+            ->assertJsonPath('response.tests.0.name', 'Checkout flow')
+            ->assertJsonPath('response.tests.0.status', 'failed')
+            ->assertJsonPath('response.tests.0.duration_ms', 2500)
+            ->assertJsonPath('response.tests.0.error_message', 'expect(locator).toBeVisible() failed')
+            ->assertJsonPath('response.tests.0.screenshots.0.id', $screenshot->id)
+            ->assertJsonPath('response.tests.0.screenshots.0.label', 'after-click')
+            // CI-facing screenshot links use the token-guarded webhook route.
+            ->assertJsonPath(
+                'response.tests.0.screenshots.0.url',
+                route('webhooks.screenshot', ['token' => $suite->webhook_token, 'screenshot' => $screenshot->id]),
+            );
+    }
+
+    public function test_status_endpoint_includes_response_block_for_failed_run(): void
+    {
+        $suite = $this->suiteWithTests();
+        [$run] = $this->terminalRunWithResults($suite, 'failed');
+
+        $this->getJson(route('webhooks.status', ['token' => $suite->webhook_token, 'run' => $run->id]))
+            ->assertOk()
+            ->assertJsonPath('status', 'failed')
+            ->assertJsonStructure(['response' => ['tests' => [['test_id', 'name', 'status', 'screenshots']]]]);
+    }
+
+    public function test_status_endpoint_omits_response_block_while_running(): void
+    {
+        $suite = $this->suiteWithTests();
+        $run = $suite->testRuns()->create(['status' => 'running', 'triggered_by' => 'ci']);
+
+        $this->getJson(route('webhooks.status', ['token' => $suite->webhook_token, 'run' => $run->id]))
+            ->assertOk()
+            ->assertJsonMissing(['response']);
+    }
+
+    // --- Token-guarded screenshot download ---
+
+    public function test_screenshot_endpoint_serves_image_for_same_suite_token(): void
+    {
+        Storage::fake('screenshots');
+        Storage::disk('screenshots')->put('shot.png', 'fake-image-bytes');
+
+        $suite = $this->suiteWithTests();
+        [, , , $screenshot] = $this->terminalRunWithResults($suite, 'completed');
+
+        // BinaryFileResponse content is not readable in tests; OK plus the
+        // 404 guards below (missing file, other suite) cover the endpoint.
+        $this->get(route('webhooks.screenshot', ['token' => $suite->webhook_token, 'screenshot' => $screenshot->id]))
+            ->assertOk();
+    }
+
+    public function test_screenshot_endpoint_serves_image_for_previous_suite_token(): void
+    {
+        Storage::fake('screenshots');
+        Storage::disk('screenshots')->put('shot.png', 'fake-image-bytes');
+
+        $suite = $this->suiteWithTests();
+        [, , , $screenshot] = $this->terminalRunWithResults($suite, 'completed');
+
+        // Superseded tokens stay active until explicitly deleted.
+        $oldToken = $suite->webhook_token;
+        $suite->regenerateWebhookToken();
+
+        $this->get(route('webhooks.screenshot', ['token' => $oldToken, 'screenshot' => $screenshot->id]))
+            ->assertOk();
+    }
+
+    public function test_screenshot_endpoint_404s_for_other_suite_screenshot(): void
+    {
+        Storage::fake('screenshots');
+        Storage::disk('screenshots')->put('shot.png', 'fake-image-bytes');
+
+        $suite = $this->suiteWithTests();
+        [, , , $screenshot] = $this->terminalRunWithResults($suite, 'completed');
+
+        $other = TestSuite::create(['name' => 'Other', 'base_url' => 'https://other.example.com']);
+
+        $this->get(route('webhooks.screenshot', ['token' => $other->webhook_token, 'screenshot' => $screenshot->id]))
+            ->assertNotFound();
+    }
+
+    public function test_screenshot_endpoint_404s_for_missing_file(): void
+    {
+        Storage::fake('screenshots');
+
+        $suite = $this->suiteWithTests();
+        [, , , $screenshot] = $this->terminalRunWithResults($suite, 'completed');
+
+        $this->get(route('webhooks.screenshot', ['token' => $suite->webhook_token, 'screenshot' => $screenshot->id]))
+            ->assertNotFound();
     }
 }

@@ -168,14 +168,53 @@ const triggerResponseSample = computed(() => JSON.stringify({
 }, null, 2));
 
 const showStatusResponseSample = ref(false);
-const statusResponseSample = JSON.stringify({
+const showStatusCurlExample = ref(false);
+const statusCurlCommand = computed(() => statusUrlTemplate.value
+    ? `curl "${statusUrlTemplate.value.replace('{run}', '42')}"`
+    : '');
+// Screenshot links in the sample mirror the real payload: token-guarded
+// webhook URLs CI can fetch without a dashboard login.
+const screenshotUrlTemplate = computed(() => props.webhookUrl
+    ? props.webhookUrl.replace(/\/trigger$/, '/screenshots/{screenshot}')
+    : null);
+const statusResponseSample = computed(() => JSON.stringify({
     status: 'completed',
+    status_note: null,
+    browser: 'chromium',
     passed_count: 8,
     failed_count: 1,
     error_count: 0,
     total_tests: 9,
     duration_ms: 4213,
-}, null, 2);
+    coverage: null,
+    response: {
+        tests: [
+            {
+                test_id: 12,
+                name: 'Checkout flow',
+                status: 'failed',
+                duration_ms: 2500,
+                error_message: 'expect(locator).toBeVisible() failed',
+                screenshots: [
+                    {
+                        id: 88,
+                        filename: 'after-click.png',
+                        label: 'after-click',
+                        url: screenshotUrlTemplate.value?.replace('{screenshot}', '88') ?? null,
+                    },
+                ],
+            },
+            {
+                test_id: 13,
+                name: 'Login flow',
+                status: 'passed',
+                duration_ms: 1713,
+                error_message: null,
+                screenshots: [],
+            },
+        ],
+    },
+}, null, 2));
 
 function toggleBookmark() {
     const options = { preserveState: true, preserveScroll: true, only: ['isBookmarked'] };
@@ -405,19 +444,33 @@ watch(() => ({
     email_notification_cooldown_minutes: props.suite.email_notification_cooldown_minutes,
 }), (s) => {
     localSuiteSettings.playwright_proxy = s.playwright_proxy ?? '';
-    localSuiteSettings.proxy_rules = (s.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy }));
-    localSuiteSettings.variables = (s.variables ?? []).map(v => ({ key: v.key, value: v.value ?? '' }));
-    localSuiteSettings.cookies = (s.cookies ?? []).map(c => ({
-        name: c.name ?? '',
-        value: c.value ?? '',
-        domain: c.domain ?? '',
-        path: c.path ?? '/',
-        url: c.url ?? '',
-        expires: c.expires ?? '',
-        http_only: c.http_only ?? false,
-        secure: c.secure ?? false,
-        same_site: c.same_site ?? '',
-    }));
+    // Rows still being typed are never persisted server-side (incomplete ones
+    // are filtered out before each save), so a save fired by another field's
+    // change event must not wipe them from local state — without this,
+    // typing a domain and then clicking the proxy field made the whole row
+    // disappear as the resync replaced it with the server's rules.
+    localSuiteSettings.proxy_rules = [
+        ...(s.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy })),
+        ...localSuiteSettings.proxy_rules.filter(r => ! r.domain.trim() || ! r.proxy.trim()),
+    ];
+    localSuiteSettings.variables = [
+        ...(s.variables ?? []).map(v => ({ key: v.key, value: v.value ?? '' })),
+        ...localSuiteSettings.variables.filter(v => ! v.key.trim()),
+    ];
+    localSuiteSettings.cookies = [
+        ...(s.cookies ?? []).map(c => ({
+            name: c.name ?? '',
+            value: c.value ?? '',
+            domain: c.domain ?? '',
+            path: c.path ?? '/',
+            url: c.url ?? '',
+            expires: c.expires ?? '',
+            http_only: c.http_only ?? false,
+            secure: c.secure ?? false,
+            same_site: c.same_site ?? '',
+        })),
+        ...localSuiteSettings.cookies.filter(c => ! c.name.trim() || (! c.domain.trim() && ! c.url.trim())),
+    ];
     localSuiteSettings.teams_webhook_url = s.teams_webhook_url ?? '';
     localSuiteSettings.teams_webhook_proxy = s.teams_webhook_proxy ?? '';
     localSuiteSettings.teams_notify_on_start = s.teams_notify_on_start ?? false;
@@ -527,6 +580,14 @@ function saveProxyRules() {
     const rules = localSuiteSettings.proxy_rules
         .filter(r => r.domain.trim() && r.proxy.trim())
         .map(r => ({ domain: r.domain.trim(), proxy: r.proxy.trim() }));
+    // Skip the round-trip when only incomplete rows changed: blurring a
+    // half-filled row fires a change event too, and locking the inputs
+    // (savingSuiteSetting) at that moment steals focus from the field the
+    // user just clicked into.
+    const persisted = (props.suite.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy }));
+    if (JSON.stringify(rules) === JSON.stringify(persisted)) {
+        return;
+    }
     savingSuiteSetting.value = true;
     const oldRules = (props.suite.proxy_rules ?? []).map(r => ({ domain: r.domain, proxy: r.proxy }));
     router.put(
@@ -535,7 +596,14 @@ function saveProxyRules() {
         {
             preserveState: true,
             preserveScroll: true,
-            onError: () => { localSuiteSettings.proxy_rules = oldRules; },
+            onError: () => {
+                // Keep rows still being typed: the server never stored them,
+                // so restoring only the old rules would delete them.
+                localSuiteSettings.proxy_rules = [
+                    ...oldRules,
+                    ...localSuiteSettings.proxy_rules.filter(r => ! r.domain.trim() || ! r.proxy.trim()),
+                ];
+            },
             onFinish: () => {
                 savingSuiteSetting.value = false;
                 savedSuiteField.value = 'proxy_rules';
@@ -559,6 +627,12 @@ function saveVariables() {
     const vars = localSuiteSettings.variables
         .filter(v => v.key.trim())
         .map(v => ({ key: v.key.trim(), value: v.value }));
+    // Same as saveProxyRules: a half-filled row blurring must not lock the
+    // inputs for a save that would persist nothing new.
+    const persisted = (props.suite.variables ?? []).map(v => ({ key: v.key, value: v.value ?? '' }));
+    if (JSON.stringify(vars) === JSON.stringify(persisted)) {
+        return;
+    }
     savingSuiteSetting.value = true;
     const oldVars = (props.suite.variables ?? []).map(v => ({ key: v.key, value: v.value ?? '' }));
     router.put(
@@ -567,7 +641,12 @@ function saveVariables() {
         {
             preserveState: true,
             preserveScroll: true,
-            onError: () => { localSuiteSettings.variables = oldVars; },
+            onError: () => {
+                localSuiteSettings.variables = [
+                    ...oldVars,
+                    ...localSuiteSettings.variables.filter(v => ! v.key.trim()),
+                ];
+            },
             onFinish: () => {
                 savingSuiteSetting.value = false;
                 savedSuiteField.value = 'variables';
@@ -623,7 +702,12 @@ function saveCookies({ onSaved, onFailed } = {}) {
             onSuccess: () => { if (onSaved) onSaved(); },
             onError: () => {
                 failed = true;
-                localSuiteSettings.cookies = oldCookies;
+                // Keep rows still being typed: the server never stored them,
+                // so restoring only the old cookies would delete them.
+                localSuiteSettings.cookies = [
+                    ...oldCookies,
+                    ...localSuiteSettings.cookies.filter(c => ! c.name.trim() || (! c.domain.trim() && ! c.url.trim())),
+                ];
                 if (onFailed) onFailed();
             },
             onFinish: () => {
@@ -2203,6 +2287,26 @@ function toggleRunsExpanded(testId) {
                             <div v-if="webhookUrl" class="mt-3 pt-3 border-t border-[var(--md-sys-color-outline-variant)]">
                                 <p class="md-label-small font-semibold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-1.5">{{ t('testSuiteShow.pollRunStatus') }}</p>
                                 <CopyableSecret :value="statusUrlTemplate" />
+                                <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mt-2">{{ t('testSuiteShow.pollRunStatusHint') }}</p>
+
+                                <button
+                                    @click="showStatusCurlExample = !showStatusCurlExample"
+                                    class="flex items-center gap-1.5 md-label-small font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-on-surface)] transition-colors mt-2"
+                                >
+                                    <ChevronRight :size="14" class="transition-transform" :class="{ 'rotate-90': showStatusCurlExample }" />
+                                    {{ showStatusCurlExample ? t('testSuiteShow.hideCurlExample') : t('testSuiteShow.showCurlExample') }}
+                                </button>
+                                <div v-if="showStatusCurlExample" class="mt-2">
+                                    <p class="md-body-small text-[var(--md-sys-color-on-surface-variant)] mb-2">
+                                        {{ t('testSuiteShow.runIdHint') }}
+                                    </p>
+                                    <div class="relative">
+                                        <pre class="md-body-small font-mono bg-code border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface)] rounded-[var(--md-sys-shape-corner-small)] p-3 pr-4 overflow-x-auto whitespace-pre">{{ statusCurlCommand }}</pre>
+                                        <div class="absolute top-2 right-2">
+                                            <CopyButton :value="statusCurlCommand" />
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <button
                                     @click="showStatusResponseSample = !showStatusResponseSample"

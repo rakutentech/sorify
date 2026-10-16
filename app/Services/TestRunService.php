@@ -396,13 +396,26 @@ class TestRunService
         return $run->refresh();
     }
 
-    public function statusPayload(TestRun $run): array
+    /**
+     * Status payload shared by the dashboard's run status endpoint, the CI
+     * webhook's status endpoint and the MCP get_run_status tool.
+     *
+     * Once the run reaches a terminal state, a `response` block is included
+     * with every test result of the run and links to its screenshots. When a
+     * webhook token is given, screenshot links use the token-guarded webhook
+     * route (fetchable by CI without a session); otherwise they use the
+     * dashboard's session-authenticated route.
+     */
+    public function statusPayload(TestRun $run, ?string $webhookToken = null): array
     {
-        return [
+        $payload = [
             'status' => $run->status,
             // Why the run is pending (e.g. waiting for pre-run integrations)
             // or failed (e.g. a pre-run integration failed).
             'status_note' => $run->status_note,
+            // Engine this run executes against — a multi-browser fan-out
+            // creates one run per engine with its own value here.
+            'browser' => $run->browser,
             'passed_count' => $run->passed_count,
             'failed_count' => $run->failed_count,
             'error_count' => $run->error_count,
@@ -418,5 +431,30 @@ class TestRunService
                 'branches' => $run->coverage_summary['branches']['pct'] ?? null,
             ] : null,
         ];
+
+        if (in_array($run->status, ['completed', 'failed', 'cancelled'], true)) {
+            $payload['response'] = [
+                'tests' => $run->testResults()
+                    ->with(['test:id,name', 'screenshots'])
+                    ->get()
+                    ->map(fn ($result) => [
+                        'test_id' => $result->test_id,
+                        'name' => $result->test?->name,
+                        'status' => $result->status,
+                        'duration_ms' => $result->duration_ms,
+                        'error_message' => $result->error_message,
+                        'screenshots' => $result->screenshots->map(fn ($screenshot) => [
+                            'id' => $screenshot->id,
+                            'filename' => $screenshot->filename,
+                            'label' => $screenshot->label,
+                            'url' => $webhookToken !== null
+                                ? route('webhooks.screenshot', ['token' => $webhookToken, 'screenshot' => $screenshot->id])
+                                : $screenshot->url,
+                        ])->values()->all(),
+                    ])->values()->all(),
+            ];
+        }
+
+        return $payload;
     }
 }

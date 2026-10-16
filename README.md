@@ -585,3 +585,4 @@ permission. See [`extension/README.md`](extension/README.md) for details.
 - **v2.2** - Long running agents, admin controlled stale runs, mermaid support on md, AI explain these buttons. Sleaker UI.
 - **v2.3** - Playwright coverage supported.
 - **v2.4** - User Skills: share, copy, distribute, use in agents.
+- **v2.5** - Run status payloads include a `response` block with per-test results and screenshot links once a run finishes; CI webhooks serve screenshots behind the suite token.

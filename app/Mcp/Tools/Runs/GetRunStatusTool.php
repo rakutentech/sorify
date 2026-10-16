@@ -4,6 +4,7 @@ namespace App\Mcp\Tools\Runs;
 
 use App\Mcp\Tools\Concerns\AuthorizesSuiteAccess;
 use App\Models\TestRun;
+use App\Services\TestRunService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -14,9 +15,11 @@ class GetRunStatusTool extends Tool
 {
     use AuthorizesSuiteAccess;
 
+    public function __construct(private readonly TestRunService $runs) {}
+
     protected string $name = 'get_run_status';
 
-    protected string $description = 'Lightweight poll for a test run\'s current status and counts. Prefer this over get_run for polling.';
+    protected string $description = 'Lightweight poll for a test run\'s current status and counts. Once the run is completed, failed or cancelled, a `response` block lists every test result with screenshot links.';
 
     public function schema(JsonSchema $schema): array
     {
@@ -32,19 +35,10 @@ class GetRunStatusTool extends Tool
         $run = TestRun::findOrFail($data['run_id']);
         $this->authorizeSuite('view', $run->testSuite);
 
-        return Response::structured([
-            'status' => $run->status,
-            // Why the run is pending (e.g. waiting for pre-run integrations)
-            // or failed (e.g. a pre-run integration failed).
-            'status_note' => $run->status_note,
-            // Engine this run executes against — a multi-browser fan-out
-            // creates one run per engine with its own value here.
-            'browser' => $run->browser,
-            'passed_count' => $run->passed_count,
-            'failed_count' => $run->failed_count,
-            'error_count' => $run->error_count,
-            'total_tests' => $run->total_tests,
-            'duration_ms' => $run->duration_ms,
-        ]);
+        // Shared payload: status, counts, coverage, plus a `response` block
+        // with per-test results and screenshot links once the run is
+        // terminal. No webhook token here, so screenshot links point at the
+        // dashboard's session-authenticated route.
+        return Response::structured($this->runs->statusPayload($run));
     }
 }

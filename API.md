@@ -67,7 +67,8 @@ For programmatic access, prefer the MCP endpoint `POST /sorify/mcp` — see the 
 | Method | Path | Description |
 | :--- | :--- | :--- |
 | POST | `/sorify/webhooks/{token}/trigger` | trigger a suite run |
-| GET | `/sorify/webhooks/{token}/runs/{run}/status` | run status |
+| GET | `/sorify/webhooks/{token}/runs/{run}/status` | run status (includes a `response` block with test results + screenshot links once the run is completed, failed or cancelled) |
+| GET | `/sorify/webhooks/{token}/screenshots/{screenshot}` | screenshot file (suite-scoped, token guarded) |
 
 ### Authenticated — Suites
 
@@ -117,7 +118,7 @@ For programmatic access, prefer the MCP endpoint `POST /sorify/mcp` — see the 
 | :--- | :--- | :--- |
 | GET | `/sorify/runs` | redirect (301) to `/sorify/feed` |
 | GET | `/sorify/runs/{run}` | run details |
-| GET | `/sorify/runs/{run}/status` | run status (poll) |
+| GET | `/sorify/runs/{run}/status` | run status (poll; includes a `response` block with test results + screenshot links once the run is completed, failed or cancelled) |
 | POST | `/sorify/runs/{run}/cancel` | cancel run |
 | DELETE | `/sorify/runs/{run}` | delete run |
 | GET | `/sorify/runs/{run}/coverage/report/{path?}` | Istanbul HTML coverage report |

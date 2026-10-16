@@ -10,6 +10,7 @@ use App\Services\Agent\AgentService;
 use App\Services\Agent\AgentToolAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Prism\Prism\Contracts\Message;
 use Prism\Prism\Tool as PrismTool;
 use Prism\Prism\ValueObjects\Messages\AssistantMessage;
 use Prism\Prism\ValueObjects\Messages\ToolResultMessage;
@@ -129,6 +130,114 @@ class AgentPrismTurnTest extends TestCase
         Http::assertSent(fn ($request) => ($request->data()['reasoning_effort'] ?? null) === 'low');
     }
 
+    public function test_max_reasoning_effort_is_forwarded_when_picked(): void
+    {
+        Http::fake(['*/chat/completions' => Http::response(
+            $this->sse(
+                '{"id":"c1","choices":[{"delta":{"role":"assistant","content":"Hello"}}]}',
+                '{"id":"c1","choices":[{"delta":{},"finish_reason":"stop"}]}',
+            ),
+            200,
+            ['Content-Type' => 'text/event-stream'],
+        )]);
+
+        $this->runTurn('Hi', mode: 'ask', reasoningEffort: 'max');
+
+        Http::assertSent(fn ($request) => ($request->data()['reasoning_effort'] ?? null) === 'max');
+    }
+
+    public function test_rejected_reasoning_effort_is_retried_without_it(): void
+    {
+        $requests = [];
+
+        Http::fake(['*/chat/completions' => function ($request) use (&$requests) {
+            $requests[] = json_decode($request->body(), true);
+
+            // First request: the endpoint validates reasoning_effort against
+            // its own set (hosted vLLM DeepSeek: low/high/max — no medium).
+            if (count($requests) === 1) {
+                return Http::response(json_encode([
+                    'error' => [
+                        'message' => 'all: invalid reasoning_effort: only low, high or max is allowed for this model',
+                        'type' => 'invalid_request_error',
+                        'code' => 400,
+                    ],
+                ]), 400, ['Content-Type' => 'application/json']);
+            }
+
+            return Http::response(
+                $this->sse(
+                    '{"id":"c1","choices":[{"delta":{"role":"assistant","content":"Hello"}}]}',
+                    '{"id":"c1","choices":[{"delta":{},"finish_reason":"stop"}]}',
+                ),
+                200,
+                ['Content-Type' => 'text/event-stream'],
+            );
+        }]);
+
+        $events = $this->runTurn('Hi', mode: 'ask', reasoningEffort: 'medium');
+
+        // The rejected request carried the picked effort; the retry dropped it.
+        $this->assertSame('medium', $requests[0]['reasoning_effort'] ?? null);
+        $this->assertArrayNotHasKey('reasoning_effort', $requests[1]);
+
+        // The turn recovered and completed instead of failing.
+        $this->assertSame('done', end($events)['event']);
+        $this->assertDatabaseHas('agent_messages', [
+            'conversation_id' => $this->conversation->id,
+            'role' => 'assistant',
+            'content' => 'Hello',
+        ]);
+    }
+
+    public function test_gateway_requiring_explicit_none_is_retried_with_it(): void
+    {
+        $requests = [];
+
+        Http::fake(['*/chat/completions' => function ($request) use (&$requests) {
+            $requests[] = json_decode($request->body(), true);
+
+            // First request: no reasoning_effort was sent (model default),
+            // but the gateway applies the model's own default reasoning
+            // and rejects it alongside function tools.
+            if (count($requests) === 1) {
+                return Http::response(json_encode([
+                    'error' => [
+                        'message' => "Function tools with reasoning_effort are not supported for gpt-5.6-terra in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'.",
+                        'type' => 'invalid_request_error',
+                        'code' => 400,
+                    ],
+                ]), 400, ['Content-Type' => 'application/json']);
+            }
+
+            return Http::response(
+                $this->sse(
+                    '{"id":"c1","choices":[{"delta":{"role":"assistant","content":"Hello"}}]}',
+                    '{"id":"c1","choices":[{"delta":{},"finish_reason":"stop"}]}',
+                ),
+                200,
+                ['Content-Type' => 'text/event-stream'],
+            );
+        }]);
+
+        // Agent mode (tools ride along), model default effort.
+        $stubTool = (new PrismTool)->as('get_suite')->for('Get a suite')->using(fn (...$arguments) => 'Suite 7: Demo');
+
+        $events = $this->runTurn('Hi', mode: 'agent', tools: [$stubTool]);
+
+        // The rejected request sent nothing; the retry opted out explicitly.
+        $this->assertArrayNotHasKey('reasoning_effort', $requests[0]);
+        $this->assertSame('none', $requests[1]['reasoning_effort'] ?? null);
+
+        // The turn recovered and completed instead of failing.
+        $this->assertSame('done', end($events)['event']);
+        $this->assertDatabaseHas('agent_messages', [
+            'conversation_id' => $this->conversation->id,
+            'role' => 'assistant',
+            'content' => 'Hello',
+        ]);
+    }
+
     public function test_reasoning_effort_is_omitted_for_the_model_default(): void
     {
         Http::fake(['*/chat/completions' => Http::response(
@@ -145,6 +254,25 @@ class AgentPrismTurnTest extends TestCase
         // "Model default" must send nothing — endpoints differ in what
         // they reject, so an explicit value must not be sent.
         Http::assertSent(fn ($request) => ! array_key_exists('reasoning_effort', $request->data()));
+    }
+
+    public function test_null_max_tokens_is_omitted_from_the_request_body(): void
+    {
+        Http::fake(['*/chat/completions' => Http::response(
+            $this->sse(
+                '{"id":"c1","choices":[{"delta":{"role":"assistant","content":"Hello"}}]}',
+                '{"id":"c1","choices":[{"delta":{},"finish_reason":"stop"}]}',
+            ),
+            200,
+            ['Content-Type' => 'text/event-stream'],
+        )]);
+
+        $this->runTurn('Hi', mode: 'ask');
+
+        // No max is configured, so an explicit null must not be sent —
+        // strict gateways reject it ("Invalid type for 'max_tokens'")
+        // while the model's own default applies.
+        Http::assertSent(fn ($request) => ! array_key_exists('max_tokens', $request->data()));
     }
 
     public function test_agent_mode_executes_tools_and_feeds_results_back(): void
@@ -399,7 +527,7 @@ class AgentPrismTurnTest extends TestCase
     }
 
     /**
-     * @return list<\Prism\Prism\Contracts\Message>
+     * @return list<Message>
      */
     private function history(): array
     {
