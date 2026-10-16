@@ -1,0 +1,24 @@
+resources/js/Components/ui/SettingBadge.vue
+  h_f44dfe84a46cdf 47
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 962,988,1012-1039,1595-1599,1602-1603,1605-1644,1647-1650,1655-1658,1661
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 168-171
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 168-171
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 168-171
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 168-171
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0405edae92f105e654b0be8fff10d2650ccacf7c",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
