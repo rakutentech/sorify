@@ -1,0 +1,25 @@
+app/Http/Controllers/TestSuiteController.php
+  s_292f58d4cb82e4::t_d2a7e0d0618dc1 293-294,296
+app/Services/TestRunService.php
+  s_292f58d4cb82e4::t_ebac610268f2a1 419-423
+database/migrations/2026_10_16_000001_add_browser_build_selection.php
+  s_292f58d4cb82e4::t_fe72348b134c15 1-43
+resources/playwright/browser-check.cjs
+  s_292f58d4cb82e4::t_52f1f4bc75f96a 6-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c4ebbf8e35200d8e4e64c62b26a7e8985c1b43fd",
+  "prompts": {},
+  "sessions": {
+    "s_292f58d4cb82e4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8737cbe1-58db-4841-aa37-3aa7a109708c",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
