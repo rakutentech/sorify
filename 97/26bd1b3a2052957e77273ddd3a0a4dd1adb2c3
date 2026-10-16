@@ -1,0 +1,90 @@
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 168-171
+  h_f44dfe84a46cdf 304-305
+resources/js/Components/ui/SettingBadge.vue
+  h_f44dfe84a46cdf 47
+resources/playwright/harness.cjs
+  h_f44dfe84a46cdf 379-381,399-410
+  h_f44dfe84a46cdf 229,235,252-253,331-337,339-361,365,368-378,382-385,543,569
+resources/playwright/browser-check.cjs
+  s_292f58d4cb82e4::t_52f1f4bc75f96a 6-9
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 168-171
+  h_f44dfe84a46cdf 304-305
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 168-171
+  h_f44dfe84a46cdf 304-305
+resources/css/app.css
+  h_f44dfe84a46cdf 336-340,367,371,373
+database/migrations/2026_10_16_000001_add_browser_build_selection.php
+  s_292f58d4cb82e4::t_fe72348b134c15 1-43
+app/Http/Controllers/TestSuiteController.php
+  s_292f58d4cb82e4::t_d2a7e0d0618dc1 293-294,296
+app/Services/TestRunService.php
+  s_292f58d4cb82e4::t_ebac610268f2a1 419-423
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 168-171
+  h_f44dfe84a46cdf 304-305
+app/Services/BrowserDriverService.php
+  h_f44dfe84a46cdf 245-247,256-257,261-270,276-321
+  h_f44dfe84a46cdf 8-11,13-34,42-49,51-52,54-91,93-97,107-115,117,122,126-128,130,132,134,136-155,158-182,184-243,248-255,258-260,271-275,322-369,373-374,376,380-396,398,402-406,408,410-433,435-440,442-446,449
+resources/js/Pages/TestRuns/Show.vue
+  h_f44dfe84a46cdf 312-321
+  h_f44dfe84a46cdf 7,301,305-311,322,425,427-432
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 962,988,1012-1039,1595-1599,1602-1603,1605,1607-1631,1633-1644,1647-1650,1655-1658,1661
+  h_f44dfe84a46cdf 13,33,850,863-892,903,923,933,1173-1176,2109,2120,2123-2151,3103,3105
+app/Http/Controllers/FeedController.php
+  h_f44dfe84a46cdf 291
+app/Http/Requests/Api/StoreSuiteRequest.php
+  h_f44dfe84a46cdf 6,41-47,90-91
+app/Http/Requests/StoreTestSuiteRequest.php
+  h_f44dfe84a46cdf 5,34-41,93-94
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  h_f44dfe84a46cdf 10,38-43,145-151
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  h_f44dfe84a46cdf 11,40-45,148-154
+app/Models/TestSuite.php
+  h_f44dfe84a46cdf 24-25,27,36,65,147-182
+app/Providers/AppServiceProvider.php
+  h_f44dfe84a46cdf 7,43-53
+app/Services/PlaywrightRunnerService.php
+  h_f44dfe84a46cdf 25,144-147,157-181,311-318
+app/Support/BrowserVersions.php
+  h_f44dfe84a46cdf 1-61
+plugins/sorify/commands/gateway.md
+  h_f44dfe84a46cdf 113-115,141-142,235-236
+resources/js/Components/BrowserIcon.vue
+  h_f44dfe84a46cdf 1-69
+resources/playwright/runner.cjs
+  h_f44dfe84a46cdf 9-10,71-72,136
+tests/Feature/EphemeralExecutionTest.php
+  h_f44dfe84a46cdf 8,55,121,189,245
+tests/Feature/ScreenshotModeTest.php
+  h_f44dfe84a46cdf 7,129
+tests/Feature/SuiteCookiesTest.php
+  h_f44dfe84a46cdf 12,546
+tests/Feature/SuiteVariablesTest.php
+  h_f44dfe84a46cdf 11,365
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9726bd1b3a2052957e77273ddd3a0a4dd1adb2c3",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_292f58d4cb82e4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8737cbe1-58db-4841-aa37-3aa7a109708c",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
