@@ -1,0 +1,52 @@
+plugins/sorify/commands/gateway.md
+  h_f44dfe84a46cdf 233,253-262
+app/Services/Agent/AgentService.php
+  h_f44dfe84a46cdf 13,19,135-137,323-351,482,487,560-591,781
+app/Services/Agent/Prism/ReasoningStream.php
+  h_f44dfe84a46cdf 47-50
+README.md
+  h_f44dfe84a46cdf 588
+tests/Feature/AgentPrismTurnTest.php
+  h_f44dfe84a46cdf 13,133-240,259-277,530
+routes/web.php
+  h_f44dfe84a46cdf 84
+app/Http/Controllers/WebhookController.php
+  h_f44dfe84a46cdf 7,11,55-78
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 235-236,1051,1054-1055,1059,1126-1129
+tests/Unit/Mcp/Tools/RunsToolsTest.php
+  h_f44dfe84a46cdf 12-13,63,68-143
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 235-236,1051,1054-1055,1059,1126-1129
+app/Services/TestRunService.php
+  h_f44dfe84a46cdf 399-409,411,416-418,434-458
+app/Http/Controllers/AgentConversationController.php
+  h_f44dfe84a46cdf 14,29-32,43-62,71-74,208-212
+API.md
+  h_f44dfe84a46cdf 70-71,121
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 235-236,1051,1054-1055,1059,1126-1129
+app/Mcp/Tools/Runs/GetRunStatusTool.php
+  h_f44dfe84a46cdf 7,18-19,22,38-42
+resources/js/Components/Agent/AgentDrawer.vue
+  h_f44dfe84a46cdf 6,176-181,191,195,248-252,322-323,330-332,334,338-367,956,1120,1257-1271
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 235-236,1051,1054-1055,1059,1126-1129
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 171-180,182-183,189-217,447-473,583-590,599-606,630-635,644-649,705-710,2290-2309
+tests/Feature/AgentConversationTest.php
+  h_f44dfe84a46cdf 12,63-136,315-348
+tests/Feature/WebhookConcurrencyTest.php
+  h_f44dfe84a46cdf 7-8,13,272-399
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1579eb839484be46cc3c4da3a1e39090e74292fa",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
