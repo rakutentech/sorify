@@ -1,0 +1,70 @@
+app/Http/Controllers/TestController.php
+  h_f44dfe84a46cdf 61,88-99
+app/Http/Controllers/TestRunController.php
+  h_f44dfe84a46cdf 65,95-106
+app/Http/Requests/Api/StoreSuiteRequest.php
+  h_f44dfe84a46cdf 99
+app/Http/Requests/StoreTestSuiteRequest.php
+  h_f44dfe84a46cdf 102
+app/Mcp/Servers/SorifyServer.php
+  h_f44dfe84a46cdf 9,141-142
+app/Mcp/Tools/Results/ListConsoleErrorsTool.php
+  h_f44dfe84a46cdf 1-82
+app/Mcp/Tools/Runs/GetRunTool.php
+  h_f44dfe84a46cdf 38,56-71
+app/Mcp/Tools/Suites/CreateSuiteTool.php
+  h_f44dfe84a46cdf 84
+app/Mcp/Tools/Suites/UpdateSuiteTool.php
+  h_f44dfe84a46cdf 86
+app/Models/ConsoleError.php
+  h_f44dfe84a46cdf 1-22
+app/Models/TestResult.php
+  h_f44dfe84a46cdf 32-36
+app/Models/TestSuite.php
+  h_f44dfe84a46cdf 44,63
+app/Services/PlaywrightRunnerService.php
+  h_f44dfe84a46cdf 5,158-164,335-342,375-420
+app/Services/TestSuiteDuplicationService.php
+  h_f44dfe84a46cdf 32-34,39-41
+database/migrations/2026_10_19_000001_create_console_errors_table.php
+  h_f44dfe84a46cdf 1-36
+database/migrations/2026_10_19_000002_add_fail_on_console_errors_to_test_suites_table.php
+  h_f44dfe84a46cdf 1-27
+plugins/sorify/commands/gateway.md
+  h_f44dfe84a46cdf 14,114-115,272-279
+resources/js/Pages/TestRuns/Show.vue
+  h_f44dfe84a46cdf 47-57,73-79,735-743,777-809,841
+resources/js/Pages/TestSuites/Show.vue
+  h_f44dfe84a46cdf 911,932,943,985,2291-2311
+resources/js/Pages/Tests/Show.vue
+  h_f44dfe84a46cdf 239-249,576-588,676-708,733
+resources/js/locales/en.json
+  h_f44dfe84a46cdf 491-496,705-709,782-786,1106
+resources/js/locales/ja.json
+  h_f44dfe84a46cdf 491-496,705-709,782-786,1106
+resources/js/locales/ms.json
+  h_f44dfe84a46cdf 491-496,705-709,782-786,1106
+resources/js/locales/zh-CN.json
+  h_f44dfe84a46cdf 491-496,705-709,782-786,1106
+resources/playwright/harness.cjs
+  h_f44dfe84a46cdf 230,237-238,255-256,321-330,433-472,568-588,618-619,645-646,651-671
+resources/playwright/runner.cjs
+  h_f44dfe84a46cdf 11,74-75,139
+tests/Feature/ConsoleErrorsTest.php
+  h_f44dfe84a46cdf 1-348
+tests/Unit/Mcp/Tools/ConsoleErrorsToolTest.php
+  h_f44dfe84a46cdf 1-124
+tests/Unit/Mcp/Tools/SuitesToolsTest.php
+  h_f44dfe84a46cdf 145-183
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "66fe9d426f8bdbdcfd9665531048c97bfe09e050",
+  "prompts": {},
+  "humans": {
+    "h_f44dfe84a46cdf": {
+      "author": "Pulkit Kathuria <kevincobain2000@gmail.com>"
+    }
+  }
+}
